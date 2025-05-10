@@ -1,0 +1,68 @@
+@import url('root.css');
+
+.layout-menu img {
+    width: 100% !important;
+    padding: 1rem;
+}
+
+.layout-menu .main-logo {
+    width: 100% !important;
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+}
+.layout-menu .small-logo {
+    display: none;
+    width: 25%;
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+}
+
+
+
+.layout-menu-collapsed .main-logo {
+    display: none;
+}
+
+.layout-menu-collapsed .small-logo {
+    display: block;
+}
+
+.layout-menu-collapsed.layout-menu-hover .main-logo {
+    display: block;
+}
+.layout-menu-collapsed.layout-menu-hover .small-logo {
+    display: none;
+}
+
+.bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+    background: linear-gradient(92deg, var(--bs-primary) 22.16%, var(--bs-primary-light3) 76.47%)
+}
+
+.breadcrumb-item, .breadcrumb-item a {
+    color: var(--bs-primary) !important;
+}
+a:hover {
+    color: var(--bs-primary-light) !important;
+}
+.breadcrumb-item, .breadcrumb-item.active {
+    color: var(--bs-breadcrumb-item-active-color) !important;
+}
+.btn-primary:hover {
+    color: #fff !important;
+    background-color: var(--bs-primary-light) !important;
+    border-color: var(--bs-primary-light3) !important;
+}
+.btn-light {
+    color: #fff;
+    background-color: var(--bs-primary-light);
+    border-color: var(--bs-primary-light);
+}
+
+.readonly-look {
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.menu-icon {
+    margin-right: 0 !important;
+}

@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('master_pincodes', function (Blueprint $table) {
+            $table->id();
+			$table->string('country_id');
+			$table->string('state_id');
+			$table->string('city_id');
+			$table->string('pincode');
+			$table->string('search_name')->nullable()->comment('city, state, country');
+			$table->string('latitude')->nullable();
+			$table->string('longitude')->nullable();
+			$table->string('status')->default('active')->comment('active, inactive');
+			$table->string('created_by')->nullable();
+			$table->string('updated_by')->nullable();
+            $table->timestamps();
+			$table->string('deleted_by')->nullable();
+			$table->softDeletes();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('master_pincodes');
+    }
+};
