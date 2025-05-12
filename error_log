@@ -1,0 +1,631 @@
+[12-Mar-2025 06:42:13 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:42:13 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/../vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:23 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:23 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:31 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:31 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:32 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:44:32 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:45:32 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:45:32 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:45:33 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:45:33 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php on line 14
+[12-Mar-2025 06:46:23 UTC] PHP Warning:  require(/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php): Failed to open stream: No such file or directory in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/artisan on line 10
+[12-Mar-2025 06:46:23 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/autoload.php' (include_path='.:/opt/alt/php82/usr/share/pear:/opt/alt/php82/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/artisan:10
+Stack trace:
+#0 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/artisan on line 10
+[27-Mar-2025 04:50:35 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php(20): Illuminate\Foundation\Application->handleRequest()
+#10 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[27-Mar-2025 04:50:35 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php(20): Illuminate\Foundation\Application->handleRequest()
+#10 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[27-Mar-2025 04:50:40 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php(20): Illuminate\Foundation\Application->handleRequest()
+#10 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[27-Mar-2025 04:50:40 UTC] PHP Fatal error:  Uncaught RuntimeException: A facade root has not been set. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php:358
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(915): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(890): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(815): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(706): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(594): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(575): Illuminate\Foundation\Exceptions\Handler->render()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(149): Illuminate\Foundation\Http\Kernel->renderException()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\Foundation\Http\Kernel->handle()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/index.php(20): Illuminate\Foundation\Application->handleRequest()
+#10 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 358
+[28-Mar-2025 09:38:50 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:38:50 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:38:50 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:05 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:10 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:18 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:19 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:32 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:35 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:35 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:39:35 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019
+[28-Mar-2025 09:41:54 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "view" does not exist in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1017
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1017): ReflectionClass->__construct()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#17 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#18 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#19 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [view] does not exist. in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php:1019
+Stack trace:
+#0 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(890): Illuminate\Container\Container->build()
+#1 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve()
+#2 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(821): Illuminate\Foundation\Application->resolve()
+#3 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make()
+#4 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php(1648): Illuminate\Foundation\Application->make()
+#5 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(239): Illuminate\Container\Container->offsetGet()
+#6 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(210): Illuminate\Support\Facades\Facade::resolveFacadeInstance()
+#7 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(355): Illuminate\Support\Facades\Facade::getFacadeRoot()
+#8 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/RegisterErrorViewPaths.php(17): Illuminate\Support\Facades\Facade::__callStatic()
+#9 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(919): Illuminate\Foundation\Exceptions\RegisterErrorViewPaths->__invoke()
+#10 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(894): Illuminate\Foundation\Exceptions\Handler->registerErrorViewPaths()
+#11 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(819): Illuminate\Foundation\Exceptions\Handler->renderHttpException()
+#12 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(710): Illuminate\Foundation\Exceptions\Handler->prepareResponse()
+#13 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(598): Illuminate\Foundation\Exceptions\Handler->renderExceptionResponse()
+#14 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(219): Illuminate\Foundation\Exceptions\Handler->render()
+#15 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(196): Illuminate\Foundation\Bootstrap\HandleExceptions->renderHttpResponse()
+#16 /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\Foundation\Bootstrap\HandleExceptions->handleException()
+#17 [internal function]: Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#18 {main}
+  thrown in /home/lbzb3ml4si63/rm-qr-scanner.rmecommerce.in/vendor/laravel/framework/src/Illuminate/Container/Container.php on line 1019

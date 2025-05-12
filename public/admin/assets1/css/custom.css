@@ -1,0 +1,121 @@
+:root {
+    --theme-color-1: #FFA500;
+    --theme-color-2: #FF7F50;
+    --tb-font-sans-serif: "Outfit",sans-serif;
+    --tb-font-monospace: "Outfit",sans-serif;
+    --tb-shadow: rgba(0, 0, 0, 0.05) 0px 1px 3px,rgba(0, 0, 0, 0.09) 0px 1px 2px;
+    --tb-shadow-sm: 0 .125rem .25rem rgba(#000, .075);
+    --tb-shadow-lg: 0 5px 10px rgba(30, 32, 37, 0.12);
+    --tb-element-shadow: none;
+    --tb-grid-gutter-width: 1.2rem;
+    --tb-card-border-width-custom: 0;
+    --tb-card-header-border-width: 0;
+    --tb-card-bottom-padding: 0;
+    --tb-card-shadow: rgba(0, 0, 0, 0.05) 0px 1px 3px,rgba(0, 0, 0, 0.09) 0px 1px 2px;
+    --tb-email-bg: var(--tb-secondary-bg);
+    --tb-email-sidebar-bg: #ebf2fb;
+    --tb-vertical-menu-width: 250px;
+    --tb-vertical-menu-width-md: 180px;
+    --tb-vertical-menu-width-sm: 70px;
+    --tb-header-height: 90px;
+    --tb-twocolumn-menu-width: 220px;
+    --tb-twocolumn-menu-iconview-width: 70px;
+    --tb-twocolumn-menu-box-shadow: 0 2px 4px rgba(15, 34, 58, 0.12);
+    --tb-page-title-box-shadow: 0 1px 2px rgba(56, 65, 74, 0.15);
+    --tb-page-title-border: none;
+    --tb-page-title: var(--tb-dark);
+    --tb-vertical-menu-box-shadow: 0 2px 4px rgba(15, 34, 58, 0.12);
+    --tb-vertical-menu-item-font-size: .9375rem;
+    --tb-vertical-menu-sub-item-font-size: 0.875rem;
+    --tb-vertical-menu-item-font-weight: 400;
+    --tb-footer-bg: #fff;
+    --tb-footer-color: #98a6ad;
+    --tb-twocolumn-menu-bg: #fff;
+    --tb-boxed-body-bg: #f5f5f5;
+    --tb-font-3xs: 0.625rem;
+    --tb-font-2xs: 0.6875rem;
+    --tb-font-xs: 0.75rem;
+    --tb-font-sm: 0.8125rem;
+    --tb-font-md: 0.875rem;
+    --tb-font-base: 0.9375rem;
+    --tb-font-lg: 1rem;
+    --tb-font-xl: 1.0625rem;
+    --tb-font-2xl: 1.125rem;
+    --tb-font-3xl: 1.25rem;
+    --tb-font-4xl: 1.375rem;
+    --tb-font-5xl: 1.5rem;
+    --tb-font-weight-light: 300;
+    --tb-font-weight-normal: 400;
+    --tb-font-weight-medium: 500;
+    --tb-font-weight-semibold: 600;
+    --tb-font-weight-bold: 700;
+    --tb-primary: var(--theme-color-1);
+}
+
+:root[data-topbar=light] {
+    --tb-header-bg: #fff;
+    --tb-header-item-color: #1f242e;
+    --tb-header-border-color: #eef0f7;
+    --tb-header-item-sub-color: var(--tb-secondary-color);
+    --tb-topbar-user-bg: #f5f6f7;
+    --tb-topnav-bg: #fff;
+    --tb-topnav-item-color: #6d7080;
+    --tb-topnav-item-color-active: var(--theme-color-1);
+    --tb-topnav-sub-item-color: #6d7080;
+    --tb-topnav-sub-item-color-active: var(--theme-color-1);
+    --tb-page-title: var(--tb-dark);
+}
+.btn-primary {
+    --tb-btn-bg: var(--tb-primary);
+    --tb-btn-border-color: var(--tb-primary);
+    --tb-btn-hover-bg: var(--tb-primary-text-emphasis);
+    --tb-btn-hover-border-color: var(--tb-primary-text-emphasis);
+    --tb-btn-focus-shadow-rgb: var(--tb-primary-rgb);
+    --tb-btn-active-bg: var(--tb-primary-text-emphasis);
+    --tb-btn-active-border-color: var(--tb-primary-text-emphasis);
+}
+.btn-primary-gradient {
+    background: linear-gradient(135deg, var(--theme-color-2), var(--theme-color-1));
+}
+.btn:hover {
+    color: var(--tb-btn-hover-color);
+    /* background-color: var(--tb-btn-hover-bg);
+    border-color: var(--tb-btn-hover-border-color); */
+    background: linear-gradient(135deg, var(--theme-color-2), var(--theme-color-1));
+    border-color: linear-gradient(135deg, var(--theme-color-2), var(--theme-color-1));
+}
+
+
+/* Ensure select box matches input field design */
+.select2-container .select2-selection--single {
+    display: block;
+    width: 100%;
+    padding: .475rem .9rem;
+    font-size: var(--tb-font-base);
+    font-weight: var(--tb-font-weight-normal);
+    line-height: 1.5;
+    color: var(--tb-body-color);
+    background-color: var(--tb-secondary-bg);
+    border: var(--tb-border-width) solid var(--tb-border-color-translucent);
+    border-radius: var(--tb-border-radius);
+    height: calc(2.25rem + 2px);
+    /* Match input field height */
+}
+
+.select2-selection__rendered {
+    line-height: 1.5 !important;
+    /* Align text properly */
+    padding-left: 0 !important;
+}
+
+.select2-selection__arrow {
+    height: 100%;
+    /* Align dropdown arrow */
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+}
