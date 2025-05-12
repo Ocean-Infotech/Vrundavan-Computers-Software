@@ -40,7 +40,6 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/typeahead-js/typeahead.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/sweetalert2/sweetalert2.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/@form-validation/form-validation.css') }}" />
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/node-waves/node-waves.css') }}" />
@@ -67,7 +66,7 @@
 </head>
 
 <body style="--bs-scrollbar-width: 0px;">
-   
+   @auth
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
@@ -98,7 +97,9 @@
             <div class="drag-target"></div>
         </div>
     </div>
-    
+    @else
+        @yield('content')
+    @endauth
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
