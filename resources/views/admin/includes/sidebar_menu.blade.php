@@ -86,44 +86,59 @@ $loginUser = Auth::user();
         </li>
         @enddirectCan
 
+        <li class="menu-item {{ $sidebar_active == 'admission' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <div data-i18n="Student">Student</div>
+            </a>
+            <ul class="menu-sub">
+                
+                <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
+                    <a href="{{ route('admission.index') }}" class="menu-link">
+                        <div data-i18n="New Admission">New Admission</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         @directCanAny(['application-user-list', 'application-user-create', 'application-user-edit', 'application-user-delete'])
-        <li class="menu-item {{ $sidebar_active == 'application-user' ? 'active' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'application-user' ? 'active' : '' }}">
             <a href="{{ route('application-user.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-user"></i>
                 <div data-i18n="Application User">Application User</div>
             </a>
-        </li>
+        </li> -->
         @enddirectCanAny
 
         @directCanAny(['redemption-list', 'redemption-create', 'redemption-edit', 'redemption-delete'])
-        <li class="menu-item {{ $sidebar_active == 'redemption' ? 'active' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'redemption' ? 'active' : '' }}">
             <a href="{{ route('redemption.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-qr"></i>
                 <div data-i18n="Redemption">Redemption</div>
             </a>
-        </li>
+        </li> -->
         @enddirectCanAny
         
         @directCanAny(['withdraw-request-list'])
-        <li class="menu-item {{ $sidebar_active == 'withdraw-request' ? 'active' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'withdraw-request' ? 'active' : '' }}">
             <a href="{{ route('withdraw-request.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
                 <div data-i18n="Withdraw Requests">Withdraw Requests</div>
             </a>
-        </li>
+        </li> -->
         @enddirectCanAny
 
         @directCanAny(['sliders-list', 'sliders-create', 'sliders-edit', 'sliders-delete'])
-        <li class="menu-item {{ $sidebar_active == 'sliders' ? 'active' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'sliders' ? 'active' : '' }}">
             <a href="{{ route('sliders.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-grid"></i>
                 <div data-i18n="Sliders">Sliders</div>
             </a>
-        </li>
+        </li> -->
         @enddirectCanAny
         
         @directCanAny(['reports', 'scan-report'])
-        <li class="menu-item {{ $sidebar_active == 'scan-report' ? 'active open' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'scan-report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-funds-box-line ri-bold"></i>
                 <div data-i18n="Report's">Report's</div>
@@ -137,11 +152,11 @@ $loginUser = Auth::user();
                 </li>
                 @enddirectCanAny
             </ul>
-        </li>
+        </li> -->
         @enddirectCanAny
 
         @directCanAny('generate-api-documents')
-        <li class="menu-item {{ $sidebar_active == 'generate-api-documents' || $sidebar_active == 'set-point-to-rupees' || $sidebar_active == 'set-min-withdraw-request-amount' ? 'active open' : '' }}">
+        <!-- <li class="menu-item {{ $sidebar_active == 'generate-api-documents' || $sidebar_active == 'set-point-to-rupees' || $sidebar_active == 'set-min-withdraw-request-amount' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Setting's">Setting's</div>
@@ -170,9 +185,30 @@ $loginUser = Auth::user();
                 @enddirectCanAny
 
             </ul>
-        </li>
+        </li> -->
         @enddirectCanAny
 
+        
+        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'set-point-to-rupees' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <div data-i18n="Course">Course</div>
+            </a>
+            <ul class="menu-sub">
+                
+                <li class="menu-item {{ $sidebar_active == 'set-point-to-rupees' ? 'active' : '' }}">
+                    <a href="{{ route('set-point-to-rupees') }}" class="menu-link">
+                        <div data-i18n="Course Register">Course Register</div>
+                    </a>
+                </li>
+                
+                <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
+                    <a href="{{ route('course.index') }}"class="menu-link">
+                        <div data-i18n="Course Master">Course Master</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
         @directCan('master-module')
         <li class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode'  || $sidebar_active == 'document-type' || $sidebar_active == 'documents'  ? 'active open' : '' }}">
@@ -181,6 +217,7 @@ $loginUser = Auth::user();
                 <div data-i18n="Master Modules">Master Modules</div>
             </a>
             <ul class="menu-sub">
+
                 @directCanAny(['country-list', 'country-create', 'country-edit', 'country-delete'])
                 <li class="menu-item {{ $sidebar_active == 'country' ? 'active' : '' }}">
                     <a href="{{ route('country.index') }}" class="menu-link">
@@ -206,11 +243,11 @@ $loginUser = Auth::user();
                 @enddirectCanAny
 
                 @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
-                <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
+                <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
                     <a href="{{ route('pincode.index') }}" class="menu-link">
                         <div data-i18n="Pincode">Pincode</div>
                     </a>
-                </li>
+                </li> -->
                 @enddirectCanAny
 
                 @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])

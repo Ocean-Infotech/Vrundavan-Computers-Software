@@ -89,8 +89,8 @@ class UserController extends Controller
                     });
                 }
                 $data = $data->orderBy('id', 'DESC');
-                // return $data;
-
+                 //return $data;
+                
                 return Datatables::of($data)
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {

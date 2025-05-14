@@ -18,6 +18,8 @@ use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
 use App\Http\Controllers\admin\WithdrawRequestController;
+use App\Http\Controllers\admin\AdmissionController;
+use App\Http\Controllers\admin\master\MasterCourseController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +38,17 @@ Route::resource('roles', RoleController::class);
 
 /** Permission Modules */
 Route::resource('permissions', PermissionController::class);
+
+
+/** Master Admission Modules */
+Route::resource('/admission', AdmissionController::class);
+
+/** Master Course Modules */
+Route::resource('/course', MasterCourseController::class);
+Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
+Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+// Route::post('/software/course-update-status', [MasterCourseController::class, 'updateStatus'])->name('course.status_update');
+
 
 /** Master Copuntry Modules */
 Route::resource('/country', MasterCountryController::class);
