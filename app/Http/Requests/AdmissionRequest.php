@@ -24,11 +24,14 @@ class AdmissionRequest extends FormRequest
      */
     public function rules(Request $request): array
     {
-        $id = $request->route('master_transport_detail') ?? 0;
+        $id = $request->route('admission') ?? 0;
         $rules = [
             'aadhar_card_no' => [
                 'required',
-                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')
+                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
+                // Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
+                //     return $query->where('aadhar_card_no', $request->aadhar_card_no);
+                // })->ignore($id),
             ],
 
             'first_name' => [

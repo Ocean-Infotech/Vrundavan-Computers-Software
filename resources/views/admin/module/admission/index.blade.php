@@ -58,7 +58,15 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="yajra-datatables" class="display table table-hover">
-                            
+                            @if (isset($columns))
+                            <thead>
+                                <tr>
+                                    @foreach ($columns as $item)
+                                        <th class="{{ $item?->className ?? '' }}">{{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            @endif
                         </table>
                     </div>
                 </div>
@@ -83,8 +91,57 @@
 @endsection
 
 @section('page_leavel_script')
-    
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
+        var dtable = null;
+        $(document).ready(function() {
+
+            if ( $.fn.DataTable.isDataTable('#yajra-datatables') ) {
+            $('#yajra-datatables').DataTable().clear().destroy();
+        }
+
+            dtable = $('#yajra-datatables').DataTable({
+                searching: true,
+                processing: true,
+                serverSide: true,
+                order: [
+                    [1, 'desc']
+                ],
+                ajax: {
+                    "url": "{{ route($route . '.index') }}",
+                    'beforeSend': function(request) {
+                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
+                            'content'));
+                    },
+                    type: "GET",
+                    data: function(data) {
+                        data.search = $('input[type="search"]').val();
+                        // data.status = $('select[name="status"] option:selected').val();
+                        // data.role = $('select[name="role"] option:selected').val();
+                    },
+                },
+                columns: {!! json_encode($columns) !!},
+                language: {
+                    searchPlaceholder: 'Search...',
+                },
+                // dom:'lBfrtip',
+                // buttons: ["csv"],
+            });
+        });
+        $('input[name="search"]').keyup(function() {
+            dtable.draw();
+        });
+        jQuery(document).on('change', 'select', function(event) {
+            event.preventDefault();
+            dtable.draw();
+        });
+    </script>
+        
     
     @include('admin.includes.script-delete-record')
     @include('admin.includes.script-restore-record')

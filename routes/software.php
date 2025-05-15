@@ -20,6 +20,7 @@ use App\Http\Controllers\admin\spatie\UserController;
 use App\Http\Controllers\admin\WithdrawRequestController;
 use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\master\MasterCourseController;
+use App\Http\Controllers\admin\master\MasterBatchController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -42,11 +43,19 @@ Route::resource('permissions', PermissionController::class);
 
 /** Master Admission Modules */
 Route::resource('/admission', AdmissionController::class);
+Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
+Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+
+/** Master Batch Modules */
+Route::resource('/batch', MasterBatchController::class);
+Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
+Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
 // Route::post('/software/course-update-status', [MasterCourseController::class, 'updateStatus'])->name('course.status_update');
 
 

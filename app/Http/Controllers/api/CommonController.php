@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Documents;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
+use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterState;
 use App\Models\RedemptionItem;
@@ -23,6 +24,26 @@ class CommonController extends Controller
 {
     public function __construct(Request $request) {}
 
+
+
+    public function get_course(Request $request)
+    {
+        try {
+            $data = MasterCourse::orderBy('course_name', 'ASC')->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->course_name . "";
+                $temp['fees'] = $row?->course_fees . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Course list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
     /**
      * @OA\Post(
      *     path="/user_type",
