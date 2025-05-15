@@ -19,7 +19,9 @@ use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
 use App\Http\Controllers\admin\WithdrawRequestController;
 use App\Http\Controllers\admin\AdmissionController;
+use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
+use App\Models\Master\MasterCourse;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -46,7 +48,10 @@ Route::resource('/admission', AdmissionController::class);
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
-Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'update_status'])->name('course.status-update');
+
+
+
 // Route::post('/software/course-update-status', [MasterCourseController::class, 'updateStatus'])->name('course.status_update');
 
 
@@ -106,3 +111,11 @@ Route::get('/generate-swagger-api', function () {
     Artisan::call("l5-swagger:generate");
     return Redirect::back()->with('success', 'Generate API documentation.');
 })->name('generate-swagger-api');
+
+
+// Cource Registration
+
+  Route::resource('cource-registration', CourceRegistrationController::class);
+    Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('leavetype.restore');
+    Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'status_update'])->name('leavetype.status-update');
+

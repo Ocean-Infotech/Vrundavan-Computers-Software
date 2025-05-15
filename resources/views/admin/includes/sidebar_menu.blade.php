@@ -38,12 +38,12 @@ $loginUser = Auth::user();
 
     <div class="menu-inner-shadow"></div>
 
-    
 
-    
+
+
     <ul class="menu-inner py-1">
         <!-- Dashboards -->
-        
+
         <li class="menu-item {{ $sidebar_active == 'dashboard' ? 'active' : '' }}">
             <a href="{{ route('software.dashboard') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home"></i>
@@ -92,7 +92,7 @@ $loginUser = Auth::user();
                 <div data-i18n="Student">Student</div>
             </a>
             <ul class="menu-sub">
-                
+
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
                         <div data-i18n="New Admission">New Admission</div>
@@ -118,7 +118,7 @@ $loginUser = Auth::user();
             </a>
         </li> -->
         @enddirectCanAny
-        
+
         @directCanAny(['withdraw-request-list'])
         <!-- <li class="menu-item {{ $sidebar_active == 'withdraw-request' ? 'active' : '' }}">
             <a href="{{ route('withdraw-request.index') }}" class="menu-link">
@@ -136,7 +136,7 @@ $loginUser = Auth::user();
             </a>
         </li> -->
         @enddirectCanAny
-        
+
         @directCanAny(['reports', 'scan-report'])
         <!-- <li class="menu-item {{ $sidebar_active == 'scan-report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -188,23 +188,30 @@ $loginUser = Auth::user();
         </li> -->
         @enddirectCanAny
 
-        
+
         <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'set-point-to-rupees' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
             </a>
             <ul class="menu-sub">
-                
+
                 <li class="menu-item {{ $sidebar_active == 'set-point-to-rupees' ? 'active' : '' }}">
                     <a href="{{ route('set-point-to-rupees') }}" class="menu-link">
                         <div data-i18n="Course Register">Course Register</div>
                     </a>
                 </li>
-                
+
                 <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
                     <a href="{{ route('course.index') }}"class="menu-link">
                         <div data-i18n="Course Master">Course Master</div>
+                    </a>
+                </li>
+
+
+                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
+                    <a href="{{ route('cource-registration.index') }}" class="menu-link">
+                        <div data-i18n="Course Register">Course Registration</div>
                     </a>
                 </li>
             </ul>
@@ -270,6 +277,6 @@ $loginUser = Auth::user();
         @enddirectCanAny
 
     </ul>
-    
+
 </aside>
 <!-- / Menu -->
