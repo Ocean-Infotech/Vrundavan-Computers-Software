@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterBatchRequest;
 
@@ -156,14 +157,7 @@ class MasterBatchController extends Controller
         // return $request->all();
         $request['id'] = $id;
 
-        $validated = $request->validate([
-            'id' => 'required|exists:'.$modules['table_name'].',id',
-            'course_id' => 'required',
-            'batch_name' => 'required',
-            Rule::unique((new MasterBatch())->getTable())->where(function ($query) use ($request) {
-                    return $query->where('course_id', $request->course_id);
-                })->ignore($id),
-        ]);
+        $validated = $request->validated();
         try{
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
@@ -184,7 +178,7 @@ class MasterBatchController extends Controller
         $isAjax = ($request->ajax()) ? true : false;
 
         $modules = $this->modules;
-        $validator = MasterBatch::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
             'update_status' => ['required', 'in:active,inactive']
         ]);

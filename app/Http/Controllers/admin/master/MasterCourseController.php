@@ -8,10 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
-
-use Illuminate\Support\Facades\Validator;
 
 class MasterCourseController extends Controller
 {
@@ -192,8 +191,43 @@ class MasterCourseController extends Controller
         }
     }
 
-    
+    public function status_update(Request $request) {
+        $isAjax = ($request->ajax()) ? true : false;
 
+        $modules = $this->modules;
+        $validator = MasterCourse::make($request->all(), [
+            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
+            'update_status' => ['required', 'in:active,inactive']
+        ]);
+
+        if ($validator->fails() && $isAjax) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+        }
+
+        try {
+            $designation = MasterCourse::withTrashed()->findOrFail($request?->id);
+
+            if($designation){
+                $designation->status = $request->update_status;
+                $designation->save();
+                if($isAjax){
+                    return $this->sendResponse($designation, $modules['title'] . ' status update successfully.');
+                }
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' status update successfully.');
+            }
+            if($isAjax){
+                return $this->sendError('something went wrong please try again later');
+            }
+            return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+
+        } catch (\Exception $e) {
+            if($isAjax){
+                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
+            }
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+    
 
     public function destroy(Request $request, string $id)
     {

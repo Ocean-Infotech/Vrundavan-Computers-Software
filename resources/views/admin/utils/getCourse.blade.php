@@ -26,10 +26,11 @@
                         $.each(response.data, function(i, item) {
                             if (course_id == item.id) {
                                 options += "<option value='" + item.id +
+                                    "' data-fees='" + item.fees +
                                     "' selected >" + item.name + "</option>";
                             } else {
                                 options += "<option value='" + item.id +
-                                    "'>" +
+                                    "' data-fees='" + item.fees + "'>" +
                                     item.name + "</option>";
                             }
                         });

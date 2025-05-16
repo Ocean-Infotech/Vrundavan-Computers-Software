@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use App\Http\Requests\AdmissionRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdmissionController extends Controller
@@ -39,6 +40,7 @@ class AdmissionController extends Controller
         
         try{
             $columns = [
+                (object)[ 'data' => "id", 'name' => 'id', 'td_label' => 'Register No.' ],
                 (object)[ 'data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.' ],
                 (object)[ 'data' => "first_name", 'name' => 'first_name', 'td_label' => 'Name' ],
                 (object)[ 'data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number' ],
@@ -303,6 +305,42 @@ class AdmissionController extends Controller
         }
     }
 
+    public function status_update(Request $request) {
+        $isAjax = ($request->ajax()) ? true : false;
+        
+        $modules = $this->modules;
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
+            'update_status' => ['required', 'in:created,rejected,completed,cancelled']
+        ]);
+        
+        if ($validator->fails() && $isAjax) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+        }
+
+        try {
+            $designation = Admission::withTrashed()->findOrFail($request?->id);
+
+            if($designation){
+                $designation->status = $request->update_status;
+                $designation->save();
+                if($isAjax){
+                    return $this->sendResponse($designation, $modules['title'] . ' status update successfully.');
+                }
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' status update successfully.');
+            }
+            if($isAjax){
+                return $this->sendError('something went wrong please try again later');
+            }
+            return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+
+        } catch (\Exception $e) {
+            if($isAjax){
+                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
+            }
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
 
     public function restore($id)
     {
