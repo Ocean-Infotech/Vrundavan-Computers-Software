@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\DocumentTypeController;
+use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
 use App\Http\Controllers\admin\WithdrawRequestController;
 use App\Http\Controllers\admin\AdmissionController;
+use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
 use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\TestController;
@@ -126,3 +128,18 @@ Route::get('/generate-swagger-api', function () {
     Artisan::call("l5-swagger:generate");
     return Redirect::back()->with('success', 'Generate API documentation.');
 })->name('generate-swagger-api');
+
+
+// Cource Registration
+
+  Route::resource('cource-registration', CourceRegistrationController::class);
+  Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
+  Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+
+// Fees Collection
+
+  Route::resource('fees-collection', FeesCollectionController::class);
+  Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
+  Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
+
+

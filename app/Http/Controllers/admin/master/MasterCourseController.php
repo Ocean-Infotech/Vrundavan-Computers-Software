@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
-
 class MasterCourseController extends Controller
 {
     public $modules = [];
@@ -64,26 +63,38 @@ class MasterCourseController extends Controller
                         $query->orWhere('course_fees', 'like',"%".$request->search."%");
                     }
                 })
-                ->editColumn('status', function ($row) use($modules) {
-                    $status = '';
-                    $dropdown = "";
-                    $dropdown .= '<ul class="dropdown-menu" style="">';
-                    
-                    if ($row->status == "active") {
-                        $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-                        // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                    } elseif ($row->status == "inactive") {
-                        $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-                        // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                    } else {
-                        return $status;
-                    }
-                    $dropdown .= '</ul>';
-                    $status .= $dropdown;
-                    return $status;
-                })
+                 ->editColumn('status', function ($row) use ($modules) {
+                        $btn = '';
+                        // $btn = ucfirst($row->status);
+
+                        // $btn .= '<ul class="dropdown-menu" style="">
+                        // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Active</a></li>
+                        // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Inactive</a></li>
+                        // </ul>';
+
+                        $dropdown = "";
+                        $dropdown .= '<ul class="dropdown-menu" style="">';
+
+                        if ($row->status == "active") {
+                            $btn .= '<button type="button" class="btn btn-success btn-sm w-100
+                            dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item
+                             waves-effect btn-label-danger update-status" data-url="' . route($modules['route'] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
+                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+                        } elseif ($row->status == "inactive") {
+                            $btn .= '<button type="button" class="btn btn-danger btn-sm w-100
+                            dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown"
+                            aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item
+                            waves-effect btn-label-success update-status" data-url="' . route($modules['route'] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
+                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
+                        } else {
+                            return $btn;
+                        }
+                        $dropdown .= '</ul>';
+                        $btn .= $dropdown;
+                        return $btn;
+                    })
                 ->addColumn('action', function($row) use ($modules,$editPermisstion, $deletePermisstion){
                     $btn = '';
                     if (!$row?->deleted_at) {
@@ -101,7 +112,7 @@ class MasterCourseController extends Controller
                     if ($btn == '') {
                         $btn = '-';
                     }
-                        
+
                     return $btn;
                 })
                 ->rawColumns(['status','action'])
@@ -181,24 +192,21 @@ class MasterCourseController extends Controller
     }
 
     public function status_update(Request $request) {
-        
         $isAjax = ($request->ajax()) ? true : false;
-        
+
         $modules = $this->modules;
-        
-        $validator = Validator::make($request->all(), [
+        $validator = MasterCourse::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
             'update_status' => ['required', 'in:active,inactive']
         ]);
-        
+
         if ($validator->fails() && $isAjax) {
             return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
         }
-        
+
         try {
-            
             $designation = MasterCourse::withTrashed()->findOrFail($request?->id);
-            
+
             if($designation){
                 $designation->status = $request->update_status;
                 $designation->save();
@@ -269,7 +277,7 @@ class MasterCourseController extends Controller
 
     public function restore($id)
     {
-       
+
         $modules = $this->modules;
 
         try {
@@ -279,6 +287,42 @@ class MasterCourseController extends Controller
 
             return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
         } catch (\Exception $e) {
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+     public function update_status(Request $request)
+    {
+        $isAjax = ($request->ajax()) ? true : false;
+
+        $modules = $this->modules;
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
+            'update_status' => ['required', 'in:active,inactive']
+        ]);
+
+        if ($validator->fails() && $isAjax) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+        }
+
+
+        try {
+            $country = MasterCourse::withTrashed()->findOrFail($request?->id);
+            if ($country) {
+                $country->status = $request->update_status;
+                $country->save();
+                if ($isAjax) {
+                    return $this->sendResponse($country, $modules['title'] . ' status update successfully.');
+                }
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' status update successfully.');
+            }
+            if ($isAjax) {
+                return $this->sendError('something went wrong please try again later');
+            }
+            return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
+            }
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
