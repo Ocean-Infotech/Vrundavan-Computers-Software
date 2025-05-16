@@ -10,7 +10,7 @@
         <a href="{{ route('software.dashboard') }}" class="app-brand-link">
 
             <img src="{{ asset('admin/assets/images/logo-light.png') }}" class="main-logo" />
-            <img src="{{ asset('admin/assets/images/favicon/favicon-16x16.png') }}" class="small-logo" />
+            <img src="{{ asset('admin/assets/images/favicon/favicon.png') }}" class="small-logo" />
 
             {{-- <span class="app-brand-logo demo">
                 <svg width="32" height="22" viewBox="0 0 32 22" fill="none"
@@ -194,8 +194,7 @@
         @enddirectCanAny
 
 
-        <li
-            class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'set-point-to-rupees' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'set-point-to-rupees' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
@@ -214,25 +213,9 @@
                     </a>
                 </li>
 
-
-                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
-                    <a href="{{ route('cource-registration.index') }}" class="menu-link">
-                        <div data-i18n="Course Register">Course Registration</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li
-            class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
-                <div data-i18n="Fees Collection">Fees Collection</div>
-            </a>
-            <ul class="menu-sub">
-
-                <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
-                    <a href="{{ route('fees-collection.index') }}" class="menu-link">
-                        <div data-i18n="Fees Collection">Fees Collection</div>
+                <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
+                    <a href="{{ route('batch.index') }}"class="menu-link">
+                        <div data-i18n="Batch Master">Batch Master</div>
                     </a>
                 </li>
             </ul>

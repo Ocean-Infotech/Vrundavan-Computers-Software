@@ -102,8 +102,8 @@
         $(document).ready(function() {
 
             if ( $.fn.DataTable.isDataTable('#yajra-datatables') ) {
-            $('#yajra-datatables').DataTable().clear().destroy();
-        }
+                $('#yajra-datatables').DataTable().clear().destroy();
+            }
 
             dtable = $('#yajra-datatables').DataTable({
                 searching: true,

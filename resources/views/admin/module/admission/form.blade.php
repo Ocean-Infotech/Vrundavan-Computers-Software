@@ -126,8 +126,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Temporary Address <span class="text-danger">*</span> </label>
-                        <input id="temporary_address" type="text" class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address" value="{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}" placeholder="Enter Temporary Address">
-
+                        <textarea rows="1" id="temporary_address" type="text" class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address" placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
                         @error('temporary_address')
                         <span class="invalid-feedback">
                             <strong>{{ $message }}</strong>
@@ -139,8 +138,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Permanent Address <span class="text-danger">*</span> </label>
-                        <input id="permanent_address" type="text" class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address" value="{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}" placeholder="Enter Permanent Address">
-
+                        <textarea rows="1" id="permanent_address" type="text" class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address" placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
                         @error('permanent_address')
                         <span class="invalid-feedback">
                             <strong>{{ $message }}</strong>
@@ -282,23 +280,23 @@ $i = 0;
                     <div class="form-group">
                         <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
                         <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="SC" id="category1">
+                            <input type="radio" name="category" class="form-check-input" value="SC" id="category1" {{ old('category', $edit->category ?? '') === 'SC' ? 'checked' : '' }}>
                             <label class="form-check-label" for="category1"> SC</label>
                         </div>
                         <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="ST" id="category2">
+                            <input type="radio" name="category" class="form-check-input" value="ST" id="category2" {{ old('category', $edit->category ?? '') === 'ST' ? 'checked' : '' }}>
                             <label class="form-check-label" for="category2"> ST</label>
                         </div>
                         <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="OBC" id="category3">
+                            <input type="radio" name="category" class="form-check-input" value="OBC" id="category3" {{ old('category', $edit->category ?? '') === 'OBC' ? 'checked' : '' }}>
                             <label class="form-check-label" for="category3"> OBC</label>
                         </div>
                         <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="EWS" id="category4">
+                            <input type="radio" name="category" class="form-check-input" value="EWS" id="category4" {{ old('category', $edit->category ?? '') === 'EWS' ? 'checked' : '' }}>
                             <label class="form-check-label" for="category4"> EWS</label>
                         </div>
                         <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="General" id="category5">
+                            <input type="radio" name="category" class="form-check-input" value="General" id="category5" {{ old('category', $edit->category ?? '') === 'General' ? 'checked' : '' }}>
                             <label class="form-check-label" for="category5"> General</label>
                         </div>
 
@@ -387,8 +385,27 @@ $i = 0;
                             </tr>
                         </thead>
                         <tbody>
-                            
-                            
+                            @if (isset($education))
+                                @foreach ($education as $educationdetail)
+                                <tr>
+                                    <td>
+                                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
+                                        <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" >
+                                    </td>
+                                    <td>
+                                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}">
+                                    </td>
+                                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}"></td>
+                                    <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}"></td>
+                                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}"></td>
+
+                                    <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
+                                </tr>
+                                @endforeach
+                            @endif
                             
                         </tbody>
                     </table>
@@ -416,6 +433,22 @@ $i = 0;
         $(document).ready(function() {
             $('.remove_row').on('click', function() {
                 $(this).closest('tr').remove();
+                var education_id = $(this).data('education_id');
+ 
+                $.ajax({
+                    url: "{{ route($route .'.education-detail-delete') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: education_id,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
             });
 
             $('#filter_section').hide();
@@ -444,6 +477,7 @@ $i = 0;
                 newRow.html(`
                     <td>
                         <input type="text" name="education[]" class="form-control" placeholder="Education" value="`+selectededucationText+`" readonly>
+                        <input type="hidden" name="education_id[]" value="">
                     </td>
                     <td>
                         <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="" >
@@ -467,5 +501,5 @@ $i = 0;
             });
         });
     </script>
-
+    
 @endsection
