@@ -104,8 +104,8 @@
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
 
-    {{-- <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script> --}}
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
     <script src="{{ asset('admin/assets/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/js/bootstrap.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/libs/node-waves/node-waves.js') }}"></script>

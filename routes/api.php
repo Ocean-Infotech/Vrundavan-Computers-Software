@@ -18,6 +18,8 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('check-pincode', 'check_pincode')->name('check-pincode');
 
     Route::any('get-course', 'get_course')->name('get-course');
+    Route::any('get-batch', 'get_batch')->name('get-batch');
+    Route::any('get-admission', 'get_admission')->name('get-admission');
 });
 
 Route::controller(AuthenticationController::class)->group(function () {

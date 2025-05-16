@@ -95,7 +95,22 @@ $loginUser = Auth::user();
                 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
-                        <div data-i18n="New Admission">New Admission</div>
+                        <div data-i18n="Admission">Admission</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <div data-i18n="Attedance">Attedance</div>
+            </a>
+            <ul class="menu-sub">
+                
+                <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active' : '' }}">
+                    <a href="{{ route('attedance.index') }}" class="menu-link">
+                        <div data-i18n="Attedance">Attedance</div>
                     </a>
                 </li>
             </ul>
@@ -215,7 +230,14 @@ $loginUser = Auth::user();
                 </li>
             </ul>
         </li>
-
+        
+        
+        <li class="menu-item {{ $sidebar_active == 'test' ? 'active' : '' }}">
+            <a href="{{ route('test.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-notepad"></i>
+                <div data-i18n="Test">Test</div>
+            </a>
+        </li>
         @directCan('master-module')
         <li class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode'  || $sidebar_active == 'document-type' || $sidebar_active == 'documents'  ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">

@@ -26,7 +26,7 @@
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route($route . '.index') }}">View all {{ $page_title }}</a>
                         </li>
-                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Add' : 'Edit' }}
+                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Add' }}
                             {{ $page_title }}</li>
                     </ol>
                 </div>

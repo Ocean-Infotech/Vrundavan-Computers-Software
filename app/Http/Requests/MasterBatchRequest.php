@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Master\MasterBatch;
+use App\Models\Master\MasterCourse;
 
 class MasterBatchRequest extends FormRequest
 {
@@ -27,7 +28,8 @@ class MasterBatchRequest extends FormRequest
         $id = $request->route('master_batch') ?? 0;
         $rules = [
             'course_id' => [
-                'required'
+                'required',
+                Rule::exists((new MasterCourse())->getTable(), 'id')
             ],
             
             // 'name' => 'required|string|max:255|unique:' . (new MasterCity())->getTable() . ',name',

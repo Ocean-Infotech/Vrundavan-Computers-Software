@@ -21,6 +21,8 @@ use App\Http\Controllers\admin\WithdrawRequestController;
 use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\master\MasterCourseController;
 use App\Http\Controllers\admin\master\MasterBatchController;
+use App\Http\Controllers\admin\TestController;
+use App\Http\Controllers\admin\AttedanceController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -56,8 +58,17 @@ Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::c
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
-// Route::post('/software/course-update-status', [MasterCourseController::class, 'updateStatus'])->name('course.status_update');
 
+/** Test Modules */
+Route::resource('/test', TestController::class);
+Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
+Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
+
+/** Attedance Modules */
+Route::resource('/attedance', AttedanceController::class);
+Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
+Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
+Route::match(['get', 'post'], 'filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
 
 /** Master Copuntry Modules */
 Route::resource('/country', MasterCountryController::class);
