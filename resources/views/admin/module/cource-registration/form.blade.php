@@ -25,7 +25,7 @@
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route($route . '.index') }}">View all {{ $page_title }}</a>
                         </li>
-                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Add' : 'Edit' }}
+                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Add' }}
                             {{ $page_title }}</li>
                     </ol>
                 </div>
@@ -59,9 +59,15 @@
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="register_no">Register No. <span class="text-danger">*</span></label>
-                            <select name="register_no" id="register_no"
-                                class="form-control select2 @error('register_no') is-invalid @enderror">
+                            <select name="register_id" id="register_id"
+                                class="form-control select2 @error('register_id') is-invalid @enderror">
                                 <option value="">-- Select Register No. --</option>
+                                  @foreach ($education as $course)
+                                    <option value="{{ $course->id }}"
+                                        {{ (int) old('register_id', $edit->register_id ?? '') === $course->id ? 'selected' : '' }}>
+                                        {{ $course->id }}
+                                    </option>
+                                @endforeach
 
                             </select>
                             @error('register_no')
@@ -77,7 +83,7 @@
                                 class="form-control select2 @error('course_id') is-invalid @enderror">
                                 <option value="">-- Select Course --</option>
                                 @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}" data-fee="{{ $course->course_fees }}"
+                                    <option value="{{ $course->id }}" data-fee="{{ $course->course_fee }}"
                                         {{ (int) old('course_id', $edit->course_id ?? '') === $course->id ? 'selected' : '' }}>
                                         {{ $course->course_name }}
                                     </option>
@@ -93,9 +99,9 @@
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="fee">Course Fees <span class="text-danger">*</span></label>
-                            <input type="text" name="fees" id="fee"
+                            <input type="number" name="fee" id="fee"
                                 class="form-control @error('fee') is-invalid @enderror"
-                                value="{{ old('fee', $edit->feess ?? '') }}">
+                                value="{{ old('fee', $edit->fee ?? '') }}">
                             @error('fee')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
@@ -109,7 +115,7 @@
                         <label for="date">Date <span class="text-danger">*</span></label>
                         <input type="date" name="date" id="date"
                             class="form-control datepicker @error('date') is-invalid @enderror"
-                            value="{{ old('date', isset($edit->date) ? $edit->date->format('Y-m-d') : \Carbon\Carbon::now()->format('Y-m-d')) }}">
+                            value="{{ old('date', $edit->date ?? '') }}">
                         @error('date')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -122,14 +128,14 @@
                     <div class="form-group">
                         <label for="note">Note</label>
                         <textarea name="note" id="note" rows="3" class="form-control @error('note') is-invalid @enderror"
-                            placeholder="Enter Note">{{ old('note', $edit->note ?? '') }}</textarea>
+                            placeholder="Enter Note" value="{{ old('note', $edit->note ?? '') }}"></textarea>
                         @error('note')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
                 </div>
-                {{-- Status --}}
-                <div class="col-md-4 mb-2">
+             {{-- Status --}}
+                {{-- <div class="col-md-4 mb-2">
                     <div class="form-group">
                         <label class="form-label">Status</label>
                         <select class="form-control select2 w-100 @error('status') is-invalid @enderror" name="status"
@@ -142,7 +148,7 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Submit --}}
                 <div class="col-md-12 text-center mt-4">
@@ -174,33 +180,33 @@
                 todayHighlight: true
             });
 
-            $('#course_name').on('change', function() {
-                var fee = $(this).find(':selected').data('fee');
-                $('#fees').val(fee);
-            });
+            // $('#course_name').on('change', function() {
+            //     var fee = $(this).find(':selected').data('fee');
+            //     $('#fee').val(fee);
+            // });
         });
 
         // $('#course_id').on('change', function() {
         //     let fee = $(this).find(':selected').data('fee') || '';
         //     $('#fees').val(fee);
         // });
-         document.addEventListener('DOMContentLoaded', function () {
-        const courseSelect = document.getElementById('course_id');
-        const feesInput = document.getElementById('fees');
+    //      document.addEventListener('DOMContentLoaded', function () {
+    //     const courseSelect = document.getElementById('course_id');
+    //     const feesInput = document.getElementById('fee');
 
-        function updateFees() {
-            const selected = courseSelect.options[courseSelect.selectedIndex];
-            const fee = selected.getAttribute('data-fee');
-            if (feesInput && fee !== null) {
-                feesInput.value = fee;
-            }
-        }
+    //     function updateFees() {
+    //         const selected = courseSelect.options[courseSelect.selectedIndex];
+    //         const fee = selected.getAttribute('data-fee');
+    //         if (feesInput && fee !== null) {
+    //             feesInput.value = fee;
+    //         }
+    //     }
 
-        // Change event
-        courseSelect.addEventListener('change', updateFees);
+    //     // Change event
+    //     courseSelect.addEventListener('change', updateFees);
 
-        // Trigger on load (for edit page)
-        updateFees();
-    });
+    //     // Trigger on load (for edit page)
+    //     updateFees();
+    // });
     </script>
 @endpush

@@ -13,10 +13,11 @@ class CourceRegistration extends Model
     public $table = 'cource_registration';
 
     protected $fillable = [
-        'registrar_id',
+        'register_id',
         'course_id',
-        'fees',
+        'fee',
         'date',
+        'note',
         'status',
         'created_by',
         'updated_by',

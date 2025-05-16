@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\DocumentTypeController;
+use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
@@ -116,6 +117,13 @@ Route::get('/generate-swagger-api', function () {
 // Cource Registration
 
   Route::resource('cource-registration', CourceRegistrationController::class);
-    Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('leavetype.restore');
-    Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'status_update'])->name('leavetype.status-update');
+  Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
+  Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+
+// Fees Collection
+
+  Route::resource('fees-collection', FeesCollectionController::class);
+  Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
+  Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
+
 

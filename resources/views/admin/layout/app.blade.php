@@ -104,8 +104,8 @@
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
 
-    {{-- <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script> --}}
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="{{ asset('admin/assets/vendor/libs/jquery/jquery.js') }}"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.5.1.js"></script> --}}
     <script src="{{ asset('admin/assets/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/js/bootstrap.js') }}"></script>
     <script src="{{ asset('admin/assets/vendor/libs/node-waves/node-waves.js') }}"></script>
@@ -144,18 +144,18 @@
     <!-- Page JS -->
 
     <script>
-        $(document).ready(function () {    
-    
-            $('.num_only').keypress(function (e) {    
-        
-                var charCode = (e.which) ? e.which : event.keyCode    
-        
-                if (String.fromCharCode(charCode).match(/[^0-9]/g))    
-        
-                    return false;                        
-        
-            });    
-        
+        $(document).ready(function () {
+
+            $('.num_only').keypress(function (e) {
+
+                var charCode = (e.which) ? e.which : event.keyCode
+
+                if (String.fromCharCode(charCode).match(/[^0-9]/g))
+
+                    return false;
+
+            });
+
         });
     </script>
     @yield('page_script_file')
