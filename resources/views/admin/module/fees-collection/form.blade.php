@@ -81,7 +81,7 @@
                             <input id="student_id" type="text"
                                 class="form-control @error('student_id') is-invalid @enderror num_only" name="student_id"
                                 value="{{ isset($edit?->student_id) ? $edit?->student_id : old('student_id') }}"
-                                placeholder="Enter Course Fees">
+                                placeholder="Enter student id">
 
                             @error('student_id')
                                 <span class="invalid-feedback">

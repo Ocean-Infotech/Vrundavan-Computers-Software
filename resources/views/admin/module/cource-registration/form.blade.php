@@ -9,165 +9,133 @@
 @endphp
 @section('title', $page_title)
 
-@section('page_style_file')
-    {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
-@endsection
-
-
-@section('breadcrumb')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                {{-- <h3 class="page-title">{{ $page_title }}</h3> --}}
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route($route . '.index') }}">View all {{ $page_title }}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Add' }}
-                            {{ $page_title }}</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end page title -->
-@endsection
-
 @section('content')
-
-    @include('admin.partials.flash_messages')
-
     <div class="card shadow my-5">
-        <div class="card-header d-none">
-            <h2 class="mb-0">
-                {{ $page_title }}
-            </h2>
-        </div>
         <div class="card-body my-4">
+            <h4 class="mb-4">
+                @isset($edit)
+                    Edit {{ $page_title }}
+                @else
+                    Add {{ $page_title }}
+                @endisset
+            </h4>
+
             <form method="POST"
-                action="{{ isset($edit) ? route($route . '.update', $edit->id) : route($route . '.store') }}">
+                action="@isset($edit) {{ route($route . '.update', $edit->id) }} @else {{ route($route . '.store') }} @endisset">
                 @csrf
                 @isset($edit)
                     @method('PUT')
                 @endisset
 
                 <div class="row">
-
                     {{-- Register No --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="register_no">Register No. <span class="text-danger">*</span></label>
-                            <select name="register_id" id="register_id"
-                                class="form-control select2 @error('register_id') is-invalid @enderror">
-                                <option value="">-- Select Register No. --</option>
-                                  @foreach ($education as $course)
-                                    <option value="{{ $course->id }}"
-                                        {{ (int) old('register_id', $edit->register_id ?? '') === $course->id ? 'selected' : '' }}>
-                                        {{ $course->id }}
-                                    </option>
-                                @endforeach
-
-                            </select>
-                            @error('register_no')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="register_id" class="form-label">
+                            Register No. <span class="text-danger">*</span>
+                        </label>
+                        <select name="register_id" id="register_id"
+                            class="form-control select2 @error('register_id') is-invalid @enderror">
+                            <option value="">-- Select Register No. --</option>
+                            @foreach ($education as $edu)
+                                <option value="{{ $edu->id }}"
+                                    {{ old('register_id', $edit->register_id ?? '') == $edu->id ? 'selected' : '' }}>
+                                    {{ $edu->id }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('register_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     {{-- Course Name --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="course_id">Course Name <span class="text-danger">*</span></label>
-                            <select name="course_id" id="course_id"
-                                class="form-control select2 @error('course_id') is-invalid @enderror">
-                                <option value="">-- Select Course --</option>
-                                @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}" data-fee="{{ $course->course_fee }}"
-                                        {{ (int) old('course_id', $edit->course_id ?? '') === $course->id ? 'selected' : '' }}>
-                                        {{ $course->course_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('course_id')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    {{-- Fees (auto-filled) --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="fee">Course Fees <span class="text-danger">*</span></label>
-                            <input type="number" name="fee" id="fee"
-                                class="form-control @error('fee') is-invalid @enderror"
-                                value="{{ old('fee', $edit->fee ?? '') }}">
-                            @error('fee')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                {{-- Date --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" name="date" id="date"
-                            class="form-control datepicker @error('date') is-invalid @enderror"
-                            value="{{ old('date', $edit->date ?? '') }}">
-                        @error('date')
-                            <span class="invalid-feedback">{{ $message }}</span>
+                    <div class="col-md-4 mb-3">
+                        <label for="course_id" class="form-label">
+                            Course <span class="text-danger">*</span>
+                        </label>
+                        <select name="course_id" id="course_id"
+                            class="form-control select2 @error('course_id') is-invalid @enderror">
+                            <option value="">-- Select Course --</option>
+                            @foreach ($courses as $course)
+                                <option value="{{ $course->id }}" data-fee="{{ $course->course_fees }}"
+                                    {{ old('course_id', $edit->course_id ?? '') == $course->id ? 'selected' : '' }}>
+                                    {{ $course->course_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('course_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
 
+                    {{-- Fee (auto-filled) --}}
+                    <div class="col-md-4 mb-3">
+                        <label for="fee" class="form-label">
+                            Fee <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" name="fee" id="fee"
+                            class="form-control @error('fee') is-invalid @enderror" placeholder="Auto-filled from course"
+                            value="{{ old('fee', $edit->fee ?? '') }}">
+                        @error('fee')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                {{-- Note --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label for="note">Note</label>
+                    {{-- Date --}}
+                    <div class="col-md-4 mb-2">
+                        <div class="form-group">
+                            <label for="date">Date <span class="text-danger">*</span></label>
+                            <input type="date" name="date" id="date"
+                                class="form-control  @error('date') is-invalid @enderror"
+                                value="{{ old('date', $edit->date ?? '') }}">
+                            @error('date')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Note --}}
+                    <div class="col-md-4 mb-3">
+                        <label for="note" class="form-label">Note</label>
                         <textarea name="note" id="note" rows="3" class="form-control @error('note') is-invalid @enderror"
-                            placeholder="Enter Note" value="{{ old('note', $edit->note ?? '') }}"></textarea>
+                            placeholder="Enter Note">{{ old('note', $edit->note ?? '') }}</textarea>
                         @error('note')
-                            <span class="invalid-feedback">{{ $message }}</span>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
-             {{-- Status --}}
-                {{-- <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <select class="form-control select2 w-100 @error('status') is-invalid @enderror" name="status"
-                            required>
-                            <option disabled selected>Select Status</option>
+
+                    {{-- Status --}}
+                    <div class="col-md-4 mb-3">
+                        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                        <select name="status" id="status"
+                            class="form-control select2 @error('status') is-invalid @enderror">
+                            <option value="" disabled>Select Status</option>
                             @foreach (['active', 'inactive'] as $status)
                                 <option value="{{ $status }}"
-                                    @if (isset($edit)) @if ($edit->status == $status) {{ 'selected' }} @endif
-                                @else @if (old('status', 'active') == $status) {{ 'selected' }} @endif @endif> {{ ucfirst($status) }}</option>
+                                    {{ old('status', $edit->status ?? 'active') == $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-                </div> --}}
+                </div>
 
-                {{-- Submit --}}
-                <div class="col-md-12 text-center mt-4">
-                    <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-success">
+                        @isset($edit)
+                            Update
+                        @else
+                            Submit
+                        @endisset
+                    </button>
                     <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
                 </div>
+            </form>
         </div>
-        </form>
     </div>
-    </div>
-
 @endsection
-
 
 @section('page_leavel_script')
-@endsection
-
-
-@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 
@@ -180,33 +148,34 @@
                 todayHighlight: true
             });
 
-            // $('#course_name').on('change', function() {
-            //     var fee = $(this).find(':selected').data('fee');
-            //     $('#fee').val(fee);
-            // });
+
         });
 
-        // $('#course_id').on('change', function() {
-        //     let fee = $(this).find(':selected').data('fee') || '';
-        //     $('#fees').val(fee);
-        // });
-    //      document.addEventListener('DOMContentLoaded', function () {
-    //     const courseSelect = document.getElementById('course_id');
-    //     const feesInput = document.getElementById('fee');
+        $(function() {
+            // Initialize Select2 + Datepicker globally
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Choose an option',
+                allowClear: true
+            });
 
-    //     function updateFees() {
-    //         const selected = courseSelect.options[courseSelect.selectedIndex];
-    //         const fee = selected.getAttribute('data-fee');
-    //         if (feesInput && fee !== null) {
-    //             feesInput.value = fee;
-    //         }
-    //     }
+            // Cache selectors
+            var $courseSelect = $('#course_id');
+            var $feeInput = $('#fee');
 
-    //     // Change event
-    //     courseSelect.addEventListener('change', updateFees);
+            // On change, read data-fee and set the fee input
+            function updateFee() {
+                var fee = $courseSelect.find('option:selected').data('fee') || '';
+                console.log('Auto-fill fee:', fee);
+                $feeInput.val(fee);
+            }
 
-    //     // Trigger on load (for edit page)
-    //     updateFees();
-    // });
+            $courseSelect
+                .on('change', updateFee)
+                .on('select2:select select2:clear', updateFee);
+
+            // Run once on load (for edit)
+            updateFee();
+        });
     </script>
-@endpush
+@endsection
