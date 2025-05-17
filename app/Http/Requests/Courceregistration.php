@@ -33,7 +33,7 @@ class CourceRegistration extends FormRequest
             'fee' => 'required|numeric|min:0',
             'date' => 'required|date',
             'note' => 'nullable|string',
-            'status' => 'required|in:pending,approved,rejected', // adjust as needed
+            // 'status' => 'required|in:pending,approved,rejected', 
         ];
     }
 }
