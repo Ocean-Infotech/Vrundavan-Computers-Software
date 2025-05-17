@@ -81,13 +81,13 @@ $i = 0;
 
                 <div class="col-md-4 col-sm-12 mb-3">
                     <div class="form-group">
-                        <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                        <label class="form-label">Select Batch <span class="text-danger">*</span></label>
                         <select id="course" name="course_id"
                             class="form-control search_by_course select2 @error('course_id') is-invalid @enderror select_filter"
                             data-append="search_by_course"
                             data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
                             autofocus>
-                            <option value="">Select Course</option>
+                            <option value="">Select Batch</option>
                         </select>
 
                         @error('course_id')
@@ -98,25 +98,7 @@ $i = 0;
                     </div>
                 </div>
 
-                {{-- Batch --}}
-                <div class="col-md-4 col-sm-12 mb-3">
-                    <div class="form-group">
-                        <label class="form-label">Select Batch <span class="text-danger">*</span></label>
-                        <select name="batch_id" id="batch"
-                            class="form-control @error('batch_id') is-invalid @enderror search_by_batch select2 select_filter"
-                            data-append="search_by_batch"
-                            data-selectedBatchId="{{ isset($edit) && $edit?->batch_id ? $edit?->batch_id : old('batch_id') }}">
 
-                            <option value="" disabled
-                                {{ old('batch_id', $edit->batch_id ?? '') ? '' : 'selected' }}>
-                                Select Batch
-                            </option>
-                        </select>
-                        @error('batch_id')
-                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                        @enderror
-                    </div>
-                </div>
 
 
 
@@ -135,23 +117,28 @@ $i = 0;
 </div>
 
 
-<div class="row my-4">
+<div class="row my-4" id="education_details">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="simple-table" class="display table table-hover">
-                        <!-- @if (isset($columns)) -->
+
                         <thead>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Status</th>
+                                    <input type="hidden" name="studentld" value="" id="studentld">
+                                    <input type="hidden" name="courseld" value="" id="courseld">
+                                    <th><input class="form-check-input" type="checkbox" id="checkallstudent" value=""></th>
+                                    <th>Admission ID</th>
+                                    <th>Student Name</th>
+                                    <th>IN</th>
+                                    <th>LEAVE</th>
                                 </tr>
                             </thead>
+                        <tbody></tbody>
                         </thead>
-                        <!-- @endif -->
+
                     </table>
                 </div>
             </div>
@@ -166,6 +153,7 @@ $i = 0;
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('admin/assets/js/form-basic-inputs.js') }}"></script>
 @endsection
 
 
@@ -195,26 +183,26 @@ $i = 0;
                     request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
                 },
                 success: function(response) {
+
+                    $("#checkallstudent").prop("checked",false);
+                    let rows = '';
+                    let url = "{{ route($route . '.student-in') }}";
+
                     if (response.data && response.data.length > 0) {
                         $.each(response.data, function(index, item) {
-                            console.error(item);
+                            rows += '<tr>';
+                            rows += '<td><input class="form-check-input studentcheck" name="student[]" type="checkbox" id="studentcheck" data-course_id="' + item.course_id + '" value="' + item.register_id + '"></td>';
+                            rows += '<td>' + item.register_id + '</td>';
+                            rows += '<td>' + item.admission.first_name + ' ' + item.admission.father_name + ' ' + item.admission.last_name + '</td>';
+                            rows += '<td><a href="javascript:void(0)" data-id="' + item.register_id + '" data-course_id="' + item.course_id + '" data-url="' + url + '" class="btn btn-success btn-icon student_in"><i class="fa fa-sign-in"></i></a></td>';
+                            rows += '<td></td>';
+                            rows += '</tr>';
                         });
+                    } else {
+                        rows = '<tr><td class="text-center" colspan="4">No data available</td></tr>';
                     }
-                    // let rows = '';
 
-                    // if (response.data && response.data.length > 0) {
-                    //     $.each(response.data, function(index, item) {
-                    //         rows += '<tr>';
-                    //         rows += '<td>' + item.id + '</td>';
-                    //         rows += '<td>' + item.name + '</td>';
-                    //         rows += '<td>' + item.status + '</td>';
-                    //         rows += '</tr>';
-                    //     });
-                    // } else {
-                    //     rows = '<tr><td colspan="3">No data available</td></tr>';
-                    // }
-
-                    // $('#simple-table tbody').html(rows);
+                    $('#simple-table tbody').html(rows);
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
@@ -223,20 +211,131 @@ $i = 0;
             });
         }
 
+        $('#education_details').hide();
         // Reload data when any filter is changed
         $('select[name="admission_id"], select[name="course_id"], select[name="batch_id"]').on('change', function() {
             var select_filter = $(this).val();
 
             if (select_filter != null && select_filter.trim() !== '') {
-                    loadTableData(); // Re-fetch filtered data
+                loadTableData(); // Re-fetch filtered data 
+                $('#education_details').show();
             }
         });
 
         // loadTableData(); // Initial load
+
+
+        // When #checkallstudent is toggled
+        $("#checkallstudent").change(function() {
+            let isChecked = $(this).is(':checked');
+
+            if($(".studentcheck").length == $(".studentcheck:checked").length) 
+            {
+                $(".studentcheck").prop("checked", isChecked); // Toggle all student checkboxes
+            }else
+            {
+                $(".studentcheck").prop("checked", true); // Toggle all student checkboxes
+                $(this).prop("checked", true);
+                
+            }
+            updateStudentIds(); // Update hidden input
+        });
+
+        // When any .studentcheck checkbox is changed
+        $(document).on('change', '.studentcheck', function () {
+            // Check/uncheck "select all"
+            // $("#checkallstudent").prop(
+            //     $(".studentcheck").length === $(".studentcheck:checked").length
+            // );
+
+            if($(".studentcheck").length == $(".studentcheck:checked").length) {
+                $("#checkallstudent").prop("checked", true);
+                    const checkbox = document.getElementById('checkallstudent');
+                    checkbox.indeterminate = false;
+                
+            }else {
+                if($(".studentcheck:checked").length !== 0) 
+                {
+                    $("#checkallstudent").prop("checked", true);
+                    const checkbox = document.getElementById('checkallstudent');
+                    checkbox.indeterminate = true;
+                }
+                else{
+                    $("#checkallstudent").prop("checked",false);
+                    const checkbox = document.getElementById('checkallstudent');
+                    checkbox.indeterminate = false;
+                }
+                
+            }
+
+            updateStudentIds(); // Update hidden input
+        });
+
+        // Reusable function to update hidden input
+        function updateStudentIds() {
+            let selectedIds = $(".studentcheck:checked").map(function() {
+                return $(this).val();
+            }).get(); // .get() converts it to a plain array
+
+            let courseIds = $(".studentcheck:checked").map(function() {
+                return $(this).data('course_id');
+            }).get(); // .get() converts it to a plain array
+
+            $("#studentld").val(selectedIds.join(","));
+            $("#courseld").val(courseIds.join(","));
+        }
+
+
     });
 </script>
 
+
+<script>
+    //student-in
+    $(document).on('click', '.student_in', function() {
+        var _token = '{{ csrf_token() }}';
+        var _actionUrl = $(this).attr("data-url");
+        var _dataId = $(this).attr("data-id");
+
+        const urlParams = new URLSearchParams(_actionUrl);
+
+        if (!_dataId && urlParams.get('id')) {
+            _dataId = urlParams.get('id');
+        }
+
+        if (_token && _actionUrl && _dataId) {
+            console.log("generate-inquiry-no L-31");
+            $.ajax({
+                type: "POST",
+                url: _actionUrl,
+                data: {
+                    _token: _token,
+                    _method: 'POST',
+                    id: _dataId,
+                },
+                success: function(data) {
+                    console.log("data 27", data);
+
+                    if (data?.status == "true") {
+                        toastr.success(data?.message);
+                        $("#yajra-datatables").DataTable().ajax.reload();
+                    } else {
+                        toastr.error(data?.message);
+                    }
+                },
+                error: function() {
+                    toastr.error('Something Went wrong Update Status failed.');
+                }
+            });
+        } else {
+            console.log("Update Script", _token, _actionUrl, urlParams, _dataId);
+
+        }
+    });
+</script>
+
+
 @include('admin.utils.getAdmission')
 @include('admin.utils.getCourse')
-@include('admin.utils.getBatchByCourseid')
+<!-- @include('admin.utils.getBatchByCourseid') -->
 @endsection

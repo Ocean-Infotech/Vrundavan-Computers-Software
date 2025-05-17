@@ -7,6 +7,7 @@ use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -40,10 +41,10 @@ class CourceRegistrationController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        try{
-             $columns = [
-                 (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Register No'],
-                (object)['data' => 'course_id', 'name' => 'course_id', 'td_label' => 'Course Name'],
+        try {
+            $columns = [
+                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Register No'],
+                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
@@ -55,24 +56,25 @@ class CourceRegistrationController extends Controller
 
             $data = [];
 
-            if($request->ajax()){
+            if ($request->ajax()) {
                 // dd($request->all());
                 $data = CourceRegistration::select('*');
                 $data = $data->withTrashed();
+                $data = $data->with(['course']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
                 $deletePermisstion = true;
 
                 $returnData = Datatables::of($data)
-                ->addIndexColumn()
-                ->filter(function ($query) use ($request) {
-                    // if ($request->has('search')) {
-                    //     $query->where('course_name', 'like',"%".$request->search."%");
-                    //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
-                    // }
-                })
-                 ->editColumn('status', function ($row) use ($modules) {
+                    ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        // if ($request->has('search')) {
+                        //     $query->where('course_name', 'like',"%".$request->search."%");
+                        //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
+                        // }
+                    })
+                    ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
                         // $btn = ucfirst($row->status);
 
@@ -104,37 +106,35 @@ class CourceRegistrationController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                ->addColumn('action', function($row) use ($modules,$editPermisstion, $deletePermisstion){
-                    $btn = '';
-                    if (!$row?->deleted_at) {
-                        // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                        if ($editPermisstion) {
-                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                        $btn = '';
+                        if (!$row?->deleted_at) {
+                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+                            if ($editPermisstion) {
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                            }
+                            if ($deletePermisstion) {
+                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                            }
+                        } else {
+                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
-                        if ($deletePermisstion) {
-                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
+                        if ($btn == '') {
+                            $btn = '-';
                         }
-                    } else {
-                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                    }
-                    // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                    if ($btn == '') {
-                        $btn = '-';
-                    }
 
-                    return $btn;
-                })
-                ->rawColumns(['status','action'])
-                ->make(true);
+                        return $btn;
+                    })
+                    ->rawColumns(['status', 'action'])
+                    ->make(true);
                 return $returnData;
             }
-            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
-        } catch(\Exception $e) {
+            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -143,9 +143,9 @@ class CourceRegistrationController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        $courses = MasterCourse::all();
-        $education = Admission::all();
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
+
+        $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
+        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
     /**
@@ -163,9 +163,20 @@ class CourceRegistrationController extends Controller
 
         try {
             $coursereg = $request->all();
+            // Format the date correctly using Carbon
+            if (!empty($coursereg['date'])) {
+                $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
+            }
+
+            // Add the authenticated user's ID
             $coursereg['created_by'] = Auth::user()->id;
+
+            // Create the record
             CourceRegistration::create($coursereg);
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' Create Successfully');
+
+            // Redirect with success message
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -184,15 +195,15 @@ class CourceRegistrationController extends Controller
      */
     public function edit(string $id)
     {
-         try{
+        try {
             $modules = $this->modules;
             View::share('modules', $modules);
-              $courses = MasterCourse::all();
-        $education = Admission::all();
-        // return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
+
+            $admissions = Admission::all();
+            // return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
             $edit = CourceRegistration::findOrFail($id);
-            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit','courses','education'));
-        } catch(\Exception $e) {
+            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -203,7 +214,7 @@ class CourceRegistrationController extends Controller
     public function update(Request $request, string $id)
     {
 
-          $modules = $this->modules;
+        $modules = $this->modules;
         // return $request->all();
         $request['id'] = $id;
 
@@ -214,18 +225,18 @@ class CourceRegistrationController extends Controller
             'date' => 'required|max:255',
             'note' => 'required|max:255',
         ]);
-        try{
+        try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
             $updateData = CourceRegistration::findOrFail($id);
-            if($updateData){
+            if ($updateData) {
                 unset($validated['id']);
                 $updateData->update($validated);
 
-                return Redirect::route($modules['route'].'.index')->withSuccess($modules['title'].' update successfully');
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -233,7 +244,7 @@ class CourceRegistrationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
         $isAjax = $request->ajax();

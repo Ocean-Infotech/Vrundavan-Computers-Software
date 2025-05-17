@@ -11,7 +11,7 @@ class CourseRegister extends Model
 {
     use SoftDeletes;
 
-	public $table = 'attedance';
+	public $table = 'course_register';
 
 	protected $fillable = [
         'admission_id',

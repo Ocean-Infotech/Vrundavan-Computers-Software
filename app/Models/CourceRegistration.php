@@ -23,6 +23,12 @@ class CourceRegistration extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function admission()
+    {
+        return $this->belongsTo(Admission::class, 'register_id', 'id');
+    }
+
     public function course()
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');

@@ -209,18 +209,12 @@
         @enddirectCanAny
 
 
-        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'set-point-to-rupees' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
             </a>
             <ul class="menu-sub">
-
-                <li class="menu-item {{ $sidebar_active == 'set-point-to-rupees' ? 'active' : '' }}">
-                    <a href="{{ route('set-point-to-rupees') }}" class="menu-link">
-                        <div data-i18n="Course Register">Course Register</div>
-                    </a>
-                </li>
 
                 <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
                     <a href="{{ route('course.index') }}"class="menu-link">
@@ -228,10 +222,16 @@
                     </a>
                 </li>
 
+                <!-- <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
+                    <a href="{{ route('batch.index') }}"class="menu-link">
+                        <div data-i18n="Batch Master">Batch Master</div>
+                    </a>
+                </li> -->
+
 
                 <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
                     <a href="{{ route('cource-registration.index') }}" class="menu-link">
-                        <div data-i18n="Course Register">Course Registration</div>
+                        <div data-i18n="Course Registration">Course Registration</div>
                     </a>
                 </li>
             </ul>

@@ -134,7 +134,7 @@
         $('.select2').select2();
     </script>
 
-    <!-- @yield('page_leavel_script') -->
+    
 
     <!-- Main JS -->
     <script src="{{ asset('admin/assets/js/main.js') }}"></script>

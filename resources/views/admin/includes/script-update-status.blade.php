@@ -39,7 +39,7 @@
                     }
                 },
                 error: function() {
-                    toastr.error('Something Went wrong deleted failed.');
+                    toastr.error('Something Went wrong Update Status failed.');
                 }
             });
         }else{
