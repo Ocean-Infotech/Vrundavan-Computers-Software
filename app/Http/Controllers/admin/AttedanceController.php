@@ -4,7 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attedance;
-use App\Models\CourseRegister;
+use App\Models\Admission;
+use App\Models\CourceRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
+use Carbon\Carbon;
 
 class AttedanceController extends Controller
 {
@@ -130,29 +132,27 @@ class AttedanceController extends Controller
 
     public function filter_student_data(Request $request)
     {   
-        $data = CourseRegister::select('*');
-        // $data = $data->withTrashed();
-        $data = $data->with(['admission', 'course', 'batch']);
+        
+        
+        $data = CourceRegistration::select('*');
+        $data = $data->withTrashed();
+        $data = $data->with(['admission', 'course']);
         // Apply filters if present
-        if ($request->filled('filter_admission')) {
-            $data->where('admission_id', $request->input('filter_admission'));
+        
+        if ($request->filled('filter_admission') && $request->filter_admission) {
+            $data->where('register_id', $request->input('filter_admission'));
         }
 
-        if ($request->filled('filter_course')) {
+        if ($request->filled('filter_course') && $request->filter_course) {
             $data->where('course_id', $request->input('filter_course'));
         }
 
-        if ($request->filled('filter_batch')) {
-            $data->where('batch_id', $request->input('filter_batch'));
-        }
-
         $data = $data->get();
-
+        // return $returnData;
         return response()->json([
             'data' => $data
         ]);
     }
-
 
 
     public function store(AttedanceRequest $request)
@@ -168,6 +168,37 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function student_in(Request $request)
+    {
+        $isAjax = ($request->ajax()) ? true : false;
+        dd('L-177',$request->all());
+        $modules = $this->modules;
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', Rule::exists((new Admission())->getTable(), 'id')],
+        ]);
+
+        if ($validator->fails() && $isAjax) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+        }
+
+        try {
+            // $coursereg = $request->all();
+            $coursereg['admission_id'] = $request->id;
+            $coursereg['date'] = Carbon::now(); // Full DateTime
+            $coursereg['in_time'] = Carbon::now()->toDateString(); // e.g. "2025-05-15"
+            $coursereg['created_by'] = Auth::user()->id;
+
+            Attedance::create($coursereg);
+            
+            return Redirect::back()->withSuccess('IN successfully.')->withInput();
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
+            }
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
 
@@ -306,4 +337,6 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    
 }

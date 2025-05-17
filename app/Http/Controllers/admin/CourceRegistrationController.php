@@ -7,6 +7,7 @@ use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -59,7 +60,7 @@ class CourceRegistrationController extends Controller
                 // dd($request->all());
                 $data = CourceRegistration::select('*');
                 $data = $data->withTrashed();
-                $data = CourceRegistration::withTrashed()->with('course')->select('cource_registration.*');
+                $data = $data->with(['course']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -138,8 +139,6 @@ class CourceRegistrationController extends Controller
         }
     }
 
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -147,9 +146,9 @@ class CourceRegistrationController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        $courses = MasterCourse::all();
-        $education = Admission::all();
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
+
+        $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
+        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
     /**
@@ -167,9 +166,20 @@ class CourceRegistrationController extends Controller
 
         try {
             $coursereg = $request->all();
+            // Format the date correctly using Carbon
+            if (!empty($coursereg['date'])) {
+                $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
+            }
+
+            // Add the authenticated user's ID
             $coursereg['created_by'] = Auth::user()->id;
+
+            // Create the record
             CourceRegistration::create($coursereg);
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' Create Successfully');
+
+            // Redirect with success message
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -191,11 +201,11 @@ class CourceRegistrationController extends Controller
         try {
             $modules = $this->modules;
             View::share('modules', $modules);
-            $courses = MasterCourse::all();
-            $education = Admission::all();
+
+            $admissions = Admission::all();
             // return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
             $edit = CourceRegistration::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'courses', 'education'));
+            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

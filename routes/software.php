@@ -76,7 +76,8 @@ Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'sta
 Route::resource('/attedance', AttedanceController::class);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
 Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
-Route::match(['get', 'post'], 'filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
+Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
+Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
 
 /** Master Copuntry Modules */
 Route::resource('/country', MasterCountryController::class);
