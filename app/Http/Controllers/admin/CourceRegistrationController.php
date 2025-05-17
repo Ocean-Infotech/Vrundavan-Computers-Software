@@ -59,7 +59,7 @@ class CourceRegistrationController extends Controller
                 // dd($request->all());
                 $data = CourceRegistration::select('*');
                 $data = $data->withTrashed();
-                  $data = CourceRegistration::withTrashed()->with('course')->select('cource_registration.*');
+                $data = CourceRegistration::withTrashed()->with('course')->select('cource_registration.*');
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -332,4 +332,5 @@ class CourceRegistrationController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 }

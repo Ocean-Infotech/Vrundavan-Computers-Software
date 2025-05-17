@@ -27,4 +27,8 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
+    public function admission()
+    {
+        return $this->belongsTo(Admission::class, 'register_id');
+    }
 }

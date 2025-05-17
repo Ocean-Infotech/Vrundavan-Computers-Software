@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CourceRegistration extends FormRequest
 {
@@ -11,7 +12,7 @@ class CourceRegistration extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,18 @@ class CourceRegistration extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+      return [
+            'register_id' => 'required|exists:admission,id',
+            'course_id' => [
+                'required',
+                Rule::unique('cource_registration')->where(function ($query) {
+                    return $query->where('register_id', $this->input('register_id'));
+                }),
+            ],
+            'fee' => 'required|numeric|min:0',
+            'date' => 'required|date',
+            'note' => 'nullable|string',
+            'status' => 'required|in:pending,approved,rejected', // adjust as needed
         ];
     }
 }

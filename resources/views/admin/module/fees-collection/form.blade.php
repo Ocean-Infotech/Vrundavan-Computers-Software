@@ -10,7 +10,7 @@
 @section('title', $page_title)
 
 @section('page_style_file')
-    {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
+    {{-- <link href="{{ asset('assets/select2/css/select2.min.css') }}" rel="stylesheet"> --}}
 @endsection
 
 
@@ -29,7 +29,7 @@
                             {{ isset($edit) && $edit?->id
                                 ? 'Edit'
                                 : 'Add
-                                                                                ' }}
+                                                                                                                                                                                                                                                                                                                                                                                                    ' }}
                             {{ $page_title }}</li>
                     </ol>
                 </div>
@@ -57,13 +57,13 @@
                 @isset($edit)
                     @method('PUT')
                 @endisset
-                 <div class="row">
-                      <div class="col-md-4 mb-2">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="search">Search <span class="text-danger">*</span></label>
                             <select name="search" id="search"
                                 class="form-control select2 @error('search') is-invalid @enderror">
-                                <option value="">-- select  --</option>
+                                <option value="">-- select --</option>
 
                             </select>
                             @error('search')
@@ -71,7 +71,7 @@
                             @enderror
                         </div>
                     </div>
-                 </div>
+                </div>
                 <div class="row">
 
                     {{-- student id --}}
@@ -91,47 +91,60 @@
                         </div>
                     </div>
 
-                    {{-- Addmission id --}}
+                    {{-- Admission Id --}}
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
-                            <label class="form-label">Addmission Id <span class="text-danger">*</span> </label>
-                            <input id="addmission_id" type="text"
-                                class="form-control @error('addmission_id') is-invalid @enderror num_only"
-                                name="addmission_id"
-                                value="{{ isset($edit?->addmission_id) ? $edit?->addmission_id : old('addmission_id') }}">
-
-                            @error('addmission_id')
+                            <label class="form-label">Admission Id <span class="text-danger">*</span></label>
+                            <select id="admission_id"
+                                class="form-control select2 @error('admission_id') is-invalid @enderror"
+                                name="admission_id">
+                                <option value="">-- Select Admission --</option>
+                                @foreach ($admissions as $admission)
+                                    <option value="{{ $admission->id }}"
+                                        data-url="{{ route('get-admission-details', ['id' => $admission->id]) }}"
+                                        {{ old('register_id', $edit->register_id ?? '') == $admission->id ? 'selected' : '' }}>
+                                        {{ $admission->id }}
+                                @endforeach
+                            </select>
+                            @error('admission_id')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
                         </div>
                     </div>
-                    {{-- course name --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label class="form-label"> Course Name <span class="text-danger">*</span> </label>
-                            <input id="course_name" type="text"
-                                class="form-control @error('course_name') is-invalid @enderror" name="course_name"
-                                value="{{ isset($edit?->course_name) ? $edit?->course_name : old('course_name') }}"
-                                autocomplete="course_name" autofocus placeholder="Enter Course Name">
 
-                            @error('course_name')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
+                    {{-- Course Name --}}
+                    <div class="col-md-4 mb-3">
+                        <label for="course_id" class="form-label">
+                            Course Name <span class="text-danger">*</span>
+                        </label>
+                        <select name="course_id" id="course_id"
+                            class="form-control select2 @error('course_id') is-invalid @enderror">
+                            <option value="">-- Select Course Name --</option>
+                            @foreach ($courses as $course)
+                                <option value="{{ $course->id }}" data-fee="{{ $course->course_fees }}"
+                                    {{ old('course_id', $edit->course_id ?? '') == $course->id ? 'selected' : '' }}>
+                                    {{ $course->course_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('course_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
+
+
+
 
                     {{-- Student name --}}
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
-                            <label class="form-label"> Course Name <span class="text-danger">*</span> </label>
+                            <label class="form-label"> Student Name <span class="text-danger">*</span> </label>
                             <input id="student_name" type="text"
                                 class="form-control @error('student_name') is-invalid @enderror" name="student_name"
                                 value="{{ isset($edit?->student_name) ? $edit?->student_name : old('student_name') }}"
-                                autocomplete="student_name" autofocus placeholder="Enter Course Name">
+                                autocomplete="student_name" autofocus placeholder="Student Name" readonly>
 
                             @error('student_name')
                                 <span class="invalid-feedback">
@@ -141,25 +154,39 @@
                         </div>
                     </div>
 
-                    {{-- year / semester --}}
+
+                    {{-- Year / Semester --}}
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="year_semester">Year / Semester <span class="text-danger">*</span></label>
                             <select name="year_semester" id="year_semester"
                                 class="form-control select2 @error('year_semester') is-invalid @enderror">
                                 <option value="">-- select Semester --</option>
-                                <option value="">1</option>
-                                <option value="">2</option>
-                                <option value="">3</option>
-                                <option value="">4</option>
-                                <option value="">5</option>
-                                <option value="">6</option>
+                                <option value="1"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '1' ? 'selected' : '' }}>1
+                                </option>
+                                <option value="2"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '2' ? 'selected' : '' }}>2
+                                </option>
+                                <option value="3"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '3' ? 'selected' : '' }}>3
+                                </option>
+                                <option value="4"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '4' ? 'selected' : '' }}>4
+                                </option>
+                                <option value="5"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '5' ? 'selected' : '' }}>5
+                                </option>
+                                <option value="6"
+                                    {{ old('year_semester', $edit->year_semester ?? '') == '6' ? 'selected' : '' }}>6
+                                </option>
                             </select>
                             @error('year_semester')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
+
 
 
 
@@ -177,69 +204,168 @@
                     </div>
 
 
-                    {{-- Fees (auto-filled) --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="fee">Course Fees <span class="text-danger">*</span></label>
-                            <input type="number" name="fee" id="fee"
-                                class="form-control @error('fee') is-invalid @enderror"
-                                value="{{ old('fee', $edit->fee ?? '') }}">
-                            @error('fee')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
+                    {{-- Course Fees (Auto-filled) --}}
+                    <div class="col-md-4 mb-3">
+                        <label for="fees" class="form-label">
+                            Course Fees <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" name="fees" id="fees"
+                            class="form-control @error('fees') is-invalid @enderror" placeholder="Course Fee"
+                            value="{{ old('fees', $edit->fees ?? '') }}">
+                        @error('fees')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- Mode --}}
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="mode">Mode <span class="text-danger">*</span></label>
-                            <select name="mode" id="mode"
-                                class="form-control select2 @error('mode') is-invalid @enderror">
-                                <option value="">-- select Mode --</option>
-                                <option value="">Cash</option>
-                                <option value="">Online</option>
-                                <option value="">Cheque</option>
-                                <option value="">Discount</option>
-                                <option value="">Return</option>
-                            </select>
-                            @error('mode')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="mode" class="form-label">
+                            Mode <span class="text-danger">*</span>
+                        </label>
+                        <select name="mode" id="mode"
+                            class="form-control select2 @error('mode') is-invalid @enderror">
+                            <option value="">-- Select Mode --</option>
+                            <option value="Cash" {{ old('mode', $edit->mode ?? '') == 'Cash' ? 'selected' : '' }}>Cash
+                            </option>
+                            <option value="Online" {{ old('mode', $edit->mode ?? '') == 'Online' ? 'selected' : '' }}>
+                                Online</option>
+                            <option value="Cheque" {{ old('mode', $edit->mode ?? '') == 'Cheque' ? 'selected' : '' }}>
+                                Cheque</option>
+                            <option value="Discount" {{ old('mode', $edit->mode ?? '') == 'Discount' ? 'selected' : '' }}>
+                                Discount</option>
+                            <option value="Return" {{ old('mode', $edit->mode ?? '') == 'Return' ? 'selected' : '' }}>
+                                Return</option>
+                        </select>
+                        @error('mode')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
                     </div>
 
-                    {{-- password --}}
+                    {{-- UPI ID --}}
+                    <div class="col-md-4 mb-3" id="upi_id_box" style="display: none;">
+                        <label for="upi_id">UPI ID <span class="text-danger">*</span></label>
+                        <input type="text" name="upi_id" id="upi_id"
+                            class="form-control @error('upi_id') is-invalid @enderror"
+                            value="{{ old('upi_id', $edit->upi_id ?? '') }}" placeholder="Enter UPI ID">
+                        @error('upi_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    {{-- Cheque ID --}}
+                    <div class="col-md-4 mb-3" id="cheque_id_box" style="display: none;">
+                        <label for="cheque_no">Cheque No <span class="text-danger">*</span></label>
+                        <input type="text" name="cheque_no" id="cheque_no"
+                            class="form-control @error('cheque_no') is-invalid @enderror"
+                            value="{{ old('cheque_no', $edit->cheque_no ?? '') }}" placeholder="Enter Cheque No">
+                        @error('cheque_no')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    {{-- Return Reason --}}
+                    <div class="col-md-4 mb-3" id="return_reason_box" style="display: none;">
+                        <label for="return_reason">Return Reason <span class="text-danger">*</span></label>
+                        <textarea name="return_reason" id="return_reason" class="form-control @error('return_reason') is-invalid @enderror"
+                            placeholder="Enter Return Reason">{{ old('return_reason', $edit->return_reason ?? '') }}</textarea>
+                        @error('return_reason')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                {{-- password
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="password">Password<span class="text-danger">*</span></label>
                             <input type="password" name="password" id="password"
                                 class="form-control @error('password') is-invalid @enderror"
-                                value="{{ old('password', $edit->password ?? '') }}">
+                                value="{{ old('password', $edit->password ?? '') }}" placeholder="Password">
                             @error('password')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
 
 
 
-                </div>
-
-                <div class="row mt-5">
-                    <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-success mt-1">
-                            {{ isset($edit) ? 'Update' : 'Submit' }}
-                        </button>
-                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
-                    </div>
-                </div>
-            </form>
         </div>
+
+        <div class="row mt-5">
+            <div class="col-md-12 text-center">
+                <button type="submit" class="btn btn-success mt-1">
+                    {{ isset($edit) ? 'Update' : 'Submit' }}
+                </button>
+                <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
+            </div>
+        </div>
+        </form>
+    </div>
     </div>
 
 @endsection
-
-
 @section('page_leavel_script')
+    <script src="{{ asset('assets/jquery/jquery.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Choose an option',
+                allowClear: true
+            });
+
+            // Auto-fill fees when course is selected
+            function updateFee() {
+                const fee = $('#course_id option:selected').data('fee') || '';
+                $('#fees').val(fee);
+            }
+
+            $('#course_id').on('change', updateFee);
+            updateFee(); // Run on load
+
+            // Show/hide payment-related fields based on mode
+            function togglePaymentFields() {
+                const mode = $('#mode').val().toLowerCase();
+
+                $('#upi_id_box, #cheque_id_box, #return_reason_box').hide();
+
+                if (mode === 'online') {
+                    $('#upi_id_box').show();
+                } else if (mode === 'cheque') {
+                    $('#cheque_id_box').show();
+                } else if (mode === 'return') {
+                    $('#return_reason_box').show();
+                }
+            }
+
+            $('#mode').on('change', togglePaymentFields);
+            togglePaymentFields(); // Run on load
+        });
+          $(document).ready(function() {
+        $('#admission_id').on('change', function() {
+            let admissionId = $(this).val();
+            if (admissionId) {
+                $.ajax({
+                    url: '/get-admission-details/' + admissionId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.first_name && data.last_name) {
+                            $('#student_name').val(data.first_name + ' ' + data.last_name);
+                        } else {
+                            $('#student_name').val('');
+                        }
+                    },
+                    error: function() {
+                        $('#student_name').val('');
+                    }
+                });
+            } else {
+                $('#student_name').val('');
+            }
+        });
+
+        // Trigger change on page load in case of edit mode
+        $('#admission_id').trigger('change');
+    });
+    </script>
 @endsection

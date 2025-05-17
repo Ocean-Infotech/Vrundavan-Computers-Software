@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('course_id');
             $table->string('fee');
             $table->date('date');
-            $table->date('note');
+            $table->text('note');
 
             $table->string('status')->default('active')->comment('active, inactive');
             $table->string('created_by')->nullable();
