@@ -66,37 +66,39 @@
 </head>
 
 <body style="--bs-scrollbar-width: 0px;">
-   @auth
-    <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar">
-        <div class="layout-container">
-        @include('software.includes.sidebar_menu')
+    @auth
+        <!-- Layout wrapper -->
+        <div class="layout-wrapper layout-content-navbar">
+            <div class="layout-container">
+                @include('software.includes.sidebar_menu')
 
-            <!-- Layout container -->
-            <div class="layout-page">
-                <!-- Navbar -->
-                @include('software.includes.navbar')
-                <!-- / Navbar -->
+                <!-- Layout container -->
+                <div class="layout-page">
+                    <!-- Navbar -->
+                    @include('software.includes.navbar')
+                    <!-- / Navbar -->
 
-                <!-- Content wrapper -->
-                <div class="content-wrapper">
-                    <!-- Content -->
-                    <div class="container-fuild flex-grow-1 container-p-y container-p-x">
-                        @yield('breadcrumb')
+                    <!-- Content wrapper -->
+                    <div class="content-wrapper">
+                        <!-- Content -->
+                        <div class="container-fuild flex-grow-1 container-p-y container-p-x">
+                            @yield('breadcrumb')
 
-                        @yield('content')
+                            @include('software.partials.flash_messages')
+
+                            @yield('content')
+                        </div>
                     </div>
                 </div>
+                <!-- / Layout page -->
+
+                <!-- Overlay -->
+                <div class="layout-overlay layout-menu-toggle"></div>
+
+                <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+                <div class="drag-target"></div>
             </div>
-            <!-- / Layout page -->
-
-            <!-- Overlay -->
-            <div class="layout-overlay layout-menu-toggle"></div>
-
-            <!-- Drag Target Area To SlideIn Menu On Small Screens -->
-            <div class="drag-target"></div>
         </div>
-    </div>
     @else
         @yield('content')
     @endauth
@@ -144,9 +146,9 @@
     <!-- Page JS -->
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
-            $('.num_only').keypress(function (e) {
+            $('.num_only').keypress(function(e) {
 
                 var charCode = (e.which) ? e.which : event.keyCode
 

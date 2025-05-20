@@ -21,38 +21,21 @@
 @endsection
 
 @section('breadcrumb')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                {{-- <h3 class="page-title">{{ $page_title }}</h3> --}}
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">{{ $page_title }}</li>
-                    </ol>
-                </div>
-                <div>
-                    {{-- @can($permisstion_prefix . '-sync')
-                        <a href="{{ ($route) ? route($route.'.sync') : '#'}}" class="btn btn-primary"> <i class="fa-solid fa-sync"></i> Sync {{$page_title }} </a>
-                    @endcan --}}
-                    {{-- @can($permisstion_prefix . '-create') -- }}
-
-                    {{-- @endcan --}}
-
-                    <a href="{{ route($route . '.create') }}" class="btn btn-primary ml-auto"><i class="fa fa-plus"></i> Add
-                        {{ $page_title }}</a>
-                </div>
-            </div>
-        </div>
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
+            'page_title' => $page_title,
+            'route' => $route,
+            // 'show_add_btn' => $modules['addPermission'],
+            'show_add_btn' => true,
+            'show_filter_btn' => false,
+            'show_back_btn' => false,
+        ])
     </div>
-    <!-- end page title -->
 @endsection
 
 @section('content')
-
-    @include('software.partials.flash_messages')
-    <div class="row my-4">
+    <div class="row my-2">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
