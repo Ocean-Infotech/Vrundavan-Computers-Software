@@ -139,14 +139,8 @@
     </script>
 
 
-<<<<<<< HEAD:resources/views/admin/module/fees-collection/index.blade.php
-    @include('admin.includes.script-delete-record')
-    @include('admin.includes.script-restore-record')
-    @include('admin.includes.script-update-status')
-=======
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
     @include('software.includes.script-update-status')
->>>>>>> a6e55caacdcbfd6afea493de0e8e297887b9f7c5:resources/views/software/module/cource-registration/index.blade.php
 @endsection
 
