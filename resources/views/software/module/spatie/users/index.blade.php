@@ -14,32 +14,22 @@ $i = 0;
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}">
 @endsection
 
-@section('breadcrumb')
-<!-- start page title -->
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            {{-- <h3 class="page-title">{{ $page_title }}</h3> --}}
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">{{ $page_title }}</li>
-                </ol>
-            </div>
-            @directCan($permisstion_prefix . '-create')
-            <a href="{{ route($route . '.create') }}" class="btn btn-primary ml-auto"><i class="fa fa-plus"></i> Add
-                {{ $page_title }}</a>
-            @enddirectCan
-        </div>
-    </div>
-</div>
-<!-- end page title -->
-@endsection
-
 @section('content')
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
+            'route' => $route,
+            'show_add_btn' => true,
+            'show_filter_btn' => false,
+            'show_export_btns' => false,
+            'show_excal_btn' => false,
+            'show_print_btn' => false,
+            'show_back_btn' => false,
+        ])
+    </div>
 
 @include('admin.partials.flash_messages')
-<div class="row my-4">
+<div class="row my-3">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">

@@ -14,28 +14,21 @@
 @endsection
 
 
-@section('breadcrumb')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                {{-- <h3 class="page-title">{{ $page_title }}</h3> --}}
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route($route . '.index') }}">View all {{ $page_title }}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Add' }}
-                            {{ $page_title }}</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end page title -->
-@endsection
-
 @section('content')
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [
+                ['title' => $page_title, 'url' => route($route . '.index')],
+                [
+                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
+                    'url' => '',
+                ],
+            ],
+            'route' => $route,
+            'show_add_btn' => false,
+            'show_back_btn' => true,
+        ])
+    </div>
 
     @include('software.partials.flash_messages')
 
