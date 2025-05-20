@@ -19,7 +19,7 @@ class MasterCourseController extends Controller
     {
         $this->modules = [
             'title' => 'Course',
-            'folder_path' => 'master.course',
+            'folder_path' => 'software.module.master.course',
             'route' => 'course',
             'table_name' => (new MasterCourse())->getTable(),
             'permisstion_prefix' => 'course',
@@ -29,6 +29,8 @@ class MasterCourseController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+
+        View::share('course_year_type', MasterCourse::course_year_type());
     }
 
     public function index(Request $request)
@@ -39,6 +41,7 @@ class MasterCourseController extends Controller
             $columns = [
                 (object)['data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name'],
                 (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
+                (object)['data' => "course_year", 'name' => 'course_year', 'td_label' => 'Course Year'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
@@ -107,7 +110,7 @@ class MasterCourseController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -117,7 +120,7 @@ class MasterCourseController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -128,6 +131,7 @@ class MasterCourseController extends Controller
         $validated = $request->validate([
             'course_name' => 'required|unique:' . $modules['table_name'] . ',course_name|max:255',
             'course_fees' => 'required|max:255',
+            'course_year' => 'required|max:255',
         ]);
 
         try {
@@ -146,7 +150,7 @@ class MasterCourseController extends Controller
             View::share('modules', $modules);
 
             $edit = MasterCourse::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -278,5 +282,5 @@ class MasterCourseController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-    
+
 }

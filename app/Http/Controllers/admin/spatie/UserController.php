@@ -90,7 +90,7 @@ class UserController extends Controller
                 }
                 $data = $data->orderBy('id', 'DESC');
                  //return $data;
-                
+
                 return Datatables::of($data)
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
@@ -145,7 +145,7 @@ class UserController extends Controller
                     ->make(true);
             }
 
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -175,7 +175,7 @@ class UserController extends Controller
             $roles = Helper::getRolesBasedOnLoginRole();
             View::share('roles', $roles);
 
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('roles'));
+            return view('software.module.' . $modules['folder_path'] . '.form', compact('roles'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -245,7 +245,7 @@ class UserController extends Controller
                 $selectedRole = $edit->roles->pluck('id')->first();
             }
             // return $edit->roles->pluck('id')->first();
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'roles', 'selectedRole'));
+            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'roles', 'selectedRole'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -382,7 +382,7 @@ class UserController extends Controller
             if ($isAjax) {
                 if ($getResponse == "html") {
                     View::share('permissions', $getPermissions);
-                    $renderedHtml = view("admin.module.spatie.users.give-permission-view")->render();
+                    $renderedHtml = view("software.module.spatie.users.give-permission-view")->render();
                     return $this->sendResponse($renderedHtml, "Permission list", ['response' => 'html', 'role_permissions' => $getPermissions]);
                 }
 

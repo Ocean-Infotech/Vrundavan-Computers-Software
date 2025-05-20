@@ -20,7 +20,7 @@ class TestController extends Controller
     {
         $this->modules = [
             'title' => 'Test',
-            'folder_path' => 'test',
+            'folder_path' => 'software.module.test',
             'route' => 'test',
             'table_name' => (new Test())->getTable(),
             'permisstion_prefix' => 'test',
@@ -73,7 +73,7 @@ class TestController extends Controller
                     $status = '';
                     $dropdown = "";
                     $dropdown .= '<ul class="dropdown-menu" style="">';
-                    
+
                     if ($row->status == "active") {
                         $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
@@ -106,14 +106,14 @@ class TestController extends Controller
                     if ($btn == '') {
                         $btn = '-';
                     }
-                        
+
                     return $btn;
                 })
                 ->rawColumns(['status','action'])
                 ->make(true);
                 return $returnData;
             }
-            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
+            return view($modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -123,7 +123,7 @@ class TestController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
+        return view($modules['folder_path'].'.form',compact('modules'));
     }
 
     public function store(TestRequest $request)
@@ -132,7 +132,7 @@ class TestController extends Controller
         View::share('modules', $modules);
         // return $request->all();
         $validated = $request->validated();
-        
+
         try{
             $validated['created_by'] = Auth::user()->id;
             Test::create($validated);
@@ -149,7 +149,7 @@ class TestController extends Controller
             View::share('modules', $modules);
 
             $edit = Test::findOrFail($id);
-            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
+            return view($modules['folder_path'].'.form',compact('modules','edit'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -214,7 +214,7 @@ class TestController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-    
+
 
     public function destroy(Request $request, string $id)
     {
@@ -264,7 +264,7 @@ class TestController extends Controller
 
     public function restore($id)
     {
-       
+
         $modules = $this->modules;
 
         try {

@@ -81,7 +81,7 @@ class PermissionController extends Controller
                 return $returnData;
             }
 
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('modules'));
+            return view('software.module.' . $modules['folder_path'] . '.index', compact('modules'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -92,7 +92,7 @@ class PermissionController extends Controller
     public function create()
     {
         $modules = $this->modules;
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -133,7 +133,7 @@ class PermissionController extends Controller
     {
         $modules = $this->modules;
         $edit = Permission::findOrFail($id);
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
     }
 
 

@@ -14,9 +14,18 @@ class MasterCourse extends Model
 	protected $fillable = [
         'course_name',
         'course_fees',
+        'course_year',
         'status',
         'created_by',
         'updated_by',
         'deleted_by',
     ];
+
+    public static function course_year_type(){
+        return [
+            'year' => 'Year',
+            'month' => 'Month',
+            'day' => 'Day',
+        ];
+    }
 }

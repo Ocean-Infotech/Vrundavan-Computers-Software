@@ -22,7 +22,7 @@ class AdmissionController extends Controller
     {
         $this->modules = [
             'title' => 'Admission',
-            'folder_path' => 'admission',
+            'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
@@ -39,7 +39,7 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        try {
+        try{
             $columns = [
                 (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
                 (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
@@ -64,59 +64,59 @@ class AdmissionController extends Controller
                 $deletePermisstion = true;
 
                 $returnData = Datatables::of($data)
-                    ->addIndexColumn()
-                    ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->where('aadhar_card_no', 'like', "%" . $request->search . "%");
-                            $query->orWhere('first_name', 'like', "%" . $request->search . "%");
-                        }
-                    })
-                    ->editColumn('status', function ($row) use ($modules) {
-                        $status = '';
-                        $dropdown = "";
-                        $dropdown .= '<ul class="dropdown-menu" style="">';
+                ->addIndexColumn()
+                ->filter(function ($query) use ($request) {
+                    if ($request->has('search')) {
+                        $query->where('aadhar_card_no', 'like',"%".$request->search."%");
+                        $query->orWhere('first_name', 'like',"%".$request->search."%");
+                    }
+                })
+                ->editColumn('status', function ($row) use($modules) {
+                    $status = '';
+                    $dropdown = "";
+                    $dropdown .= '<ul class="dropdown-menu" style="">';
 
-                        if ($row->status == "created") {
-                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="rejected">Rejected</a></li>';
-                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                        } elseif ($row->status == "rejected") {
-                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="created">Created</a></li>';
-                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                        } else {
-                            return $status;
-                        }
-                        $dropdown .= '</ul>';
-                        $status .= $dropdown;
+                    if ($row->status == "created") {
+                        $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="rejected">Rejected</a></li>';
+                        // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+                    } elseif ($row->status == "rejected") {
+                        $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="created">Created</a></li>';
+                        // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
+                    } else {
                         return $status;
-                    })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($deletePermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
+                    }
+                    $dropdown .= '</ul>';
+                    $status .= $dropdown;
+                    return $status;
+                })
+                ->addColumn('action', function($row) use ($modules,$editPermisstion, $deletePermisstion){
+                    $btn = '';
+                    if (!$row?->deleted_at) {
+                        // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+                        if ($editPermisstion) {
+                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                         }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
+                        if ($deletePermisstion) {
+                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                         }
+                    } else {
+                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
+                    }
+                    // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
+                    if ($btn == '') {
+                        $btn = '-';
+                    }
 
-                        return $btn;
-                    })
-                    ->rawColumns(['status', 'action'])
-                    ->make(true);
+                    return $btn;
+                })
+                ->rawColumns(['status','action'])
+                ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
-        } catch (\Exception $e) {
+            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
+        } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -125,7 +125,7 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
     }
 
     public function store(AdmissionRequest $request)
@@ -185,8 +185,8 @@ class AdmissionController extends Controller
             $education = EducationDetails::where('admission_id', $id)->get();
             View::share('education', $education);
 
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
-        } catch (\Exception $e) {
+            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
+        } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
