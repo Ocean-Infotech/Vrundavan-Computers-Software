@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
+        Schema::create('master_semester', function (Blueprint $table) {
             $table->id();
-            $table->string('key');
-            $table->longText('value')->nullable();
+            $table->string('course_id')->comment('master_course_id');
+            $table->string('semester');
             $table->string('status')->default('active')->comment('active, inactive');
-			$table->string('created_by')->nullable();
-			$table->string('updated_by')->nullable();
+            $table->string('created_by')->nullable();
+            $table->string('updated_by')->nullable();
             $table->timestamps();
-			$table->string('deleted_by')->nullable();
-			$table->softDeletes();
+            $table->string('deleted_by')->nullable();
+            $table->softDeletes();
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        Schema::dropIfExists('master_semester');
     }
 };

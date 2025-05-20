@@ -14,6 +14,7 @@ class MasterCourse extends Model
 	protected $fillable = [
         'course_name',
         'course_fees',
+        'course_year',
         'status',
         'created_by',
         'updated_by',

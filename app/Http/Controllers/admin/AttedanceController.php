@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
+use App\Models\CourseRegister;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AttedanceController extends Controller
 {
@@ -131,14 +133,15 @@ class AttedanceController extends Controller
     }
 
     public function filter_student_data(Request $request)
-    {   
-        
-        
+    {
+
+
         $data = CourceRegistration::select('*');
         $data = $data->withTrashed();
         $data = $data->with(['admission', 'course']);
+        // $data = $data->orWith(['attedance']);
         // Apply filters if present
-        
+
         if ($request->filled('filter_admission') && $request->filter_admission) {
             $data->where('register_id', $request->input('filter_admission'));
         }
@@ -147,10 +150,15 @@ class AttedanceController extends Controller
             $data->where('course_id', $request->input('filter_course'));
         }
 
-        $data = $data->get();
+        $registrations = $data->get();
+
+        $attedances = Attedance::where('date', Carbon::now()->toDateString())->get();
+        // $combined = $registrations->merge($attedances);
+        //dd('L-176', $combined); // Now you’ll see all values
         // return $returnData;
         return response()->json([
-            'data' => $data
+            'data' => $registrations,
+            'attedances'=> $attedances,
         ]);
     }
 
@@ -173,34 +181,40 @@ class AttedanceController extends Controller
 
     public function student_in(Request $request)
     {
-        $isAjax = ($request->ajax()) ? true : false;
-        dd('L-177',$request->all());
-        $modules = $this->modules;
-        $validator = Validator::make($request->all(), [
-            'id' => ['required', Rule::exists((new Admission())->getTable(), 'id')],
-        ]);
+        if ($request->ajax()) {
+            try {
+                $studentIds = explode(',', $request->studentid);
+                $coursereg = [];
+                foreach ($studentIds as $value) {
+                    $CourceRegistr = CourceRegistration::findOrFail($value);
 
-        if ($validator->fails() && $isAjax) {
-            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
-        }
+                    $coursereg = [
+                        'admission_id' => $CourceRegistr->register_id,
+                        'course_id'    => $CourceRegistr->course_id,
+                        'date'         => Carbon::now()->toDateString(),
+                        'in_time'      => Carbon::now()->toTimeString(),
+                        'created_by'   => Auth::id(),
+                    ];
 
-        try {
-            // $coursereg = $request->all();
-            $coursereg['admission_id'] = $request->id;
-            $coursereg['date'] = Carbon::now(); // Full DateTime
-            $coursereg['in_time'] = Carbon::now()->toDateString(); // e.g. "2025-05-15"
-            $coursereg['created_by'] = Auth::user()->id;
-
-            Attedance::create($coursereg);
-            
-            return Redirect::back()->withSuccess('IN successfully.')->withInput();
-        } catch (\Exception $e) {
-            if ($isAjax) {
-                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
+                    Attedance::create($coursereg);
+                }
+                //dd('L-176', $coursereg); // Now you’ll see all values
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Attendance marked successfully.',
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to mark attendance. ' . $e->getMessage(),
+                ], 500);
             }
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
+
+        // Optional fallback for non-AJAX calls
+        return Redirect::back()->with('error', 'Invalid request');
     }
+
 
     public function edit(string $id)
     {
@@ -337,6 +351,4 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-    
 }

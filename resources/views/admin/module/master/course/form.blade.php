@@ -39,7 +39,7 @@
 
     @include('admin.partials.flash_messages')
 
-    <div class="card shadow my-5">
+    <div class="card shadow my-4">
         <div class="card-header d-none">
             <h2 class="mb-0">
                 {{ $page_title }}
@@ -71,9 +71,22 @@
                     <div class="col-md-4 col-sm-12">
                         <div class="form-group">
                             <label class="form-label"> Course Fees <span class="text-danger">*</span> </label>
-                            <input id="course_fees" type="text" class="form-control @error('course_fees') is-invalid @enderror num_only" name="course_fees" value="{{ isset($edit?->course_fees) ? $edit?->course_fees : old('course_fees') }}" placeholder="Enter Course Fees">
+                            <input id="course_fees" type="text" class="form-control @error('course_fees') is-invalid @enderror num_only" name="course_fees" value="{{ isset($edit?->course_fees) ? $edit?->course_fees : old('course_fees') }}" placeholder="Enter Course Fees" >
 
                             @error('course_fees')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label class="form-label">Course Year <span class="text-danger">*</span> </label>
+                            <input id="course_year" type="text" class="form-control @error('course_year') is-invalid @enderror num_only" name="course_year" maxlength="4" value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}" placeholder="Enter Course Year">
+
+                            @error('course_year')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>

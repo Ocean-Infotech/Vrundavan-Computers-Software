@@ -98,6 +98,11 @@ $i = 0;
                     </div>
                 </div>
 
+                <div class="col-md-4 col-sm-12 mb-3" id="allstudentinbtn">
+                    <label class="form-label mb-5"></label>
+                    <button type="button" disabled id="allstudentin" data-url="{{ route($route . '.student-in') }}" class="btn btn-success btn-icon student_in"><i class="fa fa-sign-in"></i></button>
+                </div>
+
 
 
 
@@ -133,6 +138,8 @@ $i = 0;
                                     <th>Admission ID</th>
                                     <th>Student Name</th>
                                     <th>IN</th>
+                                    <th>Date And Time</th>
+                                    <!-- <th>OUT</th> -->
                                     <th>LEAVE</th>
                                 </tr>
                             </thead>
@@ -153,7 +160,7 @@ $i = 0;
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/form-basic-inputs.js') }}"></script>
+
 @endsection
 
 
@@ -184,17 +191,18 @@ $i = 0;
                 },
                 success: function(response) {
 
-                    $("#checkallstudent").prop("checked",false);
+                    $("#checkallstudent").prop("checked", false);
                     let rows = '';
                     let url = "{{ route($route . '.student-in') }}";
 
                     if (response.data && response.data.length > 0) {
                         $.each(response.data, function(index, item) {
                             rows += '<tr>';
-                            rows += '<td><input class="form-check-input studentcheck" name="student[]" type="checkbox" id="studentcheck" data-course_id="' + item.course_id + '" value="' + item.register_id + '"></td>';
+                            rows += '<td><input class="form-check-input studentcheck" name="student[]" type="checkbox" id="studentcheck" data-course_id="' + item.course_id + '" value="' + item.id + '"></td>';
                             rows += '<td>' + item.register_id + '</td>';
+                            rows += '<td></td>';
                             rows += '<td>' + item.admission.first_name + ' ' + item.admission.father_name + ' ' + item.admission.last_name + '</td>';
-                            rows += '<td><a href="javascript:void(0)" data-id="' + item.register_id + '" data-course_id="' + item.course_id + '" data-url="' + url + '" class="btn btn-success btn-icon student_in"><i class="fa fa-sign-in"></i></a></td>';
+                            rows += '<td><a href="javascript:void(0)" data-id="' + item.id + '" data-course_id="' + item.course_id + '" data-url="' + url + '" class="btn btn-success btn-icon student_in"><i class="fa fa-sign-in"></i></a></td>';
                             rows += '<td></td>';
                             rows += '</tr>';
                         });
@@ -212,6 +220,7 @@ $i = 0;
         }
 
         $('#education_details').hide();
+        $('#allstudentinbtn').hide();
         // Reload data when any filter is changed
         $('select[name="admission_id"], select[name="course_id"], select[name="batch_id"]').on('change', function() {
             var select_filter = $(this).val();
@@ -219,6 +228,7 @@ $i = 0;
             if (select_filter != null && select_filter.trim() !== '') {
                 loadTableData(); // Re-fetch filtered data 
                 $('#education_details').show();
+                $('#allstudentinbtn').show();
             }
         });
 
@@ -229,43 +239,45 @@ $i = 0;
         $("#checkallstudent").change(function() {
             let isChecked = $(this).is(':checked');
 
-            if($(".studentcheck").length == $(".studentcheck:checked").length) 
-            {
+            if ($(".studentcheck").length == $(".studentcheck:checked").length) {
                 $(".studentcheck").prop("checked", isChecked); // Toggle all student checkboxes
-            }else
-            {
+
+                $('#allstudentin').attr("disabled", (isChecked) ? false : true);
+            } else {
+                $('#allstudentin').attr("disabled", false);
                 $(".studentcheck").prop("checked", true); // Toggle all student checkboxes
                 $(this).prop("checked", true);
-                
+
             }
             updateStudentIds(); // Update hidden input
         });
 
         // When any .studentcheck checkbox is changed
-        $(document).on('change', '.studentcheck', function () {
+        $(document).on('change', '.studentcheck', function() {
             // Check/uncheck "select all"
             // $("#checkallstudent").prop(
             //     $(".studentcheck").length === $(".studentcheck:checked").length
             // );
 
-            if($(".studentcheck").length == $(".studentcheck:checked").length) {
+            if ($(".studentcheck").length == $(".studentcheck:checked").length) {
                 $("#checkallstudent").prop("checked", true);
-                    const checkbox = document.getElementById('checkallstudent');
-                    checkbox.indeterminate = false;
-                
-            }else {
-                if($(".studentcheck:checked").length !== 0) 
-                {
+                const checkbox = document.getElementById('checkallstudent');
+                checkbox.indeterminate = false;
+                $('#allstudentin').attr("disabled", false);
+
+            } else {
+                if ($(".studentcheck:checked").length !== 0) {
                     $("#checkallstudent").prop("checked", true);
                     const checkbox = document.getElementById('checkallstudent');
                     checkbox.indeterminate = true;
-                }
-                else{
-                    $("#checkallstudent").prop("checked",false);
+                    $('#allstudentin').attr("disabled", false);
+                } else {
+                    $("#checkallstudent").prop("checked", false);
                     const checkbox = document.getElementById('checkallstudent');
                     checkbox.indeterminate = false;
+                    $('#allstudentin').attr("disabled", true);
                 }
-                
+
             }
 
             updateStudentIds(); // Update hidden input
@@ -282,55 +294,62 @@ $i = 0;
             }).get(); // .get() converts it to a plain array
 
             $("#studentld").val(selectedIds.join(","));
+            $('#allstudentin').attr('data-id', selectedIds.join(","));
+            $('#allstudentin').attr('data-course_id', courseIds.join(","));
             $("#courseld").val(courseIds.join(","));
         }
 
 
-    });
-</script>
 
+        //student-in
+        $(document).on('click', '.student_in', function() {
+            var _token = '{{ csrf_token() }}';
+            var _actionUrl = $(this).attr("data-url");
+            var _studentld = $(this).data('id');
+            var _courseId = $(this).data('course_id');
 
-<script>
-    //student-in
-    $(document).on('click', '.student_in', function() {
-        var _token = '{{ csrf_token() }}';
-        var _actionUrl = $(this).attr("data-url");
-        var _dataId = $(this).attr("data-id");
+            const urlParams = new URLSearchParams(_actionUrl);
 
-        const urlParams = new URLSearchParams(_actionUrl);
+            if (!_studentld && urlParams.get('studentld')) {
+                _studentld = urlParams.get('studentld');
+            }
 
-        if (!_dataId && urlParams.get('id')) {
-            _dataId = urlParams.get('id');
-        }
+            if (!_courseId && urlParams.get('courseld')) {
+                _courseId = urlParams.get('courseld');
+            }
 
-        if (_token && _actionUrl && _dataId) {
-            console.log("generate-inquiry-no L-31");
-            $.ajax({
-                type: "POST",
-                url: _actionUrl,
-                data: {
-                    _token: _token,
-                    _method: 'POST',
-                    id: _dataId,
-                },
-                success: function(data) {
-                    console.log("data 27", data);
+            if (_token && _actionUrl && _studentld && _courseId) {
+                console.log("generate-inquiry-no L-31");
+                $.ajax({
+                    type: "POST",
+                    url: _actionUrl,
+                    data: {
+                        _token: _token,
+                        _method: 'POST',
+                        studentid: _studentld,
+                        courseid: _courseId,
+                    },
+                    success: function(data) {
+                        console.log("data 27", data);
 
-                    if (data?.status == "true") {
-                        toastr.success(data?.message);
-                        $("#yajra-datatables").DataTable().ajax.reload();
-                    } else {
-                        toastr.error(data?.message);
+                        if (data?.status == true) {
+                            loadTableData(); // reload DataTable
+                            toastr.success(data?.message);
+                            $("#checkallstudent").prop("checked", false);
+                        } else {
+                            toastr.error(data?.message);
+                        }
+
+                    },
+                    error: function() {
+                        toastr.error('Something Went wrong Update Status failed.');
                     }
-                },
-                error: function() {
-                    toastr.error('Something Went wrong Update Status failed.');
-                }
-            });
-        } else {
-            console.log("Update Script", _token, _actionUrl, urlParams, _dataId);
+                });
+            } else {
+                console.log("Update Script", _token, _actionUrl, urlParams, _studentld, _courseId);
 
-        }
+            }
+        });
     });
 </script>
 

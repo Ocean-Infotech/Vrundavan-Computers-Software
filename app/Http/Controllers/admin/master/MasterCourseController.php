@@ -39,6 +39,7 @@ class MasterCourseController extends Controller
             $columns = [
                 (object)['data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name'],
                 (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
+                (object)['data' => "course_year", 'name' => 'course_year', 'td_label' => 'Course Year'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
@@ -128,6 +129,7 @@ class MasterCourseController extends Controller
         $validated = $request->validate([
             'course_name' => 'required|unique:' . $modules['table_name'] . ',course_name|max:255',
             'course_fees' => 'required|max:255',
+            'course_year' => 'required|max:255',
         ]);
 
         try {

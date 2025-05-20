@@ -116,100 +116,7 @@
             </ul>
         </li>
 
-        @directCanAny([
-            'application-user-list',
-            'application-user-create',
-            'application-user-edit',
-            'application-user-delete'
-        ])
-            <!-- <li class="menu-item {{ $sidebar_active == 'application-user' ? 'active' : '' }}">
-                <a href="{{ route('application-user.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-user"></i>
-                    <div data-i18n="Application User">Application User</div>
-                </a>
-            </li> -->
-        @enddirectCanAny
-
-        @directCanAny(['redemption-list', 'redemption-create', 'redemption-edit', 'redemption-delete'])
-            <!-- <li class="menu-item {{ $sidebar_active == 'redemption' ? 'active' : '' }}">
-                <a href="{{ route('redemption.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-qr"></i>
-                    <div data-i18n="Redemption">Redemption</div>
-                </a>
-            </li> -->
-        @enddirectCanAny
-
-        @directCanAny(['withdraw-request-list'])
-            <!-- <li class="menu-item {{ $sidebar_active == 'withdraw-request' ? 'active' : '' }}">
-                <a href="{{ route('withdraw-request.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
-                    <div data-i18n="Withdraw Requests">Withdraw Requests</div>
-                </a>
-            </li> -->
-        @enddirectCanAny
-
-        @directCanAny(['sliders-list', 'sliders-create', 'sliders-edit', 'sliders-delete'])
-            <!-- <li class="menu-item {{ $sidebar_active == 'sliders' ? 'active' : '' }}">
-                <a href="{{ route('sliders.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-grid"></i>
-                    <div data-i18n="Sliders">Sliders</div>
-                </a>
-            </li> -->
-        @enddirectCanAny
-
-        @directCanAny(['reports', 'scan-report'])
-            <!-- <li class="menu-item {{ $sidebar_active == 'scan-report' ? 'active open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ri ri-funds-box-line ri-bold"></i>
-                    <div data-i18n="Report's">Report's</div>
-                </a>
-                <ul class="menu-sub">
-                    @directCanAny(['scan-report'])
-        <li class="menu-item {{ $sidebar_active == 'scanned-report' ? 'active' : '' }}">
-                            <a href="{{ route('scanned-report') }}" class="menu-link">
-                                <div data-i18n="Scanned Report">Scanned Report</div>
-                            </a>
-                        </li>
-    @enddirectCanAny
-                </ul>
-            </li> -->
-        @enddirectCanAny
-
-        @directCanAny('generate-api-documents')
-            <!-- <li class="menu-item {{ $sidebar_active == 'generate-api-documents' || $sidebar_active == 'set-point-to-rupees' || $sidebar_active == 'set-min-withdraw-request-amount' ? 'active open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
-                    <div data-i18n="Setting's">Setting's</div>
-                </a>
-                <ul class="menu-sub">
-                    @directCanAny(['generate-api-documents'])
-        <li class="menu-item {{ $sidebar_active == 'set-point-to-rupees' ? 'active' : '' }}">
-                            <a href="{{ route('set-point-to-rupees') }}" class="menu-link">
-                                <div data-i18n="Set Point = Rupees">Set Point = Rupees</div>
-                            </a>
-                        </li>
-    @enddirectCanAny
-
-                    <li class="menu-item {{ $sidebar_active == 'set-min-withdraw-request-amount' ? 'active' : '' }}">
-                        <a href="{{ route('set-min-withdraw-request-amount') }}"class="menu-link">
-                            <div data-i18n="Set Min. Withdraw Requests Amount"> Set Min. Withdraw Requests Amount</div>
-                        </a>
-                    </li>
-
-                    @directCanAny(['generate-api-documents'])
-        <li class="menu-item {{ $sidebar_active == 'generate-api-documents' ? 'active' : '' }}">
-                            <a href="{{ route('generate-swagger-api') }}"class="menu-link">
-                                <div data-i18n="Generate API Documents"> Generate API Documents</div>
-                            </a>
-                        </li>
-    @enddirectCanAny
-
-                </ul>
-            </li> -->
-        @enddirectCanAny
-
-
-        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
@@ -222,11 +129,17 @@
                     </a>
                 </li>
 
-                <!-- <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
+                <li class="menu-item {{ $sidebar_active == 'semester' ? 'active' : '' }}">
+                    <a href="{{ route('semester.index') }}"class="menu-link">
+                        <div data-i18n="Semester Master">Semester Master</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
                     <a href="{{ route('batch.index') }}"class="menu-link">
                         <div data-i18n="Batch Master">Batch Master</div>
                     </a>
-                </li> -->
+                </li>
 
 
                 <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">

@@ -10,21 +10,19 @@ use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
-use App\Http\Controllers\admin\MasterRedemptionTypeController;
-use App\Http\Controllers\admin\RedemptionController;
-use App\Http\Controllers\admin\ReportController;
-use App\Http\Controllers\admin\SettingController;
-use App\Http\Controllers\admin\SliderController;
+
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
-use App\Http\Controllers\admin\WithdrawRequestController;
+
 use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
 use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\Master\MasterSemesterController;
+
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +53,11 @@ Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionCon
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+
+/** Master Semester Modules */
+Route::resource('/semester', MasterSemesterController::class);
+Route::match(['get', 'post'], 'semester/restore/{id}', [MasterSemesterController::class, 'restore'])->name('semester.restore');
+Route::match(['get', 'post'], 'semester-update-status', [MasterSemesterController::class, 'status_update'])->name('semester.status-update');
 
 /** Master Batch Modules */
 Route::resource('/batch', MasterBatchController::class);
@@ -90,46 +93,11 @@ Route::GET('/auto_complete_city', [MasterCityController::class, 'auto_complete_c
 /** Master Pincode Modules */
 Route::resource('/pincode', MasterPincodeController::class);
 
-/** Sliders */
-Route::resource('sliders', SliderController::class);
-// Route::get('sliders-status/{id}/{update_status}', [SliderController::class, 'update_slider_status'])->name('sliders.update.status');
-
-/** Application User */
-Route::resource('application-user', ApplicationUserController::class);
-Route::match(['get', 'post'], 'application-user-status', [ApplicationUserController::class, 'redemptionItemStatuUpdate'])->name('application-user-status');
-
-/** Redemption */
-Route::resource('redemption', RedemptionController::class);
-Route::match(['get', 'post'], 'redemption-item-status', [RedemptionController::class, 'redemptionItemStatuUpdate'])->name('redemption-item-status');
-
-/** Withdraw Request */
-Route::resource('withdraw-request', WithdrawRequestController::class);
-
 /** document-type */
 Route::resource('document-type', DocumentTypeController::class);
 
 /** document-type */
 Route::resource('documents', DocumentController::class);
-
-/** Reports */
-Route::group(['prefix' => 'report'], function () {
-    Route::controller(ReportController::class)->group(function () {
-        Route::match(['get', 'post'], "scannedReport", 'scannedReport')->name("scanned-report");
-    });
-});
-
-/** Settings */
-Route::match(['get', 'post'], 'set-point-to-rupees', [SettingController::class, 'setPointToRupees'])->name('set-point-to-rupees');
-
-Route::match(['get', 'post'], 'set-min-withdraw-request-amount', [SettingController::class, 'SetMinWithdrawRequestAmount'])->name('set-min-withdraw-request-amount');
-
-/** Settiung */
-Route::get('/generate-swagger-api', function () {
-    Artisan::call('optimize:clear');
-    Artisan::call("l5-swagger:generate");
-    return Redirect::back()->with('success', 'Generate API documentation.');
-})->name('generate-swagger-api');
-
 
 // Cource Registration
 

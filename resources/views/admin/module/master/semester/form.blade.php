@@ -25,7 +25,7 @@
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route($route . '.index') }}">View all {{ $page_title }}</a>
                         </li>
-                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Create' }}
+                        <li class="breadcrumb-item active">{{ isset($edit) && $edit?->id ? 'Edit' : 'Add' }}
                             {{ $page_title }}</li>
                     </ol>
                 </div>
@@ -39,13 +39,13 @@
 
     @include('admin.partials.flash_messages')
 
-    <div class="card shadow">
+    <div class="card shadow my-5">
         <div class="card-header d-none">
             <h2 class="mb-0">
                 {{ $page_title }}
             </h2>
         </div>
-        <div class="card-body">
+        <div class="card-body my-4">
             <form
                 action="{{ isset($edit) && $edit?->id ? route($route . '.update', [$edit?->id]) : route($route . '.store') }}"
                 method="POST" enctype="multipart/form-data">
@@ -54,36 +54,32 @@
                     @method('PUT')
                 @endisset
                 <div class="row">
-
-                    <div class="col-md-6 col-sm-12 mb-2">
+                    <div class="col-md-4 col-sm-12">
                         <div class="form-group">
-                            <label class="form-label" for="quantity"> Quantity - QR Code <span class="text-danger">*</span> </label>
-                            <div class="input-group">
-                                {{-- <span class="input-group-text">Per</span> --}}
-                                <input id="quantity" type="number"
-                                    class="form-control @error('quantity') is-invalid @enderror" name="quantity"
-                                    value="{{ isset($edit) && isset($edit?->quantity) ? $edit?->quantity : old('quantity') }}"
-                                    placeholder="Enter quantity" min="1">
-                            </div>
-                            @error('quantity')
+                            <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                            <select id="course" name="course_id"
+                                class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
+                                data-append="search_by_course"
+                                data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
+                                autofocus required>
+                                <option value="">Select Course</option>
+                            </select>
+
+                            @error('course_id')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
                         </div>
                     </div>
-
-                    <div class="col-md-6 col-sm-12 mb-2">
+                    <div class="col-md-4 col-sm-12">
                         <div class="form-group">
-                            <label class="form-label" for="collect_points"> Collect Points <span class="text-danger">*</span> </label>
-                            <div class="input-group">
-                                <input id="collect_points" type="number"
-                                class="form-control @error('collect_points') is-invalid @enderror" name="collect_points"
-                                value="{{ isset($edit) && isset($edit?->collect_points) ? $edit?->collect_points : old('collect_points') }}"
-                                placeholder="Enter collect point" min="1">
-                                <span class="input-group-text">Collect Points</span>
-                            </div>
-                            @error('point')
+                            <label class="form-label"> Semester <span class="text-danger">*</span> </label>
+                            <input id="semester" type="text" class="form-control @error('semester') is-invalid @enderror"
+                                name="semester" value="{{ isset($edit?->semester) ? $edit?->semester : old('semester') }}"
+                                autocomplete="semester" autofocus placeholder="Enter Semester">
+
+                            @error('semester')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
@@ -92,12 +88,12 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row mt-5">
                     <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-success mt-1 mb-1">
+                        <button type="submit" class="btn btn-success mt-1">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
-                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1 mb-1">Cancel</a>
+                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
                 </div>
             </form>
@@ -108,4 +104,5 @@
 
 
 @section('page_leavel_script')
+ @include('admin.utils.getCourse')
 @endsection

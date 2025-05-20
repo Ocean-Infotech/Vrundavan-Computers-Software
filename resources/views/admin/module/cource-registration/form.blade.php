@@ -64,7 +64,7 @@ $i = 0;
                     <div class="form-group">
                         <label for="register_no">Register No. <span class="text-danger">*</span></label>
 
-                        <input list="registers_id" id="register_id" name="register_id" class="form-control @error('register_id') is-invalid @enderror" placeholder="Register No.">
+                        <input list="registers_id" id="register_id" name="register_id" class="form-control @error('register_id') is-invalid @enderror" value="{{ old('register_id', $edit->register_id ?? '') }}" placeholder="Register No.">
 
                         <datalist id="registers_id">
                             <!-- <option value="">-- Select Register No. --</option> -->
