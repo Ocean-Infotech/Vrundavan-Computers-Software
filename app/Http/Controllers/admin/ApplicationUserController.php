@@ -146,7 +146,7 @@ class ApplicationUserController extends Controller
             $columns = array_values($columns);
             View::share("columns", $columns);
 
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -164,7 +164,7 @@ class ApplicationUserController extends Controller
             $roles = Helper::getApplicationUserRoles();
             View::share('roles', $roles);
 
-            return view('admin.module.' . $modules['folder_path'] . '.form');
+            return view('software.module.' . $modules['folder_path'] . '.form');
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -218,7 +218,7 @@ class ApplicationUserController extends Controller
                 $selectedRole = $edit->roles->pluck('id')->first();
             }
             // return $edit->roles->pluck('id')->first();
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('edit', 'selectedRole'));
+            return view('software.module.' . $modules['folder_path'] . '.form', compact('edit', 'selectedRole'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

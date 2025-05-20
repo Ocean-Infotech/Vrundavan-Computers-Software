@@ -19,7 +19,7 @@ class MasterCourseController extends Controller
     {
         $this->modules = [
             'title' => 'Course',
-            'folder_path' => 'master.course',
+            'folder_path' => 'software.module.master.course',
             'route' => 'course',
             'table_name' => (new MasterCourse())->getTable(),
             'permisstion_prefix' => 'course',
@@ -108,7 +108,7 @@ class MasterCourseController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -118,7 +118,7 @@ class MasterCourseController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -148,7 +148,7 @@ class MasterCourseController extends Controller
             View::share('modules', $modules);
 
             $edit = MasterCourse::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -280,5 +280,5 @@ class MasterCourseController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-    
+
 }

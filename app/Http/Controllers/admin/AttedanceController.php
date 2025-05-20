@@ -118,7 +118,7 @@ class AttedanceController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -129,7 +129,7 @@ class AttedanceController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function filter_student_data(Request $request)
@@ -223,7 +223,7 @@ class AttedanceController extends Controller
             View::share('modules', $modules);
 
             $edit = Attedance::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

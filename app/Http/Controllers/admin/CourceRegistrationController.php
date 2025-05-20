@@ -130,7 +130,7 @@ class CourceRegistrationController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -145,7 +145,7 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
 
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'admissions'));
+        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
     /**
@@ -200,9 +200,9 @@ class CourceRegistrationController extends Controller
             View::share('modules', $modules);
 
             $admissions = Admission::all();
-            // return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
+            // return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
             $edit = CourceRegistration::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
+            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

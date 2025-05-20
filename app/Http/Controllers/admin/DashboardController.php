@@ -32,7 +32,7 @@ class DashboardController extends Controller
         $modules = $this->modules;
         $modules['folder_path'] = 'dashboard';
         View::share('modules', $modules);
-        return view('admin.module.' . $modules['folder_path'], compact('modules'));
-        return view('admin.module.dashboard');
+        return view('software.module.' . $modules['folder_path'], compact('modules'));
+        return view('software.module.dashboard');
     }
 }

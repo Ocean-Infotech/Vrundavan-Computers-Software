@@ -21,7 +21,7 @@ class FeesCollectionController extends Controller
     {
         $this->modules = [
             'title' => 'Fees Collection',
-            'folder_path' => 'fees-collection',
+            'folder_path' => 'software.module.fees-collection',
             'route' => 'fees-collection',
             'table_name' => (new FeesCollection())->getTable(),
             'permisstion_prefix' => 'fees-collection',
@@ -122,7 +122,7 @@ class FeesCollectionController extends Controller
                 ->make(true);
                 return $returnData;
             }
-            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
+            return view($modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -135,7 +135,7 @@ class FeesCollectionController extends Controller
     {
        $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
+        return view($modules['folder_path'].'.form',compact('modules'));
     }
 
     /**

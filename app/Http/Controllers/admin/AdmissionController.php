@@ -21,7 +21,7 @@ class AdmissionController extends Controller
     {
         $this->modules = [
             'title' => 'Admission',
-            'folder_path' => 'admission',
+            'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
@@ -37,7 +37,7 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        
+
         try{
             $columns = [
                 (object)[ 'data' => "id", 'name' => 'id', 'td_label' => 'Register No.' ],
@@ -74,7 +74,7 @@ class AdmissionController extends Controller
                     $status = '';
                     $dropdown = "";
                     $dropdown .= '<ul class="dropdown-menu" style="">';
-                    
+
                     if ($row->status == "created") {
                         $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"].'.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="rejected">Rejected</a></li>';
@@ -107,14 +107,14 @@ class AdmissionController extends Controller
                     if ($btn == '') {
                         $btn = '-';
                     }
-                        
+
                     return $btn;
                 })
                 ->rawColumns(['status','action'])
                 ->make(true);
                 return $returnData;
             }
-            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
+            return view($modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -124,7 +124,7 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
+        return view($modules['folder_path'].'.form',compact('modules'));
     }
 
     public function store(AdmissionRequest $request)
@@ -135,19 +135,19 @@ class AdmissionController extends Controller
         // if(!$modules['addPermission']){
         //     abort(403, 'Unauthorized');
         // }
-        
+
 
 
         View::share('modules', $modules);
 
         $validated = $request->validated();
         // return $request->all();
-        
+
 
         try {
 
             $loginUserId = Auth::user()->id;
-            
+
             // return $this->adminLoginUser;
             $validated['created_by'] = $loginUserId;
             // return $validated;
@@ -184,7 +184,7 @@ class AdmissionController extends Controller
             $education = EducationDetails::where('admission_id', $id)->get();
             View::share('education', $education);
 
-            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
+            return view($modules['folder_path'].'.form',compact('modules','edit'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -206,8 +206,8 @@ class AdmissionController extends Controller
                 $updateData->update($validated);
 
                 if ($request->has('education_id')) {
-                    
-                    
+
+
                     // EducationDetails::where('admission_id', $id)->forceDelete();
 
                     $education = $request->education;
@@ -307,13 +307,13 @@ class AdmissionController extends Controller
 
     public function status_update(Request $request) {
         $isAjax = ($request->ajax()) ? true : false;
-        
+
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
             'update_status' => ['required', 'in:created,rejected,completed,cancelled']
         ]);
-        
+
         if ($validator->fails() && $isAjax) {
             return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
         }
@@ -344,7 +344,7 @@ class AdmissionController extends Controller
 
     public function restore($id)
     {
-       
+
         $modules = $this->modules;
 
         try {
