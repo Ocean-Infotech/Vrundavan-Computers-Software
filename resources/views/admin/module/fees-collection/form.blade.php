@@ -29,7 +29,7 @@
                             {{ isset($edit) && $edit?->id
                                 ? 'Edit'
                                 : 'Add
-                                                                                                                                                                                                                                                                                                                                                                                                    ' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ' }}
                             {{ $page_title }}</li>
                     </ol>
                 </div>
@@ -273,99 +273,128 @@
                         @enderror
                     </div>
                 </div>
-                {{-- password
-                    <div class="col-md-4 mb-2">
-                        <div class="form-group">
-                            <label for="password">Password<span class="text-danger">*</span></label>
-                            <input type="password" name="password" id="password"
-                                class="form-control @error('password') is-invalid @enderror"
-                                value="{{ old('password', $edit->password ?? '') }}" placeholder="Password">
-                            @error('password')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div> --}}
 
 
+                {{-- submit  --}}
+                <div class="col-md-12 text-center mt-4">
 
-        </div>
+                    <button type="button" class="btn btn-success" id="openPasswordModal">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
+                    <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
+                </div>
 
-        <div class="row mt-5">
-            <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-success mt-1">
-                    {{ isset($edit) ? 'Update' : 'Submit' }}
-                </button>
-                <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
-            </div>
+
         </div>
         </form>
     </div>
+    </div>
+    <!-- Password Confirmation Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Enter Password to Confirm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="password" id="confirm_password" class="form-control" placeholder="Enter Password">
+                    <div id="password_error" class="text-danger mt-2 d-none">Password is required.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="modal_submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
 @section('page_leavel_script')
     <script src="{{ asset('assets/jquery/jquery.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%',
-                placeholder: 'Choose an option',
-                allowClear: true
-            });
+    $(document).ready(function () {
+        $('#openPasswordModal').on('click', function () {
+            $('#passwordModal').modal('show');
+        });
 
-            // Auto-fill fees when course is selected
+        $('#modal_submit').on('click', function () {
+            let password = $('#confirm_password').val().trim();
+            if (password === '') {
+                $('#password_error').removeClass('d-none');
+            } else {
+                $('#password_error').addClass('d-none');
+
+
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'password',
+                    value: password
+                }).appendTo('form');
+
+                $('#passwordModal').modal('hide');
+
+                $('form').submit();
+            }
+        });
+    });
+</script>
+
+    <script>
+
+        $(document).ready(function() {
+            $('.select2').select2({ width: '100%', placeholder: 'Choose an option', allowClear: true });
+
             function updateFee() {
                 const fee = $('#course_id option:selected').data('fee') || '';
                 $('#fees').val(fee);
             }
-
             $('#course_id').on('change', updateFee);
-            updateFee(); // Run on load
+            updateFee();
 
-            // Show/hide payment-related fields based on mode
             function togglePaymentFields() {
                 const mode = $('#mode').val().toLowerCase();
-
                 $('#upi_id_box, #cheque_id_box, #return_reason_box').hide();
-
-                if (mode === 'online') {
-                    $('#upi_id_box').show();
-                } else if (mode === 'cheque') {
-                    $('#cheque_id_box').show();
-                } else if (mode === 'return') {
-                    $('#return_reason_box').show();
-                }
+                if (mode === 'online') $('#upi_id_box').show();
+                else if (mode === 'cheque') $('#cheque_id_box').show();
+                else if (mode === 'return') $('#return_reason_box').show();
             }
-
             $('#mode').on('change', togglePaymentFields);
-            togglePaymentFields(); // Run on load
-        });
-          $(document).ready(function() {
-        $('#admission_id').on('change', function() {
-            let admissionId = $(this).val();
-            if (admissionId) {
-                $.ajax({
-                    url: '/get-admission-details/' + admissionId,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        if (data.first_name && data.last_name) {
-                            $('#student_name').val(data.first_name + ' ' + data.last_name);
-                        } else {
+            togglePaymentFields();
+
+            $('#admission_id').on('change', function() {
+                let admissionId = $(this).val();
+                if (admissionId) {
+                    $.ajax({
+                        url: '/get-admission-details/' + admissionId,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            if (data.first_name && data.last_name) {
+                                $('#student_name').val(data.first_name + ' ' + data.last_name);
+                            } else {
+                                $('#student_name').val('');
+                            }
+                        },
+                        error: function() {
                             $('#student_name').val('');
                         }
-                    },
-                    error: function() {
-                        $('#student_name').val('');
-                    }
-                });
-            } else {
-                $('#student_name').val('');
-            }
-        });
+                    });
+                } else {
+                    $('#student_name').val('');
+                }
+            });
+            $('#admission_id').trigger('change');
 
-        // Trigger change on page load in case of edit mode
-        $('#admission_id').trigger('change');
-    });
+            // Password Modal Example Hook
+            $('#modal_submit').on('click', function() {
+                let password = $('#confirm_password').val();
+                if (!password) {
+                    $('#password_error').removeClass('d-none');
+                } else {
+                    $('#password_error').addClass('d-none');
+                    // Submit form or perform secured action
+                    $('#passwordModal').modal('hide');
+                }
+            });
+        });
     </script>
 @endsection
