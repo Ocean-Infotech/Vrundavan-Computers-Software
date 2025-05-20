@@ -101,9 +101,9 @@ Route::resource('documents', DocumentController::class);
 
 // Cource Registration
 
-  Route::resource('cource-registration', CourceRegistrationController::class);
-  Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
-  Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+Route::resource('cource-registration', CourceRegistrationController::class);
+Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
+Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 
 // Fees Collection
 

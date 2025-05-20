@@ -20,22 +20,22 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
 @endsection
 
-@section('breadcrumb')
+@section('content')
     <div class="d-flex justify-content-lg-between px-1">
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
-            'page_title' => $page_title,
             'route' => $route,
-            // 'show_add_btn' => $modules['addPermission'],
             'show_add_btn' => true,
             'show_filter_btn' => false,
+            'show_export_btns' => false,
+            'show_excal_btn' => false,
+            'show_print_btn' => false,
             'show_back_btn' => false,
         ])
     </div>
-@endsection
 
-@section('content')
-    <div class="row my-2">
+    @include('software.partials.flash_messages')
+    <div class="row my-3">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
