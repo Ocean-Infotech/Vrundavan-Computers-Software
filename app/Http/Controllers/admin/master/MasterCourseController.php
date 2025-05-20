@@ -29,6 +29,8 @@ class MasterCourseController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+
+        View::share('course_year_type', MasterCourse::course_year_type());
     }
 
     public function index(Request $request)

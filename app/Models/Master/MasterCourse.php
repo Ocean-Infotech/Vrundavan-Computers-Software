@@ -20,4 +20,12 @@ class MasterCourse extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public static function course_year_type(){
+        return [
+            'year' => 'Year',
+            'month' => 'Month',
+            'day' => 'Day',
+        ];
+    }
 }

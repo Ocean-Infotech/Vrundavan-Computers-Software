@@ -13,7 +13,6 @@
     {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
 @endsection
 
-
 @section('breadcrumb')
     <div class="d-flex justify-content-lg-between px-1">
         @include('software.includes.breadcrumb', [
