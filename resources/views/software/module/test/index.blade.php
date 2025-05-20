@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
     $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -37,7 +37,7 @@
                         <a href="{{ ($route) ? route($route.'.sync') : '#'}}" class="btn btn-primary"> <i class="fa-solid fa-sync"></i> Sync {{$page_title }} </a>
                     @endcan --}}
                     {{-- @can($permisstion_prefix . '-create') -- }}
-                        
+
                     {{-- @endcan --}}
 
                     <a href="{{ route($route . '.create') }}" class="btn btn-primary ml-auto"><i class="fa fa-plus"></i> Add
@@ -51,7 +51,7 @@
 
 @section('content')
 
-    @include('admin.partials.flash_messages')
+    @include('software.partials.flash_messages')
     <div class="row my-5">
         <div class="col-md-12">
             <div class="card">
@@ -138,8 +138,8 @@
         });
     </script>
 
-    
-    @include('admin.includes.script-delete-record')
+
+    @include('software.includes.script-delete-record')
     @include('admin.includes.script-restore-record')
     @include('admin.includes.script-update-status')
 @endsection

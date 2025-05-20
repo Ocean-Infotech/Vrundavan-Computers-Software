@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
     $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -37,7 +37,7 @@
 
 @section('content')
 
-    @include('admin.partials.flash_messages')
+    @include('software.partials.flash_messages')
 
     <div class="card shadow my-5">
         <div class="card-header d-none">
@@ -72,7 +72,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                     {{-- Batch --}}
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
@@ -150,7 +150,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <div class="row mt-4">

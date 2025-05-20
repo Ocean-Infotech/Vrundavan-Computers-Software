@@ -1,7 +1,7 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @section('content')
-    @include('admin.partials.flash_messages')
+    @include('software.partials.flash_messages')
     @if (in_array(\App\Helpers\Helper::getLoginUserRole(), ['developer', 'Developer']))
     <div class="d-none">
         <pre> {!! Auth::user() !!} </pre>

@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
     $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -44,7 +44,7 @@
 
 @section('content')
 
-    @include('admin.partials.flash_messages')
+    @include('software.partials.flash_messages')
     <div class="row">
         <div class="col-md-12">
             <div class="card">
