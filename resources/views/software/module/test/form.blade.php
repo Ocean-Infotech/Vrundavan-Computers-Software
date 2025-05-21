@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
     $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -30,7 +30,7 @@
         ])
     </div>
 
-    @include('admin.partials.flash_messages')
+    @include('software.partials.flash_messages')
 
     <div class="card shadow my-3">
         <div class="card-header d-none">
@@ -162,6 +162,6 @@
 
 
 @section('page_leavel_script')
-    @include('admin.utils.getCourse')
-    @include('admin.utils.getBatchByCourseid')
+    @include('software.utils.getCourse')
+    @include('software.utils.getBatchByCourseid')
 @endsection

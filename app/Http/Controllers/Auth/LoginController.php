@@ -51,7 +51,7 @@ class LoginController extends Controller
         // $request->session()->invalidate(); // Invalidates the session
         // $request->session()->regenerateToken(); // Regenerates the CSRF token
 
-        return view('admin.auth.login');
+        return view('software.auth.login');
     }
 
     public function login(Request $request)

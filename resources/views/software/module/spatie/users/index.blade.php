@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
 $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -28,7 +28,7 @@ $i = 0;
         ])
     </div>
 
-@include('admin.partials.flash_messages')
+@include('software.partials.flash_messages')
 <div class="row my-3">
     <div class="col-md-12">
         <div class="card">
@@ -181,5 +181,5 @@ $i = 0;
     });
 </script>
 
-@include('admin.includes.script-delete-record')
+@include('software.includes.script-delete-record')
 @endsection
