@@ -34,20 +34,6 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-lg-between px-1">
-        @include('software.includes.breadcrumb', [
-            'breadcrumbArray' => [
-                ['title' => $page_title, 'url' => route($route . '.index')],
-                [
-                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
-                    'url' => '',
-                ],
-            ],
-            'route' => $route,
-            'show_add_btn' => false,
-            'show_back_btn' => true,
-        ])
-    </div>
 
     @include('software.partials.flash_messages')
 

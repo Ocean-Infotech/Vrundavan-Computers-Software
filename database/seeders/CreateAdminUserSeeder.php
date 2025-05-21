@@ -23,9 +23,10 @@ class CreateAdminUserSeeder extends Seeder
             'created_by' => '0'
         ], [
             'name' => 'Ocean Office',
-            'email' => 'nimit.ocean@gmail.com',
+            'email' => 'admin.ocean@gmail.com',
             'phone' => '123456789',
             'sp' => 'Ocean@2025',
+            'status' => 'active',
             'password' => bcrypt('Ocean@2025'),
             'created_by' => '0'
         ]];
@@ -40,7 +41,7 @@ class CreateAdminUserSeeder extends Seeder
 
 
         $role = Role::where('name', 'super-admin')->first();
-        $user = User::where('email', 'nimit.ocean@gmail.com')->first();
+        $user = User::where('email', 'admin.ocean@gmail.com')->first();
         $user->assignRole([$role->id]);
     }
 }

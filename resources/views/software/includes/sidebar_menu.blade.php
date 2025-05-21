@@ -86,7 +86,7 @@
             </li>
         @enddirectCan
 
-        <li class="menu-item {{ $sidebar_active == 'admission' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Student">Student</div>
@@ -98,6 +98,11 @@
                         <div data-i18n="Admission">Admission</div>
                     </a>
                 </li>
+                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
+                    <a href="{{ route('cource-registration.index') }}" class="menu-link">
+                        <div data-i18n="Course Registration">Course Registration</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -107,7 +112,7 @@
                 <div data-i18n="Attedance">Attedance</div>
             </a>
             <ul class="menu-sub">
-                
+
                 <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active' : '' }}">
                     <a href="{{ route('attedance.index') }}" class="menu-link">
                         <div data-i18n="Attedance">Attedance</div>
@@ -116,7 +121,7 @@
             </ul>
         </li>
 
-        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
@@ -142,11 +147,7 @@
                 </li>
 
 
-                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
-                    <a href="{{ route('cource-registration.index') }}" class="menu-link">
-                        <div data-i18n="Course Registration">Course Registration</div>
-                    </a>
-                </li>
+
             </ul>
         </li>
         <li
@@ -164,8 +165,8 @@
                 </li>
             </ul>
         </li>
-        
-        
+
+
         <li class="menu-item {{ $sidebar_active == 'test' ? 'active' : '' }}">
             <a href="{{ route('test.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-notepad"></i>

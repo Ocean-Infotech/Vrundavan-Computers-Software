@@ -28,7 +28,6 @@ $i = 0;
         ])
     </div>
 
-@include('admin.partials.flash_messages')
 <div class="row my-3">
     <div class="col-md-12">
         <div class="card">

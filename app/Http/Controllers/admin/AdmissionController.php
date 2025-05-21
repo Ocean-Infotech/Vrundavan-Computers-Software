@@ -22,7 +22,7 @@ class AdmissionController extends Controller
     {
         $this->modules = [
             'title' => 'Admission',
-            'folder_path' => 'software.module.admission',
+            'folder_path' => 'admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
@@ -115,7 +115,7 @@ class AdmissionController extends Controller
                 ->make(true);
                 return $returnData;
             }
-            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
+            return view('software.module.'.$modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -125,7 +125,7 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
+        return view('software.module.'.$modules['folder_path'].'.form',compact('modules'));
     }
 
     public function store(AdmissionRequest $request)
@@ -185,7 +185,7 @@ class AdmissionController extends Controller
             $education = EducationDetails::where('admission_id', $id)->get();
             View::share('education', $education);
 
-            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
+            return view('software.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
