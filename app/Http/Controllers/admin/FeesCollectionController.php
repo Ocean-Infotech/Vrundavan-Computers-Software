@@ -141,9 +141,9 @@ class FeesCollectionController extends Controller
      */
     public function create()
     {
-       $modules = $this->modules;
+      $modules = $this->modules;
         View::share('modules', $modules);
-        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     /**
