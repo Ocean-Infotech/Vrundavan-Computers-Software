@@ -55,12 +55,11 @@
                                 <div class="form-group">
                                     <label class="form-label">Select Course <span class="text-danger">*</span></label>
                                     <select id="course" name="course_id"
-                                        class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
-                                        data-append="search_by_course"
-                                        data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
-                                        autofocus required>
+                                        class="form-control select2 search_by_course @error('course_id') is-invalid @enderror"
+                                        data-selected="{{ isset($edit) ? $edit->course_id : old('course_id') }}" required>
                                         <option value="">Select Course</option>
                                     </select>
+
 
                                     @error('course_id')
                                         <span class="invalid-feedback">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CourceRegistration as RequestsCourceRegistration;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterCourse;
@@ -73,6 +74,9 @@ class CourceRegistrationController extends Controller
                         //     $query->where('course_name', 'like',"%".$request->search."%");
                         //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
                         // }
+                    })
+                    ->editColumn('date', function ($row) {
+                        return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
                     })
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
@@ -151,36 +155,29 @@ class CourceRegistrationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $modules = $this->modules;
-        View::share('modules', $modules);
-        // return $request->all();
-        $validated = $request->validate([
-            // 'course_name' => 'required|unique:'.$modules['table_name'].',course_name|max:255',
-            // 'course_fees' => 'required|max:255',
-        ]);
+ public function store(RequestsCourceRegistration $request)
+{
+    $modules = $this->modules;
+    View::share('modules', $modules);
 
-        try {
-            $coursereg = $request->all();
-            // Format the date correctly using Carbon
-            if (!empty($coursereg['date'])) {
-                $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
-            }
+    try {
+        $coursereg = $request->validated();
 
-            // Add the authenticated user's ID
-            $coursereg['created_by'] = Auth::user()->id;
-
-            // Create the record
-            CourceRegistration::create($coursereg);
-
-            // Redirect with success message
-            return Redirect::route($modules['route'] . '.index')
-                ->withSuccess($modules['title'] . ' Create Successfully');
-        } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        // Format the date if provided
+        if (!empty($coursereg['date'])) {
+            $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
         }
+
+        $coursereg['created_by'] = Auth::id();
+
+        CourceRegistration::create($coursereg);
+
+        return Redirect::route($modules['route'] . '.index')
+            ->withSuccess($modules['title'] . ' Create Successfully');
+    } catch (\Exception $e) {
+        return Redirect::route('dashboard')->withErrors($e->getMessage());
     }
+}
 
     /**
      * Display the specified resource.
@@ -339,4 +336,5 @@ class CourceRegistrationController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 }

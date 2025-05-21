@@ -13,7 +13,7 @@ class CourseRegister extends Model
 
 	public $table = 'course_register';
 
-	protected $fillable = [
+    protected $fillable = [
         'admission_id',
         'course_id',
         'batch_id',
@@ -22,15 +22,20 @@ class CourseRegister extends Model
         'note',
     ];
 
-    public function admission()
-    {
-        return $this->belongsTo(Admission::class, 'admission_id', 'id');
-    }
+    // public function admission()
+    // {
+    //     return $this->belongsTo(Admission::class, 'admission_id', 'id');
+    // }
 
     public function course()
     {
         return $this->belongsTo(MasterCourse::class, 'course_id', 'id');
     }
+    public function admission()
+    {
+        return $this->belongsTo(Admission::class);
+    }
+
 
     public function batch()
     {

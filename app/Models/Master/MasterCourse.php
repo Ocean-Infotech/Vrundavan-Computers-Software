@@ -15,6 +15,7 @@ class MasterCourse extends Model
         'course_name',
         'course_fees',
         'course_year',
+        'semester',
         'status',
         'created_by',
         'updated_by',

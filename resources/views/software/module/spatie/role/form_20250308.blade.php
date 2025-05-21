@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
 $page_title = (isset($modules['title'])) ? $modules['title'] : null;
@@ -30,7 +30,7 @@ $i = 0;
         ])
     </div>
 
-@include('admin.partials.flash_messages')
+@include('software.partials.flash_messages')
 
 <div class="card shadow">
     <div class="card-header d-none">

@@ -36,4 +36,16 @@ class Admission extends Model
         'created_by',
         'updated_by',
     ];
+    // Admission.php
+    // public function courseRegistrations()
+    // {
+    //     return $this->hasMany(CourceRegistration::class, 'register_id');
+    // }
+   // app/Models/Admission.php
+
+public function courceRegistration()
+{
+    return $this->hasOne(CourceRegistration::class, 'admission_id');
+}
+
 }

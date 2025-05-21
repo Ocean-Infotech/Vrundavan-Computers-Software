@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use App\Http\Requests\AdmissionRequest;
+use App\Models\CourceRegistration;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -33,27 +34,27 @@ class AdmissionController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
-     public function index(Request $request)
+    public function index(Request $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         try{
             $columns = [
-                (object)[ 'data' => "id", 'name' => 'id', 'td_label' => 'Register No.' ],
-                (object)[ 'data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.' ],
-                (object)[ 'data' => "first_name", 'name' => 'first_name', 'td_label' => 'Name' ],
-                (object)[ 'data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number' ],
-                (object)[ 'data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address' ],
-                (object)[ 'data' => "permanent_address", 'name' => 'permanent_address', 'td_label' => 'Permanent Address' ],
-                (object)[ 'data' => "status", 'name' => 'status', 'td_label' => 'Status','className' =>  'w-5 text-center', 'width' => '10%' ],
-                (object)[ 'data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center' ],
-			];
+                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
+                (object)['data' => "first_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
+                (object)['data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address'],
+                (object)['data' => "permanent_address", 'name' => 'permanent_address', 'td_label' => 'Permanent Address'],
+                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
+                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+            ];
             View::share("columns", $columns);
 
             $data = [];
 
-            if($request->ajax()){
+            if ($request->ajax()) {
                 // dd($request->all());
                 $data = Admission::select('*');
                 $data = $data->withTrashed();
@@ -114,7 +115,7 @@ class AdmissionController extends Controller
                 ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'].'.index',compact('data'));
+            return view('admin.module.'.$modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -124,7 +125,7 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view($modules['folder_path'].'.form',compact('modules'));
+        return view('admin.module.'.$modules['folder_path'].'.form',compact('modules'));
     }
 
     public function store(AdmissionRequest $request)
@@ -175,7 +176,7 @@ class AdmissionController extends Controller
 
     public function edit(string $id)
     {
-        try{
+        try {
             $modules = $this->modules;
             View::share('modules', $modules);
 
@@ -184,7 +185,7 @@ class AdmissionController extends Controller
             $education = EducationDetails::where('admission_id', $id)->get();
             View::share('education', $education);
 
-            return view($modules['folder_path'].'.form',compact('modules','edit'));
+            return view('admin.module.'.$modules['folder_path'].'.form',compact('modules','edit'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -197,11 +198,11 @@ class AdmissionController extends Controller
         $request['id'] = $id;
 
         $validated = $request->validated();
-        try{
+        try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
             $updateData = Admission::findOrFail($id);
-            if($updateData){
+            if ($updateData) {
                 unset($validated['id']);
                 $updateData->update($validated);
 
@@ -215,8 +216,7 @@ class AdmissionController extends Controller
 
                         $education_id = $request->education_id[$key];
                         $EducationupdateData = EducationDetails::find($education_id);
-                        if($EducationupdateData)
-                        {
+                        if ($EducationupdateData) {
                             $EducationupdateData->update([
                                 'admission_id' => $id,
                                 'education' => $value,
@@ -226,7 +226,7 @@ class AdmissionController extends Controller
                                 'passing_year' => $request->passing_year[$key],
                                 'school_name_college_name' => $request->school_name_college_name[$key],
                             ]);
-                        }else{
+                        } else {
                             EducationDetails::create([
                                 'admission_id' => $id,
                                 'education' => $value,
@@ -238,13 +238,12 @@ class AdmissionController extends Controller
                             ]);
                         }
                     }
-
                 }
 
-                return Redirect::route($modules['route'].'.index')->withSuccess($modules['title'].' update successfully');
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -305,7 +304,8 @@ class AdmissionController extends Controller
         }
     }
 
-    public function status_update(Request $request) {
+    public function status_update(Request $request)
+    {
         $isAjax = ($request->ajax()) ? true : false;
 
         $modules = $this->modules;
@@ -321,21 +321,20 @@ class AdmissionController extends Controller
         try {
             $designation = Admission::withTrashed()->findOrFail($request?->id);
 
-            if($designation){
+            if ($designation) {
                 $designation->status = $request->update_status;
                 $designation->save();
-                if($isAjax){
+                if ($isAjax) {
                     return $this->sendResponse($designation, $modules['title'] . ' status update successfully.');
                 }
                 return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' status update successfully.');
             }
-            if($isAjax){
+            if ($isAjax) {
                 return $this->sendError('something went wrong please try again later');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
-
         } catch (\Exception $e) {
-            if($isAjax){
+            if ($isAjax) {
                 return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
             }
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
@@ -357,4 +356,36 @@ class AdmissionController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    public function getAdmissionDetails($id)
+    {
+        $admission = Admission::find($id);
+
+        if ($admission) {
+            return response()->json([
+                'first_name' => $admission->first_name,
+                'last_name' => $admission->last_name,
+
+            ]);
+        }
+
+        return response()->json(['error' => 'Admission not found'], 404);
+    }
+
+// public function getAdmissionDetails($id)
+// {
+//     $admission = Admission::with('courceRegistration')->find($id);
+
+//     if ($admission) {
+//         return response()->json([
+//             'first_name' => $admission->first_name,
+//             'last_name'  => $admission->last_name,
+//             'course_id'  => optional($admission->courceRegistration)->course_id,
+//             'date'       => optional($admission->courceRegistration)->date,
+//         ]);
+//     }
+
+//     return response()->json(['error' => 'Admission not found'], 404);
+// }
+
 }

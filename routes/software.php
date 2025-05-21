@@ -48,6 +48,12 @@ Route::resource('/admission', AdmissionController::class);
 Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
 Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
 Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
+// routes/web.php or routes/api.php
+
+// Route::get('/admission/details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
+
+
+  Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
@@ -104,6 +110,8 @@ Route::resource('documents', DocumentController::class);
 Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+
+
 
 // Fees Collection
 

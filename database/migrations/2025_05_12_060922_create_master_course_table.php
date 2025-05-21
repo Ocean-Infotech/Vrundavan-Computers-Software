@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('course_name');
             $table->string('course_fees');
+            $table->string('course_year');
+             $table->string('semester');
             $table->string('status')->default('active')->comment('active, inactive');
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

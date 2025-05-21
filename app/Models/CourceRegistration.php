@@ -38,4 +38,5 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
+        
 }

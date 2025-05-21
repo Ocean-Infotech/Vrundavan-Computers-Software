@@ -134,14 +134,14 @@
                         <div class="form-group">
                             <label class="form-label">Total Semester <span class="text-danger">*</span> </label>
                             <div class="input-group">
-                                <input id="course_year" type="text"
-                                    class="form-control @error('course_year') is-invalid @enderror num_only"
-                                    name="course_year" maxlength="4"
-                                    value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}"
-                                    placeholder="Enter Course Year">
+                                <input id="semester" type="text"
+                                    class="form-control @error('semester') is-invalid @enderror num_only"
+                                    name="semester" maxlength="4"
+                                    value="{{ isset($edit?->semester) ? $edit?->semester : old('semester') }}"
+                                    placeholder="Enter Course Semester">
                             </div>
 
-                            @error('course_year')
+                            @error('semester')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
@@ -167,4 +167,17 @@
 
 
 @section('page_leavel_script')
+<script>
+    $(document).ready(function () {
+        $('#course_year').on('input', function () {
+            let year = parseInt($(this).val());
+            if (!isNaN(year) && year > 0) {
+                $('#semester').val(year * 2);
+            } else {
+                $('#semester').val('');
+            }
+        });
+    });
+</script>
+
 @endsection

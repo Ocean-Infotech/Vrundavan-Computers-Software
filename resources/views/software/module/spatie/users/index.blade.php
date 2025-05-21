@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('software.layout.app')
 
 @php
 $page_title = isset($modules['title']) ? $modules['title'] : null;
@@ -181,5 +181,5 @@ $i = 0;
     });
 </script>
 
-@include('admin.includes.script-delete-record')
+@include('software.includes.script-delete-record')
 @endsection
