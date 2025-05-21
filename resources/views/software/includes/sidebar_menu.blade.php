@@ -107,7 +107,7 @@
                 <div data-i18n="Attedance">Attedance</div>
             </a>
             <ul class="menu-sub">
-                
+
                 <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active' : '' }}">
                     <a href="{{ route('attedance.index') }}" class="menu-link">
                         <div data-i18n="Attedance">Attedance</div>
@@ -116,7 +116,8 @@
             </ul>
         </li>
 
-        <li class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+        <li
+            class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
@@ -140,6 +141,11 @@
                         <div data-i18n="Batch Master">Batch Master</div>
                     </a>
                 </li>
+                <li class="menu-item {{ $sidebar_active == 'syllabus' ? 'active' : '' }}">
+                    <a href="{{ route('syllabus.index') }}"class="menu-link">
+                        <div data-i18n="Syllabus">Syllabus</div>
+                    </a>
+                </li>
 
 
                 <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
@@ -149,8 +155,7 @@
                 </li>
             </ul>
         </li>
-        <li
-            class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Fees Collection">Fees Collection</div>
@@ -164,8 +169,8 @@
                 </li>
             </ul>
         </li>
-        
-        
+
+
         <li class="menu-item {{ $sidebar_active == 'test' ? 'active' : '' }}">
             <a href="{{ route('test.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-notepad"></i>
@@ -207,10 +212,10 @@
 
                     @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
                         <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                            <a href="{{ route('pincode.index') }}" class="menu-link">
-                                <div data-i18n="Pincode">Pincode</div>
-                            </a>
-                        </li> -->
+                                    <a href="{{ route('pincode.index') }}" class="menu-link">
+                                        <div data-i18n="Pincode">Pincode</div>
+                                    </a>
+                                </li> -->
                     @enddirectCanAny
 
                     @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])

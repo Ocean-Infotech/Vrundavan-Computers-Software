@@ -128,56 +128,56 @@ class MasterCourseController extends Controller
 
 
 
-public function store(MasterCourceRequest $request)
-{
-    $modules = $this->modules;
-    View::share('modules', $modules);
-
-    try {
-        $data = $request->validated();
-        $data['created_by'] = Auth::user()->id;
-
-        MasterCourse::create($data);
-
-        return Redirect::route($modules['route'] . '.index')
-            ->withSuccess($modules['title'] . ' Create Successfully');
-    } catch (\Exception $e) {
-        return Redirect::route('dashboard')->withErrors($e->getMessage());
-    }
-}
-
-
-    public function edit(string $id)
-{
-    try {
+    public function store(MasterCourceRequest $request)
+    {
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        $edit = MasterCourse::findOrFail($id);
-        return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
-    } catch (\Exception $e) {
-        return Redirect::route('dashboard')->withErrors($e->getMessage());
+        try {
+            $data = $request->validated();
+            $data['created_by'] = Auth::user()->id;
+
+            MasterCourse::create($data);
+
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' Create Successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
-}
 
-    public function update(MasterCourceRequest$request, string $id)
-{
-    $modules = $this->modules;
-    View::share('modules', $modules);
 
-    try {
-        $validated = $request->validated();
-        $validated['updated_by'] = Auth::user()->id;
+    public function edit(string $id)
+    {
+        try {
+            $modules = $this->modules;
+            View::share('modules', $modules);
 
-        $updateData = MasterCourse::findOrFail($id);
-        $updateData->update($validated);
-
-        return Redirect::route($modules['route'] . '.index')
-            ->withSuccess($modules['title'] . ' updated successfully');
-    } catch (\Exception $e) {
-        return Redirect::route('dashboard')->withErrors($e->getMessage());
+            $edit = MasterCourse::findOrFail($id);
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
-}
+
+    public function update(MasterCourceRequest $request, string $id)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            $validated = $request->validated();
+            $validated['updated_by'] = Auth::user()->id;
+
+            $updateData = MasterCourse::findOrFail($id);
+            $updateData->update($validated);
+
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' updated successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
+    }
 
 
     public function status_update(Request $request)
@@ -279,5 +279,4 @@ public function store(MasterCourceRequest $request)
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
 }

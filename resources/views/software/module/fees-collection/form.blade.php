@@ -99,12 +99,12 @@
                                 class="form-control select2 @error('admission_id') is-invalid @enderror"
                                 name="admission_id">
                                 <option value="">-- Select Admission --</option>
-                                @foreach ($admissions as $admission)
+                                {{-- @foreach ($admissions as $admission)
                                     <option value="{{ $admission->id }}"
                                         data-url="{{ route('get-admission-details', ['id' => $admission->id]) }}"
                                         {{ old('register_id', $edit->register_id ?? '') == $admission->id ? 'selected' : '' }}>
                                         {{ $admission->id }}
-                                @endforeach
+                                @endforeach --}}
                             </select>
                             @error('admission_id')
                                 <span class="invalid-feedback">
@@ -122,12 +122,12 @@
                         <select name="course_id" id="course_id"
                             class="form-control select2 @error('course_id') is-invalid @enderror">
                             <option value="">-- Select Course Name --</option>
-                            @foreach ($courses as $course)
+                            {{-- @foreach ($courses as $course)
                                 <option value="{{ $course->id }}" data-fee="{{ $course->course_fees }}"
                                     {{ old('course_id', $edit->course_id ?? '') == $course->id ? 'selected' : '' }}>
                                     {{ $course->course_name }}
                                 </option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                         @error('course_id')
                             <div class="invalid-feedback">{{ $message }}</div>
