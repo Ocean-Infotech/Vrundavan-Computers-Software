@@ -119,6 +119,48 @@
             event.preventDefault();
             dtable.draw();
         });
+
+        $(document).on('click', '.create_google_drive_folder', function() {    
+            var folderName = $(this).data('foldername');
+            var id = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route($route . '.create-google-drive-folder') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    foldername: folderName,
+                },
+                success: function(response) {
+                    console.log(response);
+                    toastr.success('{{ $page_title1 ?? "Create Google Drive Folder successfully" }}');
+                    $("#yajra-datatables").DataTable().ajax.reload();
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+
+        });
+
+        $(document).on('click', '.GoogleDriveFolderUrlCopy', function() { 
+                var url = $(this).data('folderurl');
+                
+                if (url) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        console.log('URL copied to clipboard:', url);
+                        toastr.success('Copy URL');
+                        // Optional: Feedback (e.g., temporary text/icon change)
+                        $(this).find('i').removeClass('bx-copy-alt').addClass('bx-check');
+                        setTimeout(function() {
+                            $(this).find('i').removeClass('bx-check').addClass('bx-copy-alt');
+                        }, 1500);
+                    }).catch(function(err) {
+                        console.error('Failed to copy URL:', err);
+                    });
+                }
+            });
     </script>
 
 

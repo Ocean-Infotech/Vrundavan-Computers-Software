@@ -52,7 +52,7 @@ $i = 0;
                         <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
                         <input id="aadhar_card_no" type="text" class="form-control @error('aadhar_card_no') is-invalid @enderror"
                             name="aadhar_card_no" value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                            autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No.">
+                            autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No." autocapitalize="off">
 
                         @error('aadhar_card_no')
                         <span class="invalid-feedback">
@@ -64,7 +64,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> First Name <span class="text-danger">*</span> </label>
-                        <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}" placeholder="Enter First Name">
+                        <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" autocapitalize="off" value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}" placeholder="Enter First Name">
 
                         @error('first_name')
                         <span class="invalid-feedback">
@@ -78,7 +78,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
-                        <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror " name="last_name" value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}" placeholder="Enter Last Name">
+                        <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror " name="last_name" autocapitalize="off" value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}" placeholder="Enter Last Name">
 
                         @error('last_name')
                         <span class="invalid-feedback">
@@ -91,7 +91,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
-                        <input id="father_name" type="text" class="form-control @error('father_name') is-invalid @enderror " name="father_name" value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}" placeholder="Enter Father Name">
+                        <input id="father_name" type="text" class="form-control @error('father_name') is-invalid @enderror " name="father_name" autocapitalize="off" value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}" placeholder="Enter Father Name">
 
                         @error('father_name')
                         <span class="invalid-feedback">
@@ -104,7 +104,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
-                        <input id="mother_name" type="text" class="form-control @error('mother_name') is-invalid @enderror " name="mother_name" value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}" placeholder="Enter Mother Name">
+                        <input id="mother_name" type="text" class="form-control @error('mother_name') is-invalid @enderror " name="mother_name" autocapitalize="off" value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}" placeholder="Enter Mother Name">
 
                         @error('mother_name')
                         <span class="invalid-feedback">
@@ -143,7 +143,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Mobile No. <span class="text-danger">*</span> </label>
-                        <input id="mobile_no" type="text" class="form-control @error('mobile_no') is-invalid @enderror num_only" name="mobile_no" value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}" placeholder="Enter Mobile No.">
+                        <input id="mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('mobile_no') is-invalid @enderror num_only" name="mobile_no" autocapitalize="off" value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}" placeholder="Enter Mobile No.">
 
                         @error('mobile_no')
                         <span class="invalid-feedback">
@@ -156,7 +156,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Parent Mobile No. </label>
-                        <input id="parent_mobile_no" type="text" class="form-control @error('parent_mobile_no') is-invalid @enderror num_only" name="parent_mobile_no" value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}" placeholder="Enter Parent Mobile No.">
+                        <input id="parent_mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('parent_mobile_no') is-invalid @enderror num_only" name="parent_mobile_no" autocapitalize="off" value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}" placeholder="Enter Parent Mobile No.">
 
                         @error('parent_mobile_no')
                         <span class="invalid-feedback">
@@ -169,7 +169,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Other Mobile No. </label>
-                        <input id="other_mobile_no" type="text" class="form-control @error('other_mobile_no') is-invalid @enderror num_only" name="other_mobile_no" value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}" placeholder="Enter Other Mobile No.">
+                        <input id="other_mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('other_mobile_no') is-invalid @enderror num_only" name="other_mobile_no" autocapitalize="off" value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}" placeholder="Enter Other Mobile No.">
 
                         @error('other_mobile_no')
                         <span class="invalid-feedback">
@@ -182,7 +182,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Whatsapp No. </label>
-                        <input id="whatsapp_no" type="text" class="form-control @error('whatsapp_no') is-invalid @enderror num_only" name="whatsapp_no" value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}" placeholder="Enter Whatsapp No.">
+                        <input id="whatsapp_no" type="text" minlength="10" maxlength="10" class="form-control @error('whatsapp_no') is-invalid @enderror num_only" name="whatsapp_no" autocapitalize="off" value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}" placeholder="Enter Whatsapp No.">
 
                         @error('whatsapp_no')
                         <span class="invalid-feedback">
@@ -195,7 +195,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Cast </label>
-                        <input id="cast" type="text" class="form-control @error('cast') is-invalid @enderror " name="cast" value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}" placeholder="Enter Cast">
+                        <input id="cast" type="text" class="form-control @error('cast') is-invalid @enderror " name="cast" autocapitalize="off" value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}" placeholder="Enter Cast">
 
                         @error('cast')
                         <span class="invalid-feedback">
@@ -208,7 +208,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Occupation </label>
-                        <input id="occupation" type="text" class="form-control @error('occupation') is-invalid @enderror " name="occupation" value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}" placeholder="Enter Occupation">
+                        <input id="occupation" type="text" class="form-control @error('occupation') is-invalid @enderror " name="occupation" autocapitalize="off" value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}" placeholder="Enter Occupation">
 
                         @error('occupation')
                         <span class="invalid-feedback">
@@ -221,7 +221,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
-                        <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth" value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}" placeholder="Enter Date of Birth">
+                        <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth" autocapitalize="off" value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}" placeholder="Enter Date of Birth">
 
                         @error('date_of_birth')
                         <span class="invalid-feedback">
@@ -234,7 +234,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Email Address <span class="text-danger">*</span> </label>
-                        <input id="email_address" type="email" class="form-control @error('email_address') is-invalid @enderror " name="email_address" value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}" placeholder="Enter Email Address">
+                        <input id="email_address" type="email" class="form-control @error('email_address') is-invalid @enderror " name="email_address" autocapitalize="off" value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}" placeholder="Enter Email Address">
 
                         @error('email_address')
                         <span class="invalid-feedback">
@@ -303,7 +303,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Enrolment no </label>
-                        <input id="enrolment_no" type="text" class="form-control @error('enrolment_no') is-invalid @enderror " name="enrolment_no" value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}" placeholder="Enter Enrolment no">
+                        <input id="enrolment_no" type="text" class="form-control @error('enrolment_no') is-invalid @enderror " name="enrolment_no" autocapitalize="off" value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}" placeholder="Enter Enrolment no">
 
                         @error('enrolment_no')
                         <span class="invalid-feedback">
@@ -316,7 +316,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Spid </label>
-                        <input id="spid" type="text" class="form-control @error('spid') is-invalid @enderror " name="spid" value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}" placeholder="Enter Spid">
+                        <input id="spid" type="text" class="form-control @error('spid') is-invalid @enderror " name="spid" autocapitalize="off" value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}" placeholder="Enter Spid">
 
                         @error('spid')
                         <span class="invalid-feedback">
@@ -330,7 +330,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> APAAR ID/ABC ID </label>
-                        <input id="apaar_id_abc_id" type="text" class="form-control @error('apaar_id_abc_id') is-invalid @enderror " name="apaar_id_abc_id" value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}" placeholder="Enter APAAR ID/ABC ID">
+                        <input id="apaar_id_abc_id" type="text" class="form-control @error('apaar_id_abc_id') is-invalid @enderror " autocapitalize="off" name="apaar_id_abc_id" value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}" placeholder="Enter APAAR ID/ABC ID">
 
                         @error('apaar_id_abc_id')
                         <span class="invalid-feedback">
@@ -339,7 +339,26 @@ $i = 0;
                         @enderror
                     </div>
                 </div>
+                @if (isset($edit) && $edit?->gdrivefolderurl)
+                <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
+                    <div class="form-group">
+                        <label class="form-label"> </label>
+                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a> 
+                    </div>
+                </div>
 
+                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col" >
+                    <div class="form-group">
+                        <label class="form-label">Google Drive Folder URL </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly/>
+                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}"/>
+                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}"/>
+                            <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i class="icon-base bx bx-copy-alt"></i></span>
+                        </div>
+                    </div>
+                </div>
+                @endif
                 <div class="col-md-4 col-sm-12 mb-3">
                     <div class="form-group">
                         <label class="form-label">Education <span class="text-danger">*</span></label>
@@ -385,14 +404,14 @@ $i = 0;
                                         <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
                                     </td>
                                     <td>
-                                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" >
+                                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
                                     </td>
                                     <td>
-                                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}">
+                                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
                                     </td>
-                                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}"></td>
-                                    <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}"></td>
-                                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}"></td>
+                                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
+                                    <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
+                                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
 
                                     <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                                 </tr>
@@ -423,6 +442,15 @@ $i = 0;
 
 <script>
         $(document).ready(function() {
+            
+
+            
+            $('#mobile_no').on('keyup', function() {
+                whatsapp_no
+                var mobile_no = $(this).val();
+                var whatsapp_no = $('#whatsapp_no').val(mobile_no);
+            });
+
             $('.remove_row').on('click', function() {
                 $(this).closest('tr').remove();
                 var education_id = $(this).data('education_id');
@@ -443,7 +471,7 @@ $i = 0;
                 });
             });
 
-            $('#filter_section').hide();
+            
             $('#education').on('change', function () {
 
 
@@ -472,14 +500,14 @@ $i = 0;
                         <input type="hidden" name="education_id[]" value="">
                     </td>
                     <td>
-                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="" >
+                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="" autocapitalize="off">
                     </td>
                     <td>
-                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="">
+                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="" autocapitalize="off">
                     </td>
-                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value=""></td>
+                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="" autocapitalize="off"></td>
                     <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value=""></td>
-                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value=""></td>
+                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="" autocapitalize="off"></td>
 
                     <td><button type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                 `);
@@ -492,6 +520,84 @@ $i = 0;
                 $('#education').val('').trigger('change');
             });
         });
-    </script>
 
+        function showMessage(message, type) {
+            toastr[type](message);
+        }
+    </script>
+    @if (isset($edit))
+        <script>
+            $('#google_drive_rename_folder_url_col').hide();
+            $('.google_drive_rename_folder').on('click', function() {
+                var first_name = $('#first_name').val();
+                var father_name = $('#father_name').val();
+                var last_name = $('#last_name').val();
+
+                let isValid = true;
+
+                if(!first_name){
+                    isValid = false;
+                    showMessage("First Name is required", "error");
+                }
+
+                if(!father_name){
+                    isValid = false;
+                    showMessage("Father Name is required", "error");
+                }
+
+                if(!last_name){
+                    isValid = false;
+                    showMessage("Last Name is required", "error");
+                }
+
+                var id = '{{ $edit?->id }}';
+                var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
+                var OldfolderName = '{{ $edit?->gdrivefoldername }}';
+                var OldfolderId = '{{ $edit?->gdrivefolderid }}';
+                if (isValid) {  
+                    $.ajax({
+                        url: "{{ route($route . '.google-drive-rename-folder') }}",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id:id,
+                            foldername: folderName,
+                            OldfolderName: OldfolderName,
+                            OldfolderId: OldfolderId,
+                        },
+                        success: function(response) {
+                            console.log(response.folder_id);
+                            console.log(response.folder_url);
+                            $('#GoogleDriveFolderUrl').val(response.folder_url);
+                            $('#GoogleDriveFolderId').val(response.folder_id);
+                            $('#GoogleDriveFolderName').val(response.folder_name);
+                            $('#google_drive_rename_folder_col').hide();
+                            $('#google_drive_rename_folder_url_col').show();
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+
+            $('#GoogleDriveFolderUrlCopy').on('click', function() {
+                var url = $('#GoogleDriveFolderUrl').val();
+
+                if (url) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        console.log('URL copied to clipboard:', url);
+
+                        // Optional: Feedback (e.g., temporary text/icon change)
+                        $('#GoogleDriveFolderUrlCopy i').removeClass('bx-copy-alt').addClass('bx-check');
+                        setTimeout(function() {
+                            $('#GoogleDriveFolderUrlCopy i').removeClass('bx-check').addClass('bx-copy-alt');
+                        }, 1500);
+                    }).catch(function(err) {
+                        console.error('Failed to copy URL:', err);
+                    });
+                }
+            });
+        </script>
+    @endif
 @endsection

@@ -104,6 +104,15 @@ class AdmissionRequest extends FormRequest
             'apaar_id_abc_id' => [
                 'nullable'
             ],
+            'gdrivefolderurl' => [
+                'nullable'
+            ],
+            'gdrivefolderid' => [
+                'nullable'
+            ],
+            'gdrivefoldername' => [
+                'nullable'
+            ],
             
             'education' => 'nullable|array|min:1',
             'education.*' => 'nullable|string',

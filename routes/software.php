@@ -21,8 +21,10 @@ use App\Http\Controllers\admin\master\MasterCourseController;
 use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\Master\MasterSemesterController;
-
+use Illuminate\Support\Facades\Storage;
+use Google\Client;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -44,10 +46,14 @@ Route::resource('permissions', PermissionController::class);
 
 
 /** Master Admission Modules */
+
 Route::resource('/admission', AdmissionController::class);
 Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
 Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
 Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
+Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
+Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
