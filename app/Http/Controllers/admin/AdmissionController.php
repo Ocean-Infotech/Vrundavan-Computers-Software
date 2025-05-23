@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use App\Http\Requests\AdmissionRequest;
+use App\Models\CourceRegistration;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -32,7 +33,7 @@ class AdmissionController extends Controller
     {
         $this->modules = [
             'title' => 'Admission',
-            'folder_path' => 'software.module.admission',
+            'folder_path' => 'admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
@@ -143,6 +144,8 @@ class AdmissionController extends Controller
             }
             return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
+            return view('software.module.'.$modules['folder_path'].'.index',compact('data'));
+        } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -152,6 +155,7 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
+        
     }
 
     public function store(AdmissionRequest $request)
@@ -213,6 +217,8 @@ class AdmissionController extends Controller
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
+            return view($modules['folder_path'].'.form',compact('modules','edit'));
+        } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -478,4 +484,35 @@ class AdmissionController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+    public function getAdmissionDetails($id)
+    {
+        $admission = Admission::find($id);
+
+        if ($admission) {
+            return response()->json([
+                'first_name' => $admission->first_name,
+                'last_name' => $admission->last_name,
+
+            ]);
+        }
+
+        return response()->json(['error' => 'Admission not found'], 404);
+    }
+
+// public function getAdmissionDetails($id)
+// {
+//     $admission = Admission::with('courceRegistration')->find($id);
+
+//     if ($admission) {
+//         return response()->json([
+//             'first_name' => $admission->first_name,
+//             'last_name'  => $admission->last_name,
+//             'course_id'  => optional($admission->courceRegistration)->course_id,
+//             'date'       => optional($admission->courceRegistration)->date,
+//         ]);
+//     }
+
+//     return response()->json(['error' => 'Admission not found'], 404);
+// }
+
 }

@@ -2,7 +2,7 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item">
-            <a href="{{ route('software.dashboard') }}">Home</a>
+            <a href="{{ route('software.dashboard') }}">Dashboard</a>
         </li>
         @isset($breadcrumbArray)
             @foreach ($breadcrumbArray as $item)
@@ -19,7 +19,7 @@
         <a class="btn btn-primary waves-effect waves-light text-white btn-sm mt-lg-0"
             href="{{ route($route . '.create') }}">
             <i class="menu-icon ti ti-plus"></i>
-            <span class="d-none d-lg-inline"> Add</span>
+            <span class="d-none d-lg-inline"> Add {{ $page_title  ?? '' }}</span>
         </a>
     @endif
 

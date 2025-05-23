@@ -13,8 +13,7 @@
     {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
 @endsection
 
-
-@section('content')
+@section('breadcrumb')
     <div class="d-flex justify-content-lg-between px-1">
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [
@@ -24,11 +23,17 @@
                     'url' => '',
                 ],
             ],
+            'page_title' => $page_title,
             'route' => $route,
+            // 'show_add_btn' => $modules['addPermission'],
             'show_add_btn' => false,
+            'show_filter_btn' => false,
             'show_back_btn' => true,
         ])
     </div>
+@endsection
+
+@section('content')
 
     @include('software.partials.flash_messages')
 
@@ -47,11 +52,12 @@
                     @method('PUT')
                 @endisset
                 <div class="row">
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <div class="form-group">
                             <label class="form-label"> Course Name <span class="text-danger">*</span> </label>
-                            <input id="course_name" type="text" class="form-control @error('course_name') is-invalid @enderror"
-                                name="course_name" value="{{ isset($edit?->course_name) ? $edit?->course_name : old('course_name') }}"
+                            <input id="course_name" type="text"
+                                class="form-control @error('course_name') is-invalid @enderror" name="course_name"
+                                value="{{ isset($edit?->course_name) ? $edit?->course_name : old('course_name') }}"
                                 autocomplete="course_name" autofocus placeholder="Enter Course Name">
 
                             @error('course_name')
@@ -61,10 +67,18 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <div class="form-group">
                             <label class="form-label"> Course Fees <span class="text-danger">*</span> </label>
-                            <input id="course_fees" type="text" class="form-control @error('course_fees') is-invalid @enderror num_only" name="course_fees" value="{{ isset($edit?->course_fees) ? $edit?->course_fees : old('course_fees') }}" placeholder="Enter Course Fees" >
+                            <div class="input-group">
+                                <input id="course_fees" type="text"
+                                    class="form-control @error('course_fees') is-invalid @enderror w-auto num_only"
+                                    name="course_fees"
+                                    value="{{ isset($edit?->course_fees) ? $edit?->course_fees : old('course_fees') }}"
+                                    placeholder="Enter Course Fees">
+                                <input type="text" class="form-control @error('course_fees') is-invalid @enderror"
+                                    name="course_fees_rupees" disabled value="Rs.">
+                            </div>
 
                             @error('course_fees')
                                 <span class="invalid-feedback">
@@ -74,12 +88,46 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12">
                         <div class="form-group">
                             <label class="form-label">Course Year <span class="text-danger">*</span> </label>
-                            <input id="course_year" type="text" class="form-control @error('course_year') is-invalid @enderror num_only" name="course_year" maxlength="4" value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}" placeholder="Enter Course Year">
+                            <div class="input-group">
+                                <input id="course_year" type="text"
+                                    class="form-control @error('course_year') is-invalid @enderror w-auto num_only"
+                                    name="course_year" maxlength="4"
+                                    value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}"
+                                    placeholder="Enter Course Year">
+                                    @if (isset($course_year_type))
+                                    <button class="btn btn-outline-primary dropdown-toggle waves-effect" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">Type</button>
+                                    <ul class="dropdown-menu dropdown-menu-end" style="" name="course_year_type">
+                                        @foreach ($course_year_type as $key => $item)
+                                        <li value="{{ $key ?? '' }}" class="dropdown-item">{{ $item ?? '' }}</li>
+                                        @endforeach
+                                    </ul>
+                                    @endif
+                            </div>
 
                             @error('course_year')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-12">
+                        <div class="form-group">
+                            <label class="form-label">Total Semester <span class="text-danger">*</span> </label>
+                            <div class="input-group">
+                                <input id="semester" type="text"
+                                    class="form-control @error('semester') is-invalid @enderror num_only"
+                                    name="semester" maxlength="4"
+                                    value="{{ isset($edit?->semester) ? $edit?->semester : old('semester') }}"
+                                    placeholder="Enter Course Semester">
+                            </div>
+
+                            @error('semester')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
@@ -105,4 +153,17 @@
 
 
 @section('page_leavel_script')
+<script>
+    $(document).ready(function () {
+        $('#course_year').on('input', function () {
+            let year = parseInt($(this).val());
+            if (!isNaN(year) && year > 0) {
+                $('#semester').val(year * 2);
+            } else {
+                $('#semester').val('');
+            }
+        });
+    });
+</script>
+
 @endsection

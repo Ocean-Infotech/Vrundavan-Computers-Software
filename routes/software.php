@@ -19,6 +19,7 @@ use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
 use App\Http\Controllers\admin\master\MasterBatchController;
+use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\GoogleDriveController;
@@ -54,6 +55,12 @@ Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionCon
 Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
 Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
 
+// routes/web.php or routes/api.php
+
+// Route::get('/admission/details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
+
+
+Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
@@ -111,10 +118,17 @@ Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 
+
+
 // Fees Collection
 
-  Route::resource('fees-collection', FeesCollectionController::class);
-  Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
-  Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
+Route::resource('fees-collection', FeesCollectionController::class);
+Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
+Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
 
 
+//syllabus
+
+Route::resource('syllabus', SyllabusController::class);
+Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
+Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');

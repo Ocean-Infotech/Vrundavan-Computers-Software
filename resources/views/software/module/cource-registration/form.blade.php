@@ -7,6 +7,7 @@ $route = isset($modules['route']) ? $modules['route'] : null;
 $permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
 $i = 0;
 @endphp
+
 @section('title', $page_title)
 
 @section('page_style_file')
@@ -54,7 +55,7 @@ $i = 0;
                 {{-- Register No --}}
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
-                        <label for="register_no">Register No. <span class="text-danger">*</span></label>
+                        <label for="register_no">Select Student<span class="text-danger">*</span></label>
 
                         <input list="registers_id" id="register_id" name="register_id" class="form-control @error('register_id') is-invalid @enderror" value="{{ old('register_id', $edit->register_id ?? '') }}" placeholder="Register No.">
 
@@ -109,26 +110,24 @@ $i = 0;
                     </div>
                 </div>
 
-
-                {{-- Date --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
+                    {{-- Date --}}
+                    <div class="col-md-4 mb-3">
                         <label for="date">Date <span class="text-danger">*</span></label>
                         <input type="date" name="date" id="flatpickr-date"
                             class="form-control datepicker @error('date') is-invalid @enderror"
                             value="{{ old('date', $edit->date ?? '') }}" placeholder="DD-MM-YYYY">
+
                         @error('date')
                         <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
-                </div>
 
                 {{-- Note --}}
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
                         <label for="note">Note</label>
                         <textarea name="note" id="note" rows="3" class="form-control @error('note') is-invalid @enderror"
-                            placeholder="Enter Note" value="{{ old('note', $edit->note ?? '') }}"></textarea>
+                            placeholder="Enter Note">{{ old('note', $edit->note ?? '') }}</textarea>
                         @error('note')
                         <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -162,7 +161,6 @@ $i = 0;
 
 @endsection
 
-
 @section('page_leavel_script')
 @include('software.utils.getCourse')
 
@@ -178,42 +176,53 @@ $i = 0;
 <script>
     $(document).ready(function() {
         $('.select2').select2();
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true,
-            todayHighlight: true
-        });
+        // $('.datepicker').datepicker({
+        //     format: 'yyyy-mm-dd',
+        //     autoclose: true,
+        //     todayHighlight: true
+        // });
 
         // $('#course_name').on('change', function() {
         //     var fee = $(this).find(':selected').data('fee');
         //     $('#fee').val(fee);
         // });
+
+        setTimeout(function () {
+            const dateInput = document.getElementById('flatpickr-date');
+            if (dateInput && !dateInput.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+
+                dateInput.value = `${dd}-${mm}-${yyyy}`; // browser required format
+            }
+        }, 1000);
+
     });
-    let $i = 0;
+    // let $i = 0;
     $('#course').change(function() {
         let fees = $(this).find(':selected').data('fees') || '';
-        if($i !== 0){
+        // if($i !== 0){
             $('#fee').val(fees);
-        }else{
-            ++$i
-        }
+        // }else{
+        //     ++$i
+        // }
 
     });
     //      document.addEventListener('DOMContentLoaded', function () {
     //     const courseSelect = document.getElementById('course_id');
     //     const feesInput = document.getElementById('fee');
 
-    //     function updateFees() {
-    //         const selected = courseSelect.options[courseSelect.selectedIndex];
-    //         const fee = selected.getAttribute('data-fee');
-    //         if (feesInput && fee !== null) {
-    //             feesInput.value = fee;
-    //         }
-    //     }
+            $('#register_id').on('change', function() {
+                const registerId = $(this).val();
+                const _url = $(this).find('option:selected').attr('data-url');
 
-    //     // Change event
-    //     courseSelect.addEventListener('change', updateFees);
-
+                if (registerId && _url) {
+                    // prevent duplicate fetch if the same id is selected (optional)
+                    if (registerId === previousRegisterId) return;
+                }
+            });
     //     // Trigger on load (for edit page)
     //     updateFees();
     // });

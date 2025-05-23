@@ -65,7 +65,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                     {{-- Batch --}}
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
@@ -143,7 +143,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                 </div>
 
                 <div class="row mt-4">

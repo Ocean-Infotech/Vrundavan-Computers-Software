@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admission;
+use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
+use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -34,17 +37,23 @@ class FeesCollectionController extends Controller
     } /**
      * Display a listing of the resource.
      */
-        public function index(Request $request)
+    public function index(Request $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
         try{
-            $columns = [
-                (object)[ 'data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name' ],
-                (object)[ 'data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees' ],
-                (object)[ 'data' => "status", 'name' => 'status', 'td_label' => 'Status','className' =>  'w-5 text-center', 'width' => '10%' ],
-                (object)[ 'data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center' ],
-			];
+        $columns = [
+            (object)['data' => "student_id ", 'name' => 'student_id', 'td_label' => 'Student Id '],
+            (object)['data' => "admission_id ", 'name' => 'admission_id', 'td_label' => 'Addmission Id '],
+            (object)['data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name'],
+            (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
+            (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
+            (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
+            (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
+            (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode '],
+            (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+            (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+        ];
             View::share("columns", $columns);
 
             $data = [];
@@ -61,10 +70,10 @@ class FeesCollectionController extends Controller
                 $returnData = Datatables::of($data)
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
-                    if ($request->has('search')) {
-                        $query->where('course_name', 'like',"%".$request->search."%");
-                        $query->orWhere('course_fees', 'like',"%".$request->search."%");
-                    }
+                    // if ($request->has('search')) {
+                    //     $query->where('course_name', 'like',"%".$request->search."%");
+                    //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
+                    // }
                 })
                  ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
@@ -127,15 +136,14 @@ class FeesCollectionController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-       $modules = $this->modules;
+      $modules = $this->modules;
         View::share('modules', $modules);
-        return view($modules['folder_path'].'.form',compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     /**

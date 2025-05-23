@@ -36,7 +36,7 @@
 
 @section('content')
 
-    @include('software.partials.flash_messages')
+    @include('admin.partials.flash_messages')
     <div class="row my-3">
         <div class="col-md-12">
             <div class="card">
@@ -124,8 +124,8 @@
     </script>
 
     
-    @include('software.includes.script-delete-record')
-    @include('software.includes.script-restore-record')
-    @include('software.includes.script-update-status')
+    @include('admin.includes.script-delete-record')
+    @include('admin.includes.script-restore-record')
+    @include('admin.includes.script-update-status')
 @endsection
 

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('register_id');
             $table->string('course_id');
+            $table->string('admission_id');
             $table->string('fee');
             $table->date('date');
             $table->text('note');
