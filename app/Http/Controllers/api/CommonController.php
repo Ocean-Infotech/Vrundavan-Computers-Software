@@ -10,6 +10,7 @@ use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterBatch;
+use App\Models\master\MasterClass;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterState;
 use App\Models\RedemptionItem;
@@ -28,6 +29,23 @@ class CommonController extends Controller
     public function __construct(Request $request) {}
 
 
+    public function get_class(Request $request)
+    {
+        try {
+            $data = MasterClass::where('status', 'active')->orderBy('class', 'ASC')->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->class . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Class list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
 
     public function get_admission(Request $request)
     {

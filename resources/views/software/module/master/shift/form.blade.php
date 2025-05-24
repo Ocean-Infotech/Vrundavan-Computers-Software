@@ -96,13 +96,6 @@
                                         data-selectedClassId="{{ isset($edit) && $edit?->class_id ? $edit?->class_id : old('class_id') }}"
                                         autofocus>
                                         <option value="">Select Class</option>
-                                        <option value="1 A">1 A</option>
-                                        <option value="1 B">1 B</option>
-                                        <option value="2 A">2 A</option>
-                                        <option value="3 A">3 A</option>
-                                        <option value="4 A">4 A</option>
-                                        <option value="4 B">4 B</option>
-                                        <option value="4 C">4 C</option>
                                     </select>
 
                                     @error('class_id')
@@ -164,4 +157,5 @@
 @section('page_leavel_script')
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getClass')
 @endsection

@@ -40,7 +40,7 @@ class MasterShiftController extends Controller
             $columns = [
                 (object)[ 'data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)[ 'data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)[ 'data' => "class_id", 'name' => 'class_id', 'td_label' => 'Class'],
+                (object)[ 'data' => "class.class", 'name' => 'class_id', 'td_label' => 'Class'],
                 (object)[ 'data' => "from_time", 'name' => 'from_time', 'td_label' => 'From Time'],
                 (object)[ 'data' => "to_time", 'name' => 'to_time', 'td_label' => 'To Time'],
                 (object)[ 'data' => "status", 'name' => 'status', 'td_label' => 'Status','className' =>  'w-5 text-center', 'width' => '10%' ],
@@ -54,7 +54,7 @@ class MasterShiftController extends Controller
                 // dd($request->all());
                 $data = MasterShift::select('*');
                 $data = $data->withTrashed();
-                $data = $data->with(['batch','course']);
+                $data = $data->with(['batch','course','class']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;

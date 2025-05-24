@@ -33,4 +33,9 @@ class MasterShift extends Model
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
     }
+
+    public function class()
+    {
+        return $this->belongsTo(MasterClass::class, 'class_id', 'id');
+    }
 }

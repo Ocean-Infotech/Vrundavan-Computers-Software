@@ -23,6 +23,7 @@ use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\GoogleDriveController;
+use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\Master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use Illuminate\Support\Facades\Storage;
@@ -139,3 +140,8 @@ Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionCo
 Route::resource('syllabus', SyllabusController::class);
 Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
 Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');
+
+/** Master Class Modules */
+Route::resource('/class', MasterClassController::class);
+Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
+Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
