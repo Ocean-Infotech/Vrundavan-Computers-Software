@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourceRegistration as RequestsCourceRegistration;
 use App\Models\Admission;
+
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
@@ -23,8 +24,8 @@ class CourceRegistrationController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'cource Registration',
-            'folder_path' => 'cource-registration',
+            'title' => 'Cource Registration',
+            'folder_path' => 'software.module.cource-registration',
             'route' => 'cource-registration',
             'table_name' => (new CourceRegistration())->getTable(),
             'permisstion_prefix' => 'cource-registration',
@@ -45,11 +46,11 @@ class CourceRegistrationController extends Controller
         try {
             $columns = [
                 (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Register No'],
+                (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
-
                 (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%', 'orderable' => false],
                 (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action', 'className' => 'w-10 text-center', 'orderable' => false, 'searchable' => false],
             ];
@@ -61,7 +62,8 @@ class CourceRegistrationController extends Controller
                 // dd($request->all());
                 $data = CourceRegistration::select('*');
                 $data = $data->withTrashed();
-                $data = $data->with(['course']);
+                $data = $data->orderBy('created_at', 'desc');
+                $data = $data->with(['course', 'admission']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -75,6 +77,13 @@ class CourceRegistrationController extends Controller
                         //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
                         // }
                     })
+                    ->editColumn('student_name', function ($row) {
+                        $first = $row->admission->first_name ?? '';
+                        $father = $row->admission->father_name ?? '';
+                        $last = $row->admission->last_name ?? '';
+                        return trim("{$first} {$father} {$last}");
+                    })
+
                     ->editColumn('date', function ($row) {
                         return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
                     })
@@ -130,11 +139,11 @@ class CourceRegistrationController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action'])
+                    ->rawColumns(['status', 'action', 'student_name', 'data'])
                     ->make(true);
                 return $returnData;
             }
-            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -149,35 +158,55 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
 
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
-        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'admissions'));
+        return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
+    }
+
+
+
+    public function get_register_cource(Request $request)
+    {   
+        $id = $request->id;
+       
+        try {
+            $getcource = CourceRegistration::where('register_id', $id)->with(['course'])->get();
+            
+            $admission = Admission::find($id);
+            return response()->json([
+            'data' => $getcource,
+            'admission'=> $admission,
+        ]);
+            
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
- public function store(RequestsCourceRegistration $request)
-{
-    $modules = $this->modules;
-    View::share('modules', $modules);
+    public function store(RequestsCourceRegistration $request)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
 
-    try {
-        $coursereg = $request->validated();
+        try {
+            $coursereg = $request->validated();
 
-        // Format the date if provided
-        if (!empty($coursereg['date'])) {
-            $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
+            // Format the date if provided
+            if (!empty($coursereg['date'])) {
+                $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
+            }
+
+            $coursereg['created_by'] = Auth::id();
+
+            CourceRegistration::create($coursereg);
+
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' Create Successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
-
-        $coursereg['created_by'] = Auth::id();
-
-        CourceRegistration::create($coursereg);
-
-        return Redirect::route($modules['route'] . '.index')
-            ->withSuccess($modules['title'] . ' Create Successfully');
-    } catch (\Exception $e) {
-        return Redirect::route('dashboard')->withErrors($e->getMessage());
     }
-}
 
     /**
      * Display the specified resource.
@@ -197,9 +226,9 @@ class CourceRegistrationController extends Controller
             View::share('modules', $modules);
 
             $admissions = Admission::all();
-            // return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
+            // return view($modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
             $edit = CourceRegistration::findOrFail($id);
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -295,7 +324,7 @@ class CourceRegistrationController extends Controller
             $restore_data = CourceRegistration::withTrashed()->findOrFail($id);
             $restore_data->restore();
 
-            return Redirect::back()->withSuccess($modules['ti   tle'] . ' restored successfully!');
+            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -336,5 +365,4 @@ class CourceRegistrationController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
 }

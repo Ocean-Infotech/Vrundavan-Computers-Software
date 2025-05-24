@@ -25,7 +25,7 @@ class AttedanceController extends Controller
     {
         $this->modules = [
             'title' => 'Attedance',
-            'folder_path' => 'attedance',
+            'folder_path' => 'software.module.attedance',
             'route' => 'attedance',
             'table_name' => (new Attedance())->getTable(),
             'permisstion_prefix' => 'attedance',
@@ -118,7 +118,7 @@ class AttedanceController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -129,7 +129,7 @@ class AttedanceController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function filter_student_data(Request $request)
@@ -223,7 +223,7 @@ class AttedanceController extends Controller
             View::share('modules', $modules);
 
             $edit = Attedance::findOrFail($id);
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

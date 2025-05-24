@@ -33,7 +33,7 @@ class AdmissionController extends Controller
     {
         $this->modules = [
             'title' => 'Admission',
-            'folder_path' => 'admission',
+            'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
@@ -54,7 +54,7 @@ class AdmissionController extends Controller
             $columns = [
                 (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
                 (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
-                (object)['data' => "first_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                (object)['data' => "admission_name", 'name' => 'name', 'td_label' => 'Name'],
                 (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
                 (object)['data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address'],
                 (object)['data' => "permanent_address", 'name' => 'permanent_address', 'td_label' => 'Permanent Address'],
@@ -83,11 +83,18 @@ class AdmissionController extends Controller
                             $query->orWhere('first_name', 'like', "%" . $request->search . "%");
                         }
                     })
+
+                    ->editColumn('admission_name', function ($row) {
+                        $first = $row->first_name ?? '';
+                        $father = $row->father_name ?? '';
+                        $last = $row->last_name ?? '';
+                        return trim("{$first} {$father} {$last}");
+                    })
                     ->editColumn('gdrivefolderurl', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $gdrivefolderurlbtn = '';
                         if (!$row?->gdrivefolderurl) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i class="ti ti-plus"></i> Generate</a>';
+                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i class="ti ti-plus"></i> Generate</a>';
                         } else {
                             $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i class="bx bx-copy-alt"></i> Copy URL</a>';
                         }
@@ -138,13 +145,13 @@ class AdmissionController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name'])
                     ->make(true);
                 return $returnData;
             }
             return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
-            return view('software.module.'.$modules['folder_path'].'.index',compact('data'));
+            return view($modules['folder_path'].'.index',compact('data'));
         } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

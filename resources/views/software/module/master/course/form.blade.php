@@ -35,7 +35,7 @@
 
 @section('content')
 
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
 
     <div class="card shadow my-4">
         <div class="card-header d-none">
@@ -124,7 +124,7 @@
                                     class="form-control @error('semester') is-invalid @enderror num_only"
                                     name="semester" maxlength="4"
                                     value="{{ isset($edit?->semester) ? $edit?->semester : old('semester') }}"
-                                    placeholder="Enter Course Semester">
+                                    placeholder="Enter Course Semester" readonly>
                             </div>
 
                             @error('semester')

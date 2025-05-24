@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Admission;
+use App\Rules\ValidAadhaar;
 
 class AdmissionRequest extends FormRequest
 {
@@ -28,6 +29,7 @@ class AdmissionRequest extends FormRequest
         $rules = [
             'aadhar_card_no' => [
                 'required',
+                'regex:/^[2-9]{1}[0-9]{11}$/',
                 Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
                 // Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
                 //     return $query->where('aadhar_card_no', $request->aadhar_card_no);

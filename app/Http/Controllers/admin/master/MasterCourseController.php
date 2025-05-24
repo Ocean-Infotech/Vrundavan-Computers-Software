@@ -113,7 +113,7 @@ class MasterCourseController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }

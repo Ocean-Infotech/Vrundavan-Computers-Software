@@ -34,7 +34,7 @@ $i = 0;
         ])
     </div>
 
-@include('software.partials.flash_messages')
+<!-- @include('software.partials.flash_messages') -->
 
 <div class="card shadow my-3">
     <div class="card-header d-none">
@@ -51,112 +51,159 @@ $i = 0;
             @endisset
 
             <div class="row">
+                <div class="col-md-6 col-sm-12">
+                    <div class="row">
+                        {{-- Register No --}}
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label for="register_no">Select Student<span class="text-danger">*</span></label>
 
-                {{-- Register No --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label for="register_no">Select Student<span class="text-danger">*</span></label>
+                                <input list="registers_id" id="register_id" name="register_id" class="form-control @error('register_id') is-invalid @enderror" value="{{ old('register_id', $edit->register_id ?? '') }}" placeholder="Register No.">
 
-                        <input list="registers_id" id="register_id" name="register_id" class="form-control @error('register_id') is-invalid @enderror" value="{{ old('register_id', $edit->register_id ?? '') }}" placeholder="Register No.">
+                                <datalist id="registers_id">
+                                    <!-- <option value="">-- Select Register No. --</option> -->
+                                    @foreach ($admissions as $admission)
+                                    <option value="{{ $admission->id }}"
+                                        {{ (int) old('register_id', $edit->register_id ?? '') === $admission->id ? 'selected' : '' }}>
+                                        {{ $admission->first_name." ".$admission->father_name." ".$admission->last_name }}
+                                    </option>
+                                    @endforeach
+                                </datalist>
 
-                        <datalist id="registers_id">
-                            <!-- <option value="">-- Select Register No. --</option> -->
-                            @foreach ($admissions as $admission)
-                            <option value="{{ $admission->id }}"
-                                {{ (int) old('register_id', $edit->register_id ?? '') === $admission->id ? 'selected' : '' }}>
-                                {{ $admission->first_name." ".$admission->father_name." ".$admission->last_name }}
-                            </option>
-                            @endforeach
-                        </datalist>
+                                @error('register_no')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
 
-                        @error('register_no')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        {{-- Course Name --}}
+                        <div class="col-md-12 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                                <select id="course" name="course_id"
+                                    class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
+                                    data-append="search_by_course"
+                                    data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
+                                    autofocus required>
+                                    <option value="">Select Course</option>
+                                </select>
+
+                                @error('course_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Batch --}}
+                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-3 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Select Batch <span class="text-danger">*</span></label>
+                                <select id="batch" name="batch_id"
+                                    class="form-control search_by_batch select2 @error('batch_id') is-invalid @enderror select_filter"
+                                    data-append="search_by_batch"
+                                    data-selectedBatchId="{{ isset($edit) && $edit?->batch_id ? $edit?->batch_id : old('batch_id') }}"
+                                    autofocus>
+                                    <option value="">Select Batch</option>
+                                </select>
+
+                                @error('batch_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-2 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Select Class <span class="text-danger">*</span></label>
+                                <select id="class " name="class_id"
+                                    class="form-control search_by_class select2 @error('class_id') is-invalid @enderror select_filter"
+                                    data-append="search_by_class"
+                                    data-selectedClassId="{{ isset($edit) && $edit?->class_id ? $edit?->class_id : old('class_id') }}"
+                                    autofocus>
+                                    <option value="">Select Class</option>
+                                    <option value="1 A">1 A</option>
+                                    <option value="1 B">1 B</option>
+                                    <option value="2 A">2 A</option>
+                                    <option value="3 A">3 A</option>
+                                    <option value="4 A">4 A</option>
+                                    <option value="4 B">4 B</option>
+                                    <option value="4 C">4 C</option>
+                                </select>
+
+                                @error('class_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Fees (auto-filled) --}}
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label for="fee">Course Fees <span class="text-danger">*</span></label>
+                                <input type="text" name="fee" id="fee"
+                                    class="form-control num_only @error('fee') is-invalid @enderror"
+                                    value="{{ old('fee', $edit->fee ?? '') }}" placeholder="Course Fees">
+                                @error('fee')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Date --}}
+                        <div class="col-md-12 mb-3">
+                            <label for="date">Date <span class="text-danger">*</span></label>
+                            <input type="date" name="date" id="flatpickr-date"
+                                class="form-control datepicker @error('date') is-invalid @enderror"
+                                value="{{ old('date', $edit->date ?? '') }}" placeholder="DD-MM-YYYY">
+
+                            @error('date')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        {{-- Note --}}
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label for="note">Note</label>
+                                <textarea name="note" id="note" rows="3" class="form-control @error('note') is-invalid @enderror"
+                                    placeholder="Enter Note">{{ old('note', $edit->note ?? '') }}</textarea>
+                                @error('note')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+                <div class="col-md-6 col-sm-12" id="{{ isset($edit) ? '' : 'RegisterCource' }}">
+                    <p style="color: #101010;font-weight: bold;">Student Name : <label id="StudentName" style="font-weight: 400;"></label></p>
+                    <table class="table table-bordered" id="RegisterCourceTable">
+                        <thead>
+                            <tr>
+                                <th>Register No.</th>
+                                <th>Course Name</th>
+                                <th>Joining Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
                 </div>
 
-
-
-                {{-- Course Name --}}
-                <div class="col-md-4 col-sm-12">
-                    <div class="form-group">
-                        <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                        <select id="course" name="course_id"
-                            class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
-                            data-append="search_by_course"
-                            data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
-                            autofocus required>
-                            <option value="">Select Course</option>
-                        </select>
-
-                        @error('course_id')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
+                {{-- Submit --}}
+                <div class="col-md-12 text-center mt-4">
+                    <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
+                    <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
                 </div>
-
-                {{-- Fees (auto-filled) --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label for="fee">Course Fees <span class="text-danger">*</span></label>
-                        <input type="text" name="fee" id="fee"
-                            class="form-control num_only @error('fee') is-invalid @enderror"
-                            value="{{ old('fee', $edit->fee ?? '') }}" placeholder="Course Fees">
-                        @error('fee')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-
-                    {{-- Date --}}
-                    <div class="col-md-4 mb-3">
-                        <label for="date">Date <span class="text-danger">*</span></label>
-                        <input type="date" name="date" id="flatpickr-date"
-                            class="form-control datepicker @error('date') is-invalid @enderror"
-                            value="{{ old('date', $edit->date ?? '') }}" placeholder="DD-MM-YYYY">
-
-                        @error('date')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                {{-- Note --}}
-                <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label for="note">Note</label>
-                        <textarea name="note" id="note" rows="3" class="form-control @error('note') is-invalid @enderror"
-                            placeholder="Enter Note">{{ old('note', $edit->note ?? '') }}</textarea>
-                        @error('note')
-                        <span class="invalid-feedback">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
-                {{-- Status --}}
-                {{-- <div class="col-md-4 mb-2">
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <select class="form-control select2 w-100 @error('status') is-invalid @enderror" name="status"
-                            required>
-                            <option disabled selected>Select Status</option>
-                            @foreach (['active', 'inactive'] as $status)
-                                <option value="{{ $status }}"
-                @if (isset($edit)) @if ($edit->status == $status) {{ 'selected' }} @endif
-                @else @if (old('status', 'active') == $status) {{ 'selected' }} @endif @endif> {{ ucfirst($status) }}</option>
-                @endforeach
-                </select>
             </div>
-    </div> --}}
-
-    {{-- Submit --}}
-    <div class="col-md-12 text-center mt-4">
-        <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
-        <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
+        </form>
     </div>
-</div>
-</form>
-</div>
 </div>
 
 @endsection
@@ -200,31 +247,106 @@ $i = 0;
         }, 1000);
 
     });
-    // let $i = 0;
+    
+    let firstOldFee = null; // store first old value only once
+
     $('#course').change(function() {
-        let fees = $(this).find(':selected').data('fees') || '';
-        // if($i !== 0){
+        let oldFee = $('#fee').val();
+
+        if (oldFee === "") {
+            // First time: fee input is empty
+            let fees = $(this).find(':selected').data('fees') || '';
             $('#fee').val(fees);
-        // }else{
-        //     ++$i
-        // }
-
+            firstOldFee = fees;
+        } else {
+            if (firstOldFee === null) {
+                firstOldFee = oldFee; // store only once
+            } else {
+                let fees = $(this).find(':selected').data('fees') || '';
+                $('#fee').val(fees);
+            }
+        }
     });
-    //      document.addEventListener('DOMContentLoaded', function () {
-    //     const courseSelect = document.getElementById('course_id');
-    //     const feesInput = document.getElementById('fee');
+    
+    $('#RegisterCource').hide();
+    $("#register_id").keyup(function abc(){
+		var register_id = $("#register_id").val();	
+        if(register_id){
+            $.ajax({
+                type:'POST',
+                url:"{{ route($route . '.get-register-cource') }}",
+                
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id:register_id,
+                },
+                success : function(response)
+                {
+                    $('#RegisterCource').show();
 
-            $('#register_id').on('change', function() {
-                const registerId = $(this).val();
-                const _url = $(this).find('option:selected').attr('data-url');
+                    let rows = '';
 
-                if (registerId && _url) {
-                    // prevent duplicate fetch if the same id is selected (optional)
-                    if (registerId === previousRegisterId) return;
+                    if (response.data && response.data.length > 0) {
+                        $.each(response.data, function(index, item) {
+                            rows += '<tr>';
+                                rows += '<td>' + item.id + '</td>';
+                                rows += '<td>' + item.course.course_name + '</td>';
+                                rows += '<td>' + item.date + '</td>';
+                            rows += '</tr>';
+                        });
+                    } else {
+                        rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                    }
+                    
+                    $('#RegisterCourceTable tbody').html(rows);
+                    var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;
+                    $('#StudentName').text(studentname);
                 }
             });
-    //     // Trigger on load (for edit page)
-    //     updateFees();
-    // });
+        }
+	});
+    
 </script>
+@if(isset($edit))
+    <script>
+        $(document).ready(function() {
+            var registerid = $("#register_id").val();	
+            if(registerid){
+                $.ajax({
+                    type:'POST',
+                    url:"{{ route($route . '.get-register-cource') }}",
+                    
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id:registerid,
+                    },
+                    success : function(response)
+                    {
+                        $('#RegisterCource').show();
+
+                        let rows = '';
+
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(index, item) {
+                                rows += '<tr>';
+                                    rows += '<td>' + item.id + '</td>';
+                                    rows += '<td>' + item.course.course_name + '</td>';
+                                    rows += '<td>' + item.date + '</td>';
+                                rows += '</tr>';
+                            });
+                        } else {
+                            rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                        }
+                        
+                        $('#RegisterCourceTable tbody').html(rows);
+                        var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;
+                        $('#StudentName').text(studentname);
+                    }
+                });
+            }
+        });
+    
+</script>
+@endif
+
 @endsection

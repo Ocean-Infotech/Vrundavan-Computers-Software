@@ -19,7 +19,7 @@ class MasterCityController extends Controller
     {
         $this->modules = [
             'title' => 'City',
-            'folder_path' => 'master.city',
+            'folder_path' => 'software.module.master.city',
             'route' => 'city',
             'table_name' => (new MasterCity())->getTable(),
             'permisstion_prefix' => 'city',
@@ -105,7 +105,7 @@ class MasterCityController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -116,7 +116,7 @@ class MasterCityController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -162,7 +162,7 @@ class MasterCityController extends Controller
             $modules = $this->modules;
             $edit = MasterCity::findOrFail($id);
 
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

@@ -24,6 +24,7 @@ use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\Master\MasterSemesterController;
+use App\Http\Controllers\admin\master\MasterShiftController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -72,6 +73,11 @@ Route::resource('/semester', MasterSemesterController::class);
 Route::match(['get', 'post'], 'semester/restore/{id}', [MasterSemesterController::class, 'restore'])->name('semester.restore');
 Route::match(['get', 'post'], 'semester-update-status', [MasterSemesterController::class, 'status_update'])->name('semester.status-update');
 
+/** Master Shift Modules */
+Route::resource('/shift', MasterShiftController::class);
+Route::match(['get', 'post'], 'shift/restore/{id}', [MasterShiftController::class, 'restore'])->name('shift.restore');
+Route::match(['get', 'post'], 'shift-update-status', [MasterShiftController::class, 'status_update'])->name('shift.status-update');
+
 /** Master Batch Modules */
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
@@ -117,6 +123,7 @@ Route::resource('documents', DocumentController::class);
 Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
 
 
 

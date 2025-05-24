@@ -40,7 +40,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
+                        <table id="yajra-datatables" class="display table table-hover" >
                             @if (isset($columns))
                             <thead>
                                 <tr>
@@ -123,7 +123,10 @@
         $(document).on('click', '.create_google_drive_folder', function() {    
             var folderName = $(this).data('foldername');
             var id = $(this).data('id');
-
+            $(this).find('i').removeClass('ti-plus').addClass('ti-check')
+            $('#yajra-datatables_processing').css('font-weight', 'bold');
+            $('#yajra-datatables_processing').show();
+            
             $.ajax({
                 url: "{{ route($route . '.create-google-drive-folder') }}",
                 type: 'POST',
@@ -146,15 +149,15 @@
 
         $(document).on('click', '.GoogleDriveFolderUrlCopy', function() { 
                 var url = $(this).data('folderurl');
-                
+                var self = $(this);
                 if (url) {
                     navigator.clipboard.writeText(url).then(function() {
                         console.log('URL copied to clipboard:', url);
                         toastr.success('Copy URL');
-                        // Optional: Feedback (e.g., temporary text/icon change)
-                        $(this).find('i').removeClass('bx-copy-alt').addClass('bx-check');
+                        // Use captured reference `self`
+                        self.find('i').removeClass('bx-copy-alt').addClass('bx-check');
                         setTimeout(function() {
-                            $(this).find('i').removeClass('bx-check').addClass('bx-copy-alt');
+                            self.find('i').removeClass('bx-check').addClass('bx-copy-alt');
                         }, 1500);
                     }).catch(function(err) {
                         console.error('Failed to copy URL:', err);

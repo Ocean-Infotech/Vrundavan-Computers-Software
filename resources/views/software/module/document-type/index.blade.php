@@ -34,7 +34,7 @@
         ])
     </div>
 
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
     <div class="card">
         <div class="card-body">
             <div class="row">

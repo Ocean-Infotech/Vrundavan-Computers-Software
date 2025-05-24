@@ -22,7 +22,7 @@ class MasterPincodeController extends Controller
     {
         $this->modules = [
             'title' => 'Pincode',
-            'folder_path' => 'master.pincode',
+            'folder_path' => 'software.module.master.pincode',
             'route' => 'pincode',
             'table_name' => (new MasterPincode())->getTable(),
             'permisstion_prefix' => 'pincode',
@@ -106,7 +106,7 @@ class MasterPincodeController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -116,7 +116,7 @@ class MasterPincodeController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        return view('software.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -166,7 +166,7 @@ class MasterPincodeController extends Controller
             $modules = $this->modules;
             $edit = MasterPincode::findOrFail($id);
 
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

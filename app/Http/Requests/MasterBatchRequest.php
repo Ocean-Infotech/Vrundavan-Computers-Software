@@ -25,7 +25,7 @@ class MasterBatchRequest extends FormRequest
      */
     public function rules(Request $request): array
     {
-        $id = $request->route('master_batch') ?? 0;
+        $id = $request->route('batch') ?? 0;
         $rules = [
             'course_id' => [
                 'required',

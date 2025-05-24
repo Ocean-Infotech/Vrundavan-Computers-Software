@@ -34,7 +34,7 @@
         ])
     </div>
 
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
     <div class="row my-3">
         <div class="col-md-12">
             <div class="card">
@@ -88,9 +88,9 @@
                 searching: true,
                 processing: true,
                 serverSide: true,
-                order: [
-                    [1, 'desc']
-                ],
+                // order: [
+                //     [1, 'desc']
+                // ],
                 ajax: {
                     "url": "{{ route($route . '.index') }}",
                     'beforeSend': function(request) {

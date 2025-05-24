@@ -35,7 +35,7 @@ $i = 0;
         ])
     </div>
 
-@include('software.partials.flash_messages')
+<!-- @include('software.partials.flash_messages') -->
 
 <div class="card mt-5">
     <div class="card-header d-none">

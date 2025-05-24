@@ -30,7 +30,7 @@ $i = 0;
         ])
     </div>
 
-<!-- @include('software.partials.flash_messages') -->
+
 
 <div class="card shadow my-3">
     <div class="card-header d-none">
@@ -50,7 +50,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
-                        <input id="aadhar_card_no" type="text" class="form-control @error('aadhar_card_no') is-invalid @enderror"
+                        <input id="aadhar_card_no" type="text" class="form-control @error('aadhar_card_no') is-invalid @enderror num_only" minlength="12" maxlength="12"
                             name="aadhar_card_no" value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
                             autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No." autocapitalize="off">
 
@@ -221,7 +221,7 @@ $i = 0;
                 <div class="col-md-4 col-sm-12  mb-3">
                     <div class="form-group">
                         <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
-                        <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth" autocapitalize="off" value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}" placeholder="Enter Date of Birth">
+                        <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth" autocapitalize="off" max="{{ date('Y-m-d') }}" value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}" placeholder="Enter Date of Birth">
 
                         @error('date_of_birth')
                         <span class="invalid-feedback">
@@ -527,7 +527,7 @@ $i = 0;
     </script>
     @if (isset($edit))
         <script>
-            $('#google_drive_rename_folder_url_col').hide();
+            // $('#google_drive_rename_folder_url_col').hide();
             $('.google_drive_rename_folder').on('click', function() {
                 var first_name = $('#first_name').val();
                 var father_name = $('#father_name').val();

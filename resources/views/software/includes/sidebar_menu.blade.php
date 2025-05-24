@@ -123,7 +123,7 @@
 
 
         <li
-            class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'semester' || $sidebar_active == 'cource-registration' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+            class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
                 <div data-i18n="Course">Course</div>
@@ -136,15 +136,14 @@
                     </a>
                 </li>
 
-                <li class="menu-item {{ $sidebar_active == 'semester' ? 'active' : '' }}">
-                    <a href="{{ route('semester.index') }}"class="menu-link">
-                        <div data-i18n="Semester Master">Semester Master</div>
-                    </a>
-                </li>
-
                 <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
                     <a href="{{ route('batch.index') }}"class="menu-link">
                         <div data-i18n="Batch Master">Batch Master</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ $sidebar_active == 'shift' ? 'active' : '' }}">
+                    <a href="{{ route('shift.index') }}"class="menu-link">
+                        <div data-i18n="Shift Master">Shift Master</div>
                     </a>
                 </li>
                 <li class="menu-item {{ $sidebar_active == 'syllabus' ? 'active' : '' }}">

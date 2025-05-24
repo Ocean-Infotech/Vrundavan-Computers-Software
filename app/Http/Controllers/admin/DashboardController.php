@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $this->modules = [
             'title' => 'Dashboard',
-            'folder_path' => 'admin',
+            'folder_path' => 'software.module',
             'route' => '',
             'table_name' => '',
             'permisstion_prefix' => '',
@@ -30,9 +30,9 @@ class DashboardController extends Controller
     public function dashboard(Request $request)
     {
         $modules = $this->modules;
-        $modules['folder_path'] = 'dashboard';
+        // $modules['folder_path'] = 'dashboard';
         View::share('modules', $modules);
-        return view('software.module.' . $modules['folder_path'], compact('modules'));
-        return view('software.module.dashboard');
+        // return view(, compact('modules'));
+        return view($modules['folder_path'].'.dashboard');
     }
 }

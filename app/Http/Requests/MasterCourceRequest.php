@@ -24,7 +24,7 @@ class MasterCourceRequest extends FormRequest
      */
     public function rules(Request $request): array
     {
-        $id = $request->route(' master_course') ?? 0;
+        $id = $request->route('course') ?? 0;
         $rules = [
             'course_name' => [
                 'required',

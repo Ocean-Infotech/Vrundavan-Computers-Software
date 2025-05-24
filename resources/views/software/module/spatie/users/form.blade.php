@@ -30,7 +30,7 @@
         ])
     </div>
 
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
 
     <div class="card shadow my-3">
         <div class="card-header d-none">

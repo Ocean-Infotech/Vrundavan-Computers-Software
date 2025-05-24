@@ -52,7 +52,7 @@ $i = 0;
 
     @section('content')
 
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
 
     <div class="card shadow">
         <div class="card-header d-none">

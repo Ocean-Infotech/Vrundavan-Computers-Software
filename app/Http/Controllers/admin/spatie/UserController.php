@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $this->modules = [
             'title' => 'Users',
-            'folder_path' => 'spatie.users',
+            'folder_path' => 'software.module.spatie.users',
             'route' => 'users',
             'table_name' => (new User)->getTable(),
             'permisstion_prefix' => 'users',
@@ -145,7 +145,7 @@ class UserController extends Controller
                     ->make(true);
             }
 
-            return view('software.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -175,7 +175,7 @@ class UserController extends Controller
             $roles = Helper::getRolesBasedOnLoginRole();
             View::share('roles', $roles);
 
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('roles'));
+            return view($modules['folder_path'] . '.form', compact('roles'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -245,7 +245,7 @@ class UserController extends Controller
                 $selectedRole = $edit->roles->pluck('id')->first();
             }
             // return $edit->roles->pluck('id')->first();
-            return view('software.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'roles', 'selectedRole'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'roles', 'selectedRole'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

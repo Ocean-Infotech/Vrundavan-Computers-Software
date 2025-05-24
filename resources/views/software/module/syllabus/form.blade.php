@@ -28,7 +28,7 @@
 @endsection
 
 @section('content')
-    @include('software.partials.flash_messages')
+    <!-- @include('software.partials.flash_messages') -->
 
     <div class="card shadow my-4">
         <div class="card-body my-4">

@@ -84,7 +84,7 @@
                         <div class="container-fuild flex-grow-1 container-p-y container-p-x">
                             @yield('breadcrumb')
 
-                            @include('software.partials.flash_messages')
+                            <!-- @include('software.partials.flash_messages') -->
 
                             @yield('content')
                         </div>
@@ -163,6 +163,7 @@
     @yield('page_script_file')
 
     @yield('page_leavel_script')
+    @include('software.utils.toastr')
 </body>
 
 </html>
