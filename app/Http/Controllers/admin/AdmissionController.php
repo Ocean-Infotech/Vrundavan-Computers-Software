@@ -54,9 +54,10 @@ class AdmissionController extends Controller
             $columns = [
                 (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
                 (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
-                (object)['data' => "admission_name", 'name' => 'name', 'td_label' => 'Name'],
-                (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
-                (object)['data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address'],
+                (object)['data' => "personal_information", 'name' => 'name', 'td_label' => 'Personal Information'],
+                (object)['data' => "otherdetail", 'name' => 'enrolment_no', 'td_label' => 'Other Detail'],
+                // (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
+                // (object)['data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address'],
                 (object)['data' => "permanent_address", 'name' => 'permanent_address', 'td_label' => 'Permanent Address'],
                 (object)['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
@@ -84,19 +85,40 @@ class AdmissionController extends Controller
                         }
                     })
 
-                    ->editColumn('admission_name', function ($row) {
+                    ->editColumn('personal_information', function ($row) {
                         $first = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
+                        $mobile = $row->mobile_no ?? '';
+                        $email = $row->email_address ?? '';
+
+                        $fullName = "<i class='fas fa-user'></i> {$first} {$father} {$last}";
+                        $mobileDisplay = "<i class='fas fa-phone'></i> {$mobile}";
+                        $emailDisplay = "<i class='fas fa-envelope'></i> {$email}";
+                        return "{$fullName}<br>{$mobileDisplay}<br>{$emailDisplay}";
                     })
+
+                    ->editColumn('otherdetail', function ($row) {
+                        $enrolment_no = $row->enrolment_no ?? 'N/A';
+                        $spid = $row->spid ?? 'N/A';
+                        $apaar_id_abc_id = $row->apaar_id_abc_id ?? 'N/A';
+
+                        $enrolmentDisplay = "<strong>Enroll No:</strong> {$enrolment_no}";
+                        $spidDisplay = "<strong>SPID:</strong> {$spid}";
+                        $apaarDisplay = "<strong>APAAR ID:</strong> {$apaar_id_abc_id}";
+
+                        return "{$enrolmentDisplay}<br>{$spidDisplay}<br>{$apaarDisplay}";
+                    })
+
+
+
                     ->editColumn('gdrivefolderurl', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $gdrivefolderurlbtn = '';
                         if (!$row?->gdrivefolderurl) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i class="ti ti-plus"></i> Generate</a>';
+                        // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+                        $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="' . $row["id"] . '" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i class="ti ti-plus"></i> Generate</a>';
                         } else {
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i class="bx bx-copy-alt"></i> Copy URL</a>';
+                        $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="' . $row["id"] . '" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i class="bx bx-copy-alt"></i> Copy URL</a>';
                         }
                         // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
                         if ($gdrivefolderurlbtn == '') {
@@ -145,14 +167,14 @@ class AdmissionController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'personal_information', 'otherdetail'])
                     ->make(true);
                 return $returnData;
             }
             return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'].'.index',compact('data'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.index', compact('data'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -162,7 +184,6 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
-        
     }
 
     public function store(AdmissionRequest $request)
@@ -224,8 +245,8 @@ class AdmissionController extends Controller
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'].'.form',compact('modules','edit'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -411,7 +432,7 @@ class AdmissionController extends Controller
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-        
+
         $service = new Drive($client);
 
         $fileMetadata = new DriveFile([
@@ -460,7 +481,7 @@ class AdmissionController extends Controller
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-        
+
         $service = new Drive($client);
 
         $fileMetadata = new DriveFile([
@@ -506,20 +527,20 @@ class AdmissionController extends Controller
         return response()->json(['error' => 'Admission not found'], 404);
     }
 
-// public function getAdmissionDetails($id)
-// {
-//     $admission = Admission::with('courceRegistration')->find($id);
+    // public function getAdmissionDetails($id)
+    // {
+    //     $admission = Admission::with('courceRegistration')->find($id);
 
-//     if ($admission) {
-//         return response()->json([
-//             'first_name' => $admission->first_name,
-//             'last_name'  => $admission->last_name,
-//             'course_id'  => optional($admission->courceRegistration)->course_id,
-//             'date'       => optional($admission->courceRegistration)->date,
-//         ]);
-//     }
+    //     if ($admission) {
+    //         return response()->json([
+    //             'first_name' => $admission->first_name,
+    //             'last_name'  => $admission->last_name,
+    //             'course_id'  => optional($admission->courceRegistration)->course_id,
+    //             'date'       => optional($admission->courceRegistration)->date,
+    //         ]);
+    //     }
 
-//     return response()->json(['error' => 'Admission not found'], 404);
-// }
+    //     return response()->json(['error' => 'Admission not found'], 404);
+    // }
 
 }
