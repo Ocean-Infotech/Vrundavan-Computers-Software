@@ -21,6 +21,8 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-admission', 'get_admission')->name('get-admission');
     Route::any('get-class', 'get_class')->name('get-class');
+    Route::any('get-shift', 'get_shift')->name('get-shift');
+    Route::any('get-class-bybatch', 'get_classbybatch')->name('get-class-bybatch');
 });
 
 Route::controller(AuthenticationController::class)->group(function () {
