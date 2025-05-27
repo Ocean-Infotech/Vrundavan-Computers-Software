@@ -25,8 +25,8 @@
                             <div class="col-12">
                                 <div class="card-body text-nowrap">
                                     <h5 class="card-title mb-0 "> <b>{{ $admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name }}</b></h5>
-                                    <h6 class="card-title mb-0"><b>Course:</b> {{ $admissions->course }}</h6>
-                                    <h6 class="card-title mb-0"><b>Batch:</b> {{ $admissions->batch }}</h6>
+                                    <h6 class="card-title mb-0"><b>Addharcard :</b> {{ $admissions->aadhar_card_no }}</h6>
+                                    <h6 class="card-title mb-0"><b>Enrolment No:</b> {{ $admissions->enrolment_no }}</h6>
                                 </div>
                             </div>
                         </div>
