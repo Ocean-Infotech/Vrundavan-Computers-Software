@@ -80,12 +80,7 @@ class PermissionTableSeeder extends Seeder
                 'documents-delete',
             ],
             'Application' => [
-                'add-scan',
-                'scan-history',
-                'show-documents',
-                'share-documents',
                 'about-us',
-                'show-withdrawal',
             ],
             'Setting' => [
                 'generate-api-documents',
