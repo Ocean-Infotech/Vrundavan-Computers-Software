@@ -1,0 +1,126 @@
+<script>
+    $(document).on('change', '.search_by_class', function() {
+        console.log("search_by_shift L-3");
+
+        let shift_id = $(".search_by_shift").attr("data-selectedShiftId");
+        let instance = $('.search_by_class');
+        let course_id = $(".search_by_course option:selected").val();
+        let batch_id = $(".search_by_batch option:selected").val();
+        let class_id = instance.val();
+        let is_required = instance.attr('required');
+        let is_select2 = instance.hasClass('select2');
+
+        if (!course_id) {
+            course_id = $('.search_by_course').attr("data-selectedCourseId");
+        }
+        if (!batch_id) {
+            batch_id = $('.search_by_batch').attr("data-selectedBatchId");
+        }
+
+        if (!class_id) {
+            class_id = instance.attr("data-selectedClassId");
+        }
+
+        if (!shift_id) {
+            shift_id = $(".search_by_shift").attr("data-selectedShiftId");
+        }
+
+        if (course_id && batch_id && class_id) {
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('get-shift') }}",
+                'beforeSend': function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
+                        'content'));
+                },
+                data: {
+                    course_id: course_id,
+                    batch_id: batch_id,
+                    class_id: class_id
+                },
+                success: function(response) {
+                    if (response.status) {
+                        let options = "<option value=''>Select Shift</option>";
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(i, item) {
+                                if (shift_id == item.id) {
+                                    options += "<option value='" + item.id +
+                                        "' selected >" + item.name + "</option>";
+                                } else {
+                                    options += "<option value='" + item.id +
+                                        "'>" +
+                                        item.name + "</option>";
+                                }
+                            });
+
+                            if(shift_id != '') {
+                                $('.search_by_shift').trigger("change");
+                            }
+                        }
+                        if ($(".search_by_shift").attr('data-append')) {
+                            $(".search_by_class").attr('data-selectedClassId', batch_id);
+                            if ($(document).find("." + $(".search_by_shift").attr('data-append'))
+                                .length > 0) {
+                                $("." + $(".search_by_shift").attr('data-append')).empty();
+                                $("." + $(".search_by_shift").attr('data-append')).append(options);
+                            } else {
+                                $("." + $(".search_by_shift").attr('data-append')).empty();
+                                $("." + $(".search_by_shift").attr('data-append')).append(options);
+                            }
+                        } else if (instance.parent().parent().hasClass("col-md-6") || instance
+                            .parent().parent().hasClass("col-md-4") || instance.parent().parent()
+                            .hasClass("col-md-3")) {
+
+                            let select_tag =
+                                '<select name="class_id" class="form-select search_by_class';
+                            if (is_select2) {
+                                select_tag += ' select2 ';
+                            }
+                            select_tag += '"';
+                            if (is_required) {
+                                select_tag += ' required ';
+                            }
+                            select_tag += '>' + options + '</select>';
+
+
+                            let html = '';
+                            if (instance.parent().parent().hasClass("col-md-4")) {
+                                html = '<div class="col-md-4 class_div">';
+                            } else if (instance.parent().parent().hasClass("col-md-3")) {
+                                html = '<div class="col-md-3 class_div">';
+                            } else {
+                                html = '<div class="col-md-6 class_div">';
+                            }
+                            html +=
+                                '<div class="form-group"> <label for="class_id">Select Shift ';
+                            if (is_required) {
+                                html += '<span class="text-danger">*</span>';
+                            }
+                            html += '</label>';
+                            html += select_tag;
+                            html += '</div></div>';
+                            $(".course_div").remove();
+                            instance.parent().parent().after(html);
+                        } else if (instance.parent("tr")) {
+                            // console.log("getclass 39", instance, instance.parent(), instance.next("th"));
+                            $(".search_by_class").removeClass('d-none').empty().append(options);
+                            /*
+                            // $(".search_by_course").remove();
+                            // instance.parent().next("th").remove();
+                            // instance.parent().after('<th>'+options+'</th>');
+                            */
+                        } else {
+                            console.log("getClass 82", instance.parent());
+                            instance.parent().after(options);
+                        }
+                        // $('.search_by_class').trigger("change");
+                        $('.select2').select2();
+                    }
+                }
+            });
+        }else{
+            console.log("getClass 92 " + course_id + '/' + batch_id + '/' + class_id);
+        }
+    });
+    $('.search_by_class').trigger("change");
+</script>

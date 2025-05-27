@@ -97,7 +97,7 @@ $i = 0;
                         </div>
 
                         {{-- Batch --}}
-                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-3 mb-3">
+                        <div class="col-md-12 col-sm-12 mb-3">
                             <div class="form-group">
                                 <label class="form-label">Select Batch <span class="text-danger">*</span></label>
                                 <select id="batch" name="batch_id"
@@ -116,25 +116,38 @@ $i = 0;
                             </div>
                         </div>
 
-                        <div class="col-sm-12 col-md-4 col-lg-4 col-xl-2 mb-3">
+                        <div class="col-md-12 col-sm-12 mb-3">
                             <div class="form-group">
                                 <label class="form-label">Select Class <span class="text-danger">*</span></label>
-                                <select id="class " name="class_id"
+                                <select id="class" name="class_id"
                                     class="form-control search_by_class select2 @error('class_id') is-invalid @enderror select_filter"
                                     data-append="search_by_class"
                                     data-selectedClassId="{{ isset($edit) && $edit?->class_id ? $edit?->class_id : old('class_id') }}"
                                     autofocus>
                                     <option value="">Select Class</option>
-                                    <option value="1 A">1 A</option>
-                                    <option value="1 B">1 B</option>
-                                    <option value="2 A">2 A</option>
-                                    <option value="3 A">3 A</option>
-                                    <option value="4 A">4 A</option>
-                                    <option value="4 B">4 B</option>
-                                    <option value="4 C">4 C</option>
                                 </select>
 
                                 @error('class_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Shift --}}
+                        <div class="col-md-12 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Select Shift <span class="text-danger">*</span></label>
+                                <select id="shift" name="shift_id"
+                                    class="form-control search_by_shift select2 @error('shift_id') is-invalid @enderror select_filter"
+                                    data-append="search_by_shift"
+                                    data-selectedShiftId="{{ isset($edit) && $edit?->shift_id ? $edit?->shift_id : old('shift_id') }}"
+                                    autofocus>
+                                    <option value="">Select Shift</option>
+                                </select>
+
+                                @error('shift_id')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
                                 </span>
@@ -209,7 +222,10 @@ $i = 0;
 @endsection
 
 @section('page_leavel_script')
-@include('software.utils.getCourse')
+    @include('software.utils.getCourse')
+    @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getClassByBatch')
+    @include('software.utils.getShiftByBatchByCourseidByClass')
 
 
 <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
