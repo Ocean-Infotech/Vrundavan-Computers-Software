@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CourceRegistration as RequestsCourceRegistration;
+
 use App\Models\Admission;
 
 use App\Models\CourceRegistration;
+use App\Http\Requests\CourceRegistrationRequest;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -45,9 +46,10 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Register No'],
+                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Reg No'],
                 (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => 'batch_and_class_or_shift', 'name' => 'batch_and_class_or_shift', 'td_label' => 'Batch and Class or Shift'],
                 (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
@@ -63,7 +65,7 @@ class CourceRegistrationController extends Controller
                 $data = CourceRegistration::select('*');
                 $data = $data->withTrashed();
                 $data = $data->orderBy('created_at', 'desc');
-                $data = $data->with(['course', 'admission']);
+                $data = $data->with(['course', 'admission', 'batch', 'class', 'shift']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -84,8 +86,19 @@ class CourceRegistrationController extends Controller
                         return trim("{$first} {$father} {$last}");
                     })
 
+                    ->editColumn('batch_and_class_or_shift', function ($row) {
+                        $batch = $row->batch->batch_name ?? '';
+                        $class = $row->class->class ?? '';
+
+                        $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
+                        $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
+
+                        $shift = $from_time.' To '.$to_time ?? '';
+                        return trim("{$batch}<br>{$class}<br>{$shift}");
+                    })
+
                     ->editColumn('date', function ($row) {
-                        return \Carbon\Carbon::parse($row->date)->format('d-m-Y');
+                        return Carbon::parse($row->date)->format('d-m-Y');
                     })
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
@@ -139,7 +152,7 @@ class CourceRegistrationController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action', 'student_name', 'data'])
+                    ->rawColumns(['status', 'action', 'student_name', 'data', 'batch_and_class_or_shift'])
                     ->make(true);
                 return $returnData;
             }
@@ -184,11 +197,11 @@ class CourceRegistrationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RequestsCourceRegistration $request)
+    public function store(CourceRegistrationRequest $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-
+        
         try {
             $coursereg = $request->validated();
 
@@ -237,28 +250,29 @@ class CourceRegistrationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CourceRegistrationRequest $request, string $id)
     {
 
         $modules = $this->modules;
         // return $request->all();
         $request['id'] = $id;
 
-        $validated = $request->validate([
-            'register_id' => 'required',
-            'course_id' => 'required',
-            'fee' => 'required|max:255',
-            'date' => 'required|max:255',
-            'note' => 'required|max:255',
-        ]);
+        $validated = $request->validated();
+        
         try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
             $updateData = CourceRegistration::findOrFail($id);
             if ($updateData) {
                 unset($validated['id']);
-                $updateData->update($validated);
+                
+                if (!empty($validated['date'])) {
+                    $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
+                }
+                
 
+                $updateData->update($validated);
+                
                 return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();

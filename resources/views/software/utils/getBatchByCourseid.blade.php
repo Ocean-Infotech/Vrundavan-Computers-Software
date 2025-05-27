@@ -106,5 +106,5 @@
 
         }
     });
-    $('.search_by_batch').trigger("change");
+    $('.search_by_course').trigger("change");
 </script>

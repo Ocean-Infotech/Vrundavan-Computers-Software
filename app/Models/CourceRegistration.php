@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Master\MasterBatch;
+use App\Models\master\MasterClass;
 use App\Models\Master\MasterCourse;
+use App\Models\master\MasterShift;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -15,6 +18,9 @@ class CourceRegistration extends Model
     protected $fillable = [
         'register_id',
         'course_id',
+        'batch_id',
+        'class_id',
+        'shift_id',
         'fee',
         'date',
         'note',
@@ -38,5 +44,19 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
-        
+    
+    public function batch()
+    {
+        return $this->belongsTo(MasterBatch::class, 'batch_id');
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(MasterClass::class, 'class_id');
+    }
+
+    public function shift()
+    {
+        return $this->belongsTo(MasterShift::class, 'shift_id');
+    }
 }
