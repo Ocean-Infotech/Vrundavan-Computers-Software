@@ -67,12 +67,6 @@ class PermissionTableSeeder extends Seeder
                 'sliders-edit',
                 'sliders-delete',
             ],
-            'Redemption' => [
-                'redemption-list',
-                'redemption-create',
-                'redemption-edit',
-                'redemption-delete',
-            ],
             'Document-type' => [
                 'document-type-list',
                 'document-type-create',
@@ -84,12 +78,6 @@ class PermissionTableSeeder extends Seeder
                 'documents-create',
                 'documents-edit',
                 'documents-delete',
-            ],
-            'Withdraw-request' => [
-                'withdraw-request-list',
-                'withdraw-request-create',
-                'withdraw-request-edit',
-                'withdraw-request-delete',
             ],
             'Application' => [
                 'add-scan',
