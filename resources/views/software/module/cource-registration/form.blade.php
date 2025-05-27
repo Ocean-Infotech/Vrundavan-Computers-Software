@@ -191,7 +191,7 @@ $i = 0;
                                 @enderror
                             </div>
                         </div>
-                    </div>    
+                    </div>
                 </div>
                 <div class="col-md-6 col-sm-12" id="{{ isset($edit) ? '' : 'RegisterCource' }}">
                     <p style="color: #101010;font-weight: bold;">Student Name : <label id="StudentName" style="font-weight: 400;"></label></p>
@@ -204,7 +204,7 @@ $i = 0;
                             </tr>
                         </thead>
                         <tbody>
-                            
+
                         </tbody>
                     </table>
                 </div>
@@ -263,7 +263,7 @@ $i = 0;
         }, 1000);
 
     });
-    
+
     let firstOldFee = null; // store first old value only once
 
     $('#course').change(function() {
@@ -283,15 +283,15 @@ $i = 0;
             }
         }
     });
-    
+
     $('#RegisterCource').hide();
     $("#register_id").keyup(function abc(){
-		var register_id = $("#register_id").val();	
+		var register_id = $("#register_id").val();
         if(register_id){
             $.ajax({
                 type:'POST',
                 url:"{{ route($route . '.get-register-cource') }}",
-                
+
                 data: {
                     _token: '{{ csrf_token() }}',
                     id:register_id,
@@ -313,7 +313,7 @@ $i = 0;
                     } else {
                         rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
                     }
-                    
+
                     $('#RegisterCourceTable tbody').html(rows);
                     var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;
                     $('#StudentName').text(studentname);
@@ -321,17 +321,17 @@ $i = 0;
             });
         }
 	});
-    
+
 </script>
 @if(isset($edit))
     <script>
         $(document).ready(function() {
-            var registerid = $("#register_id").val();	
+            var registerid = $("#register_id").val();
             if(registerid){
                 $.ajax({
                     type:'POST',
                     url:"{{ route($route . '.get-register-cource') }}",
-                    
+
                     data: {
                         _token: '{{ csrf_token() }}',
                         id:registerid,
@@ -353,7 +353,7 @@ $i = 0;
                         } else {
                             rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
                         }
-                        
+
                         $('#RegisterCourceTable tbody').html(rows);
                         var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;
                         $('#StudentName').text(studentname);
@@ -361,7 +361,7 @@ $i = 0;
                 });
             }
         });
-    
+
 </script>
 @endif
 

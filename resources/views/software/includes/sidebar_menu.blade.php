@@ -86,9 +86,10 @@
             </li>
         @enddirectCan
 
-        <li class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' ? 'active open' : '' }}">
+        <li
+            class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <i class="ti ti-school"></i>
                 <div data-i18n="Student">Student</div>
             </a>
             <ul class="menu-sub">
@@ -108,7 +109,7 @@
 
         <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <i class="ti ti-calendar"></i>
                 <div data-i18n="Attedance">Attedance</div>
             </a>
             <ul class="menu-sub">
@@ -125,7 +126,7 @@
         <li
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <i class="ti ti-certificate"></i>
                 <div data-i18n="Course">Course</div>
             </a>
             <ul class="menu-sub">
@@ -162,7 +163,7 @@
         </li>
         <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ri ri-tools-fill ri-bold"></i>
+                <i class="ti ti-receipt"></i>
                 <div data-i18n="Fees Collection">Fees Collection</div>
             </a>
             <ul class="menu-sub">
@@ -217,10 +218,10 @@
 
                     @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
                         <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                                    <a href="{{ route('pincode.index') }}" class="menu-link">
-                                        <div data-i18n="Pincode">Pincode</div>
-                                    </a>
-                                </li> -->
+                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
+                                                        <div data-i18n="Pincode">Pincode</div>
+                                                    </a>
+                                                </li> -->
                     @enddirectCanAny
 
                     @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
