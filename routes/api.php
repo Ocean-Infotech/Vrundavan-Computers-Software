@@ -16,6 +16,11 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-state', 'get_state')->name('get-state');
     Route::any('get-cities', 'get_cities')->name('get-cities');
     Route::any('check-pincode', 'check_pincode')->name('check-pincode');
+
+    Route::any('get-course', 'get_course')->name('get-course');
+    Route::any('get-batch', 'get_batch')->name('get-batch');
+    Route::any('get-admission', 'get_admission')->name('get-admission');
+    Route::any('get-class', 'get_class')->name('get-class');
 });
 
 Route::controller(AuthenticationController::class)->group(function () {

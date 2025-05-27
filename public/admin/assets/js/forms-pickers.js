@@ -19,6 +19,7 @@
   // Date
   if (flatpickrDate) {
     flatpickrDate.flatpickr({
+      dateFormat: 'd-m-Y',
       monthSelectorType: 'static'
     });
   }

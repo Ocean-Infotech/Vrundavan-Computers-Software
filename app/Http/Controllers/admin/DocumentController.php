@@ -22,7 +22,7 @@ class DocumentController extends Controller
     {
         $this->modules = [
             'title' => 'Document\'s',
-            'folder_path' => 'documents',
+            'folder_path' => 'software.module.documents',
             'route' => 'documents',
             'table_name' => (new Documents())->getTable(),
             'permission_prefix' => 'documents',
@@ -123,7 +123,7 @@ class DocumentController extends Controller
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
             View::share("columns", $columns);
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -139,7 +139,7 @@ class DocumentController extends Controller
         }
 
         View::share('modules', $modules);
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(DocumentRequest $request)
@@ -204,7 +204,7 @@ class DocumentController extends Controller
         if(!$createPermisstion){ return abort(403, "You have not permission to access this url."); }
         try {
             $edit = Documents::findOrFail($id);
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage())->withInput();
         }
@@ -271,7 +271,7 @@ class DocumentController extends Controller
             $dataDelete = Documents::findOrFail($id);
             if ($dataDelete) {
                 unset($dataDelete->folder_path);
-                
+
                 $dataDelete->deleted_by = Auth::user()?->id;
                 $dataDelete->deleted_at = Carbon::now();
                 $dataDelete->save();

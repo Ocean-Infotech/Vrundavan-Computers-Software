@@ -5,8 +5,12 @@ namespace App\Http\Controllers\api;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Documents;
+use App\Models\Admission;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
+use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterBatch;
+use App\Models\master\MasterClass;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterState;
 use App\Models\RedemptionItem;
@@ -18,11 +22,100 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rule;
 
 class CommonController extends Controller
 {
     public function __construct(Request $request) {}
 
+
+    public function get_class(Request $request)
+    {
+        try {
+            $data = MasterClass::where('status', 'active')->orderBy('class', 'ASC')->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->class . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Class list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
+
+    public function get_admission(Request $request)
+    {
+        try {
+            $data = Admission::where('status', 'completed')->orderBy('id', 'DESC')->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Course list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
+
+    public function get_course(Request $request)
+    {
+        try {
+            $data = MasterCourse::where('status', 'active')->orderBy('course_name', 'ASC')->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->course_name . "";
+                $temp['fees'] = $row?->course_fees . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Course list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
+
+
+    public function get_batch(Request $request)
+    {
+        try {
+            $validator =  Validator::make($request->all(), [
+                'course_id' => [
+                    'required',
+                    Rule::exists((new MasterCourse())->getTable(), 'id')
+                ]
+            ]);
+            if ($validator->fails()) {
+                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+            }
+
+            if (!$request?->course_id) {
+                return $this->sendError("Course id is required.");
+            }
+            $data = MasterBatch::where('course_id', $request?->course_id,)->where('status', 'active')->get();
+            $data = $data->map(function ($row) {
+                // $temp = $row;
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->batch_name . "";
+                $temp['course_id'] = $row?->course_id . "";
+                $temp['course_name'] = $row?->course?->course_name . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Batch list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
     /**
      * @OA\Post(
      *     path="/user_type",

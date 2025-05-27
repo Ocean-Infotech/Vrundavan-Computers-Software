@@ -1,0 +1,84 @@
+Vrundavan Testing Points list: 
+
+=> User
+
+1) User na Form ma Status ni Filed ma Default Active select karavanu che 
+2) User na Form ma Role Compulsory mathi Remove karva no che 
+3) User na Form Validation Proper karva nu che 
+4) User na form ma data add kari ne summbit kari pachi edit open kari to all rights auto select thay ne aavi jay che a check kari dejo
+5) User ni Grid ma je User Wise Delete no Option che a work nathi karto a check kari dejo
+6) User na Page ma Je Fitler add kariya che a Searchable karva na che 
+7) User na Page ma Filter Clear karva mate no option add karva no che
+8) OTP and Email Base Registration karavanu che a check kari lejo
+9)  
+
+=> Role
+
+Pending
+
+=> Permission 
+
+Pending 
+
+=> Admission
+
+1) Form ma je birthdate ma Future Date select na kari kava joi aevu karva nu che -> done
+
+2) Grid mathi jyare Drive nu Folder create karavi chi tya loader muki dejo aetle idea aave k kyk process thay che click kari tyare -> done
+
+3) Drive ni link Generate thay ne folder create thay jay che but have koi data add karvo hoi to aema mte no koi option nathi so a check kari dejo
+
+=> Cource Registration
+
+1) cource Registration ma je path aapiyo che aema C Capital karva no che -> deon
+2) cource Registration nu form add kari tyare je Student seelct kariyo hoi aeni details show karva ni che atyare details show nathi thati so 
+3) cource Registration ma last ma entry kari hoi a first ma show thavi joi 
+4) cource Registration time a fees vadi filed ma ky change kari to a edit time je value change kari hoi a fill thay ne nathi aavti a check kari dejo
+5) Cource Registration ma entry kari ne edit kari to error aave che a check kari dejo (https://prnt.sc/IMR7djQlMXYG) edit time a issue aave che a check kari dejo
+6) Grid ma Student name show karavi dejo aetle idea aave k kya student a cource registration kariyo che
+7) 
+
+=> Attedance 
+
+Pending 
+
+Course master 
+
+1) Course Register kari aetle je Year Upar thi Samester Auto Full thay ne aave che aema koi pn value set karvi hoi to karva de che 
+like : 1 year = 5 Samester pn add thay che 
+2) form ma Course Year ma ak type nu drop down che but a work nathi kartu a check karva nu che 
+3) Course master ma status add karva nu pending che (Running and Complete vadu)
+4) Course na master ma min and max year set karva mate no Option add karva no che 
+
+=> Fees Collection
+
+Pending
+
+=> Test
+
+Pending 
+
+=> Country
+
+1) Country ma Delete kari ne pachi same name no Data add kari to add nathi karva deta a check kari dejo
+
+=> State
+
+1) Short Name ni Field remove kari dejo aeni koi jarur nathi 
+2) Filter ma clear karva mate no option add kari dejo
+
+=> City
+
+1) City na Form ma State ni Filed nathi so a add kaari dejo 
+2) Data add kari to add nathi karva deta a check kari dejo
+
+=> Document Details
+
+1) Only Name Upar duplication check thay che a change kari ne type and name both upar karva nu che 
+
+Most Off Module ma je add nu Form open thay che aema Design Proper set karva ni che 
+
+https://prnt.sc/_YHKxfBeO9O7 (Just For Your reference)
+
+
+

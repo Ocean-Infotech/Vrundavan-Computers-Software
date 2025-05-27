@@ -349,7 +349,7 @@ class UserController extends Controller
             // amount check for min and max validation
             $setting = Setting::where('key', 'min-withdraw-request-amount')->where('status', 'active')->first();
             if (!$setting) {
-                return $this->sendError('Request Amount Missmatch, contact to admin.', [], [], 403);
+                return $this->sendError('Request Amount Missmatch, contact to software.', [], [], 403);
             }
             $min = 0;
             $max = 0;
@@ -363,7 +363,7 @@ class UserController extends Controller
             $conversionSetting = Setting::where('key', 'point-to-rupees')->where('status', 'active')->first();
 
             if (!$conversionSetting) {
-                return $this->sendError('Request Amount point missmatch, contact to admin.', [], [], 403);
+                return $this->sendError('Request Amount point missmatch, contact to software.', [], [], 403);
             }
 
             $validator = Validator::make($request->all(), [

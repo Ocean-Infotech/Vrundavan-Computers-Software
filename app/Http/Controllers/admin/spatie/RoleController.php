@@ -23,7 +23,7 @@ class RoleController extends Controller
 
         $this->modules = [
             'title' => 'Role',
-            'folder_path' => 'spatie.role',
+            'folder_path' => 'software.module.spatie.role',
             'table_name' => (new Role())->getTable(),
             'route' => 'roles',
             'permisstion_prefix' => 'roles',
@@ -93,7 +93,7 @@ class RoleController extends Controller
                 return $returnData;
             }
 
-            return view('admin.module.'.$modules['folder_path'].'.index', compact('modules'));
+            return view($modules['folder_path'].'.index', compact('modules'));
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage())->withInput();
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ class RoleController extends Controller
     {
         $modules = $this->modules;
 
-        return view('admin.module.'.$modules['folder_path'].'.form', compact('modules'));
+        return view($modules['folder_path'].'.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -161,7 +161,7 @@ class RoleController extends Controller
         ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
         ->all();
 
-        return view('admin.module.'.$modules['folder_path'].'.form', compact('modules','edit','rolePermissions'));
+        return view($modules['folder_path'].'.form', compact('modules','edit','rolePermissions'));
     }
 
 

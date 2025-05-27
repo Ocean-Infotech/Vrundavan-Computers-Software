@@ -5,19 +5,29 @@ use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\DocumentTypeController;
+use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
-use App\Http\Controllers\admin\MasterRedemptionTypeController;
-use App\Http\Controllers\admin\RedemptionController;
-use App\Http\Controllers\admin\ReportController;
-use App\Http\Controllers\admin\SettingController;
-use App\Http\Controllers\admin\SliderController;
+
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
-use App\Http\Controllers\admin\WithdrawRequestController;
+
+use App\Http\Controllers\admin\AdmissionController;
+use App\Http\Controllers\admin\CourceRegistrationController;
+use App\Http\Controllers\admin\master\MasterCourseController;
+use App\Http\Controllers\admin\master\MasterBatchController;
+use App\Http\Controllers\admin\SyllabusController;
+use App\Http\Controllers\admin\TestController;
+use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\GoogleDriveController;
+use App\Http\Controllers\admin\master\MasterClassController;
+use App\Http\Controllers\admin\Master\MasterSemesterController;
+use App\Http\Controllers\admin\master\MasterShiftController;
+use Illuminate\Support\Facades\Storage;
+use Google\Client;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +47,55 @@ Route::resource('roles', RoleController::class);
 /** Permission Modules */
 Route::resource('permissions', PermissionController::class);
 
+
+/** Master Admission Modules */
+
+Route::resource('/admission', AdmissionController::class);
+Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
+Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
+Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
+Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+
+// routes/web.php or routes/api.php
+
+// Route::get('/admission/details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
+
+
+Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
+
+/** Master Course Modules */
+Route::resource('/course', MasterCourseController::class);
+Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
+Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+
+/** Master Semester Modules */
+Route::resource('/semester', MasterSemesterController::class);
+Route::match(['get', 'post'], 'semester/restore/{id}', [MasterSemesterController::class, 'restore'])->name('semester.restore');
+Route::match(['get', 'post'], 'semester-update-status', [MasterSemesterController::class, 'status_update'])->name('semester.status-update');
+
+/** Master Shift Modules */
+Route::resource('/shift', MasterShiftController::class);
+Route::match(['get', 'post'], 'shift/restore/{id}', [MasterShiftController::class, 'restore'])->name('shift.restore');
+Route::match(['get', 'post'], 'shift-update-status', [MasterShiftController::class, 'status_update'])->name('shift.status-update');
+
+/** Master Batch Modules */
+Route::resource('/batch', MasterBatchController::class);
+Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
+Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
+
+/** Test Modules */
+Route::resource('/test', TestController::class);
+Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
+Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
+
+/** Attedance Modules */
+Route::resource('/attedance', AttedanceController::class);
+Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
+Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
+Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
+Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
+
 /** Master Copuntry Modules */
 Route::resource('/country', MasterCountryController::class);
 Route::GET('/country-sync', [MasterCountryController::class, 'country_sync'])->name('country.sync');
@@ -54,42 +113,35 @@ Route::GET('/auto_complete_city', [MasterCityController::class, 'auto_complete_c
 /** Master Pincode Modules */
 Route::resource('/pincode', MasterPincodeController::class);
 
-/** Sliders */
-Route::resource('sliders', SliderController::class);
-// Route::get('sliders-status/{id}/{update_status}', [SliderController::class, 'update_slider_status'])->name('sliders.update.status');
-
-/** Application User */
-Route::resource('application-user', ApplicationUserController::class);
-Route::match(['get', 'post'], 'application-user-status', [ApplicationUserController::class, 'redemptionItemStatuUpdate'])->name('application-user-status');
-
-/** Redemption */
-Route::resource('redemption', RedemptionController::class);
-Route::match(['get', 'post'], 'redemption-item-status', [RedemptionController::class, 'redemptionItemStatuUpdate'])->name('redemption-item-status');
-
-/** Withdraw Request */
-Route::resource('withdraw-request', WithdrawRequestController::class);
-
 /** document-type */
 Route::resource('document-type', DocumentTypeController::class);
 
 /** document-type */
 Route::resource('documents', DocumentController::class);
 
-/** Reports */
-Route::group(['prefix' => 'report'], function () {
-    Route::controller(ReportController::class)->group(function () {
-        Route::match(['get', 'post'], "scannedReport", 'scannedReport')->name("scanned-report");
-    });
-});
+// Cource Registration
 
-/** Settings */
-Route::match(['get', 'post'], 'set-point-to-rupees', [SettingController::class, 'setPointToRupees'])->name('set-point-to-rupees');
+Route::resource('cource-registration', CourceRegistrationController::class);
+Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
+Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
+Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
 
-Route::match(['get', 'post'], 'set-min-withdraw-request-amount', [SettingController::class, 'SetMinWithdrawRequestAmount'])->name('set-min-withdraw-request-amount');
 
-/** Settiung */
-Route::get('/generate-swagger-api', function () {
-    Artisan::call('optimize:clear');
-    Artisan::call("l5-swagger:generate");
-    return Redirect::back()->with('success', 'Generate API documentation.');
-})->name('generate-swagger-api');
+
+// Fees Collection
+
+Route::resource('fees-collection', FeesCollectionController::class);
+Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
+Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
+
+
+//syllabus
+
+Route::resource('syllabus', SyllabusController::class);
+Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
+Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');
+
+/** Master Class Modules */
+Route::resource('/class', MasterClassController::class);
+Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
+Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');

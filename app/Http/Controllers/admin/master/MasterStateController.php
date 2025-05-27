@@ -19,7 +19,7 @@ class MasterStateController extends Controller
     {
         $this->modules = [
             'title' => 'State',
-            'folder_path' => 'master.state',
+            'folder_path' => 'software.module.master.state',
             'route' => 'state',
             'table_name' => (new MasterState())->getTable(),
             'permisstion_prefix' => 'state',
@@ -103,7 +103,7 @@ class MasterStateController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view('admin.module.' . $modules['folder_path'] . '.index', compact('data'));
+            return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -112,7 +112,7 @@ class MasterStateController extends Controller
     public function create()
     {
         $modules = $this->modules;
-        return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
     public function store(Request $request)
@@ -158,7 +158,7 @@ class MasterStateController extends Controller
             $modules = $this->modules;
             $edit = MasterState::findOrFail($id);
             $countries = MasterCountry::get();
-            return view('admin.module.' . $modules['folder_path'] . '.form', compact('modules', 'edit', 'countries'));
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'countries'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

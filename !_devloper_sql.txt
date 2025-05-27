@@ -1,0 +1,7 @@
+|-------------------------------------------- Local
+ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
+
+|-------------------------------------------- On Development
+
+
+|-------------------------------------------- Live

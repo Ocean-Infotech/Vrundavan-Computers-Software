@@ -17,7 +17,9 @@
     padding-left: 0.5rem !important;
 }
 
-
+.hide-important {
+    display: none !important;
+}
 
 .layout-menu-collapsed .main-logo {
     display: none;
