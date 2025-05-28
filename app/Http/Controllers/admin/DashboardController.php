@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -30,9 +31,10 @@ class DashboardController extends Controller
     public function dashboard(Request $request)
     {
         $modules = $this->modules;
-        // $modules['folder_path'] = 'dashboard';
         View::share('modules', $modules);
+        $admission = Admission::all();
+
         // return view(, compact('modules'));
-        return view($modules['folder_path'].'.dashboard');
+        return view($modules['folder_path'] . '.dashboard', compact('admission'));
     }
 }

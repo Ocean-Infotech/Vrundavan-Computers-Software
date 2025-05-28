@@ -158,7 +158,7 @@ class CourceRegistrationController extends Controller
             }
             return view($modules['folder_path'] . '.index');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
@@ -177,20 +177,19 @@ class CourceRegistrationController extends Controller
 
 
     public function get_register_cource(Request $request)
-    {   
+    {
         $id = $request->id;
-       
+
         try {
             $getcource = CourceRegistration::where('register_id', $id)->with(['course'])->get();
-            
+
             $admission = Admission::find($id);
             return response()->json([
             'data' => $getcource,
             'admission'=> $admission,
-        ]);
-            
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
@@ -217,7 +216,7 @@ class CourceRegistrationController extends Controller
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
@@ -243,7 +242,7 @@ class CourceRegistrationController extends Controller
             $edit = CourceRegistration::findOrFail($id);
             return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
@@ -277,7 +276,7 @@ class CourceRegistrationController extends Controller
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
