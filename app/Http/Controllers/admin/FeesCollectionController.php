@@ -49,7 +49,7 @@ class FeesCollectionController extends Controller
             $columns = [
                 (object)['data' => "student_id ", 'name' => 'student_id', 'td_label' => 'Student Id '],
                 (object)['data' => "admission_id ", 'name' => 'admission_id', 'td_label' => 'Addmission Id '],
-                (object)['data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name'],
+                (object)['data' => "course_id", 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
                 (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
@@ -149,9 +149,11 @@ class FeesCollectionController extends Controller
         try {
             $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
 
+            $getfeescollection = FeesCollection::where('admission_id', $id)->get();
+
             return response()->json([
                 'data' => $getcource,
-                //'admission'=> $admission,
+                'fees_collection'=> $getfeescollection,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -225,19 +227,37 @@ class FeesCollectionController extends Controller
             $modules = $this->modules;
             View::share('modules', $modules);
 
-            $edit = FeesCollection::findOrFail($id);
-            return view($modules['folder_path'].'.form',compact('modules','edit'));
+            $edit = FeesCollection::with(['course', 'admission'])->findOrFail($id);
+            $admission_id = $edit->admission_id;
+            $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
+            //return $edit;
+            
+            return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
         } catch(\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(FeesCollectionRequest $request, string $id)
     {
-        //
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            $validated = $request->validated();
+            $validated['updated_by'] = Auth::user()->id;
+
+            $updateData = FeesCollection::findOrFail($id);
+            $updateData->update($validated);
+
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' updated successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
 
     /**
