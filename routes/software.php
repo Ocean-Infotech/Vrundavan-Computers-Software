@@ -22,6 +22,7 @@ use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\Master\MasterSemesterController;
@@ -137,6 +138,10 @@ Route::match(['get', 'post'], 'cource-registration-get-register-cource', [Cource
 Route::resource('fees-collection', FeesCollectionController::class);
 Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
 Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
+
+
+Route::resource('fees-collection-pending', FeescollectionpendingController::class);
+
 
 
 //syllabus
