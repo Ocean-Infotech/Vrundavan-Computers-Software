@@ -70,35 +70,36 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><b>ID:</b> <span id="modalID"></span></th>
-                            <th><b>Date of Birth:</b> <span id="modalDOB"></span></th>
+                            <th><b>ID:</b> <span id="modalID" class="text-lowercase"></span></th>
+                            <th><b>Date of Birth:</b> <span id="modalDOB" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Temp Address:</b> <span id="modalTempAddress"></span></th>
-                            <th><b>Perm Address:</b> <span id="modalPermAddress"></span></th>
+                            <th><b>Temp Address:</b> <span id="modalTempAddress" class="text-lowercase"></span></th>
+                            <th><b>Perm Address:</b> <span id="modalPermAddress" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Self Mobile:</b> <span id="modalSelfMobile"></span></th>
-                            <th><b>Parent Mobile:</b> <span id="modalParentMobile"></span></th>
+                            <th><b>Self Mobile:</b> <span id="modalSelfMobile" class="text-lowercase"></span></th>
+                            <th><b>Parent Mobile:</b> <span id="modalParentMobile" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Additional Mobile:</b> <span id="modalAddMobile"></span></th>
-                            <th><b>WhatsApp Mobile:</b> <span id="modalWhatsappMobile"></span></th>
+                            <th><b>Additional Mobile:</b> <span id="modalAddMobile" class="text-lowercase"></span></th>
+                            <th><b>WhatsApp Mobile:</b> <span id="modalWhatsappMobile" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Email:</b> <span id="modalEmail"></span></th>
-                            <th><b>Cast:</b> <span id="modalCast"></span></th>
+                            <th><b>Email:</b> <span id="modalEmail" class="text-lowercase"></span></th>
+                            <th><b>Cast:</b> <span id="modalCast" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Occupation:</b> <span id="modalOccupation"></span></th>
-                            <th><b>Category:</b> <span id="modalCategory"></span></th>
+                            <th><b>Occupation:</b> <span id="modalOccupation" class="text-lowercase"></span></th>
+                            <th><b>Category:</b> <span id="modalCategory" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Gender:</b> <span id="modalGender"></span></th>
-                            <th><b>Aadhar Number:</b> <span id="modalAadhar"></span></th>
+                            <th><b>Gender:</b> <span id="modalGender" class="text-lowercase"></span></th>
+                            <th><b>Aadhar Number:</b> <span id="modalAadhar" class="text-lowercase"></span></th>
                         </tr>
                     </thead>
                 </table>
+
 
 
             </div>
@@ -150,7 +151,6 @@
                                 </th>
                                 <th>
                                     <button type="button" class="btn btn-warning btn-sm" id="updateBtn">Update</button>
-
                                 </th>
                             </tbody>
                         </table>
@@ -196,7 +196,15 @@
                         let data = response.student;
                         if (data) {
                             $('#modalID').text(data.id);
-                            $('#modalDOB').text(data.date_of_birth ?? '-');
+                            if (data.date_of_birth) {
+                                let date = new Date(data.date_of_birth);
+                                let day = ('0' + date.getDate()).slice(-2);
+                                let month = ('0' + (date.getMonth() + 1)).slice(-2);
+                                let year = date.getFullYear().toString().slice(-0);
+                                $('#modalDOB').text(`${day} ${month} ${year}`);
+                            } else {
+                                $('#modalDOB').text('-');
+                            }
                             $('#modalTempAddress').text(data.temporary_address ?? '-');
                             $('#modalPermAddress').text(data.permanent_address ?? '-');
                             $('#modalSelfMobile').text(data.mobile_no ?? '-');

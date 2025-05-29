@@ -40,7 +40,7 @@
         <div class="row mb-3">
             <div class="col-md-3 col-sm-12 mb-3">
                 <div class="form-group">
-                    <label class="form-label">Select Course </label>
+                    <label class="form-label">Select Course <span class="text-danger">*</span></label>
                     <select id="course" name="course_id"
                         class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
                         data-append="search_by_course"
@@ -58,7 +58,7 @@
             </div>
             <div class="col-md-3 col-sm-12 mb-3">
                 <div class="form-group">
-                    <label class="form-label">Select Batch </label>
+                    <label class="form-label">Select Batch <span class="text-danger">*</span></label>
                     <select id="batch" name="batch_id"
                         class="form-control search_by_batch select2 @error('batch_id') is-invalid @enderror select_filter"
                         data-append="search_by_batch"
@@ -156,7 +156,7 @@
                     type: "GET",
                     data: function(data) {
                         data.date = $('#date').val();
-                        data.course_id = $('#course').val(); // ✅ Add this line
+                        data.course_id = $('#course').val();
                         data.batch_id = $('#batch').val();
                         data.subject_name = $('#subject').val();
                         data.search = $('input[type="search"]').val();
@@ -164,7 +164,27 @@
                 },
                 columns: {!! json_encode($columns) !!},
                 language: {
-                    searchPlaceholder: 'Search...'
+                    searchPlaceholder: 'Search...',
+                    emptyTable: "No data available in table"
+                },
+                drawCallback: function(settings) {
+                    let api = this.api();
+                    let data = api.rows({
+                        page: 'current'
+                    }).data();
+                    let course = $('#course').val();
+                    let batch = $('#batch').val();
+                    let subject = $('#subject').val();
+
+                    if (data.length === 0 && (!course || !batch || !subject)) {
+                        $('#yajra-datatables tbody').html(`
+                    <tr class="odd">
+                        <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                            Please select <strong>Course</strong>, <strong>Batch</strong>, and <strong>Subject</strong> to view records.
+                        </td>
+                    </tr>
+                `);
+                    }
                 }
             });
 
@@ -176,7 +196,6 @@
                 dtable.draw();
             });
 
-            // Redraw on filter change
             $(document).on('change', '#date, #batch, #subject, #course', function() {
                 dtable.draw();
             });
@@ -185,10 +204,10 @@
                 dtable.draw();
             });
 
-            // Marks input AJAX save + validation
             $(document).on('change', '.mark-input', function() {
                 let input = $(this);
                 let testId = input.data('id');
+                let registerId = input.data('register-id');
                 let marks = input.val();
                 let max = input.attr('max');
 
@@ -204,18 +223,26 @@
                     data: {
                         _token: '{{ csrf_token() }}',
                         test_id: testId,
+                        register_id: registerId,
                         marks: marks
                     },
                     success: function(response) {
                         toastr.success(response.message);
                     },
-                    error: function() {
-                        toastr.error('Error while saving marks.');
+                    error: function(xhr) {
+                        let res = xhr.responseJSON;
+                        if (res && res.message) {
+                            toastr.error(res.message);
+                        } else {
+                            toastr.error('Error while saving marks.');
+                        }
                     }
                 });
             });
         });
     </script>
+
+
 
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')

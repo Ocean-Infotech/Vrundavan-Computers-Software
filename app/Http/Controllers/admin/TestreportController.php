@@ -37,6 +37,11 @@ class TestreportController extends Controller
     }
 
 
+
+
+
+
+
     public function index(Request $request)
     {
         $modules = $this->modules;
@@ -53,14 +58,12 @@ class TestreportController extends Controller
         ];
         View::share("columns", $columns);
 
-        // Fetch distinct subject names from `test` table (excluding deleted records)
         $subjects = DB::table('test')
             ->whereNull('deleted_at')
             ->distinct()
             ->orderBy('subject_name', 'asc')
             ->pluck('subject_name');
 
-        // Share subjects to the view
         View::share('subjects', $subjects);
 
         if ($request->ajax()) {
@@ -93,31 +96,20 @@ class TestreportController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
-                    // Check if any filter is applied or global search exists
-                    $hasFilter = false;
+                $searchValue = $request->search['value'] ?? null;
+                $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
 
-                    if (!empty($request->search['value'])) {
-                        $hasFilter = true;
-                    }
-
-                    if ($request->filled('course_id') || $request->filled('batch_id') || $request->filled('subject_name') || $request->filled('date')) {
-                        $hasFilter = true;
-                    }
-
-                    if (!$hasFilter) {
-                        // No filter or search applied - return no rows
+                if (!$hasRequiredFilters && empty($searchValue)) {
                         $query->whereRaw('0=1');
                         return;
                     }
 
-                    // Existing filters...
-                    if (!empty($request->search['value'])) {
-                        $search = $request->search['value'];
-                        $query->where(function ($q) use ($search) {
-                            $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$search}%")
-                                ->orWhere('master_course.course_name', 'like', "%{$search}%")
-                                ->orWhere('test.marks', 'like', "%{$search}%")
-                                ->orWhere('test.subject_name', 'like', "%{$search}%");
+                if (!empty($searchValue)) {
+                    $query->where(function ($q) use ($searchValue) {
+                        $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
+                            ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
+                            ->orWhere('test.marks', 'like', "%{$searchValue}%")
+                            ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
                         });
                     }
 
@@ -136,9 +128,7 @@ class TestreportController extends Controller
                     if ($request->filled('date')) {
                         $query->whereDate('test.date', $request->date);
                     }
-                })
-
-
+            })
                 ->editColumn('cr_date', function ($row) {
                     return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';
                 })
@@ -148,6 +138,7 @@ class TestreportController extends Controller
                 ->addColumn('input', function ($row) {
                     $value = htmlspecialchars($row->student_mark ?? '', ENT_QUOTES, 'UTF-8');
                     $max = htmlspecialchars($row->marks ?? '', ENT_QUOTES, 'UTF-8');
+                $registerId = htmlspecialchars($row->register_id ?? '', ENT_QUOTES, 'UTF-8');
                     return '<input
                         type="text"
                         name="marks' . ($row->student_mark_id ?? $row->id) . '"
@@ -156,6 +147,7 @@ class TestreportController extends Controller
                         max="' . $max . '"
                         placeholder="Max: ' . $max . '"
                         data-id="' . $row->id . '"
+                        data-register-id="' . $registerId . '"
                         class="form-control w-50 mark-input"
                         required
                         oninput="this.value = this.value.replace(/[^0-9]/g, \'\');" />';
@@ -166,11 +158,6 @@ class TestreportController extends Controller
 
         return view($modules['folder_path'] . '.index');
     }
-
-
-
-
-
 
 
 
@@ -193,6 +180,7 @@ class TestreportController extends Controller
     {
         $request->validate([
             'test_id' => 'required|integer|exists:test,id',
+            'register_id' => 'required|integer|exists:cource_registration,register_id',
             'marks' => 'required|numeric|min:0',
         ]);
 
@@ -206,31 +194,31 @@ class TestreportController extends Controller
             return response()->json(['message' => 'Marks cannot exceed maximum allowed'], 422);
         }
 
-        // Get students registered in that batch + course
-        $students = DB::table('cource_registration')
+        // Verify student registration in course and batch
+        $isRegistered = DB::table('cource_registration')
             ->where('course_id', $test->course_id)
             ->where('batch_id', $test->batch_id)
-            ->pluck('register_id');
+            ->where('register_id', $request->register_id)
+            ->exists();
 
-        if ($students->isEmpty()) {
-            return response()->json(['message' => 'No students found for this test.'], 404);
+        if (!$isRegistered) {
+            return response()->json(['message' => 'Student is not registered for this test.'], 404);
         }
 
-        foreach ($students as $registerId) {
-            DB::table('student_test_marks')->updateOrInsert(
-                [
-                    'test_id' => $request->test_id,
-                    'register_id' => $registerId
-                ],
-                [
-                    'marks' => $request->marks,
-                    'updated_at' => now()
-                ]
-            );
-        }
+        DB::table('student_test_marks')->updateOrInsert(
+            [
+                'test_id' => $request->test_id,
+                'register_id' => $request->register_id
+            ],
+            [
+                'marks' => $request->marks,
+                'updated_at' => now()
+            ]
+        );
 
-        return response()->json(['message' => 'Marks saved for all students.']);
+        return response()->json(['message' => 'Marks saved for the student.']);
     }
+
 
 
     /**
