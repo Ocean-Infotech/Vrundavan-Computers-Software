@@ -131,7 +131,7 @@
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate"></i>
-                <div data-i18n="Course">Course</div>
+                <div data-i18n="Course Masters ">Course Masters</div>
             </a>
             <ul class="menu-sub">
 
@@ -175,6 +175,12 @@
                 <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
                     <a href="{{ route('fees-collection.index') }}" class="menu-link">
                         <div data-i18n="Fees Collection">Fees Collection</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
+                    <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
+                        <div data-i18n="Fees Pending">Fees pending</div>
                     </a>
                 </li>
             </ul>
