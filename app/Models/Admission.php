@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Master\MasterCourse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -39,16 +40,22 @@ class Admission extends Model
         'created_by',
         'updated_by',
     ];
+
     // Admission.php
     // public function courseRegistrations()
     // {
     //     return $this->hasMany(CourceRegistration::class, 'register_id');
     // }
-   // app/Models/Admission.php
+    // app/Models/Admission.php
 
-public function courceRegistration()
-{
-    return $this->hasOne(CourceRegistration::class, 'admission_id');
-}
 
+    public function courceRegistration()
+    {
+        return $this->hasOne(CourceRegistration::class, 'admission_id');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(MasterCourse::class, 'course_id');
+    }
 }

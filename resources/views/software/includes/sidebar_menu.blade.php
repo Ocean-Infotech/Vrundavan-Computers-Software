@@ -5,7 +5,11 @@
     $sidebar_active = count($expand) > 0 ? $expand[0] : '';
     $loginUser = Auth::user();
 @endphp
-<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme  ">
+
+
     <div class="app-brand demo">
         <a href="{{ route('software.dashboard') }}" class="app-brand-link">
 
@@ -218,10 +222,10 @@
 
                     @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
                         <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
-                                                        <div data-i18n="Pincode">Pincode</div>
-                                                    </a>
-                                                </li> -->
+                                                            <a href="{{ route('pincode.index') }}" class="menu-link">
+                                                                <div data-i18n="Pincode">Pincode</div>
+                                                            </a>
+                                                        </li> -->
                     @enddirectCanAny
 
                     @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
@@ -242,7 +246,12 @@
                 </ul>
             </li>
         @enddirectCanAny
-
+        <li class="menu-item {{ $sidebar_active == 'test_report' ? 'active' : '' }}">
+            <a href="{{ route('test_report.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-notepad"></i>
+                <div data-i18n="Test Report">Test Report</div>
+            </a>
+        </li>
     </ul>
 
 </aside>
