@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Documents;
 use App\Models\Admission;
+use App\Models\CourceRegistration;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
@@ -25,6 +26,29 @@ use Illuminate\Validation\Rule;
 class CommonController extends Controller
 {
     public function __construct(Request $request) {}
+
+    public function get_courceregistration(Request $request)
+    {
+        try {
+            $data = DB::table('cource_registration as cr')
+                ->join('admission as a', 'cr.register_id', '=', 'a.id')
+                ->where('cr.status', 'active')
+                ->orderBy('cr.id', 'DESC')
+                ->select('cr.id', 'a.first_name', 'a.father_name', 'a.last_name')
+                ->get();
+
+            $data = $data->map(function ($row) {
+                // $temp = $row; 
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "Course list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong in register API");
+    }
 
     public function get_classbybatch(Request $request)
     {
@@ -129,7 +153,7 @@ class CommonController extends Controller
     public function get_admission(Request $request)
     {
         try {
-            $data = Admission::where('status', 'completed')->orderBy('id', 'DESC')->get();
+            $data = Admission::where('status', 'created')->orderBy('id', 'DESC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;

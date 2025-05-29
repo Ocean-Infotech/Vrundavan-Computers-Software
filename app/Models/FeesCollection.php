@@ -11,7 +11,6 @@ class FeesCollection extends Model
     use SoftDeletes;
 
  protected $fillable = [
-    'register_id',
     'student_id',
     'admission_id',
     'course_id',
