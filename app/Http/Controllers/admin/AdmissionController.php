@@ -57,7 +57,6 @@ class AdmissionController extends Controller
                 (object)['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
                 (object)['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
                 (object)['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
-                (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
                 (object)['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
@@ -153,7 +152,7 @@ class AdmissionController extends Controller
     public function show(Request $request)
     {
         $student = Admission::withTrashed()->find($request->id);
-        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('admission_id', $request->id)->first();
+        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
 
 
         if (!$student && !$studentCourse) {
