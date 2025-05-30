@@ -56,7 +56,7 @@ $i = 0;
             <div class="row mb-3">
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
-                        <input list="search" id="search_id" name="search" class="form-control @error('search') is-invalid @enderror" value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}" placeholder="Search">
+                        <input list="search" id="search_id" name="search" class="form-control @error('search') is-invalid @enderror" value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}" placeholder="Search" autocomplete="off">
 
                         <datalist id="search" class="search_by_courceregistration" data-append="search_by_courceregistration" data-selectedCourceRegistrationId="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}">
                         </datalist>
@@ -183,7 +183,7 @@ $i = 0;
                         {{-- Course Fees (Auto-filled) --}}
                         <div class="col-md-3 mb-3">
                             <label for="fees" class="form-label">
-                                Course Fees <span class="text-danger">*</span>
+                                Fees <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="fees" id="fees"
                                 class="form-control required @error('fees') is-invalid @enderror" placeholder="Course Fee"
@@ -369,6 +369,7 @@ $i = 0;
                             $('#openPasswordModal').removeAttr('id');
                             showMessage("Password Match", "success");
                             $('#passwordModal').modal('hide');
+                            $('#FeesCollection').submit();
                         }else{
                             $('#password_error').removeClass('d-none');
                             $('#password_error').text('Password do not match!');
@@ -422,7 +423,7 @@ $i = 0;
                                 $('#course_id').val(studentdetails.course.course_name);
                                 $('#courseid').val(studentdetails.course.id);
                                 
-                                $('#fees').val(studentdetails.fee);
+                                //$('#fees').val(studentdetails.fee);
                                 
                                 var studentname = studentdetails.admission.first_name + ' ' + studentdetails.admission.father_name + ' ' + studentdetails.admission.last_name;
                                 $('#student_name').val(studentname);
