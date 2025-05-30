@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use App\Http\Requests\AdmissionRequest;
 use App\Models\CourceRegistration;
+use App\Models\Master\MasterCourse;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -32,7 +33,7 @@ class AdmissionController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Student',
+            'title' => 'Admission',
             'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
@@ -52,12 +53,10 @@ class AdmissionController extends Controller
 
         try {
             $columns = [
-                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Student Id.'],
-                (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
-                (object)['data' => "admission_name", 'name' => 'name', 'td_label' => 'Name'],
-                (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
-                (object)['data' => "email_address", 'name' => 'email_address', 'td_label' => 'Email Address'],
-                (object)['data' => "permanent_address", 'name' => 'permanent_address', 'td_label' => 'Permanent Address'],
+                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object)['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                (object)['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
+                (object)['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
                 (object)['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
@@ -67,19 +66,16 @@ class AdmissionController extends Controller
             $data = [];
 
             if ($request->ajax()) {
-                // dd($request->all());
-                $data = Admission::select('*');
-                $data = $data->withTrashed();
-                // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-                // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
+                $data = Admission::withTrashed();
 
-                $returnData = Datatables::of($data)
+                $editPermisstion = true;
+                $deletePermisstion = false;
+
+                return Datatables::of($data)
                     ->addIndexColumn()
+
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->where('aadhar_card_no', 'like', "%" . $request->search . "%");
+                    if ($request->has('search')) {
                             $query->orWhere('first_name', 'like', "%" . $request->search . "%");
                         }
                     })
@@ -88,71 +84,60 @@ class AdmissionController extends Controller
                         $first = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
-                    })
-                    ->editColumn('gdrivefolderurl', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $gdrivefolderurlbtn = '';
-                        if (!$row?->gdrivefolderurl) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i style="margin-right: 3px;" class="ti ti-plus"></i> Generate</a>';
-                        } else {
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i style="margin-right: 5px;" class="bx bx-copy-alt"></i> Copy URL</a><br> <a href="' . $row["gdrivefolderurl"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1" target="_blank" style="margin-top: 10px;"><i class="bx bx-show"> View</i>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($gdrivefolderurlbtn == '') {
-                            $gdrivefolderurlbtn = '-';
-                        }
+                    return trim("{$first} {$father} {$last}");
+                })
 
-                        return $gdrivefolderurlbtn;
+                    ->editColumn('gdrivefolderurl', function ($row) {
+                        $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+                    return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
                     })
+
                     ->editColumn('status', function ($row) use ($modules) {
-                        $status = '';
-                        $dropdown = "";
-                        $dropdown .= '<ul class="dropdown-menu" style="">';
+                    $dropdown = '<ul class="dropdown-menu">';
+                    $button = '';
 
                         if ($row->status == "created") {
-                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="rejected">Rejected</a></li>';
-                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+                        $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
                         } elseif ($row->status == "rejected") {
-                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="created">Created</a></li>';
-                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                        } else {
-                            return $status;
-                        }
-                        $dropdown .= '</ul>';
-                        $status .= $dropdown;
-                        return $status;
-                    })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($deletePermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
+                        $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
                         }
 
-                        return $btn;
+                    $dropdown .= '</ul>';
+                    return $button . $dropdown;
                     })
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name'])
+
+                    ->addColumn('course_button', function ($row) {
+                        return '<button class="btn btn-primary btn-sm course-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '">Course</button>';
+                    })
+
+                    ->addColumn('view_button', function ($row) {
+                        return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
+                    })
+
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                        $btn = '';
+                    if (!$row->deleted_at) {
+                            if ($editPermisstion) {
+                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                            }
+                            if ($deletePermisstion) {
+                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
+                            }
+                        } else {
+                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore"><i class="ti ti-history"></i> Restore</a>';
+                        }
+
+                    return $btn ?: '-';
+                    })
+
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button'])
                     ->make(true);
-                return $returnData;
             }
+
             return view($modules['folder_path'] . '.index', compact('data'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'].'.index',compact('data'));
-        } catch(\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -162,7 +147,24 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
-        
+    }
+
+    public function show(Request $request)
+    {
+        $student = Admission::withTrashed()->find($request->id);
+        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
+
+
+        if (!$student && !$studentCourse) {
+            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student' => $student,
+            'course' => $studentCourse,
+
+        ]);
     }
 
     public function store(AdmissionRequest $request)
@@ -224,8 +226,8 @@ class AdmissionController extends Controller
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'].'.form',compact('modules','edit'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -411,7 +413,7 @@ class AdmissionController extends Controller
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-        
+
         $service = new Drive($client);
 
         $fileMetadata = new DriveFile([
@@ -460,7 +462,7 @@ class AdmissionController extends Controller
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-        
+
         $service = new Drive($client);
 
         $fileMetadata = new DriveFile([
@@ -506,20 +508,20 @@ class AdmissionController extends Controller
         return response()->json(['error' => 'Admission not found'], 404);
     }
 
-// public function getAdmissionDetails($id)
-// {
-//     $admission = Admission::with('courceRegistration')->find($id);
+    // public function getAdmissionDetails($id)
+    // {
+    //     $admission = Admission::with('courceRegistration')->find($id);
 
-//     if ($admission) {
-//         return response()->json([
-//             'first_name' => $admission->first_name,
-//             'last_name'  => $admission->last_name,
-//             'course_id'  => optional($admission->courceRegistration)->course_id,
-//             'date'       => optional($admission->courceRegistration)->date,
-//         ]);
-//     }
+    //     if ($admission) {
+    //         return response()->json([
+    //             'first_name' => $admission->first_name,
+    //             'last_name'  => $admission->last_name,
+    //             'course_id'  => optional($admission->courceRegistration)->course_id,
+    //             'date'       => optional($admission->courceRegistration)->date,
+    //         ]);
+    //     }
 
-//     return response()->json(['error' => 'Admission not found'], 404);
-// }
+    //     return response()->json(['error' => 'Admission not found'], 404);
+    // }
 
 }

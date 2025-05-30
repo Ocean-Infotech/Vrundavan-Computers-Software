@@ -162,7 +162,7 @@ class FeesCollectionController extends Controller
     }
 
     public function check_master_password(Request $request)
-    {   
+    {
         $user_id = Auth::user()?->id;
         try {
             $user = User::where('id', $user_id)->first(); // or find by ID/email if needed
@@ -204,7 +204,7 @@ class FeesCollectionController extends Controller
             $validated['created_by'] = $loginUserId;
             // return $validated;
             FeesCollection::create($validated);
-            
+
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());

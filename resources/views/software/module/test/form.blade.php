@@ -133,7 +133,8 @@
                         <div class="form-group">
                             <label class="form-label"> Date <span class="text-danger">*</span> </label>
                             <input id="date" type="date" class="form-control @error('date') is-invalid @enderror"
-                                name="date" value="{{ isset($edit?->date) ? $edit?->date : old('date') }}"
+                                name="date"
+                                value="{{ isset($edit?->date) ? $edit->date : old('date', \Carbon\Carbon::now()->format('Y-m-d')) }}"
                                 autocomplete="date" autofocus placeholder="Enter Date">
 
                             @error('date')
@@ -143,6 +144,7 @@
                             @enderror
                         </div>
                     </div>
+
 
                 </div>
 

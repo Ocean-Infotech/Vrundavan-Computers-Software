@@ -5,7 +5,11 @@
     $sidebar_active = count($expand) > 0 ? $expand[0] : '';
     $loginUser = Auth::user();
 @endphp
-<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+
+
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme  ">
+
+
     <div class="app-brand demo">
         <a href="{{ route('software.dashboard') }}" class="app-brand-link">
 
@@ -127,7 +131,7 @@
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate"></i>
-                <div data-i18n="Course">Course</div>
+                <div data-i18n="Course Masters ">Course Masters</div>
             </a>
             <ul class="menu-sub">
 
@@ -171,6 +175,12 @@
                 <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
                     <a href="{{ route('fees-collection.index') }}" class="menu-link">
                         <div data-i18n="Fees Collection">Fees Collection</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
+                    <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
+                        <div data-i18n="Fees Pending">Fees pending</div>
                     </a>
                 </li>
             </ul>
@@ -218,10 +228,10 @@
 
                     @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
                         <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
-                                                        <div data-i18n="Pincode">Pincode</div>
-                                                    </a>
-                                                </li> -->
+                                                            <a href="{{ route('pincode.index') }}" class="menu-link">
+                                                                <div data-i18n="Pincode">Pincode</div>
+                                                            </a>
+                                                        </li> -->
                     @enddirectCanAny
 
                     @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
@@ -242,7 +252,12 @@
                 </ul>
             </li>
         @enddirectCanAny
-
+        <li class="menu-item {{ $sidebar_active == 'test_report' ? 'active' : '' }}">
+            <a href="{{ route('test_report.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-notepad"></i>
+                <div data-i18n="Test Report">Test Report</div>
+            </a>
+        </li>
     </ul>
 
 </aside>

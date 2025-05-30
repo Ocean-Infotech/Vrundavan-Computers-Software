@@ -32,9 +32,13 @@ class DashboardController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        $admission = Admission::all();
 
-        // return view(, compact('modules'));
+        $admission = Admission::all()->map(function ($row) {
+            $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+            $row->folder_button = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Folder</a>';
+            return $row;
+        });
+
         return view($modules['folder_path'] . '.dashboard', compact('admission'));
     }
 }
