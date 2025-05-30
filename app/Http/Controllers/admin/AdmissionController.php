@@ -33,7 +33,7 @@ class AdmissionController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Student',
+            'title' => 'Admission',
             'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
@@ -86,23 +86,11 @@ class AdmissionController extends Controller
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
                     return trim("{$first} {$father} {$last}");
-                    })
-                    ->editColumn('gdrivefolderurl', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $gdrivefolderurlbtn = '';
-                        if (!$row?->gdrivefolderurl) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i style="margin-right: 3px;" class="ti ti-plus"></i> Generate</a>';
-                        } else {
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i style="margin-right: 5px;" class="bx bx-copy-alt"></i> Copy URL</a><br> <a href="' . $row["gdrivefolderurl"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1" target="_blank" style="margin-top: 10px;"><i class="bx bx-show"> View</i>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($gdrivefolderurlbtn == '') {
-                            $gdrivefolderurlbtn = '-';
-                        }
+                })
 
                     ->editColumn('gdrivefolderurl', function ($row) {
                         $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-                        return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Folder</a>';
+                    return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
                     })
 
                     ->editColumn('status', function ($row) use ($modules) {
