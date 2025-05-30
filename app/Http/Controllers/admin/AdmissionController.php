@@ -32,7 +32,7 @@ class AdmissionController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Admission',
+            'title' => 'Student',
             'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
@@ -52,7 +52,7 @@ class AdmissionController extends Controller
 
         try {
             $columns = [
-                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Student Id.'],
                 (object)['data' => "aadhar_card_no", 'name' => 'aadhar_card_no', 'td_label' => 'Aadhar Card No.'],
                 (object)['data' => "admission_name", 'name' => 'name', 'td_label' => 'Name'],
                 (object)['data' => "mobile_no", 'name' => 'mobile_no', 'td_label' => 'Mobile Number'],
@@ -94,9 +94,9 @@ class AdmissionController extends Controller
                         $gdrivefolderurlbtn = '';
                         if (!$row?->gdrivefolderurl) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i class="ti ti-plus"></i> Generate</a>';
+                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-foldername="' . $row["id"] . '-' . $row["first_name"] . '-' . $row["father_name"] . '-' . $row["last_name"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1 create_google_drive_folder" data-bs-original-title="Google Drive Folder"><i style="margin-right: 3px;" class="ti ti-plus"></i> Generate</a>';
                         } else {
-                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i class="bx bx-copy-alt"></i> Copy URL</a>';
+                            $gdrivefolderurlbtn .= '<a href="javascript:void(0)" data-id="'.$row["id"].'" data-folderurl="' . $row["gdrivefolderurl"] . '" class="btn btn-warning btn-sm mx-1 GoogleDriveFolderUrlCopy" data-bs-original-title="Google Drive Folder Copy"><i style="margin-right: 5px;" class="bx bx-copy-alt"></i> Copy URL</a><br> <a href="' . $row["gdrivefolderurl"] . '" class="btn btn-info waves-effect waves-light btn-sm mx-1" target="_blank" style="margin-top: 10px;"><i class="bx bx-show"> View</i>';
                         }
                         // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
                         if ($gdrivefolderurlbtn == '') {

@@ -96,7 +96,7 @@
 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
-                        <div data-i18n="Admission">Admission</div>
+                        <div data-i18n="Student">Student</div>
                     </a>
                 </li>
                 <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">

@@ -46,7 +46,8 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Reg No'],
+                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Stud ID'],
+                (object)['data' => 'id', 'name' => 'id', 'td_label' => 'Addm ID'],
                 (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => 'batch_and_class_or_shift', 'name' => 'batch_and_class_or_shift', 'td_label' => 'Batch and Class or Shift'],

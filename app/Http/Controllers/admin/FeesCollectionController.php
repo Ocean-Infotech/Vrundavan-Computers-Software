@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FeesCollectionRequest;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
@@ -19,7 +22,7 @@ use Illuminate\Support\Facades\Validator;
 class FeesCollectionController extends Controller
 {
 
-     public $modules = [];
+    public $modules = [];
     public function __construct()
     {
         $this->modules = [
@@ -34,31 +37,32 @@ class FeesCollectionController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
-    } /**
+    }
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        try{
-        $columns = [
-            (object)['data' => "student_id ", 'name' => 'student_id', 'td_label' => 'Student Id '],
-            (object)['data' => "admission_id ", 'name' => 'admission_id', 'td_label' => 'Addmission Id '],
-            (object)['data' => "course_name", 'name' => 'course_name', 'td_label' => 'Course Name'],
-            (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
-            (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
-            (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-            (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
-            (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode '],
-            (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
-            (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
-        ];
+        try {
+            $columns = [
+                (object)['data' => "student_id ", 'name' => 'student_id', 'td_label' => 'Student Id '],
+                (object)['data' => "admission_id ", 'name' => 'admission_id', 'td_label' => 'Addmission Id '],
+                (object)['data' => "course_id", 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
+                (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
+                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
+                (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
+                (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode '],
+                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+            ];
             View::share("columns", $columns);
 
             $data = [];
 
-            if($request->ajax()){
+            if ($request->ajax()) {
                 // dd($request->all());
                 $data = FeesCollection::select('*');
                 $data = $data->withTrashed();
@@ -68,14 +72,14 @@ class FeesCollectionController extends Controller
                 $deletePermisstion = true;
 
                 $returnData = Datatables::of($data)
-                ->addIndexColumn()
-                ->filter(function ($query) use ($request) {
-                    // if ($request->has('search')) {
-                    //     $query->where('course_name', 'like',"%".$request->search."%");
-                    //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
-                    // }
-                })
-                 ->editColumn('status', function ($row) use ($modules) {
+                    ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        // if ($request->has('search')) {
+                        //     $query->where('course_name', 'like',"%".$request->search."%");
+                        //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
+                        // }
+                    })
+                    ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
                         // $btn = ucfirst($row->status);
 
@@ -107,41 +111,77 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                ->addColumn('action', function($row) use ($modules,$editPermisstion, $deletePermisstion){
-                    $btn = '';
-                    if (!$row?->deleted_at) {
-                        // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                        if ($editPermisstion) {
-                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                        $btn = '';
+                        if (!$row?->deleted_at) {
+                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+                            if ($editPermisstion) {
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                            }
+                            if ($deletePermisstion) {
+                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                            }
+                        } else {
+                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
-                        if ($deletePermisstion) {
-                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
+                        if ($btn == '') {
+                            $btn = '-';
                         }
-                    } else {
-                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                    }
-                    // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                    if ($btn == '') {
-                        $btn = '-';
-                    }
 
-                    return $btn;
-                })
-                ->rawColumns(['status','action'])
-                ->make(true);
+                        return $btn;
+                    })
+                    ->rawColumns(['status', 'action'])
+                    ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'].'.index',compact('data'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.index', compact('data'));
+        } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
+
+
+    public function search_fees_collection_details(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+
+            $getfeescollection = FeesCollection::where('admission_id', $id)->get();
+
+            return response()->json([
+                'data' => $getcource,
+                'fees_collection'=> $getfeescollection,
+            ]);
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function check_master_password(Request $request)
+    {   
+        $user_id = Auth::user()?->id;
+        try {
+            $user = User::where('id', $user_id)->first(); // or find by ID/email if needed
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                return response()->json(['status' => 'true']);
+            } else {
+                return response()->json(['status' => 'false']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-      $modules = $this->modules;
+        $modules = $this->modules;
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
@@ -149,9 +189,25 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FeesCollectionRequest $request)
     {
-        //
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        $validated = $request->validated();
+        try {
+
+            $loginUserId = Auth::user()->id;
+
+            // return $this->adminLoginUser;
+            $validated['created_by'] = $loginUserId;
+            // return $validated;
+            FeesCollection::create($validated);
+            
+            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+        } catch (\Exception $e) {
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
     }
 
     /**
@@ -167,15 +223,41 @@ class FeesCollectionController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        try{
+            $modules = $this->modules;
+            View::share('modules', $modules);
+
+            $edit = FeesCollection::with(['course', 'admission'])->findOrFail($id);
+            $admission_id = $edit->admission_id;
+            $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
+            //return $edit;
+            
+            return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
+        } catch(\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(FeesCollectionRequest $request, string $id)
     {
-        //
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            $validated = $request->validated();
+            $validated['updated_by'] = Auth::user()->id;
+
+            $updateData = FeesCollection::findOrFail($id);
+            $updateData->update($validated);
+
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' updated successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
 
     /**

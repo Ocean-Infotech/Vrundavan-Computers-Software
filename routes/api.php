@@ -23,6 +23,7 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-class', 'get_class')->name('get-class');
     Route::any('get-shift', 'get_shift')->name('get-shift');
     Route::any('get-class-bybatch', 'get_classbybatch')->name('get-class-bybatch');
+    Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
 });
 
 Route::controller(AuthenticationController::class)->group(function () {
