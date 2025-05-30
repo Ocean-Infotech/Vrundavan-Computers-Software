@@ -129,7 +129,7 @@ class AttedanceController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        return view($modules['folder_path'] . '.form', compact('modules'));
+        return view($modules['folder_path'] . '.form', compact(var_name: 'modules'));
     }
 
     public function filter_student_data(Request $request)
@@ -158,7 +158,7 @@ class AttedanceController extends Controller
         // return $returnData;
         return response()->json([
             'data' => $registrations,
-            'attedances'=> $attedances,
+            'attedances' => $attedances,
         ]);
     }
 
@@ -187,10 +187,12 @@ class AttedanceController extends Controller
                 $coursereg = [];
                 foreach ($studentIds as $value) {
                     $CourceRegistr = CourceRegistration::findOrFail($value);
+                    $BatchRegistr = CourceRegistration::findOrFail($value);
 
                     $coursereg = [
                         'admission_id' => $CourceRegistr->register_id,
                         'course_id'    => $CourceRegistr->course_id,
+                        'batch_id'     => $BatchRegistr->batch_id,
                         'date'         => Carbon::now()->toDateString(),
                         'in_time'      => Carbon::now()->toTimeString(),
                         'created_by'   => Auth::id(),
@@ -214,6 +216,81 @@ class AttedanceController extends Controller
         // Optional fallback for non-AJAX calls
         return Redirect::back()->with('error', 'Invalid request');
     }
+
+    public function student_out(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $studentIds = explode(',', $request->studentid);
+                $attendanceIds = explode(',', $request->attendanceid);
+
+                foreach ($studentIds as $index => $studentId) {
+                    // Get the corresponding attendance ID
+                    $attId = $attendanceIds[$index] ?? null;
+
+                    if ($attId) {
+                        // Find the attendance record by ID and update it
+                        $attendance = Attedance::where('id', $attId)
+                            ->whereDate('date', Carbon::today())
+                            ->first();
+
+                        if ($attendance) {
+                            $attendance->update([
+                                'out_time' => Carbon::now()->toTimeString(),
+                                'updated_by' => Auth::id(),
+                            ]);
+                        }
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Attendance updated successfully.',
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to update attendance. ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+        return Redirect::back()->with('error', 'Invalid request');
+    }
+
+    public function student_leave(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $studentIds = explode(',', $request->studentid);
+                $coursereg = [];
+                foreach ($studentIds as $value) {
+                    $CourceRegistr = CourceRegistration::findOrFail($value);
+                    $BatchRegistr = CourceRegistration::findOrFail($value);
+
+                    $coursereg = [
+                        'admission_id' => $CourceRegistr->register_id,
+                        'course_id'    => $CourceRegistr->course_id,
+                        'batch_id'     => $BatchRegistr->batch_id,
+                        'date'         => Carbon::now()->toDateString(),
+                        'leave' => Carbon::now()->toDateTimeString(),
+                        'created_by'   => Auth::id(),
+                    ];
+
+                    Attedance::create($coursereg);
+                }
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Leave marked successfully.',
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to mark leave. ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+        return Redirect::back()->with('error', 'Invalid request');
+    }
+
 
 
     public function edit(string $id)
