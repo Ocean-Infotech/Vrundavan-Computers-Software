@@ -21,6 +21,7 @@ class CourceRegistration extends Model
         'batch_id',
         'class_id',
         'shift_id',
+        'admission_id',
         'fee',
         'date',
         'note',
@@ -44,7 +45,7 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
-    
+
     public function batch()
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id');
