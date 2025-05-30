@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FeesCollectionRequest;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
@@ -126,8 +129,8 @@ class FeesCollectionController extends Controller
                             $btn = '-';
                         }
 
-                    return $btn;
-                })
+                        return $btn;
+                    })
                     ->rawColumns(['status', 'action'])
                     ->make(true);
                 return $returnData;
@@ -137,6 +140,40 @@ class FeesCollectionController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
+
+
+    public function search_fees_collection_details(Request $request)
+    {
+        $id = $request->id;
+
+        try {
+            $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+
+            return response()->json([
+                'data' => $getcource,
+                //'admission'=> $admission,
+            ]);
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function check_master_password(Request $request)
+    {
+        $user_id = Auth::user()?->id;
+        try {
+            $user = User::where('id', $user_id)->first(); // or find by ID/email if needed
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                return response()->json(['status' => 'true']);
+            } else {
+                return response()->json(['status' => 'false']);
+            }
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -150,9 +187,25 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FeesCollectionRequest $request)
     {
-        //
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        $validated = $request->validated();
+        try {
+
+            $loginUserId = Auth::user()->id;
+
+            // return $this->adminLoginUser;
+            $validated['created_by'] = $loginUserId;
+            // return $validated;
+            FeesCollection::create($validated);
+
+            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+        } catch (\Exception $e) {
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
     }
 
     /**
@@ -168,7 +221,15 @@ class FeesCollectionController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        try{
+            $modules = $this->modules;
+            View::share('modules', $modules);
+
+            $edit = FeesCollection::findOrFail($id);
+            return view($modules['folder_path'].'.form',compact('modules','edit'));
+        } catch(\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
 
     /**

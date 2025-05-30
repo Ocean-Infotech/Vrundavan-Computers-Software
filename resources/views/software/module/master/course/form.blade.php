@@ -98,13 +98,13 @@
                                     value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}"
                                     placeholder="Enter Course Year">
                                     @if (isset($course_year_type))
-                                    <button class="btn btn-outline-primary dropdown-toggle waves-effect" type="button"
+                                    <!-- <button class="btn btn-outline-primary dropdown-toggle waves-effect" type="button"
                                         data-bs-toggle="dropdown" aria-expanded="false">Type</button>
                                     <ul class="dropdown-menu dropdown-menu-end" style="" name="course_year_type">
                                         @foreach ($course_year_type as $key => $item)
                                         <li value="{{ $key ?? '' }}" class="dropdown-item">{{ $item ?? '' }}</li>
                                         @endforeach
-                                    </ul>
+                                    </ul> -->
                                     @endif
                             </div>
 
