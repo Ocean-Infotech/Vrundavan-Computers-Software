@@ -4,8 +4,8 @@ namespace App\Http\Requests;
 
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterClass;
+use App\Models\Master\MasterShift;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -30,7 +30,7 @@ class CourceRegistrationRequest extends FormRequest
         $id = $request->route('cource_registration') ?? 0;
         $rules = [
             'register_id' => 'required|exists:admission,id',
-            
+
             'course_id' => [
                 'required',
                 Rule::unique((new CourceRegistration())->getTable())->where(function ($query) use ($request) {

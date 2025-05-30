@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterCourse;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterShift;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;

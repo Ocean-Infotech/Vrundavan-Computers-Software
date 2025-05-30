@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterShift;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

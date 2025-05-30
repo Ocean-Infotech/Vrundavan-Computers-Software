@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\master;
+namespace App\Models\Master;
 
 use App\Models\Master\MasterBatch;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +28,7 @@ class MasterShift extends Model
     {
         return $this->belongsTo(MasterCourse::class, 'course_id', 'id');
     }
-    
+
     public function batch()
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin\master;
 
 use App\Http\Controllers\Controller;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -63,7 +63,7 @@ class MasterClassController extends Controller
                     }
                 })
 
-                
+
                 ->editColumn('status', function ($row) use($modules) {
                     $status = '';
                     $dropdown = "";
