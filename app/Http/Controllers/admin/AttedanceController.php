@@ -43,14 +43,13 @@ class AttedanceController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
+                (object)['data' => "student_name", 'name' => 'admission_id', 'td_label' => 'Student Name'],
                 (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
-                (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
-                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+                (object)['data' => "in_time", 'name' => 'in_time', 'td_label' => 'In Time'],
+                (object)['data' => "out_time", 'name' => 'out_time', 'td_label' => 'Out Time'],
+                (object)['data' => "leave", 'name' => 'leave', 'td_label' => 'Leave'],
             ];
             View::share("columns", $columns);
 
@@ -60,7 +59,7 @@ class AttedanceController extends Controller
                 // dd($request->all());
                 $data = Attedance::select('*');
                 $data = $data->withTrashed();
-                $data = $data->with(['course', 'batch']);
+                $data = $data->with(['admission','course', 'batch']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -70,51 +69,47 @@ class AttedanceController extends Controller
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
-                            $query->where('subject_name', 'like', "%" . $request->search . "%");
+                            $query->where('admission_id', 'like', "%" . $request->search . "%");
                             // $query->orWhere('subject_name', 'like',"%".$request->search."%");
                         }
                     })
-                    ->editColumn('status', function ($row) use ($modules) {
-                        $status = '';
-                        $dropdown = "";
-                        $dropdown .= '<ul class="dropdown-menu" style="">';
-
-                        if ($row->status == "active") {
-                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                        } elseif ($row->status == "inactive") {
-                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                        } else {
-                            return $status;
-                        }
-                        $dropdown .= '</ul>';
-                        $status .= $dropdown;
-                        return $status;
+                    ->editColumn('student_name', function ($row) {
+                        $first = $row->admission->first_name ?? '';
+                        $father = $row->admission->father_name ?? '';
+                        $last = $row->admission->last_name ?? '';
+                        return trim("{$first} {$father} {$last}");
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($deletePermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
-                        }
-
-                        return $btn;
+                    ->editColumn('date', function ($row) {
+                        return Carbon::parse($row->date)->format('d-m-Y');
                     })
-                    ->rawColumns(['status', 'action'])
+                    ->editColumn('in_time', function ($row) {
+                        if($row->in_time==''){
+                            $in_time = '<p class="text-center">-</p>';
+                        }else{
+                            $in_time = Carbon::parse($row->in_time)->format('h:i A');
+                        }
+                        return $in_time;
+                    })
+                    ->editColumn('out_time', function ($row) {
+                        if($row->out_time==''){
+                            $out_time = '<p class="text-center">-</p>';
+                        }else{
+                            $out_time = Carbon::parse($row->out_time)->format('h:i A');
+                        }
+                        
+                        return $out_time;
+                    })
+                    ->editColumn('leave', function ($row) {
+                        if($row->leave==''){
+                            $leave = '<p class="text-center">-</p>';
+                        }else{
+                            $leave = '<p class="text-center text-danger"><strong>Leave</strong></p>';
+                        }
+                        return $leave;
+                    })
+                    
+                    
+                    ->rawColumns(['student_name','date','in_time','out_time','leave'])
                     ->make(true);
                 return $returnData;
             }
