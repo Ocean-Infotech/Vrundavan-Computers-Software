@@ -22,10 +22,12 @@ use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
+use App\Http\Controllers\Admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -62,6 +64,9 @@ Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [Admission
 
 
 Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
+Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
+Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
@@ -87,6 +92,7 @@ Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::cla
 Route::resource('/test', TestController::class);
 Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
 Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
+Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
@@ -139,6 +145,10 @@ Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionC
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 
 
+Route::resource('fees-collection-pending', FeescollectionpendingController::class);
+
+
+
 //syllabus
 
 Route::resource('syllabus', SyllabusController::class);
@@ -149,3 +159,10 @@ Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::cla
 Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
+
+
+Route::resource('/test_report', TestreportController::class);
+Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
+Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
+
+Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');

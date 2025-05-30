@@ -72,9 +72,9 @@ $i = 0;
             
             <div class="row" id="FeesCollectionDetails">
             @else
-            
+
             <div class="row">
-            @endif    
+            @endif
                 <div class="col-md-6">
                     <div class="row">
                         {{-- student id --}}
@@ -354,7 +354,7 @@ $i = 0;
                 $('#password_error').removeClass('d-none');
             } else {
                 $('#password_error').addClass('d-none');
-                
+
                 $.ajax({
                     type: 'POST',
                     url: "{{ route($route . '.check-master-password') }}",
@@ -374,7 +374,7 @@ $i = 0;
                             $('#password_error').text('Password do not match!');
                             showMessage("Password do not match!", "error");
                         }
-                        
+
                     }
                 });
             }
