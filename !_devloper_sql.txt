@@ -1,6 +1,9 @@
 |-------------------------------------------- Local
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
+
+ALTER TABLE `attedance` ADD `batch_id` INT NULL AFTER `course_id`;
+
 |-------------------------------------------- On Development
 
 
