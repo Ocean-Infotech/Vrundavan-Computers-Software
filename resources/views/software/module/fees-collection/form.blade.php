@@ -56,9 +56,9 @@ $i = 0;
             <div class="row mb-3">
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
-                        <input list="search" id="search_id" name="search" class="form-control @error('search') is-invalid @enderror" value="{{ old('search') }}" placeholder="Search">
+                        <input list="search" id="search_id" name="search" class="form-control @error('search') is-invalid @enderror" value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}" placeholder="Search">
 
-                        <datalist id="search" class="search_by_courceregistration" data-append="search_by_courceregistration" data-selectedCourceRegistrationId="{{ old('search') }}">
+                        <datalist id="search" class="search_by_courceregistration" data-append="search_by_courceregistration" data-selectedCourceRegistrationId="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}">
                         </datalist>
                         @error('search')
                         <span class="invalid-feedback">{{ $message }}</span>
@@ -69,7 +69,7 @@ $i = 0;
                     <button type="button" id="searchbtn" class="btn btn-secondary waves-effect waves-light"><i class="menu-icon ti ti-search"></i>Search</button>
                 </div>
             </div>
-
+            
             <div class="row" id="FeesCollectionDetails">
             @else
 
@@ -85,7 +85,7 @@ $i = 0;
                                     class="form-control required @error('student_id') is-invalid @enderror num_only" name="student_id"
                                     value="{{ isset($edit?->student_id) ? $edit?->student_id : old('student_id') }}"
                                     placeholder="Student Id" readonly>
-
+                                
                                 @error('student_id')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
@@ -116,9 +116,10 @@ $i = 0;
                             <label for="course_id" class="form-label">
                                 Course Name <span class="text-danger">*</span>
                             </label>
+                            <input type="hidden" id="courseid" name="course_id" value="{{ isset($edit?->course_id) ? $edit?->course_id : old('courseid') }}">
                             <input id="course_id" type="text"
-                                class="form-control required @error('course_id') is-invalid @enderror num_only" name="course_id"
-                                value="{{ isset($edit?->course_id) ? $edit?->course_id : old('course_id') }}"
+                                class="form-control required @error('course_id') is-invalid @enderror num_only" name="courseid"
+                                value="{{ isset($edit?->course_id) ? $edit?->course->course_name : old('courseid') }}"
                                 placeholder="Course Name" readonly>
 
                             @error('course_id')
@@ -149,8 +150,16 @@ $i = 0;
                             <div class="form-group">
                                 <label for="year_semester">Year / Semester <span class="text-danger">*</span></label>
                                 <select name="year_semester" id="year_semester"
-                                    class="form-control required select2 @error('year_semester') is-invalid @enderror" placeholder="Semester">
+                                    class="form-control required select2 @error('year_semester') is-invalid @enderror" data-semester="{{ isset($edit?->year_semester) ? $edit?->year_semester : old('year_semester') }}" placeholder="Semester">
                                     <option value="">Select Semester</option>
+                                    @if(isset($edit))
+                                        @for ($semester = 1; $semester <= $edit?->course->semester; $semester++)
+                                        <option value="{{ $semester }}"
+                                        {{ (int) old('year_semester', $edit->year_semester ?? '') === $semester ? 'selected' : '' }}>
+                                        {{ $semester }}
+                                    </option>
+                                        @endfor
+                                    @endif
                                 </select>
                                 @error('year_semester')
                                 <span class="invalid-feedback">{{ $message }}</span>
@@ -164,7 +173,7 @@ $i = 0;
                                 <label for="date">Date <span class="text-danger">*</span></label>
                                 <input type="date" name="date" id="date"
                                     class="form-control required datepicker @error('date') is-invalid @enderror"
-                                    value="{{ old('date', $edit->date ?? '') }}" placeholder="Date">
+                                    value="{{ isset($edit?->date) ? $edit?->date : old('date') }}" placeholder="Date">
                                 @error('date')
                                 <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -249,13 +258,33 @@ $i = 0;
                                 <th>Receipt ID</th>
                                 <th>Fees</th>
                                 <th>Pay Fee Date</th>
-                                <th>Print Receipt</th>
+                                <!-- <th>Print Receipt</th> -->
                             </tr>
                         </thead>
                         <tbody>
-
+                            @if(isset($edit))
+                                @foreach($getfeescollection as $row)
+                                    <tr>
+                                        <td>{{ $row->id }}</td>
+                                        <td>{{ $row->fees }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($row->date)->format('d-m-Y') }}</td>
+                                        <!-- <td></td> -->
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
+                    <div class="row mt-2">
+                        <div class="col-md-4">
+                            <h5 style="color: rgb(0, 0, 255);">Course Fees : <span id="CourseFees">00</span></h5>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 style="color: rgb(0, 128, 0);">Deposite Fees : <span id="DepositeFees">00</span></h5>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span id="PendingFees">00</span></h4>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- submit  --}}
@@ -265,7 +294,7 @@ $i = 0;
                 </div>
             </div>
 
-
+            
 
         </form>
     </div>
@@ -293,6 +322,8 @@ $i = 0;
 
 
 @section('page_leavel_script')
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 <script>
     $(document).ready(function() {
 
@@ -353,51 +384,15 @@ $i = 0;
 
         $('#FeesCollectionDetails').hide();
         $("#search_id").keyup(function abc() {
-            var search_id = $("#search_id").val();
-            if (search_id) {
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route($route . '.search-fees-collection-details') }}",
-
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: search_id,
-                    },
-                    success: function(response) {
-                        $('#FeesCollectionDetails').show();
-
-                        if (response.data && response.data.length > 0) {
-
-                            var studentdetails = response.data[0];
-
-                            $('#student_id').val(studentdetails.admission.id);
-
-                            $('#admission_id').val(studentdetails.id);
-
-                            $('#course_id').val(studentdetails.course.course_name);
-                            $('#fees').val(studentdetails.fee);
-
-                            var studentname = studentdetails.admission.first_name + ' ' + studentdetails.admission.father_name + ' ' + studentdetails.admission.last_name;
-                            $('#student_name').val(studentname);
-
-                            var semester_total = studentdetails.course.semester;
-                            var semester = 1;
-                            var rows = '<option value="">Select Semester</option>';
-                            for (semester; semester <= semester_total; semester++) {
-                                rows += '<option value="' + semester + '">' + semester + '</option>';
-                            }
-                            $('#year_semester').html(rows);
-                        } else {
-                            console.log("student id " + studentdetails.register_id);
-                        }
-
-                    }
-                });
-            }
+            searchdata();
         });
-
+        
         $('#searchbtn').on('click', function() {
+            searchdata();
+        });
+        // $('#searchbtn').trigger('click');
 
+        function searchdata() {
             var search_id = $('#search_id').val();
             if (search_id === '') {
                 $('#search_id').addClass('is-invalid');
@@ -425,18 +420,47 @@ $i = 0;
                                 $('#admission_id').val(studentdetails.id);
 
                                 $('#course_id').val(studentdetails.course.course_name);
+                                $('#courseid').val(studentdetails.course.id);
+                                
                                 $('#fees').val(studentdetails.fee);
-
+                                
                                 var studentname = studentdetails.admission.first_name + ' ' + studentdetails.admission.father_name + ' ' + studentdetails.admission.last_name;
                                 $('#student_name').val(studentname);
 
                                 var semester_total = studentdetails.course.semester;
                                 var semester = 1;
-                                var rows = '<option value="">Select Semester</option>';
-                                for (semester; semester <= semester_total; semester++) {
-                                    rows += '<option value="' + semester + '">' + semester + '</option>';
+                                // var SemesterVal = $('#year_semester').data('semester');
+                                var semester_rows = '<option value="">Select Semester</option>';
+                                for (semester; semester <= semester_total; semester++) 
+                                {
+                                    // var selectedAttr = (SemesterVal == semester) ? ' selected' : '';
+                                    semester_rows += '<option value="' + semester + '">' + semester + '</option>';
                                 }
-                                $('#year_semester').html(rows);
+                                $('#year_semester').html(semester_rows);
+
+                                var rows = '';
+                                var depositefees = 0;
+                                if (response.fees_collection && response.fees_collection.length > 0) {
+                                    $.each(response.fees_collection, function(index, item) {
+                                        rows += '<tr>';
+                                        rows += '<td>' + item.id + '</td>';
+                                        rows += '<td>' + item.fees + '</td>';
+                                        rows += '<td>' + moment(item.date).format('DD-MM-YYYY') + '</td>';
+                                        // rows += '<td></td>';
+                                        rows += '</tr>';
+                                        depositefees += +item.fees;
+                                    });
+                                    $('#CourseFees').text(studentdetails.fee);
+                                    $('#DepositeFees').text(depositefees);
+                                    $('#PendingFees').text(studentdetails.fee-depositefees);
+                                } else {
+                                    $('#CourseFees').text(studentdetails.fee);
+                                    $('#DepositeFees').text('00');
+                                    $('#PendingFees').text(studentdetails.fee);
+                                    
+                                    rows = '<tr><td class="text-center" colspan="4">No data available</td></tr>';
+                                }
+                                $('#ReceiptTable tbody').html(rows);
 
                             } else {
                                 console.log("student id " + studentdetails.register_id);
@@ -446,8 +470,7 @@ $i = 0;
                     });
                 }
             }
-        });
-
+        }
 
         function showMessage(message, type) {
             toastr[type](message);
@@ -462,13 +485,6 @@ $i = 0;
             placeholder: 'Choose an option',
             allowClear: true
         });
-
-        function updateFee() {
-            const fee = $('#course_id option:selected').data('fee') || '';
-            $('#fees').val(fee);
-        }
-        $('#course_id').on('change', updateFee);
-        updateFee();
 
         function togglePaymentFields() {
             const mode = $('#mode').val().toLowerCase();
