@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 
@@ -26,7 +26,7 @@ class MasterClassRequest extends FormRequest
         $id = $request->route('shift') ?? 0;
         $rules = [
             'class' => 'required|unique:' . (new MasterClass())->getTable() . ',class',
-            
+
         ];
         // dd("L-33", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());
         return $rules;

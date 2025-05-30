@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('in_time')->nullable();
             $table->time('out_time')->nullable();
-            $table->string('leave')->nullable();
+            $table->dateTime('leave')->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterShift;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -21,6 +21,7 @@ class CourceRegistration extends Model
         'batch_id',
         'class_id',
         'shift_id',
+        'admission_id',
         'fee',
         'date',
         'note',

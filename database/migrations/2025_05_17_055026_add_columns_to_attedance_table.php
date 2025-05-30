@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('attedance', function (Blueprint $table) {
             $table->string('course_id')->after('admission_id');
+            $table->integer('batch_id')->after('course_id');
         });
     }
 

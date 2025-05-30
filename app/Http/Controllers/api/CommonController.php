@@ -11,9 +11,9 @@ use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use App\Models\Master\MasterPincode;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -38,7 +38,7 @@ class CommonController extends Controller
                 ->get();
 
             $data = $data->map(function ($row) {
-                // $temp = $row; 
+                // $temp = $row;
                 $temp['id'] = $row?->id . "";
                 $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
                 return $temp;
@@ -60,14 +60,14 @@ class CommonController extends Controller
         ]);
 
         try {
-            
+
             $shift = MasterShift::select('class_id', DB::raw('COUNT(*) as total'))
                     ->where('status', 'active')
                     ->where('batch_id', $request?->batch_id)
                     ->groupBy('class_id')
                     ->orderBy('class_id', 'ASC')
                     ->get();
-           
+
             $classIds = $shift->pluck('class_id')->toArray();
 
             $classes = MasterClass::where('status', 'active')
@@ -83,7 +83,7 @@ class CommonController extends Controller
                     'name' => $class?->class,
                     'total' => $row->total,
                 ];
-                
+
             });
             return $this->sendResponse($data, "Class list.");
         } catch (\Exception $e) {
@@ -117,7 +117,7 @@ class CommonController extends Controller
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-            
+
                 $from_time = Carbon::parse($row?->from_time)->format('h:i A');
                 $to_time = Carbon::parse($row?->to_time)->format('h:i A');
 

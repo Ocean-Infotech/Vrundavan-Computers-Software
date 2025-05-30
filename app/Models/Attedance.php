@@ -11,11 +11,12 @@ class Attedance extends Model
 {
     use SoftDeletes;
 
-	public $table = 'attedance';
+    public $table = 'attedance';
 
-	protected $fillable = [
+    protected $fillable = [
         'admission_id',
         'course_id',
+        'batch_id',
         'date',
         'in_time',
         'out_time',
@@ -39,5 +40,4 @@ class Attedance extends Model
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
     }
-    
 }

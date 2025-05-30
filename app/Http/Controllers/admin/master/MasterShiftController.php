@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin\master;
 
 use App\Http\Controllers\Controller;
-use App\Models\master\MasterShift;
+use App\Models\Master\MasterShift;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
