@@ -60,4 +60,9 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(MasterShift::class, 'shift_id');
     }
+
+    public function feescollection()
+    {
+        return $this->belongsTo(FeesCollection::class, 'register_id', 'student_id');
+    }
 }

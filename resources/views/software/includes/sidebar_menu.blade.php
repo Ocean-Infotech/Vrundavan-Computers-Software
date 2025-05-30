@@ -165,7 +165,7 @@
 
             </ul>
         </li>
-        <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-receipt"></i>
                 <div data-i18n="Fees Collection">Fees Collection</div>
