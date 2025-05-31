@@ -71,6 +71,7 @@ class FeesCollectionController extends Controller
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
                 $deletePermisstion = true;
+                $viewPermisstion = true;
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -112,7 +113,7 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion, $viewPermisstion) {
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
@@ -121,6 +122,9 @@ class FeesCollectionController extends Controller
                             }
                             if ($deletePermisstion) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                            }
+                            if ($viewPermisstion) {
+                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1"><i class="fa-solid fa-download"></i></i></a>';
                             }
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
@@ -154,7 +158,7 @@ class FeesCollectionController extends Controller
 
             return response()->json([
                 'data' => $getcource,
-                'fees_collection'=> $getfeescollection,
+                'fees_collection' => $getfeescollection,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -246,7 +250,7 @@ class FeesCollectionController extends Controller
      */
     public function edit(string $id)
     {
-        try{
+        try {
             $modules = $this->modules;
             View::share('modules', $modules);
 
@@ -255,8 +259,8 @@ class FeesCollectionController extends Controller
             $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
             //return $edit;
 
-            return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'getfeescollection'));
+        } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
