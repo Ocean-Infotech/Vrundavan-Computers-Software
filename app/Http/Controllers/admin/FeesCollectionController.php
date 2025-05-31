@@ -175,11 +175,33 @@ class FeesCollectionController extends Controller
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+    // public function getDetails($id)
+    // {
+    //     $details = Admission::find($id);
+
+    //     if (!$details) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Details not found',
+    //             'requested_id' => $id,
+    //         ], 404);
+    //     }
+
+    //     return response()->json(['status' => 'success', 'data' => $details]);
+    // }
+    public function getDetails($id)
+    {
+
+        $modules = $this->modules;
+        View::share('modules', $modules);
+        return view($modules['folder_path'] . '.form', compact('modules', 'id'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($id)
     {
         $modules = $this->modules;
         View::share('modules', $modules);

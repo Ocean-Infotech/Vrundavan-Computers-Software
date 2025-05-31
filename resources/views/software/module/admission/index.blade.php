@@ -142,7 +142,8 @@
                                 <th><span id="date"></span></th>
                                 <th><span id="doc"></span></th>
                                 <th>
-                                    <button type="button" class="btn btn-success btn-sm" id="createBtn">
+
+                                    <button type="button" class="btn btn-success btn-sm" id="createBtn" data-id="">
                                         Create
                                     </button>
                                 </th>
@@ -181,182 +182,203 @@
 @endsection
 
 @section('page_leavel_script')
-    <script type="text/javascript">
-        $(document).on('click', '.view-btn', function() {
-            let id = $(this).data('id');
+<script type="text/javascript">
+    // Show student details modal
+    $(document).on('click', '.view-btn', function() {
+        let id = $(this).data('id');
 
-            $.ajax({
-                url: "{{ route($route . '.show') }}",
-                type: "GET",
-                data: {
-                    id: id
-                },
-                success: function(response) {
-                    if (response.success) {
-                        let data = response.student;
-                        if (data) {
-                            $('#modalID').text(data.id);
-                            if (data.date_of_birth) {
-                                let date = new Date(data.date_of_birth);
-                                let day = ('0' + date.getDate()).slice(-2);
-                                let month = ('0' + (date.getMonth() + 1)).slice(-2);
-                                let year = date.getFullYear().toString().slice(-0);
-                                $('#modalDOB').text(`${day} ${month} ${year}`);
-                            } else {
-                                $('#modalDOB').text('-');
-                            }
-                            $('#modalTempAddress').text(data.temporary_address ?? '-');
-                            $('#modalPermAddress').text(data.permanent_address ?? '-');
-                            $('#modalSelfMobile').text(data.mobile_no ?? '-');
-                            $('#modalParentMobile').text(data.parent_mobile_no ?? '-');
-                            $('#modalAddMobile').text(data.other_mobile_no ?? '-');
-                            $('#modalWhatsappMobile').text(data.whatsapp_no ?? '-');
-                            $('#modalEmail').text(data.email_address ?? '-');
-                            $('#modalCast').text(data.cast ?? '-');
-                            $('#modalOccupation').text(data.occupation ?? '-');
-                            $('#modalCategory').text(data.category ?? '-');
-                            $('#modalGender').text(data.gender ?? '-');
-                            $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#infoModal').modal('show');
+        $.ajax({
+            url: "{{ route($route . '.show') }}",
+            type: "GET",
+            data: { id: id },
+            success: function(response) {
+                if (response.success) {
+                    let data = response.student;
+                    if (data) {
+                        $('#modalID').text(data.id);
+                        if (data.date_of_birth) {
+                            let date = new Date(data.date_of_birth);
+                            let day = ('0' + date.getDate()).slice(-2);
+                            let month = ('0' + (date.getMonth() + 1)).slice(-2);
+                            let year = date.getFullYear();
+                            $('#modalDOB').text(`${day} ${month} ${year}`);
                         } else {
-                            toastr.error('Student data not found');
+                            $('#modalDOB').text('-');
                         }
+                        $('#modalTempAddress').text(data.temporary_address ?? '-');
+                        $('#modalPermAddress').text(data.permanent_address ?? '-');
+                        $('#modalSelfMobile').text(data.mobile_no ?? '-');
+                        $('#modalParentMobile').text(data.parent_mobile_no ?? '-');
+                        $('#modalAddMobile').text(data.other_mobile_no ?? '-');
+                        $('#modalWhatsappMobile').text(data.whatsapp_no ?? '-');
+                        $('#modalEmail').text(data.email_address ?? '-');
+                        $('#modalCast').text(data.cast ?? '-');
+                        $('#modalOccupation').text(data.occupation ?? '-');
+                        $('#modalCategory').text(data.category ?? '-');
+                        $('#modalGender').text(data.gender ?? '-');
+                        $('#modalAadhar').text(data.aadhar_card_no ?? '-');
+                        $('#infoModal').modal('show');
                     } else {
-                        toastr.error(response.message || 'Student not found');
+                        toastr.error('Student data not found');
                     }
-                },
-                error: function(err) {
-                    console.error(err);
-                    toastr.error('Error fetching student info');
+                } else {
+                    toastr.error(response.message || 'Student not found');
                 }
-            });
-        });
-
-
-        $(document).on('click', '.course-btn', function() {
-            let id = $(this).data('id');
-
-            $.ajax({
-                url: "{{ route($route . '.show') }}",
-                type: "GET",
-                data: {
-                    id: id
-                },
-                success: function(response) {
-                    if (response.success) {
-                        let course = response.course;
-                        let data = response.student;
-                        let master = response.masterCours;
-                        if (course) {
-                            $('#modalName').text(data.first_name);
-                            $('#id').text(course.id);
-                            $('#course_id').text(response.course.course.course_name);
-                            $('#date').text(course.date);
-                            $('#doc').text(course.date);
-                            $('#fee').text(course.fee);
-
-                            $('#course').modal('show');
-                        } else {
-                            toastr.error('Course data not found');
-                        }
-                    } else {
-                        toastr.error(response.message || 'Student not found');
-                    }
-                },
-                error: function(err) {
-                    console.error(err);
-                    toastr.error('Error fetching course info');
-                }
-            });
-        });
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            error: function(err) {
+                console.error(err);
+                toastr.error('Error fetching student info');
             }
         });
+    });
 
-        var dtable = null;
-        $(document).ready(function() {
+    // Show course details modal
+    $(document).on('click', '.course-btn', function() {
+        let id = $(this).data('id');
 
-            dtable = $('#yajra-datatables').DataTable({
-                searching: true,
-                processing: true,
-                serverSide: true,
-                order: [
-                    [1, 'desc']
-                ],
-                ajax: {
-                    "url": "{{ route($route . '.index') }}",
-                    'beforeSend': function(request) {
-                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
-                            'content'));
-                    },
-                    type: "GET",
-                    data: function(data) {
-                        data.search = $('input[type="search"]').val();
-                        // data.status = $('select[name="status"] option:selected').val();
-                        // data.role = $('select[name="role"] option:selected').val();
-                    },
-                },
-                columns: {!! json_encode($columns) !!},
-                language: {
-                    searchPlaceholder: 'Search...',
-                },
-                // dom:'lBfrtip',
-                // buttons: ["csv"],
-            });
-        });
-        $('input[name="search"]').keyup(function() {
-            dtable.draw();
-        });
-        jQuery(document).on('change', 'select', function(event) {
-            event.preventDefault();
-            dtable.draw();
-        });
+        $.ajax({
+            url: "{{ route($route . '.show') }}",
+            type: "GET",
+            data: { id: id },
+            success: function(response) {
+                if (response.success) {
+                    let course = response.course;
+                    let data = response.student;
+                    let master = response.masterCours;
+                    if (course) {
+                        $('#modalName').text(data.first_name);
+                        $('#id').text(course.id);
+                        $('#course_id').text(course.course.course_name);
+                        $('#date').text(course.date);
+                        $('#doc').text(course.date);
+                        $('#fee').text(course.fee);
 
-
-        $(document).on('click', '.open_google_drive_folder', function() {
-            var id = $(this).data('id');
-            var folderName = $(this).data('foldername');
-            var folderUrl = $(this).data('folderurl');
-            var button = $(this);
-
-            if (folderUrl) {
-                window.open(folderUrl, '_blank');
-            } else {
-                $('#yajra-datatables_processing').css('font-weight', 'bold').show();
-
-                $.ajax({
-                    url: "{{ route($route . '.create-google-drive-folder') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id,
-                        foldername: folderName,
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        if (response.folder_url) {
-                            button.attr('data-folderurl', response.folder_url);
-                            toastr.success('Google Drive folder created successfully.');
-                            window.open(response.folder_url, '_blank');
-                        } else {
-                            toastr.success('Google Drive folder created successfully.');
-                        }
-                        $('#yajra-datatables').DataTable().ajax.reload(null, false);
-                    },
-                    error: function(error) {
-                        console.error(error);
-                        toastr.error('Error creating Google Drive folder.');
-                    },
-                    complete: function() {
-                        $('#yajra-datatables_processing').hide();
+                        $('#createBtn').attr('data-id', course.id);
+                        $('#course').modal('show');
+                    } else {
+                        toastr.error('Course data not found');
                     }
-                });
+                } else {
+                    toastr.error(response.message || 'Student not found');
+                }
+            },
+            error: function(err) {
+                console.error(err);
+                toastr.error('Error fetching course info');
             }
         });
-    </script>
+    });
+
+    // Setup CSRF token for AJAX
+    $.ajaxSetup({
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+    });
+
+    var dtable = null;
+    $(document).ready(function() {
+        dtable = $('#yajra-datatables').DataTable({
+            searching: true,
+            processing: true,
+            serverSide: true,
+            order: [[1, 'desc']],
+            ajax: {
+                url: "{{ route($route . '.index') }}",
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
+                },
+                type: "GET",
+                data: function(data) {
+                    data.search = $('input[type="search"]').val();
+                    // You can add filters here:
+                    // data.status = $('select[name="status"]').val();
+                    // data.role = $('select[name="role"]').val();
+                },
+            },
+            columns: {!! json_encode($columns) !!},
+            language: { searchPlaceholder: 'Search...' },
+            // dom:'lBfrtip',
+            // buttons: ["csv"],
+        });
+    });
+
+    // Redraw DataTable on search input keyup
+    $('input[name="search"]').keyup(function() {
+        dtable.draw();
+    });
+
+    // Redraw DataTable on select change
+    $(document).on('change', 'select', function(event) {
+        event.preventDefault();
+        dtable.draw();
+    });
+
+    // Handle Google Drive folder open/create button click
+    $(document).on('click', '.open_google_drive_folder', function() {
+        var id = $(this).data('id');
+        var folderName = $(this).data('foldername');
+        var folderUrl = $(this).data('folderurl');
+        var button = $(this);
+
+        if (folderUrl) {
+            window.open(folderUrl, '_blank');
+        } else {
+            $('#yajra-datatables_processing').css('font-weight', 'bold').show();
+
+            $.ajax({
+                url: "{{ route($route . '.create-google-drive-folder') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    foldername: folderName,
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (response.folder_url) {
+                        button.attr('data-folderurl', response.folder_url);
+                        toastr.success('Google Drive folder created successfully.');
+                        window.open(response.folder_url, '_blank');
+                    } else {
+                        toastr.success('Google Drive folder created successfully.');
+                    }
+                    $('#yajra-datatables').DataTable().ajax.reload(null, false);
+                },
+                error: function(error) {
+                    console.error(error);
+                    toastr.error('Error creating Google Drive folder.');
+                },
+                complete: function() {
+                    $('#yajra-datatables_processing').hide();
+                }
+            });
+        }
+    });
+
+    $(document).on('click', '#createBtn', function() {
+    let admId = $(this).data('id');
+    window.location.href = '/software/fees-collection/get-details/' + admId;
+
+    // $.ajax({
+    //     url: '/software/fees-collection/get-details/' + admId,
+    //     type: 'GET',
+    //     success: function(response) {
+    //         if(response.status === 'success') {
+    //             let data = response.data;
+
+    //             sessionStorage.setItem('admissionDetails', JSON.stringify(data));
+    //             window.location.href = '/software/fees-collection/get-details/' + admId;
+    //         } else {
+    //             alert('Details not found');
+    //         }
+    //     },
+    //     error: function() {
+    //         alert('Failed to fetch data');
+    //     }
+    // });
+});
+
+</script>
+
 
 
     @include('software.includes.script-delete-record')
