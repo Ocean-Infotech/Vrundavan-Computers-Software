@@ -202,7 +202,7 @@ class FeesCollectionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($id)
+    public function create()
     {
         $modules = $this->modules;
         View::share('modules', $modules);
