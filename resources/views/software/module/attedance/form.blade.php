@@ -66,8 +66,8 @@ $i = 0;
 
                 <div class="col-md-8 mb-3 text-start">
                     <label class="form-label mb-5"></label>
-                    <button type="button" class="btn btn-success" id="attendance_in">IN</button>
-                    <button type="button" class="btn btn-danger" id="attendance_out">OUT</button>
+                    <button type="button" class="btn btn-success" data-url="{{ route($route . '.student-in') }}" id="attendance_in">IN</button>
+                    <button type="button" class="btn btn-danger" data-url="{{ route($route . '.student-out') }}" id="attendance_out">OUT</button>
                 </div>
 
                 <div class="col-sm-12 col-md-4 col-lg-4 col-xl-3 mb-3">
@@ -295,21 +295,22 @@ $i = 0;
             });
         }
 
-
         $('#education_details').hide();
         $('#allstudentinbtn').hide();
-        // Reload data when any filter is changed
+
         $('select[name="batch_id"]').on('change', function() {
             var select_filter = $(this).val();
 
-            if (select_filter != null && select_filter.trim() !== '') {
-                loadTableData(); // Re-fetch filtered data
+            if (select_filter && select_filter.trim() !== '') {
+                loadTableData();
                 $('#education_details').show();
                 $('#allstudentinbtn').show();
+            } else {
+                $('#simple-table tbody').html('<tr><td class="text-center" colspan="7">Please select a batch to view students.</td></tr>');
+                $('#education_details').hide();
+                $('#allstudentinbtn').hide();
             }
         });
-
-        // loadTableData(); // Initial load
 
 
         // When #checkallstudent is toggled
@@ -541,8 +542,123 @@ $i = 0;
                     console.log(response);
                     if (response.data && response.data.length > 0) {
 
+                        if (response.attedances == "") {
 
+                            var _token = '{{ csrf_token() }}';
+                            var _actionUrl = $('#attendance_in').attr("data-url");
+                            var id = response.data[0].id;
+                            var register_id = response.data[0].register_id;
+                            var course_id = response.data[0].course_id;
+                            var batch_id = response.data[0].batch_id;
+                            var stdName = response.data[0].admission.first_name + ' ' + response.data[0].admission.last_name;
+                            // console.log(stdName);
 
+                            if (_token && _actionUrl && id && course_id) {
+                                // console.log("generate-inquiry-no L-31");
+                                $.ajax({
+                                    type: "POST",
+                                    url: _actionUrl,
+                                    data: {
+                                        _token: _token,
+                                        _method: 'POST',
+                                        studentid: id,
+                                        courseid: course_id,
+                                    },
+                                    success: function(data) {
+                                        if (data?.status == true) {
+                                            toastr.success(data?.message + " for " + stdName);
+                                            $('#addmission_id').val("");
+                                        } else {
+                                            toastr.error(data?.message);
+                                        }
+
+                                    },
+                                    error: function() {
+                                        toastr.error('Something Went wrong Update Status failed.');
+                                    }
+                                });
+                            } else {
+                                console.log("Update Script", _token, _actionUrl, urlParams, _studentld, _courseId);
+                            }
+                        } else {
+                            toastr.error('This Student Attendance Already Taken.');
+                            $('#addmission_id').val("");
+                        }
+
+                    } else {
+                        toastr.error("Admission ID is wrong please add correct ID");
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                    alert("Failed to load data.");
+                }
+            });
+        });
+
+        $(document).on('click', '#attendance_out', function() {
+            $.ajax({
+                url: "{{ route($route . '.filter-student-data') }}",
+                type: "GET",
+                dataType: "json",
+                data: {
+                    filter_admission: $('#addmission_id').val(),
+                },
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
+                },
+                success: function(response) {
+                    // console.log(response);
+                    if (response.data && response.data.length > 0) {
+
+                        const attendances = response.attedances || [];
+                        const admissionInput = $('#addmission_id').val();
+                        const matchedAttendance = attendances.find(item => item.admission_id == admissionInput);
+                        if (matchedAttendance) {
+                            const attendance_id = matchedAttendance.id;
+                            const out_time = matchedAttendance.out_time;
+
+                            if (out_time == null) {
+
+                                var _token = '{{ csrf_token() }}';
+                                var _actionUrl = $('#attendance_out').attr("data-url");
+                                var id = response.data[0].id;
+                                var register_id = response.data[0].register_id;
+                                var course_id = response.data[0].course_id;
+                                var batch_id = response.data[0].batch_id;
+                                var stdName = response.data[0].admission.first_name + ' ' + response.data[0].admission.last_name;
+
+                                if (_token && _actionUrl && attendance_id && id) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: _actionUrl,
+                                        data: {
+                                            _token: _token,
+                                            _method: 'POST',
+                                            studentid: id,
+                                            attendanceid: attendance_id,
+                                        },
+                                        success: function(data) {
+                                            if (data?.status == true) {
+                                                toastr.success(data?.message + " for " + stdName);
+                                                $('#addmission_id').val("");
+                                            } else {
+                                                toastr.error(data?.message);
+                                            }
+                                        },
+                                        error: function() {
+                                            toastr.error('Something Went wrong Update Status failed.');
+                                        }
+                                    });
+                                } else {
+                                    console.log("Update Script", _token, _actionUrl, urlParams, _attendanceid, _studentld);
+                                }
+
+                            } else {
+                                toastr.error('This Student Attendance Already Taken.');
+                                $('#addmission_id').val("");
+                            }
+                        }
                     } else {
                         toastr.error("Admission ID is wrong please add correct ID");
                     }

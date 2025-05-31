@@ -15,6 +15,8 @@ use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
 use App\Models\CourseRegister;
+use App\Models\Master\MasterBatch;
+use App\Models\master\MasterClass;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -37,90 +39,176 @@ class AttedanceController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
+    // public function index(Request $request)
+    // {
+    //     $modules = $this->modules;
+    //     View::share('modules', $modules);
+    //     try {
+    //         $columns = [
+    //             (object)['data' => "course_name", 'name' => 'id', 'td_label' => 'Course Name'],
+    //             (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => ''],
+    //             (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
+    //             (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
+    //             (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
+    //             (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
+    //             (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+    //         ];
+    //         View::share("columns", $columns);
+
+    //         $data = [];
+
+    //         if ($request->ajax()) {
+    //             // dd($request->all());
+    //             $data = Attedance::select('*');
+    //             $data = $data->withTrashed();
+    //             $data = $data->with(['course', 'batch']);
+    //             // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
+    //             // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
+    //             $editPermisstion = true;
+    //             $deletePermisstion = true;
+
+    //             $returnData = Datatables::of($data)
+    //                 ->addIndexColumn()
+    //                 ->filter(function ($query) use ($request) {
+    //                     if ($request->has('search')) {
+    //                         $query->where('subject_name', 'like', "%" . $request->search . "%");
+    //                         // $query->orWhere('subject_name', 'like',"%".$request->search."%");
+    //                     }
+    //                 })
+    //                 ->editColumn('status', function ($row) use ($modules) {
+    //                     $status = '';
+    //                     $dropdown = "";
+    //                     $dropdown .= '<ul class="dropdown-menu" style="">';
+
+    //                     if ($row->status == "active") {
+    //                         $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+    //                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
+    //                         // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+    //                     } elseif ($row->status == "inactive") {
+    //                         $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+    //                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
+    //                         // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
+    //                     } else {
+    //                         return $status;
+    //                     }
+    //                     $dropdown .= '</ul>';
+    //                     $status .= $dropdown;
+    //                     return $status;
+    //                 })
+    //                 ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+    //                     $btn = '';
+    //                     if (!$row?->deleted_at) {
+    //                         // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+    //                         if ($editPermisstion) {
+    //                             $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+    //                         }
+    //                         if ($deletePermisstion) {
+    //                             $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+    //                         }
+    //                     } else {
+    //                         $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
+    //                     }
+    //                     // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
+    //                     if ($btn == '') {
+    //                         $btn = '-';
+    //                     }
+
+    //                     return $btn;
+    //                 })
+    //                 ->rawColumns(['status', 'action'])
+    //                 ->make(true);
+    //             return $returnData;
+    //         }
+    //         return view($modules['folder_path'] . '.index', compact('data'));
+    //     } catch (\Exception $e) {
+    //         return Redirect::route('dashboard')->withErrors($e->getMessage());
+    //     }
+    // }
+
+
     public function index(Request $request)
     {
-        $modules = $this->modules;
+        $modules = $this->modules; // Assuming $this->modules contains route info
         View::share('modules', $modules);
+
         try {
+            // DataTable columns
             $columns = [
-                (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
+                (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
+                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
-                (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
-                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+                (object)['data' => 'in_and_out_and_leve_status', 'name' => 'in_and_out_and_leve_status', 'td_label' => 'In / Out / Leave Status'],
             ];
             View::share("columns", $columns);
 
-            $data = [];
+            $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
+            $classes = MasterBatch::where('status', 'active')->get();
 
             if ($request->ajax()) {
-                // dd($request->all());
                 $data = Attedance::select('*');
                 $data = $data->withTrashed();
-                $data = $data->with(['course', 'batch']);
-                // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-                // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
+                $data = $data->orderBy('created_at', 'desc');
+                $data = $data->with(['course', 'admission', 'batch']);
+                
+                $editPermission = true;
+                $deletePermission = true;
 
-                $returnData = Datatables::of($data)
-                    ->addIndexColumn()
+                return Datatables::of($data)
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->where('subject_name', 'like', "%" . $request->search . "%");
-                            // $query->orWhere('subject_name', 'like',"%".$request->search."%");
+                        if ($request->has('filter_registers_id') && !empty($request->filter_registers_id)) {
+                            $query->where('admission_id', $request->filter_registers_id);
+                        }
+                        if ($request->has('filter_batch_id') && !empty($request->filter_batch_id)) {
+                            $query->where('batch_id', $request->filter_batch_id);
+                        }
+
+                        if ($request->has('selectedStartDate') && $request->selectedStartDate != null) {
+                            $query->whereDate('date', '>=', $request->selectedStartDate);
+                        }
+
+                        if ($request->has('selectedEndDate') && $request->selectedEndDate != null) {
+                            $query->whereDate('date', '<=', $request->selectedEndDate);
                         }
                     })
-                    ->editColumn('status', function ($row) use ($modules) {
-                        $status = '';
-                        $dropdown = "";
-                        $dropdown .= '<ul class="dropdown-menu" style="">';
+                    ->addIndexColumn()
+                    ->editColumn('student_name', function ($row) {
+                        $first = $row->admission->first_name ?? '';
+                        $father = $row->admission->father_name ?? '';
+                        $last = $row->admission->last_name ?? '';
+                        return trim("{$first} {$father} {$last}");
+                    })
+                    ->editColumn('in_and_out_and_leve_status', function ($row) {
+                        $in_time = $row->in_time ?? '';
+                        $out_time = $row->out_time ?? '';
+                        $leave = $row->leave ?? "";
+                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
+                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
 
-                        if ($row->status == "active") {
-                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                        } elseif ($row->status == "inactive") {
-                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                        } else {
-                            return $status;
+                        if ($in_time != "" && $out_time == "") {
+                            $status = '<span class="badge badge-center bg-warning bg-glow" style="width:4.5rem;">On Duty</span>';
+                        } else if ($in_time != "" && $out_time != "") {
+                            $status = '<span class="badge badge-center bg-success bg-glow" style="width:4.5rem;">Present</span>';
+                        } else if ($in_time == "" && $out_time == "") {
+                            $status = '<span class="badge badge-center bg-danger bg-glow" style="width:4.5rem;">Absent</span>';
+                        } else if ($in_time == "" && $out_time == "" && $leave != "") {
+                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
                         }
-                        $dropdown .= '</ul>';
-                        $status .= $dropdown;
+
                         return $status;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($deletePermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
-                        }
-
-                        return $btn;
+                    ->editColumn('date', function ($row) {
+                        return Carbon::parse($row->date)->format('d-m-Y');
                     })
-                    ->rawColumns(['status', 'action'])
+                    ->rawColumns(['student_name', 'in_and_out_and_leve_status'])
                     ->make(true);
-                return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+
+            // return view($modules['folder_path'] . '.index');
+            return view($modules['folder_path'] . '.index',  compact('modules', 'admissions', 'classes'));
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return redirect()->route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
@@ -148,6 +236,10 @@ class AttedanceController extends Controller
 
         if ($request->filled('filter_course') && $request->filter_course) {
             $data->where('course_id', $request->input('filter_course'));
+        }
+
+        if ($request->filled('filter_batch') && $request->filter_batch) {
+            $data->where('batch_id', $request->input('filter_batch'));
         }
 
         $registrations = $data->get();
