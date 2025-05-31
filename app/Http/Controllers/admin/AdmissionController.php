@@ -81,11 +81,11 @@ class AdmissionController extends Controller
                     })
 
                     ->editColumn('admission_name', function ($row) {
-                        $first = $row->first_name ?? '';
-                        $father = $row->father_name ?? '';
-                        $last = $row->last_name ?? '';
-                    return trim("{$first} {$father} {$last}");
-                })
+                            $first = $row->first_name ?? '';
+                            $father = $row->father_name ?? '';
+                            $last = $row->last_name ?? '';
+                        return trim("{$first} {$father} {$last}");
+                    })
 
                     ->editColumn('gdrivefolderurl', function ($row) {
                         $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;

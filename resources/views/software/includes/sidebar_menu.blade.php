@@ -126,7 +126,48 @@
             </ul>
         </li>
 
+        <li class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="ti ti-receipt"></i>
+                <div data-i18n="Fees Collection">Fees Collection</div>
+            </a>
+            <ul class="menu-sub">
 
+                <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
+                    <a href="{{ route('fees-collection.index') }}" class="menu-link">
+                        <div data-i18n="Fees Collection">Fees Collection</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
+                    <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
+                        <div data-i18n="Fees Pending">Fees pending</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-item {{ $sidebar_active == 'test' || $sidebar_active == 'test_report' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="bx bx-notepad"></i>
+                <div data-i18n="Test">Test</div>
+            </a>
+            <ul class="menu-sub">
+
+                <li class="menu-item {{ $sidebar_active == 'test' ? 'active' : '' }}">
+                    <a href="{{ route('test.index') }}" class="menu-link">
+                        <div data-i18n="Test">Test</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ $sidebar_active == 'test_report' ? 'active' : '' }}">
+                    <a href="{{ route('test_report.index') }}" class="menu-link">
+                        <div data-i18n="Test Report">Test Report</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
         <li
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -165,36 +206,9 @@
 
             </ul>
         </li>
-        <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="ti ti-receipt"></i>
-                <div data-i18n="Fees Collection">Fees Collection</div>
-            </a>
-            <ul class="menu-sub">
-
-                <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
-                    <a href="{{ route('fees-collection.index') }}" class="menu-link">
-                        <div data-i18n="Fees Collection">Fees Collection</div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
-                    <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
-                        <div data-i18n="Fees Pending">Fees pending</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-
-        <li class="menu-item {{ $sidebar_active == 'test' ? 'active' : '' }}">
-            <a href="{{ route('test.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-notepad"></i>
-                <div data-i18n="Test">Test</div>
-            </a>
-        </li>
+        
         @directCan('master-module')
-            <li
+            <!-- <li
                 class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode' || $sidebar_active == 'document-type' || $sidebar_active == 'documents' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base bx bx-cog"></i>
@@ -227,11 +241,11 @@
                     @enddirectCanAny
 
                     @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
-                        <!-- <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
+                        <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
                                                             <a href="{{ route('pincode.index') }}" class="menu-link">
                                                                 <div data-i18n="Pincode">Pincode</div>
                                                             </a>
-                                                        </li> -->
+                                                        </li> 
                     @enddirectCanAny
 
                     @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
@@ -250,14 +264,9 @@
                         </li>
                     @enddirectCanAny
                 </ul>
-            </li>
+            </li> -->
         @enddirectCanAny
-        <li class="menu-item {{ $sidebar_active == 'test_report' ? 'active' : '' }}">
-            <a href="{{ route('test_report.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-notepad"></i>
-                <div data-i18n="Test Report">Test Report</div>
-            </a>
-        </li>
+        
     </ul>
 
 </aside>

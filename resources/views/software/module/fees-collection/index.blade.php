@@ -42,7 +42,7 @@
                     <div class="row align-items-end">
                         <!-- Filter Input -->
                         <div class="col-md-4">
-                            <label for="search" class="form-label">Filter by Country</label>
+                            <label for="search" class="form-label">Filter by Student</label>
                             <input list="search" id="search_id" name="search" class="form-control search @error('search') is-invalid @enderror" value="{{ old('search') }}" placeholder="Search">
                             <datalist id="search" class="search_by_admission" data-append="search_by_admission" data-selectedAdmissionId="{{ old('search') }}">
                             </datalist>
@@ -130,7 +130,25 @@
                 columns: {!! json_encode($columns) !!},
                 language: {
                     searchPlaceholder: 'Search...',
+                    emptyTable: "No data available in table"
                 },
+                drawCallback: function(settings) {
+                    let api = this.api();
+                    let data = api.rows({
+                        page: 'current'
+                    }).data();
+                    let search_id = $('#search_id').val();
+                   
+                    if (data.length === 0 && (!search_id)) {
+                        $('#yajra-datatables tbody').html(`
+                            <tr class="odd">
+                                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                                    Please select <strong>Student</strong> to view records.
+                                </td>
+                            </tr>
+                        `);
+                    }
+                }
                 // dom:'lBfrtip',
                 // buttons: ["csv"],
             });
