@@ -24,7 +24,7 @@
                         <div class="d-flex align-items-end row">
                             <div class="col-12">
                                 <div class="card-body text-nowrap">
-                                    <h5 class="card-title mb-0">
+                                    <h5 class="card-title mb-0 text-truncate" style="overflow: hidden; white-space: nowrap;">
                                         <b>{{ $admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name }}</b>
                                     </h5>
                                     <div class="mt-2">
@@ -36,13 +36,13 @@
                     </div>
                 </div>
             @endforeach
-            </div>
+        </div>
     @endif
 @endsection
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    $(document).on('click', '.open_google_drive_folder', function () {
+    $(document).on('click', '.open_google_drive_folder', function() {
         const url = $(this).data('folderurl');
         if (url) {
             window.open(url, '_blank');
@@ -51,4 +51,3 @@
         }
     });
 </script>
-

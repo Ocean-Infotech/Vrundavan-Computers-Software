@@ -163,3 +163,4 @@ Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController:
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
 
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
+

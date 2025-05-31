@@ -231,7 +231,7 @@ class FeesCollectionController extends Controller
             $admission_id = $edit->admission_id;
             $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
             //return $edit;
-            
+
             return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
         } catch(\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());

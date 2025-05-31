@@ -315,50 +315,6 @@
             dtable.draw();
         });
 
-        // $(document).on('click', '.create_google_drive_folder', function() {
-        //     var folderName = $(this).data('foldername');
-        //     var id = $(this).data('id');
-        //     $(this).find('i').removeClass('ti-plus').addClass('ti-check')
-        //     $('#yajra-datatables_processing').css('font-weight', 'bold');
-        //     $('#yajra-datatables_processing').show();
-
-        //     $.ajax({
-        //         url: "{{ route($route . '.create-google-drive-folder') }}",
-        //         type: 'POST',
-        //         data: {
-        //             _token: '{{ csrf_token() }}',
-        //             id: id,
-        //             foldername: folderName,
-        //         },
-        //         success: function(response) {
-        //             console.log(response);
-        //             toastr.success('{{ $page_title1 ?? 'Create Google Drive Folder successfully' }}');
-        //             $("#yajra-datatables").DataTable().ajax.reload();
-        //         },
-        //         error: function(error) {
-        //             console.log(error);
-        //         }
-        //     });
-
-        // });
-
-        // $(document).on('click', '.GoogleDriveFolderUrlCopy', function() {
-        //     var url = $(this).data('folderurl');
-        //     var self = $(this);
-        //     if (url) {
-        //         navigator.clipboard.writeText(url).then(function() {
-        //             console.log('URL copied to clipboard:', url);
-        //             toastr.success('Copy URL');
-        //             // Use captured reference `self`
-        //             self.find('i').removeClass('bx-copy-alt').addClass('bx-check');
-        //             setTimeout(function() {
-        //                 self.find('i').removeClass('bx-check').addClass('bx-copy-alt');
-        //             }, 1500);
-        //         }).catch(function(err) {
-        //             console.error('Failed to copy URL:', err);
-        //         });
-        //     }
-        // });
 
         $(document).on('click', '.open_google_drive_folder', function() {
             var id = $(this).data('id');
@@ -386,7 +342,7 @@
                             toastr.success('Google Drive folder created successfully.');
                             window.open(response.folder_url, '_blank');
                         } else {
-                            toastr.error('Failed to retrieve folder URL.');
+                            toastr.success('Google Drive folder created successfully.');
                         }
                         $('#yajra-datatables').DataTable().ajax.reload(null, false);
                     },

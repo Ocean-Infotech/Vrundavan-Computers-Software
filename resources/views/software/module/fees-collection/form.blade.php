@@ -69,7 +69,7 @@ $i = 0;
                     <button type="button" id="searchbtn" class="btn btn-secondary waves-effect waves-light"><i class="menu-icon ti ti-search"></i>Search</button>
                 </div>
             </div>
-            
+
             <div class="row" id="FeesCollectionDetails">
             @else
 
@@ -85,7 +85,7 @@ $i = 0;
                                     class="form-control required @error('student_id') is-invalid @enderror num_only" name="student_id"
                                     value="{{ isset($edit?->student_id) ? $edit?->student_id : old('student_id') }}"
                                     placeholder="Student Id" readonly>
-                                
+
                                 @error('student_id')
                                 <span class="invalid-feedback">
                                     <strong>{{ $message }}</strong>
@@ -294,7 +294,7 @@ $i = 0;
                 </div>
             </div>
 
-            
+
 
         </form>
     </div>
@@ -386,7 +386,7 @@ $i = 0;
         $("#search_id").keyup(function abc() {
             searchdata();
         });
-        
+
         $('#searchbtn').on('click', function() {
             searchdata();
         });
@@ -421,9 +421,9 @@ $i = 0;
 
                                 $('#course_id').val(studentdetails.course.course_name);
                                 $('#courseid').val(studentdetails.course.id);
-                                
+
                                 $('#fees').val(studentdetails.fee);
-                                
+
                                 var studentname = studentdetails.admission.first_name + ' ' + studentdetails.admission.father_name + ' ' + studentdetails.admission.last_name;
                                 $('#student_name').val(studentname);
 
@@ -431,7 +431,7 @@ $i = 0;
                                 var semester = 1;
                                 // var SemesterVal = $('#year_semester').data('semester');
                                 var semester_rows = '<option value="">Select Semester</option>';
-                                for (semester; semester <= semester_total; semester++) 
+                                for (semester; semester <= semester_total; semester++)
                                 {
                                     // var selectedAttr = (SemesterVal == semester) ? ' selected' : '';
                                     semester_rows += '<option value="' + semester + '">' + semester + '</option>';
@@ -457,7 +457,7 @@ $i = 0;
                                     $('#CourseFees').text(studentdetails.fee);
                                     $('#DepositeFees').text('00');
                                     $('#PendingFees').text(studentdetails.fee);
-                                    
+
                                     rows = '<tr><td class="text-center" colspan="4">No data available</td></tr>';
                                 }
                                 $('#ReceiptTable tbody').html(rows);
