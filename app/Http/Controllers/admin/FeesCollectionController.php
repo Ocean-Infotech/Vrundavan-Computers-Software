@@ -176,6 +176,28 @@ class FeesCollectionController extends Controller
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+    // public function getDetails($id)
+    // {
+    //     $details = Admission::find($id);
+
+    //     if (!$details) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Details not found',
+    //             'requested_id' => $id,
+    //         ], 404);
+    //     }
+
+    //     return response()->json(['status' => 'success', 'data' => $details]);
+    // }
+    public function getDetails($id)
+    {
+
+        $modules = $this->modules;
+        View::share('modules', $modules);
+        return view($modules['folder_path'] . '.form', compact('modules', 'id'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -232,7 +254,7 @@ class FeesCollectionController extends Controller
             $admission_id = $edit->admission_id;
             $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
             //return $edit;
-            
+
             return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
         } catch(\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());

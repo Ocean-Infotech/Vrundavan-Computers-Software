@@ -27,7 +27,7 @@ use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
-use App\Http\Controllers\Admin\TestreportController;
+use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -143,7 +143,7 @@ Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionCon
 Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
 Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionController::class, 'search_fees_collection_details'])->name('fees-collection.search-fees-collection-details');
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
-
+Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 
@@ -166,3 +166,4 @@ Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController:
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
 
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
+

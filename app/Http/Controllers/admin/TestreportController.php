@@ -1,17 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Test;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
-use App\Http\Requests\TestRequest;
 use Illuminate\Support\Facades\DB;
 
 class TestreportController extends Controller
