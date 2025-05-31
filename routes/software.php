@@ -27,7 +27,7 @@ use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\Master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
-use App\Http\Controllers\Admin\TestreportController;
+use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
