@@ -47,14 +47,14 @@ class FeesCollectionController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => "student_id ", 'name' => 'student_id', 'td_label' => 'Student Id '],
-                (object)['data' => "admission_id ", 'name' => 'admission_id', 'td_label' => 'Addmission Id '],
-                (object)['data' => "course_id", 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Id'],
+                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Addmission Id'],
+                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
                 (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => "course_fees", 'name' => 'course_fees', 'td_label' => 'Course Fees'],
-                (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode '],
+                (object)['data' => "fees", 'name' => 'fees', 'td_label' => 'Course Fees'],
+                (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
@@ -64,8 +64,9 @@ class FeesCollectionController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = FeesCollection::select('*');
+                $data = FeesCollection::select('*')->where('student_id', $request->search);
                 $data = $data->withTrashed();
+                $data = $data->with(['course']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
@@ -74,10 +75,10 @@ class FeesCollectionController extends Controller
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
-                        // if ($request->has('search')) {
-                        //     $query->where('course_name', 'like',"%".$request->search."%");
-                        //     $query->orWhere('course_fees', 'like',"%".$request->search."%");
-                        // }
+                        if ($request->has('search') && $request->search) {
+                            $query->where('student_id', $request->search);
+                            // $query->orWhere('course_fees', 'like',"%".$request->search."%");
+                        }
                     })
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';

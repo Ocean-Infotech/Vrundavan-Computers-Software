@@ -52,16 +52,11 @@
                     @method('PUT')
                 @endisset
 
-                @if (!isset($edit))
-
-                    <div class="row mb-3">
-                        <div class="col-md-4 mb-2">
-                            <div class="form-group">
-
-                                <input list="search" id="search_id" name="search"
-                                    class="form-control @error('search') is-invalid @enderror"
-                                value="{{ old('search', $edit->admission_id ?? $id ?? '') }}"
-                                    placeholder="Search">
+            @if(!isset($edit))
+            <div class="row mb-3">
+                <div class="col-md-4 mb-2">
+                    <div class="form-group">
+                        <input list="search" id="search_id" name="search" class="form-control @error('search') is-invalid @enderror" value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('search') }}" placeholder="Search">
 
                                 <datalist id="search" class="search_by_courceregistration"
                                     data-append="search_by_courceregistration"
@@ -196,7 +191,7 @@
                         {{-- Course Fees (Auto-filled) --}}
                         <div class="col-md-3 mb-3">
                             <label for="fees" class="form-label">
-                                Course Fees <span class="text-danger">*</span>
+                                Fees <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="fees" id="fees"
                                 class="form-control required @error('fees') is-invalid @enderror" placeholder="Course Fee"
@@ -376,34 +371,30 @@
                 } else {
                     $('#password_error').addClass('d-none');
 
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ route($route . '.check-master-password') }}",
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            password: password,
-                        },
-                        success: function(response) {
-                            if (response.status === 'true') {
-                                // Change button type to submit to allow form submit
-                                $('#openPasswordModal').attr('type', 'submit');
-                                // Remove id to prevent duplicate submission logic
-                                $('#openPasswordModal').removeAttr('id');
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route($route . '.check-master-password') }}",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        password: password,
+                    },
+                    success: function(response) {
 
-                                showMessage("Password Match", "success");
-                                $('#passwordModal').modal('hide');
-                            } else {
-                                $('#password_error').removeClass('d-none').text(
-                                    'Password does not match!');
-                                showMessage("Password does not match!", "error");
-                            }
-                        },
-                        error: function() {
-                            showMessage("Server error occurred", "error");
+                        if(response.status==='true'){
+                            $('#openPasswordModal').attr('type', 'submit');
+                            $('#openPasswordModal').removeAttr('id');
+                            showMessage("Password Match", "success");
+                            $('#passwordModal').modal('hide');
+                        }else{
+                            $('#password_error').removeClass('d-none');
+                            $('#password_error').text('Password do not match!');
+                            showMessage("Password do not match!", "error");
                         }
-                    });
-                }
-            });
+
+                    }
+                });
+            }
+        });
 
             // Hide FeesCollectionDetails initially
             $('#FeesCollectionDetails').hide();
@@ -454,14 +445,13 @@
                             $('#student_id').val(studentdetails.admission.id);
                             $('#admission_id').val(studentdetails.id);
 
-                            $('#course_id').val(studentdetails.course.course_name);
-                            $('#courseid').val(studentdetails.course.id);
+                                $('#course_id').val(studentdetails.course.course_name);
+                                $('#courseid').val(studentdetails.course.id);
 
-                            // $('#fees').val(studentdetails.fee);
+                                $('#fees').val(studentdetails.fee);
 
-                            var studentname = studentdetails.admission.first_name + ' ' + studentdetails
-                                .admission.father_name + ' ' + studentdetails.admission.last_name;
-                            $('#student_name').val(studentname);
+                                var studentname = studentdetails.admission.first_name + ' ' + studentdetails.admission.father_name + ' ' + studentdetails.admission.last_name;
+                                $('#student_name').val(studentname);
 
                             // Fill semester dropdown options dynamically
                             var semester_total = studentdetails.course.semester;

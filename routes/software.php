@@ -25,7 +25,7 @@ use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
-use App\Http\Controllers\admin\Master\MasterSemesterController;
+use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
@@ -100,6 +100,9 @@ Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::cl
 Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
 Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
 Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
+Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
+Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
+// Route::match(['get', 'post'], 'attedance-rollNoIn', [AttedanceController::class, 'rollNoIn'])->name('attedance.rollNoIn');
 
 /** Master Copuntry Modules */
 Route::resource('/country', MasterCountryController::class);

@@ -36,8 +36,31 @@
 
     <!-- @include('software.partials.flash_messages') -->
     <div class="row my-3">
+        <div class="col-12 mb-4" id="filter_section">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <!-- Filter Input -->
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Filter by Student</label>
+                            <input list="search" id="search_id" name="search" class="form-control search @error('search') is-invalid @enderror" value="{{ old('search') }}" placeholder="Search">
+                            <datalist id="search" class="search_by_admission" data-append="search_by_admission" data-selectedAdmissionId="{{ old('search') }}">
+                            </datalist>
+                        </div>
+                        
+                        <!-- Clear Filter Button -->
+                        <div class="col-md-2">
+                            <button type="button" title="Clear Filter" id="cilory_filter"
+                                class="btn btn-outline-danger mt-4">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-md-12">
-            <div class="card">
+            <div class="card" id="feescollectionlist">
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="yajra-datatables" class="display table table-hover">
@@ -84,10 +107,6 @@
         var dtable = null;
         $(document).ready(function() {
 
-            if ( $.fn.DataTable.isDataTable('#yajra-datatables') ) {
-            $('#yajra-datatables').DataTable().clear().destroy();
-        }
-
             dtable = $('#yajra-datatables').DataTable({
                 searching: true,
                 processing: true,
@@ -103,7 +122,7 @@
                     },
                     type: "GET",
                     data: function(data) {
-                        data.search = $('input[type="search"]').val();
+                        data.search = $('input[name="search"]').val();
                         // data.status = $('select[name="status"] option:selected').val();
                         // data.role = $('select[name="role"] option:selected').val();
                     },
@@ -111,21 +130,49 @@
                 columns: {!! json_encode($columns) !!},
                 language: {
                     searchPlaceholder: 'Search...',
+                    emptyTable: "No data available in table"
                 },
+                drawCallback: function(settings) {
+                    let api = this.api();
+                    let data = api.rows({
+                        page: 'current'
+                    }).data();
+                    let search_id = $('#search_id').val();
+                   
+                    if (data.length === 0 && (!search_id)) {
+                        $('#yajra-datatables tbody').html(`
+                            <tr class="odd">
+                                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                                    Please select <strong>Student</strong> to view records.
+                                </td>
+                            </tr>
+                        `);
+                    }
+                }
                 // dom:'lBfrtip',
                 // buttons: ["csv"],
             });
         });
+
+        // $('#feescollectionlist').hide();
         $('input[name="search"]').keyup(function() {
+            // $('#feescollectionlist').show();
             dtable.draw();
+            
         });
         jQuery(document).on('change', 'select', function(event) {
             event.preventDefault();
             dtable.draw();
         });
+
+        $("#cilory_filter").click(function() {
+            $('.search').val('');
+            // $('#feescollectionlist').hide();
+            dtable.draw();
+        });
     </script>
 
-
+    @include('software.utils.getAdmission')
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
     @include('software.includes.script-update-status')

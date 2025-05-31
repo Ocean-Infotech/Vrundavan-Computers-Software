@@ -5,11 +5,13 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
+use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class FeescollectionpendingController extends Controller
 {
@@ -41,10 +43,10 @@ class FeescollectionpendingController extends Controller
             // Define DataTable columns
             $columns = [
                 (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Student ID'],
-                (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
+                (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'contact_no', 'name' => 'contact_no', 'td_label' => 'Contact No'],
-                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
+                (object)['data' => 'course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
+                // (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'DOJ'],
                 (object)['data' => 'total_fee', 'name' => 'total_fee', 'td_label' => 'Total Fees'],
                 (object)['data' => 'paid_fee', 'name' => 'paid_fee', 'td_label' => 'Paid Fees'],
@@ -53,14 +55,31 @@ class FeescollectionpendingController extends Controller
             View::share("columns", $columns);
 
             if ($request->ajax()) {
-                $data = CourceRegistration::with(['course', 'admission', 'batch', 'class', 'shift'])
+                $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
+                    ->where('status', 'active')
+                    ->groupBy('register_id');
+
+                $data = CourceRegistration::whereIn('id', $sub)
+                    ->with(['course', 'admission', 'batch', 'class', 'shift', 'feescollection'])
                     ->withTrashed()
-                    ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+
+                $allRegistrations = CourceRegistration::with('course')
+                    ->whereIn('register_id', $data->pluck('register_id'))
+                    ->get()
+                    ->groupBy('register_id');
+
+                $feesCollection = FeesCollection::select('student_id', DB::raw('SUM(fees) as total_paid'))
+                    ->whereIn('student_id', $data->pluck('register_id'))
+                    ->groupBy('student_id')
+                    ->pluck('total_paid', 'student_id');
 
                 return Datatables::of($data)
                     ->addIndexColumn()
 
-                    // Combine student name
+                    // Student name
                     ->editColumn('student_name', function ($row) {
                         $first = $row->admission->first_name ?? '';
                         $father = $row->admission->father_name ?? '';
@@ -73,55 +92,43 @@ class FeescollectionpendingController extends Controller
                         return $row->admission->mobile_no ?? '-';
                     })
 
-                    // Course fee
-                    ->editColumn('fee', function ($row) {
-                        return '₹' . number_format($row->fee, 2);
+                    // Course Name and Fee
+                    ->editColumn('course_name', function ($row) use ($allRegistrations) {
+                        $registrations = $allRegistrations[$row->register_id] ?? collect();
+                        return $registrations->map(function ($item) {
+                            return $item->course->course_name . ' (' . number_format($item->fee, 2) . ')';
+                        })->implode('<br> ');
                     })
 
-                    // Format DOJ
-                    ->editColumn('date', function ($row) {
-                        return Carbon::parse($row->date)->format('d-m-Y');
+                    // Date of Joining
+                    ->editColumn('date', function ($row) use ($allRegistrations) {
+                        $registrations = $allRegistrations[$row->register_id] ?? collect();
+                        return $registrations->map(function ($item) {
+                            return Carbon::parse($item->date)->format('d-m-Y');
+                        })->implode('<br> ');
                     })
 
                     // Total Fee
-                    ->addColumn('total_fee', function ($row) {
-                        return '₹' . number_format($row->total_fee ?? $row->fee, 2);
+                    ->addColumn('total_fee', function ($row) use ($allRegistrations) {
+                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
+                        return '₹' . number_format($total_fee, 2);
                     })
 
                     // Paid Fee
-                    ->addColumn('paid_fee', function ($row) {
-                        return '₹' . number_format($row->paid_fee ?? 0, 2);
-                })
+                    ->addColumn('paid_fee', function ($row) use ($feesCollection) {
+                        $paid_fee = $feesCollection[$row->register_id] ?? 0;
+                        return '₹' . number_format($paid_fee, 2);
+                    })
 
                     // Pending Fee
-                    ->addColumn('pending_fee', function ($row) {
-                        $total = $row->total_fee ?? $row->fee;
-                        $paid = $row->paid_fee ?? 0;
-                        return '₹' . number_format($total - $paid, 2);
+                    ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
+                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
+                        $paid_fee = $feesCollection[$row->register_id] ?? 0;
+                        $pending = $total_fee - $paid_fee;
+                        return '₹' . number_format($pending, 2);
                     })
 
-                    // Action buttons
-                    ->addColumn('action', function ($row) use ($modules) {
-                        $editPermisstion = false;
-                        $deletePermisstion = false;
-
-                        $btn = '';
-
-                    if (!$row?->deleted_at) {
-                            if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($deletePermisstion) {
-                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
-                            }
-                        } else {
-                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-
-                    return $btn ?: '-';
-                    })
-
-                    ->rawColumns(['action'])
+                    ->rawColumns(['total_fee', 'course_name', 'date'])
                     ->make(true);
             }
 
