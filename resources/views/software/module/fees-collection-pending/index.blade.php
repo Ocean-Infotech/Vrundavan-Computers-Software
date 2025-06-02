@@ -26,16 +26,47 @@
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
             'show_add_btn' => false,
-            'show_filter_btn' => false,
-            'show_export_btns' => false,
-            'show_excal_btn' => false,
-            'show_print_btn' => false,
+            'show_filter_btn' => true,
+            'show_export_btns' => true,
+            'show_excal_btn' => true,
+            'show_print_btn' => true,
             'show_back_btn' => false,
         ])
     </div>
 
     <!-- @include('software.partials.flash_messages') -->
     <div class="row my-3">
+        <div class="col-md-12 mb-5" id="filter_section">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row" id="filter_section">
+                        <div class="col-md-4 mb-2 col-sm-12">
+                            <div class="form-group">
+                                <label for="student_filter">Filter by Student (ID, Name, Contact)</label>
+                                <input type="text" id="student_filter" name="student_filter"
+                                    class="form-control select_filter" placeholder="Enter student ID, name or contact">
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                            <div class="form-group">
+                                <label for="course_id">Filter by Course</label>
+                                <select id="course_id" name="course_id"
+                                    class="form-control search_by_expense_subcategory select2 select_filter"
+                                    data-append="search_by_expense_subcategory">
+                                    <option value="">Filter by Category</option>
+                                    @foreach ($courses as $course)
+                                        <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                                    @endforeach
+                                </select>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
@@ -64,14 +95,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
-    {{-- <script src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js') }}"></script>
-<script src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js') }}"></script>
-<script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js') }}"></script>
-<script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js') }}"></script>
-<script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js') }}"></script> --}}
 
-    {{-- <script src="{{ asset('admin/assets/js/pages/datatables.init.js') }}"></script> --}}
 @endsection
 
 @section('page_leavel_script')
@@ -83,50 +107,67 @@
         });
 
         var dtable = null;
+
         $(document).ready(function() {
+            $('.select2').select2();
+
+
 
             if ($.fn.DataTable.isDataTable('#yajra-datatables')) {
                 $('#yajra-datatables').DataTable().clear().destroy();
             }
 
             dtable = $('#yajra-datatables').DataTable({
-                searching: true,
                 processing: true,
                 serverSide: true,
+                searching: false,
+
                 order: [
                     [1, 'desc']
                 ],
                 ajax: {
-                    "url": "{{ route($route . '.index') }}",
-                    'beforeSend': function(request) {
-                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
-                            'content'));
-                    },
+                    url: "{{ route($route . '.index') }}",
                     type: "GET",
                     data: function(data) {
+                        data.student_filter = $('#student_filter').val();
+                        data.course_id = $('#course_id').val();
+                        data.single_date = $('#single_date').val();
                         data.search = $('input[type="search"]').val();
-                        // data.status = $('select[name="status"] option:selected').val();
-                        // data.role = $('select[name="role"] option:selected').val();
-                    },
+                    }
                 },
                 columns: {!! json_encode($columns) !!},
                 language: {
                     searchPlaceholder: 'Search...',
                 },
-                // dom:'lBfrtip',
-                // buttons: ["csv"],
+            });
+            $(document).ready(function() {
+                $('#filter_section').hide();
+                $("#show_filter").click(function() {
+
+                    if ($('#filter_section').is(':hidden')) {
+                        $('#filter_section').show();
+                    } else {
+                        $('#filter_section').hide();
+                    }
+                });
+
+                $("#cilory_filter").click(function() {
+                    $('.select_filter').val(null).trigger('change');
+                    $('.search').val('');
+                    dtable.draw();
+                });
+            });
+
+            $('.select_filter').on('change keyup', function() {
+                dtable.draw();
             });
         });
-        $('input[name="search"]').keyup(function() {
-            dtable.draw();
-        });
-        jQuery(document).on('change', 'select', function(event) {
-            event.preventDefault();
-            dtable.draw();
-        });
+
     </script>
 
 
+    @include('software.utils.getAdmission')
+    @include('software.utils.getCourse')
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
     @include('software.includes.script-update-status')
