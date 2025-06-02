@@ -11,13 +11,13 @@ $i = 0;
 
 @section('page_style_file')
 {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
-<!--datatable css-->
+<!-- DataTables CSS -->
 <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css') }}">
-<!--datatable responsive css-->
-<link rel="stylesheet"
-    href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
-
+<link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+
 @endsection
 
 @section('content')
@@ -40,7 +40,9 @@ $i = 0;
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="yajra-datatables" class="display table table-hover">
+                    <!-- <table id="yajra-datatables" class="dt-responsive table table-hover"> -->
+                    <!-- <table id="yajra-datatables" class="dt-responsive table table-hover" style="width:100%"> -->
+                    <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap" style="width: 100%;">
                         @if (isset($columns))
                         <thead>
                             <tr>
@@ -194,271 +196,266 @@ $i = 0;
 @endsection
 
 @section('page_script_file')
-<!--datatable js-->
+<!-- jQuery (required by DataTables) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables JS -->
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
-{{-- <script src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js') }}"></script>
-< src="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js') }}">
-    </script>
-    <script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('admin/assets/cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js') }}"></script> --}}
 
-    {{-- <script src="{{ asset('admin/assets/js/pages/datatables.init.js') }}"></script> --}}
-    @endsection
+<!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
-    @section('page_leavel_script')
-    <script type="text/javascript">
-        // Show student details modal
-        $(document).on('click', '.view-btn', function() {
-            let id = $(this).data('id');
+@endsection
 
-            $.ajax({
-                url: "{{ route($route . '.show') }}",
-                type: "GET",
-                data: {
-                    id: id
-                },
-                success: function(response) {
-                    if (response.success) {
-                        let data = response.student;
-                        if (data) {
-                            $('#modalID').text(data.id);
-                            if (data.date_of_birth) {
-                                let date = new Date(data.date_of_birth);
-                                let day = ('0' + date.getDate()).slice(-2);
-                                let month = ('0' + (date.getMonth() + 1)).slice(-2);
-                                let year = date.getFullYear();
-                                $('#modalDOB').text(`${day} ${month} ${year}`);
-                            } else {
-                                $('#modalDOB').text('-');
-                            }
-                            $('#modalTempAddress').text(data.temporary_address ?? '-');
-                            $('#modalPermAddress').text(data.permanent_address ?? '-');
-                            $('#modalSelfMobile').text(data.mobile_no ?? '-');
-                            $('#modalParentMobile').text(data.parent_mobile_no ?? '-');
-                            $('#modalAddMobile').text(data.other_mobile_no ?? '-');
-                            $('#modalWhatsappMobile').text(data.whatsapp_no ?? '-');
-                            $('#modalEmail').text(data.email_address ?? '-');
-                            $('#modalCast').text(data.cast ?? '-');
-                            $('#modalOccupation').text(data.occupation ?? '-');
-                            $('#modalCategory').text(data.category ?? '-');
-                            $('#modalGender').text(data.gender ?? '-');
-                            $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#infoModal').modal('show');
+@section('page_leavel_script')
+<script type="text/javascript">
+    // Show student details modal
+    $(document).on('click', '.view-btn', function() {
+        let id = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route($route . '.show') }}",
+            type: "GET",
+            data: {
+                id: id
+            },
+            success: function(response) {
+                if (response.success) {
+                    let data = response.student;
+                    if (data) {
+                        $('#modalID').text(data.id);
+                        if (data.date_of_birth) {
+                            let date = new Date(data.date_of_birth);
+                            let day = ('0' + date.getDate()).slice(-2);
+                            let month = ('0' + (date.getMonth() + 1)).slice(-2);
+                            let year = date.getFullYear();
+                            $('#modalDOB').text(`${day} ${month} ${year}`);
                         } else {
-                            toastr.error('Student data not found');
+                            $('#modalDOB').text('-');
                         }
+                        $('#modalTempAddress').text(data.temporary_address ?? '-');
+                        $('#modalPermAddress').text(data.permanent_address ?? '-');
+                        $('#modalSelfMobile').text(data.mobile_no ?? '-');
+                        $('#modalParentMobile').text(data.parent_mobile_no ?? '-');
+                        $('#modalAddMobile').text(data.other_mobile_no ?? '-');
+                        $('#modalWhatsappMobile').text(data.whatsapp_no ?? '-');
+                        $('#modalEmail').text(data.email_address ?? '-');
+                        $('#modalCast').text(data.cast ?? '-');
+                        $('#modalOccupation').text(data.occupation ?? '-');
+                        $('#modalCategory').text(data.category ?? '-');
+                        $('#modalGender').text(data.gender ?? '-');
+                        $('#modalAadhar').text(data.aadhar_card_no ?? '-');
+                        $('#infoModal').modal('show');
                     } else {
-                        toastr.error(response.message || 'Student not found');
+                        toastr.error('Student data not found');
                     }
-                },
-                error: function(err) {
-                    console.error(err);
-                    toastr.error('Error fetching student info');
+                } else {
+                    toastr.error(response.message || 'Student not found');
                 }
-            });
+            },
+            error: function(err) {
+                console.error(err);
+                toastr.error('Error fetching student info');
+            }
         });
+    });
 
-        // Show course details modal
-        $(document).on('click', '.course-btn', function() {
-            let id = $(this).data('id');
+    // Show course details modal
+    $(document).on('click', '.course-btn', function() {
+        let id = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route($route . '.show') }}",
+            type: "GET",
+            data: {
+                id: id
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.success) {
+                    let course = response.course;
+                    let data = response.student;
+                    let master = response.masterCours;
+                    if (course) {
+                        $('#modalName').text(data.first_name);
+                        $('#id').text(course.id);
+                        $('#course_id').text(course.course.course_name);
+                        $('#date').text(course.date);
+                        $('#doc').text(course.date);
+                        $('#fee').text(course.fee);
+
+                        $('#createBtn').attr('data-id', course.id);
+
+                        $('#updateBtn').attr('data-register_id', course.register_id);
+                        $('#updateBtn').attr('data-course_id', course.course_id);
+                        $('#course').modal('show');
+                    } else {
+                        toastr.error('Course data not found');
+                    }
+                } else {
+                    toastr.error(response.message || 'Student not found');
+                }
+            },
+            error: function(err) {
+                console.error(err);
+                toastr.error('Error fetching course info');
+            }
+        });
+    });
+
+    // Setup CSRF token for AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    var dtable = null;
+    $(document).ready(function() {
+        dtable = $('#yajra-datatables').DataTable({
+            searching: true,
+            processing: true,
+            serverSide: true,
+            order: [
+                [1, 'desc']
+            ],
+            ajax: {
+                url: "{{ route($route . '.index') }}",
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
+                },
+                type: "GET",
+                data: function(data) {
+                    data.search = $('input[type="search"]').val();
+                },
+            },
+            columns: {!!json_encode($columns) !!},
+            language: {
+                searchPlaceholder: 'Search...'
+            },
+            // dom:'lBfrtip',
+            // buttons: ["csv"],
+        });
+    });
+
+    // Redraw DataTable on search input keyup
+    $('input[name="search"]').keyup(function() {
+        dtable.draw();
+    });
+
+    // Redraw DataTable on select change
+    $(document).on('change', 'select', function(event) {
+        event.preventDefault();
+        dtable.draw();
+    });
+
+    // Handle Google Drive folder open/create button click
+    $(document).on('click', '.open_google_drive_folder', function() {
+        var id = $(this).data('id');
+        var folderName = $(this).data('foldername');
+        var folderUrl = $(this).data('folderurl');
+        var button = $(this);
+
+        if (folderUrl) {
+            window.open(folderUrl, '_blank');
+        } else {
+            $('#yajra-datatables_processing').css('font-weight', 'bold').show();
 
             $.ajax({
-                url: "{{ route($route . '.show') }}",
-                type: "GET",
+                url: "{{ route($route . '.create-google-drive-folder') }}",
+                type: 'POST',
                 data: {
-                    id: id
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    foldername: folderName,
                 },
                 success: function(response) {
                     console.log(response);
-                    if (response.success) {
-                        let course = response.course;
-                        let data = response.student;
-                        let master = response.masterCours;
-                        if (course) {
-                            $('#modalName').text(data.first_name);
-                            $('#id').text(course.id);
-                            $('#course_id').text(course.course.course_name);
-                            $('#date').text(course.date);
-                            $('#doc').text(course.date);
-                            $('#fee').text(course.fee);
-
-                            $('#createBtn').attr('data-id', course.id);
-
-                            $('#updateBtn').attr('data-register_id', course.register_id);
-                            $('#updateBtn').attr('data-course_id', course.course_id);
-                            $('#course').modal('show');
-                        } else {
-                            toastr.error('Course data not found');
-                        }
+                    if (response.folder_url) {
+                        button.attr('data-folderurl', response.folder_url);
+                        toastr.success('Google Drive folder created successfully.');
+                        window.open(response.folder_url, '_blank');
                     } else {
-                        toastr.error(response.message || 'Student not found');
+                        toastr.success('Google Drive folder created successfully.');
                     }
+                    $('#yajra-datatables').DataTable().ajax.reload(null, false);
                 },
-                error: function(err) {
-                    console.error(err);
-                    toastr.error('Error fetching course info');
+                error: function(error) {
+                    console.error(error);
+                    toastr.error('Error creating Google Drive folder.');
+                },
+                complete: function() {
+                    $('#yajra-datatables_processing').hide();
                 }
             });
-        });
+        }
+    });
 
-        // Setup CSRF token for AJAX
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    $(document).on('click', '#createBtn', function() {
+        let admId = $(this).data('id');
+        window.location.href = '/software/fees-collection/get-details/' + admId;
+    });
+    $('#updateBtn').on('click', function() {
+        $('#course').hide();
+        $('#updateModal').modal('show');
+        let register_id = $(this).data('register_id');
+        let course_id = $(this).data('course_id');
+
+        $.ajax({
+            url: "{{ route($route . '.course-fees-get') }}",
+            method: 'GET',
+            data: {
+                register_id: register_id,
+                course_id: course_id
+            },
+            success: function(response) {
+                $('#updateCourseName').val(response.course_name);
+                $('#updateFees').val(response.fee);
+                $('#updateCourseId').val(course_id);
+                $('#updateRegisterId').val(register_id);
+            },
+            error: function() {
+                alert('Error fetching course details.');
             }
         });
+    });
 
-        var dtable = null;
-        $(document).ready(function() {
-            dtable = $('#yajra-datatables').DataTable({
-                searching: true,
-                processing: true,
-                serverSide: true,
-                order: [
-                    [1, 'desc']
-                ],
-                ajax: {
-                    url: "{{ route($route . '.index') }}",
-                    beforeSend: function(request) {
-                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
-                    },
-                    type: "GET",
-                    data: function(data) {
-                        data.search = $('input[type="search"]').val();
-                        // You can add filters here:
-                        // data.status = $('select[name="status"]').val();
-                        // data.role = $('select[name="role"]').val();
-                    },
-                },
-                columns: {!!json_encode($columns) !!},
-                language: {
-                    searchPlaceholder: 'Search...'
-                },
-                // dom:'lBfrtip',
-                // buttons: ["csv"],
-            });
-        });
+    $(document).ready(function() {
+        $('#updateForm').on('submit', function(e) {
+            e.preventDefault();
 
-        // Redraw DataTable on search input keyup
-        $('input[name="search"]').keyup(function() {
-            dtable.draw();
-        });
-
-        // Redraw DataTable on select change
-        $(document).on('change', 'select', function(event) {
-            event.preventDefault();
-            dtable.draw();
-        });
-
-        // Handle Google Drive folder open/create button click
-        $(document).on('click', '.open_google_drive_folder', function() {
-            var id = $(this).data('id');
-            var folderName = $(this).data('foldername');
-            var folderUrl = $(this).data('folderurl');
-            var button = $(this);
-
-            if (folderUrl) {
-                window.open(folderUrl, '_blank');
-            } else {
-                $('#yajra-datatables_processing').css('font-weight', 'bold').show();
-
-                $.ajax({
-                    url: "{{ route($route . '.create-google-drive-folder') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id,
-                        foldername: folderName,
-                    },
-                    success: function(response) {
-                        console.log(response);
-                        if (response.folder_url) {
-                            button.attr('data-folderurl', response.folder_url);
-                            toastr.success('Google Drive folder created successfully.');
-                            window.open(response.folder_url, '_blank');
-                        } else {
-                            toastr.success('Google Drive folder created successfully.');
-                        }
-                        $('#yajra-datatables').DataTable().ajax.reload(null, false);
-                    },
-                    error: function(error) {
-                        console.error(error);
-                        toastr.error('Error creating Google Drive folder.');
-                    },
-                    complete: function() {
-                        $('#yajra-datatables_processing').hide();
-                    }
-                });
-            }
-        });
-
-        $(document).on('click', '#createBtn', function() {
-            let admId = $(this).data('id');
-            window.location.href = '/software/fees-collection/get-details/' + admId;
-        });
-        $('#updateBtn').on('click', function() {
-            $('#course').hide();
-            $('#updateModal').modal('show');
-            let register_id = $(this).data('register_id');
-            let course_id = $(this).data('course_id');
+            var registerId = $('#updateRegisterId').val();
+            var courseId = $('#updateCourseId').val();
+            var fees = $('#updateFees').val();
 
             $.ajax({
-                url: "{{ route($route . '.course-fees-get') }}",
-                method: 'GET',
+                url: "{{ route($route . '.course-fees-update') }}",
+                type: 'POST',
                 data: {
-                    register_id: register_id,
-                    course_id: course_id
+                    _token: '{{ csrf_token() }}',
+                    register_id: registerId,
+                    course_id: courseId,
+                    fee: fees
                 },
                 success: function(response) {
-                    $('#updateCourseName').val(response.course_name);
-                    $('#updateFees').val(response.fee);
-                    $('#updateCourseId').val(course_id);
-                    $('#updateRegisterId').val(register_id);
+                    $('#updateForm')[0].reset();
+                    $('#updateModal').modal('hide');
+                    $('.modal-backdrop').hide();
+                    toastr.success(response.message);
                 },
-                error: function() {
-                    alert('Error fetching course details.');
+                error: function(xhr) {
+                    alert('Error updating fee.');
                 }
             });
         });
-
-        $(document).ready(function() {
-            $('#updateForm').on('submit', function(e) {
-                e.preventDefault();
-
-                var registerId = $('#updateRegisterId').val();
-                var courseId = $('#updateCourseId').val();
-                var fees = $('#updateFees').val();
-
-                $.ajax({
-                    url: "{{ route($route . '.course-fees-update') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        register_id: registerId,
-                        course_id: courseId,
-                        fee: fees
-                    },
-                    success: function(response) {
-                        $('#updateForm')[0].reset();
-                        $('#updateModal').modal('hide');
-                        $('.modal-backdrop').hide();
-                        toastr.success(response.message);
-                    },
-                    error: function(xhr) {
-                        alert('Error updating fee.');
-                    }
-                });
-            });
-        });
-    </script>
+    });
+</script>
 
 
 
-    @include('software.includes.script-delete-record')
-    @include('software.includes.script-restore-record')
-    @include('software.includes.script-update-status')
-    @endsection
+@include('software.includes.script-delete-record')
+@include('software.includes.script-restore-record')
+@include('software.includes.script-update-status')
+@endsection
