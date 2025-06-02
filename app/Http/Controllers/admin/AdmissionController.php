@@ -559,20 +559,36 @@ class AdmissionController extends Controller
         return response()->json([]);
     }
 
-    // public function getAdmissionDetails($id)
-    // {
-    //     $admission = Admission::with('courceRegistration')->find($id);
+    public function courseFeesGet(Request $request)
+    {
+        $data = CourceRegistration::join('master_course', 'cource_registration.course_id', '=', 'master_course.id')
+            ->where('cource_registration.register_id', $request->register_id)
+            ->where('cource_registration.course_id', $request->course_id)
+            ->select('master_course.course_name as course_name', 'cource_registration.fee')
+            ->first();
 
-    //     if ($admission) {
-    //         return response()->json([
-    //             'first_name' => $admission->first_name,
-    //             'last_name'  => $admission->last_name,
-    //             'course_id'  => optional($admission->courceRegistration)->course_id,
-    //             'date'       => optional($admission->courceRegistration)->date,
-    //         ]);
-    //     }
+        return response()->json($data);
+    }
 
-    //     return response()->json(['error' => 'Admission not found'], 404);
-    // }
+    public function courseFeesUpdate(Request $request)
+    {
+        $request->validate([
+            'register_id' => 'required|integer',
+            'course_id' => 'required|integer',
+            'fee' => 'required|numeric'
+        ]);
 
+        $registration = CourceRegistration::where('register_id', $request->register_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+
+        if ($registration) {
+            $registration->fee = $request->fee;
+            $registration->save();
+
+            return response()->json(['message' => 'Course Fee Updated successfully.']);
+        } else {
+            return response()->json(['message' => 'Record not found.'], 404);
+        }
+    }
 }

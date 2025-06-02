@@ -69,6 +69,9 @@ Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmiss
 Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
 Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
 
+Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
+Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
