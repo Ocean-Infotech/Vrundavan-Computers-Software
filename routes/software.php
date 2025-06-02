@@ -69,6 +69,9 @@ Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmiss
 Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
 Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
 
+Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
+Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
@@ -104,6 +107,7 @@ Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceControl
 Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
+
 // Route::match(['get', 'post'], 'attedance-rollNoIn', [AttedanceController::class, 'rollNoIn'])->name('attedance.rollNoIn');
 
 /** Master Copuntry Modules */
