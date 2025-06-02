@@ -15,20 +15,20 @@ $i = 0;
 
 
 @section('content')
-    <div class="d-flex justify-content-lg-between px-1">
-        @include('software.includes.breadcrumb', [
-            'breadcrumbArray' => [
-                ['title' => $page_title, 'url' => route($route . '.index')],
-                [
-                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
-                    'url' => '',
-                ],
-            ],
-            'route' => $route,
-            'show_add_btn' => false,
-            'show_back_btn' => true,
-        ])
-    </div>
+<div class="d-flex justify-content-lg-between px-1">
+    @include('software.includes.breadcrumb', [
+    'breadcrumbArray' => [
+    ['title' => $page_title, 'url' => route($route . '.index')],
+    [
+    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
+    'url' => '',
+    ],
+    ],
+    'route' => $route,
+    'show_add_btn' => false,
+    'show_back_btn' => true,
+    ])
+</div>
 
 
 
@@ -343,17 +343,17 @@ $i = 0;
                 <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
                     <div class="form-group">
                         <label class="form-label"> </label>
-                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a> 
+                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a>
                     </div>
                 </div>
 
-                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col" >
+                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
                     <div class="form-group">
                         <label class="form-label">Google Drive Folder URL </label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly/>
-                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}"/>
-                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}"/>
+                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly />
+                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
+                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
                             <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i class="icon-base bx bx-copy-alt"></i></span>
                         </div>
                     </div>
@@ -397,25 +397,25 @@ $i = 0;
                         </thead>
                         <tbody>
                             @if (isset($education))
-                                @foreach ($education as $educationdetail)
-                                <tr>
-                                    <td>
-                                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
-                                        <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
-                                    </td>
-                                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
-                                    <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
-                                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
+                            @foreach ($education as $educationdetail)
+                            <tr>
+                                <td>
+                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
+                                    <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
+                                </td>
+                                <td>
+                                    <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
+                                </td>
+                                <td>
+                                    <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
+                                </td>
+                                <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
+                                <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
+                                <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
 
-                                    <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
-                                </tr>
-                                @endforeach
+                                <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                            @endforeach
                             @endif
 
                         </tbody>
@@ -437,66 +437,148 @@ $i = 0;
 
 @endsection
 
+@section('page_script_file')
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+@endsection
 
 @section('page_leavel_script')
 
 <script>
-        $(document).ready(function() {
-            
-
-            
-            $('#mobile_no').on('keyup', function() {
-                whatsapp_no
-                var mobile_no = $(this).val();
-                var whatsapp_no = $('#whatsapp_no').val(mobile_no);
-            });
-
-            $('.remove_row').on('click', function() {
-                $(this).closest('tr').remove();
-                var education_id = $(this).data('education_id');
-
+    $(function() {
+        $("#aadhar_card_no").autocomplete({
+            source: function(request, response) {
                 $.ajax({
-                    url: "{{ route($route .'.education-detail-delete') }}",
-                    type: 'POST',
+                    url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
                     data: {
-                        _token: '{{ csrf_token() }}',
-                        id: education_id,
+                        term: request.term
                     },
-                    success: function(response) {
-                        console.log(response);
-                    },
-                    error: function(error) {
-                        console.log(error);
+                    success: function(data) {
+                        response(data);
                     }
                 });
-            });
+            },
+            minLength: 3,
+            select: function(event, ui) {
+                // Auto-fill other fields
+                $.ajax({
+                    url: "{{ route($route . '.aadhar-card-no-to-data') }}",
+                    data: {
+                        aadhar: ui.item.value
+                    },
+                    success: function(data) {
+                        // Fill user fields
+                        $('#first_name').val(data.user.first_name);
+                        $('#last_name').val(data.user.last_name);
+                        $('#father_name').val(data.user.father_name);
+                        $('#mother_name').val(data.user.mother_name);
+                        $('#mobile_no').val(data.user.mobile_no);
+                        $('#email_address').val(data.user.email);
+                        $('#date_of_birth').val(data.user.date_of_birth);
+                        // $('#gender_' + data.user.gender.toLowerCase()).prop('checked', true);
+                        // $('#category_' + data.user.category.toLowerCase()).prop('checked', true);
+                        $("input[name='gender'][value='" + data.user.gender + "']").prop("checked", true);
+                        $("input[name='category'][value='" + data.user.category + "']").prop("checked", true);
+                        $('#temporary_address').val(data.user.temporary_address);
+                        $('#permanent_address').val(data.user.permanent_address);
+                        $('#parent_mobile_no').val(data.user.parent_mobile_no);
+                        $('#other_mobile_no').val(data.user.other_mobile_no);
+                        $('#whatsapp_no').val(data.user.whatsapp_no);
+                        $('#cast').val(data.user.cast);
+                        $('#occupation').val(data.user.occupation);
+                        $('#enrolment_no').val(data.user.enrolment_no);
+                        $('#spid').val(data.user.spid);
+                        $('#apaar_id_abc_id').val(data.user.apaari_id_abc_id);
 
-            
-            $('#education').on('change', function () {
+                        // Clear existing education rows
+                        $('#education_details_table tbody').empty();
+
+                        // Fill education details
+                        data.education_details.forEach(function(item) {
+                            $('#education_details_table tbody').append(`
+                            <tr>
+                                <td>
+                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education}" readonly>
+                                    <input type="hidden" name="education_id[]" value="${item.id}">
+                                </td>
+                                <td>
+                                    <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="${item.percentage_cgpa}" autocapitalize="off">
+                                </td>
+                                <td>
+                                    <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="${item.seat_no_nrollment_no}" autocapitalize="off">
+                                </td>
+                                <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="${item.board_university}" autocapitalize="off"></td>
+                                <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="${item.passing_year}" autocapitalize="off"></td>
+                                <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="${item.school_name_college_name}" autocapitalize="off"></td>
+
+                                <td><button data-education_id="${item.id}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                        `);
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
 
 
-                let selectededucationId = $(this).val();
-                let selectededucationText = $(this).find("option:selected").text();
 
-                if (!selectededucationId) return;
-                let tableBody = $('#education_details_table tbody');
+        $('#mobile_no').on('keyup', function() {
+            whatsapp_no
+            var mobile_no = $(this).val();
+            var whatsapp_no = $('#whatsapp_no').val(mobile_no);
+        });
 
-                let isVariantAlreadyAdded = tableBody.find('input[name="education[]"]').filter(function () {
-                    return $(this).val() === selectededucationText;
-                }).length > 0;
+        $('.remove_row').on('click', function() {
+            $(this).closest('tr').remove();
+            var education_id = $(this).data('education_id');
 
-                if (isVariantAlreadyAdded) {
-                    toastr.error('This '+selectededucationText+' is already added.');
-                    $('#education').val('').trigger('change');
-                    return;
+            $.ajax({
+                url: "{{ route($route .'.education-detail-delete') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: education_id,
+                },
+                success: function(response) {
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.log(error);
                 }
+            });
+        });
 
 
-                let index = $('table tbody tr').length;
-                let newRow = $('<tr>');
-                newRow.html(`
+        $('#education').on('change', function() {
+
+
+            let selectededucationId = $(this).val();
+            let selectededucationText = $(this).find("option:selected").text();
+
+            if (!selectededucationId) return;
+            let tableBody = $('#education_details_table tbody');
+
+            let isVariantAlreadyAdded = tableBody.find('input[name="education[]"]').filter(function() {
+                return $(this).val() === selectededucationText;
+            }).length > 0;
+
+            if (isVariantAlreadyAdded) {
+                toastr.error('This ' + selectededucationText + ' is already added.');
+                $('#education').val('').trigger('change');
+                return;
+            }
+
+
+            let index = $('table tbody tr').length;
+            let newRow = $('<tr>');
+            newRow.html(`
                     <td>
-                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="`+selectededucationText+`" readonly>
+                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="` + selectededucationText + `" readonly>
                         <input type="hidden" name="education_id[]" value="">
                     </td>
                     <td>
@@ -512,92 +594,92 @@ $i = 0;
                     <td><button type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                 `);
 
-                tableBody.append(newRow);
-                newRow.find('.remove_row').on('click', function () {
-                    newRow.remove();
-                });
-
-                $('#education').val('').trigger('change');
+            tableBody.append(newRow);
+            newRow.find('.remove_row').on('click', function() {
+                newRow.remove();
             });
+
+            $('#education').val('').trigger('change');
         });
+    });
 
-        function showMessage(message, type) {
-            toastr[type](message);
+    function showMessage(message, type) {
+        toastr[type](message);
+    }
+</script>
+@if (isset($edit))
+<script>
+    // $('#google_drive_rename_folder_url_col').hide();
+    $('.google_drive_rename_folder').on('click', function() {
+        var first_name = $('#first_name').val();
+        var father_name = $('#father_name').val();
+        var last_name = $('#last_name').val();
+
+        let isValid = true;
+
+        if (!first_name) {
+            isValid = false;
+            showMessage("First Name is required", "error");
         }
-    </script>
-    @if (isset($edit))
-        <script>
-            // $('#google_drive_rename_folder_url_col').hide();
-            $('.google_drive_rename_folder').on('click', function() {
-                var first_name = $('#first_name').val();
-                var father_name = $('#father_name').val();
-                var last_name = $('#last_name').val();
 
-                let isValid = true;
+        if (!father_name) {
+            isValid = false;
+            showMessage("Father Name is required", "error");
+        }
 
-                if(!first_name){
-                    isValid = false;
-                    showMessage("First Name is required", "error");
-                }
+        if (!last_name) {
+            isValid = false;
+            showMessage("Last Name is required", "error");
+        }
 
-                if(!father_name){
-                    isValid = false;
-                    showMessage("Father Name is required", "error");
-                }
-
-                if(!last_name){
-                    isValid = false;
-                    showMessage("Last Name is required", "error");
-                }
-
-                var id = '{{ $edit?->id }}';
-                var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
-                var OldfolderName = '{{ $edit?->gdrivefoldername }}';
-                var OldfolderId = '{{ $edit?->gdrivefolderid }}';
-                if (isValid) {  
-                    $.ajax({
-                        url: "{{ route($route . '.google-drive-rename-folder') }}",
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            id:id,
-                            foldername: folderName,
-                            OldfolderName: OldfolderName,
-                            OldfolderId: OldfolderId,
-                        },
-                        success: function(response) {
-                            console.log(response.folder_id);
-                            console.log(response.folder_url);
-                            $('#GoogleDriveFolderUrl').val(response.folder_url);
-                            $('#GoogleDriveFolderId').val(response.folder_id);
-                            $('#GoogleDriveFolderName').val(response.folder_name);
-                            $('#google_drive_rename_folder_col').hide();
-                            $('#google_drive_rename_folder_url_col').show();
-                        },
-                        error: function(error) {
-                            console.log(error);
-                        }
-                    });
+        var id = '{{ $edit?->id }}';
+        var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
+        var OldfolderName = '{{ $edit?->gdrivefoldername }}';
+        var OldfolderId = '{{ $edit?->gdrivefolderid }}';
+        if (isValid) {
+            $.ajax({
+                url: "{{ route($route . '.google-drive-rename-folder') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    foldername: folderName,
+                    OldfolderName: OldfolderName,
+                    OldfolderId: OldfolderId,
+                },
+                success: function(response) {
+                    console.log(response.folder_id);
+                    console.log(response.folder_url);
+                    $('#GoogleDriveFolderUrl').val(response.folder_url);
+                    $('#GoogleDriveFolderId').val(response.folder_id);
+                    $('#GoogleDriveFolderName').val(response.folder_name);
+                    $('#google_drive_rename_folder_col').hide();
+                    $('#google_drive_rename_folder_url_col').show();
+                },
+                error: function(error) {
+                    console.log(error);
                 }
             });
+        }
+    });
 
-            $('#GoogleDriveFolderUrlCopy').on('click', function() {
-                var url = $('#GoogleDriveFolderUrl').val();
+    $('#GoogleDriveFolderUrlCopy').on('click', function() {
+        var url = $('#GoogleDriveFolderUrl').val();
 
-                if (url) {
-                    navigator.clipboard.writeText(url).then(function() {
-                        console.log('URL copied to clipboard:', url);
+        if (url) {
+            navigator.clipboard.writeText(url).then(function() {
+                console.log('URL copied to clipboard:', url);
 
-                        // Optional: Feedback (e.g., temporary text/icon change)
-                        $('#GoogleDriveFolderUrlCopy i').removeClass('bx-copy-alt').addClass('bx-check');
-                        setTimeout(function() {
-                            $('#GoogleDriveFolderUrlCopy i').removeClass('bx-check').addClass('bx-copy-alt');
-                        }, 1500);
-                    }).catch(function(err) {
-                        console.error('Failed to copy URL:', err);
-                    });
-                }
+                // Optional: Feedback (e.g., temporary text/icon change)
+                $('#GoogleDriveFolderUrlCopy i').removeClass('bx-copy-alt').addClass('bx-check');
+                setTimeout(function() {
+                    $('#GoogleDriveFolderUrlCopy i').removeClass('bx-check').addClass('bx-copy-alt');
+                }, 1500);
+            }).catch(function(err) {
+                console.error('Failed to copy URL:', err);
             });
-        </script>
-    @endif
+        }
+    });
+</script>
+@endif
 @endsection
