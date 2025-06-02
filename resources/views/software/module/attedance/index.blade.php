@@ -251,6 +251,8 @@ $i = 0;
             $('#filter_section').toggle();
         });
     });
+
+    
 </script>
 
 

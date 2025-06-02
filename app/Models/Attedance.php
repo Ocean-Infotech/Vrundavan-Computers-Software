@@ -40,4 +40,5 @@ class Attedance extends Model
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
     }
+    
 }
