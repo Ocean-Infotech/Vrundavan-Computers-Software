@@ -28,7 +28,7 @@
             // 'show_add_btn' => $modules['addPermission'],
             'show_add_btn' => false,
             'show_filter_btn' => false,
-            'show_back_btn' => true,
+            'show_back_btn' => false,
         ])
     </div>
 @endsection
