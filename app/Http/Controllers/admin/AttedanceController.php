@@ -136,6 +136,7 @@ class AttedanceController extends Controller
             $columns = [
                 (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
                 (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
+                
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
