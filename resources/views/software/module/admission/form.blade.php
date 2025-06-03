@@ -1,501 +1,606 @@
 @extends('software.layout.app')
 
 @php
-$page_title = isset($modules['title']) ? $modules['title'] : null;
-$folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
-$route = isset($modules['route']) ? $modules['route'] : null;
-$permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
-$i = 0;
+    $page_title = isset($modules['title']) ? $modules['title'] : null;
+    $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
+    $route = isset($modules['route']) ? $modules['route'] : null;
+    $permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
+    $i = 0;
 @endphp
 @section('title', $page_title)
 
 @section('page_style_file')
-{{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
+    {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
 @endsection
 
 
 @section('content')
-<div class="d-flex justify-content-lg-between px-1">
-    @include('software.includes.breadcrumb', [
-    'breadcrumbArray' => [
-    ['title' => $page_title, 'url' => route($route . '.index')],
-    [
-    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
-    'url' => '',
-    ],
-    ],
-    'route' => $route,
-    'show_add_btn' => false,
-    'show_back_btn' => true,
-    ])
-</div>
-
-
-
-<div class="card shadow my-3">
-    <div class="card-header d-none">
-        <h2 class="mb-0">
-            {{ $page_title }}
-        </h2>
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [
+                ['title' => $page_title, 'url' => route($route . '.index')],
+                [
+                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
+                    'url' => '',
+                ],
+            ],
+            'route' => $route,
+            'show_add_btn' => false,
+            'show_back_btn' => true,
+        ])
     </div>
-    <div class="card-body my-4">
-        <form
-            action="{{ isset($edit) && $edit?->id ? route($route . '.update', [$edit?->id]) : route($route . '.store') }}"
-            method="POST" enctype="multipart/form-data">
-            @csrf
-            @isset($edit)
-            @method('PUT')
-            @endisset
-            <div class="row">
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
-                        <input id="aadhar_card_no" type="text" class="form-control @error('aadhar_card_no') is-invalid @enderror num_only" minlength="12" maxlength="12"
-                            name="aadhar_card_no" value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                            autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No." autocapitalize="off">
-
-                        @error('aadhar_card_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> First Name <span class="text-danger">*</span> </label>
-                        <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" autocapitalize="off" value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}" placeholder="Enter First Name">
-
-                        @error('first_name')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
 
 
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
-                        <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror " name="last_name" autocapitalize="off" value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}" placeholder="Enter Last Name">
 
-                        @error('last_name')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
+    <div class="card shadow my-3">
+        <div class="card-header d-none">
+            <h2 class="mb-0">
+                {{ $page_title }}
+            </h2>
+        </div>
+        <div class="card-body my-4">
+            <form
+                action="{{ isset($edit) && $edit?->id ? route($route . '.update', [$edit?->id]) : route($route . '.store') }}"
+                method="POST" enctype="multipart/form-data">
+                @csrf
+                @isset($edit)
+                    @method('PUT')
+                @endisset
+                <div class="row">
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
+                            <input id="aadhar_card_no" type="text"
+                                class="form-control @error('aadhar_card_no') is-invalid @enderror num_only" minlength="12"
+                                maxlength="12" name="aadhar_card_no"
+                                value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
+                                autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No."
+                                autocapitalize="off">
 
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
-                        <input id="father_name" type="text" class="form-control @error('father_name') is-invalid @enderror " name="father_name" autocapitalize="off" value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}" placeholder="Enter Father Name">
-
-                        @error('father_name')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
-                        <input id="mother_name" type="text" class="form-control @error('mother_name') is-invalid @enderror " name="mother_name" autocapitalize="off" value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}" placeholder="Enter Mother Name">
-
-                        @error('mother_name')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Temporary Address <span class="text-danger">*</span> </label>
-                        <textarea rows="1" id="temporary_address" type="text" class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address" placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
-                        @error('temporary_address')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Permanent Address <span class="text-danger">*</span> </label>
-                        <textarea rows="1" id="permanent_address" type="text" class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address" placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
-                        @error('permanent_address')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Mobile No. <span class="text-danger">*</span> </label>
-                        <input id="mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('mobile_no') is-invalid @enderror num_only" name="mobile_no" autocapitalize="off" value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}" placeholder="Enter Mobile No.">
-
-                        @error('mobile_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Parent Mobile No. </label>
-                        <input id="parent_mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('parent_mobile_no') is-invalid @enderror num_only" name="parent_mobile_no" autocapitalize="off" value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}" placeholder="Enter Parent Mobile No.">
-
-                        @error('parent_mobile_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Other Mobile No. </label>
-                        <input id="other_mobile_no" type="text" minlength="10" maxlength="10" class="form-control @error('other_mobile_no') is-invalid @enderror num_only" name="other_mobile_no" autocapitalize="off" value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}" placeholder="Enter Other Mobile No.">
-
-                        @error('other_mobile_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Whatsapp No. </label>
-                        <input id="whatsapp_no" type="text" minlength="10" maxlength="10" class="form-control @error('whatsapp_no') is-invalid @enderror num_only" name="whatsapp_no" autocapitalize="off" value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}" placeholder="Enter Whatsapp No.">
-
-                        @error('whatsapp_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Cast </label>
-                        <input id="cast" type="text" class="form-control @error('cast') is-invalid @enderror " name="cast" autocapitalize="off" value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}" placeholder="Enter Cast">
-
-                        @error('cast')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Occupation </label>
-                        <input id="occupation" type="text" class="form-control @error('occupation') is-invalid @enderror " name="occupation" autocapitalize="off" value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}" placeholder="Enter Occupation">
-
-                        @error('occupation')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
-                        <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth" autocapitalize="off" max="{{ date('Y-m-d') }}" value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}" placeholder="Enter Date of Birth">
-
-                        @error('date_of_birth')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Email Address <span class="text-danger">*</span> </label>
-                        <input id="email_address" type="email" class="form-control @error('email_address') is-invalid @enderror " name="email_address" autocapitalize="off" value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}" placeholder="Enter Email Address">
-
-                        @error('email_address')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <small class="fw-medium d-block">Gender <span class="text-danger">*</span></small>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="gender" class="form-check-input" value="Male" id="gender1" {{ old('gender', $edit->gender ?? '') === 'Male' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="gender1"> Male</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="gender" class="form-check-input" value="Female" id="gender2" {{ old('gender', $edit->gender ?? '') === 'Female' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="gender2"> Female</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="gender" class="form-check-input" value="Other" id="gender3" {{ old('gender', $edit->gender ?? '') === 'Other' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="gender3"> Other</label>
-                        </div>
-
-                        @error('gender')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="SC" id="category1" {{ old('category', $edit->category ?? '') === 'SC' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="category1"> SC</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="ST" id="category2" {{ old('category', $edit->category ?? '') === 'ST' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="category2"> ST</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="OBC" id="category3" {{ old('category', $edit->category ?? '') === 'OBC' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="category3"> OBC</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="EWS" id="category4" {{ old('category', $edit->category ?? '') === 'EWS' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="category4"> EWS</label>
-                        </div>
-                        <div class="form-check form-check-inline mt-1">
-                            <input type="radio" name="category" class="form-check-input" value="General" id="category5" {{ old('category', $edit->category ?? '') === 'General' ? 'checked' : '' }}>
-                            <label class="form-check-label" for="category5"> General</label>
-                        </div>
-
-                        @error('gender')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Enrolment no </label>
-                        <input id="enrolment_no" type="text" class="form-control @error('enrolment_no') is-invalid @enderror " name="enrolment_no" autocapitalize="off" value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}" placeholder="Enter Enrolment no">
-
-                        @error('enrolment_no')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> Spid </label>
-                        <input id="spid" type="text" class="form-control @error('spid') is-invalid @enderror " name="spid" autocapitalize="off" value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}" placeholder="Enter Spid">
-
-                        @error('spid')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-
-                <div class="col-md-4 col-sm-12  mb-3">
-                    <div class="form-group">
-                        <label class="form-label"> APAAR ID/ABC ID </label>
-                        <input id="apaar_id_abc_id" type="text" class="form-control @error('apaar_id_abc_id') is-invalid @enderror " autocapitalize="off" name="apaar_id_abc_id" value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}" placeholder="Enter APAAR ID/ABC ID">
-
-                        @error('apaar_id_abc_id')
-                        <span class="invalid-feedback">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-                @if (isset($edit) && $edit?->gdrivefolderurl)
-                <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
-                    <div class="form-group">
-                        <label class="form-label"> </label>
-                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a>
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
-                    <div class="form-group">
-                        <label class="form-label">Google Drive Folder URL </label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly />
-                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
-                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
-                            <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i class="icon-base bx bx-copy-alt"></i></span>
+                            @error('aadhar_card_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
                     </div>
-                </div>
-                @endif
-                <div class="col-md-4 col-sm-12 mb-3">
-                    <div class="form-group">
-                        <label class="form-label">Education <span class="text-danger">*</span></label>
-                        <select name="education_details" id="education"
-                            class="form-control select2" autofocus>
-                            <option value="" disabled selected> Select Education </option>
-                            <option value="10"> 10<sup>th</sup> </option>
-                            <option value="12"> 12<sup>th</sup> </option>
-                            <option value="Graduation"> Graduation </option>
-                        </select>
-                        @error('product_variant_id')
-                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                        @enderror
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> First Name <span class="text-danger">*</span> </label>
+                            <input id="first_name" type="text"
+                                class="form-control @error('first_name') is-invalid @enderror" name="first_name"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
+                                placeholder="Enter First Name">
+
+                            @error('first_name')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
+                            <input id="last_name" type="text"
+                                class="form-control @error('last_name') is-invalid @enderror " name="last_name"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
+                                placeholder="Enter Last Name">
+
+                            @error('last_name')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
+                            <input id="father_name" type="text"
+                                class="form-control @error('father_name') is-invalid @enderror " name="father_name"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
+                                placeholder="Enter Father Name">
+
+                            @error('father_name')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
+                            <input id="mother_name" type="text"
+                                class="form-control @error('mother_name') is-invalid @enderror " name="mother_name"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
+                                placeholder="Enter Mother Name">
+
+                            @error('mother_name')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Temporary Address <span class="text-danger">*</span> </label>
+                            <textarea rows="1" id="temporary_address" type="text"
+                                class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address"
+                                placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
+                            @error('temporary_address')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Permanent Address <span class="text-danger">*</span> </label>
+                            <textarea rows="1" id="permanent_address" type="text"
+                                class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address"
+                                placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
+                            @error('permanent_address')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Mobile No. <span class="text-danger">*</span> </label>
+                            <input id="mobile_no" type="text" minlength="10" maxlength="10"
+                                class="form-control @error('mobile_no') is-invalid @enderror num_only" name="mobile_no"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}"
+                                placeholder="Enter Mobile No.">
+
+                            @error('mobile_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Parent Mobile No. </label>
+                            <input id="parent_mobile_no" type="text" minlength="10" maxlength="10"
+                                class="form-control @error('parent_mobile_no') is-invalid @enderror num_only"
+                                name="parent_mobile_no" autocapitalize="off"
+                                value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}"
+                                placeholder="Enter Parent Mobile No.">
+
+                            @error('parent_mobile_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Other Mobile No. </label>
+                            <input id="other_mobile_no" type="text" minlength="10" maxlength="10"
+                                class="form-control @error('other_mobile_no') is-invalid @enderror num_only"
+                                name="other_mobile_no" autocapitalize="off"
+                                value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}"
+                                placeholder="Enter Other Mobile No.">
+
+                            @error('other_mobile_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Whatsapp No. </label>
+                            <input id="whatsapp_no" type="text" minlength="10" maxlength="10"
+                                class="form-control @error('whatsapp_no') is-invalid @enderror num_only"
+                                name="whatsapp_no" autocapitalize="off"
+                                value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}"
+                                placeholder="Enter Whatsapp No.">
+
+                            @error('whatsapp_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Cast </label>
+                            <input id="cast" type="text"
+                                class="form-control @error('cast') is-invalid @enderror " name="cast"
+                                autocapitalize="off" value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}"
+                                placeholder="Enter Cast">
+
+                            @error('cast')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Occupation </label>
+                            <input id="occupation" type="text"
+                                class="form-control @error('occupation') is-invalid @enderror " name="occupation"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}"
+                                placeholder="Enter Occupation">
+
+                            @error('occupation')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
+                            <input id="date_of_birth" type="date"
+                                class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth"
+                                autocapitalize="off" max="{{ date('Y-m-d') }}"
+                                value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}"
+                                placeholder="Enter Date of Birth">
+
+                            @error('date_of_birth')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Email Address <span class="text-danger">*</span> </label>
+                            <input id="email_address" type="email"
+                                class="form-control @error('email_address') is-invalid @enderror " name="email_address"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}"
+                                placeholder="Enter Email Address">
+
+                            @error('email_address')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <small class="fw-medium d-block">Gender <span class="text-danger">*</span></small>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="gender" class="form-check-input" value="Male"
+                                    id="gender1" {{ old('gender', $edit->gender ?? '') === 'Male' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="gender1"> Male</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="gender" class="form-check-input" value="Female"
+                                    id="gender2" {{ old('gender', $edit->gender ?? '') === 'Female' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="gender2"> Female</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="gender" class="form-check-input" value="Other"
+                                    id="gender3" {{ old('gender', $edit->gender ?? '') === 'Other' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="gender3"> Other</label>
+                            </div>
+
+                            @error('gender')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="category" class="form-check-input" value="SC"
+                                    id="category1" {{ old('category', $edit->category ?? '') === 'SC' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="category1"> SC</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="category" class="form-check-input" value="ST"
+                                    id="category2" {{ old('category', $edit->category ?? '') === 'ST' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="category2"> ST</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="category" class="form-check-input" value="OBC"
+                                    id="category3"
+                                    {{ old('category', $edit->category ?? '') === 'OBC' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="category3"> OBC</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="category" class="form-check-input" value="EWS"
+                                    id="category4"
+                                    {{ old('category', $edit->category ?? '') === 'EWS' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="category4"> EWS</label>
+                            </div>
+                            <div class="form-check form-check-inline mt-1">
+                                <input type="radio" name="category" class="form-check-input" value="General"
+                                    id="category5"
+                                    {{ old('category', $edit->category ?? '') === 'General' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="category5"> General</label>
+                            </div>
+
+                            @error('gender')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Enrolment no </label>
+                            <input id="enrolment_no" type="text"
+                                class="form-control @error('enrolment_no') is-invalid @enderror " name="enrolment_no"
+                                autocapitalize="off"
+                                value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}"
+                                placeholder="Enter Enrolment no">
+
+                            @error('enrolment_no')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> Spid </label>
+                            <input id="spid" type="text"
+                                class="form-control @error('spid') is-invalid @enderror " name="spid"
+                                autocapitalize="off" value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}"
+                                placeholder="Enter Spid">
+
+                            @error('spid')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4 col-sm-12  mb-3">
+                        <div class="form-group">
+                            <label class="form-label"> APAAR ID/ABC ID </label>
+                            <input id="apaar_id_abc_id" type="text"
+                                class="form-control @error('apaar_id_abc_id') is-invalid @enderror " autocapitalize="off"
+                                name="apaar_id_abc_id"
+                                value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}"
+                                placeholder="Enter APAAR ID/ABC ID">
+
+                            @error('apaar_id_abc_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    @if (isset($edit) && $edit?->gdrivefolderurl)
+                        <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
+                            <div class="form-group">
+                                <label class="form-label"> </label>
+                                <a href="javascript:void(0)"
+                                    class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google
+                                    Drive Rename Folder </a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
+                            <div class="form-group">
+                                <label class="form-label">Google Drive Folder URL </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="gdrivefolderurl"
+                                        id="GoogleDriveFolderUrl"
+                                        value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}"
+                                        aria-describedby="GoogleDriveFolderUrlCopy" readonly />
+                                    <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName"
+                                        value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
+                                    <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId"
+                                        value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
+                                    <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i
+                                            class="icon-base bx bx-copy-alt"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Education <span class="text-danger">*</span></label>
+                            <select name="education_details" id="education" class="form-control select2" autofocus>
+                                <option value="" disabled selected> Select Education </option>
+                                <option value="10"> 10<sup>th</sup> </option>
+                                <option value="12"> 12<sup>th</sup> </option>
+                                <option value="Graduation"> Graduation </option>
+                            </select>
+                            @error('product_variant_id')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <hr>
+                    </div>
+
+                    <div class="col-sm-12" id="education_details">
+                        <div class="content-header mt-1 mb-4 mb-3">
+                            <h6 class="mb-0">Education Details</h6>
+                            <!-- <small>Enter Your Company Information.</small> -->
+                        </div>
+                        <table id="education_details_table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Education</th>
+                                    <th>Percentage or CGPA</th>
+                                    <th>Seat Number or Enrollment Number</th>
+                                    <th>Board or University </th>
+                                    <th>Passing Year</th>
+                                    <th>School Name or College Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (isset($education))
+                                    @foreach ($education as $educationdetail)
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="education[]" class="form-control"
+                                                    placeholder="Education" value="{{ $educationdetail->education }}"
+                                                    readonly>
+                                                <input type="hidden" name="education_id[]"
+                                                    value="{{ $educationdetail->id }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="percentage_cgpa[]"
+                                                    class="form-control num_only" placeholder="Percentage or CGPA"
+                                                    value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="seat_no_nrollment_no[]"
+                                                    class="form-control num_only"
+                                                    placeholder="Enter Seat Number or Enrollment Number"
+                                                    value="{{ $educationdetail->seat_no_nrollment_no }}"
+                                                    autocapitalize="off">
+                                            </td>
+                                            <td><input type="text" name="board_university[]" class="form-control"
+                                                    placeholder="Enter Board or University"
+                                                    value="{{ $educationdetail->board_university }}"
+                                                    autocapitalize="off"></td>
+                                            <td><input type="text" name="passing_year[]" class="form-control"
+                                                    placeholder="Enter Passing Year"
+                                                    value="{{ $educationdetail->passing_year }}" autocapitalize="off">
+                                            </td>
+                                            <td><input type="text" name="school_name_college_name[]"
+                                                    class="form-control" placeholder="Enter School Name or College Name"
+                                                    value="{{ $educationdetail->school_name_college_name }}"
+                                                    autocapitalize="off"></td>
+
+                                            <td><button data-education_id="{{ $educationdetail->id }}" type="button"
+                                                    class="btn btn-danger remove_row"><i
+                                                        class="fa-solid fa-trash"></i></button></td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="col-sm-12">
-                    <hr>
-                </div>
 
-                <div class="col-sm-12" id="education_details">
-                    <div class="content-header mt-1 mb-4 mb-3">
-                        <h6 class="mb-0">Education Details</h6>
-                        <!-- <small>Enter Your Company Information.</small> -->
+                <div class="row mt-5">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-success mt-1">
+                            {{ isset($edit) ? 'Update And Next' : 'Submit And Next' }}
+                        </button>
+                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
-                    <table id="education_details_table" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Education</th>
-                                <th>Percentage or CGPA</th>
-                                <th>Seat Number or Enrollment Number</th>
-                                <th>Board or University </th>
-                                <th>Passing Year</th>
-                                <th>School Name or College Name</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (isset($education))
-                            @foreach ($education as $educationdetail)
-                            <tr>
-                                <td>
-                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
-                                    <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
-                                </td>
-                                <td>
-                                    <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
-                                </td>
-                                <td>
-                                    <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
-                                </td>
-                                <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
-                                <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
-                                <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
-
-                                <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
-                            </tr>
-                            @endforeach
-                            @endif
-
-                        </tbody>
-                    </table>
                 </div>
-            </div>
-
-            <div class="row mt-5">
-                <div class="col-md-12 text-center">
-                    <button type="submit" class="btn btn-success mt-1">
-                        {{ isset($edit) ? 'Update' : 'Submit' }}
-                    </button>
-                    <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
 @endsection
 
 @section('page_script_file')
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 @endsection
 
 @section('page_leavel_script')
 
-<script>
-    $(function() {
-        $("#aadhar_card_no").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
-                    data: {
-                        term: request.term
-                    },
-                    success: function(data) {
-                        response(data);
-                    }
-                });
-            },
-            minLength: 3,
-            select: function(event, ui) {
-                // Auto-fill other fields
-                $.ajax({
-                    url: "{{ route($route . '.aadhar-card-no-to-data') }}",
-                    data: {
-                        aadhar: ui.item.value
-                    },
-                    success: function(data) {
-                        // Fill user fields
-                        $('#first_name').val(data.user.first_name);
-                        $('#last_name').val(data.user.last_name);
-                        $('#father_name').val(data.user.father_name);
-                        $('#mother_name').val(data.user.mother_name);
-                        $('#mobile_no').val(data.user.mobile_no);
-                        $('#email_address').val(data.user.email);
-                        $('#date_of_birth').val(data.user.date_of_birth);
-                        // $('#gender_' + data.user.gender.toLowerCase()).prop('checked', true);
-                        // $('#category_' + data.user.category.toLowerCase()).prop('checked', true);
-                        $("input[name='gender'][value='" + data.user.gender + "']").prop("checked", true);
-                        $("input[name='category'][value='" + data.user.category + "']").prop("checked", true);
-                        $('#temporary_address').val(data.user.temporary_address);
-                        $('#permanent_address').val(data.user.permanent_address);
-                        $('#parent_mobile_no').val(data.user.parent_mobile_no);
-                        $('#other_mobile_no').val(data.user.other_mobile_no);
-                        $('#whatsapp_no').val(data.user.whatsapp_no);
-                        $('#cast').val(data.user.cast);
-                        $('#occupation').val(data.user.occupation);
-                        $('#enrolment_no').val(data.user.enrolment_no);
-                        $('#spid').val(data.user.spid);
-                        $('#apaar_id_abc_id').val(data.user.apaari_id_abc_id);
+    <script>
+        $(function() {
+            $("#aadhar_card_no").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 3,
+                select: function(event, ui) {
+                    // Auto-fill other fields
+                    $.ajax({
+                        url: "{{ route($route . '.aadhar-card-no-to-data') }}",
+                        data: {
+                            aadhar: ui.item.value
+                        },
+                        success: function(data) {
+                            // Fill user fields
+                            $('#first_name').val(data.user.first_name);
+                            $('#last_name').val(data.user.last_name);
+                            $('#father_name').val(data.user.father_name);
+                            $('#mother_name').val(data.user.mother_name);
+                            $('#mobile_no').val(data.user.mobile_no);
+                            $('#email_address').val(data.user.email);
+                            $('#date_of_birth').val(data.user.date_of_birth);
+                            // $('#gender_' + data.user.gender.toLowerCase()).prop('checked', true);
+                            // $('#category_' + data.user.category.toLowerCase()).prop('checked', true);
+                            $("input[name='gender'][value='" + data.user.gender + "']")
+                                .prop("checked", true);
+                            $("input[name='category'][value='" + data.user.category + "']")
+                                .prop("checked", true);
+                            $('#temporary_address').val(data.user.temporary_address);
+                            $('#permanent_address').val(data.user.permanent_address);
+                            $('#parent_mobile_no').val(data.user.parent_mobile_no);
+                            $('#other_mobile_no').val(data.user.other_mobile_no);
+                            $('#whatsapp_no').val(data.user.whatsapp_no);
+                            $('#cast').val(data.user.cast);
+                            $('#occupation').val(data.user.occupation);
+                            $('#enrolment_no').val(data.user.enrolment_no);
+                            $('#spid').val(data.user.spid);
+                            $('#apaar_id_abc_id').val(data.user.apaari_id_abc_id);
 
-                        // Clear existing education rows
-                        $('#education_details_table tbody').empty();
+                            // Clear existing education rows
+                            $('#education_details_table tbody').empty();
 
-                        // Fill education details
-                        data.education_details.forEach(function(item) {
-                            $('#education_details_table tbody').append(`
+                            // Fill education details
+                            data.education_details.forEach(function(item) {
+                                $('#education_details_table tbody').append(`
                             <tr>
                                 <td>
                                     <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education}" readonly>
@@ -514,71 +619,72 @@ $i = 0;
                                 <td><button data-education_id="${item.id}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                             </tr>
                         `);
-                        });
-                    }
-                });
-            }
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
-
-
-
-        $('#mobile_no').on('keyup', function() {
-            whatsapp_no
-            var mobile_no = $(this).val();
-            var whatsapp_no = $('#whatsapp_no').val(mobile_no);
-        });
-
-        $('.remove_row').on('click', function() {
-            $(this).closest('tr').remove();
-            var education_id = $(this).data('education_id');
-
-            $.ajax({
-                url: "{{ route($route .'.education-detail-delete') }}",
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: education_id,
-                },
-                success: function(response) {
-                    console.log(response);
-                },
-                error: function(error) {
-                    console.log(error);
+                            });
+                        }
+                    });
                 }
             });
         });
+    </script>
+
+    <script>
+        $(document).ready(function() {
 
 
-        $('#education').on('change', function() {
+
+            $('#mobile_no').on('keyup', function() {
+                whatsapp_no
+                var mobile_no = $(this).val();
+                var whatsapp_no = $('#whatsapp_no').val(mobile_no);
+            });
+
+            $('.remove_row').on('click', function() {
+                $(this).closest('tr').remove();
+                var education_id = $(this).data('education_id');
+
+                $.ajax({
+                    url: "{{ route($route . '.education-detail-delete') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: education_id,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
 
 
-            let selectededucationId = $(this).val();
-            let selectededucationText = $(this).find("option:selected").text();
-
-            if (!selectededucationId) return;
-            let tableBody = $('#education_details_table tbody');
-
-            let isVariantAlreadyAdded = tableBody.find('input[name="education[]"]').filter(function() {
-                return $(this).val() === selectededucationText;
-            }).length > 0;
-
-            if (isVariantAlreadyAdded) {
-                toastr.error('This ' + selectededucationText + ' is already added.');
-                $('#education').val('').trigger('change');
-                return;
-            }
+            $('#education').on('change', function() {
 
 
-            let index = $('table tbody tr').length;
-            let newRow = $('<tr>');
-            newRow.html(`
+                let selectededucationId = $(this).val();
+                let selectededucationText = $(this).find("option:selected").text();
+
+                if (!selectededucationId) return;
+                let tableBody = $('#education_details_table tbody');
+
+                let isVariantAlreadyAdded = tableBody.find('input[name="education[]"]').filter(function() {
+                    return $(this).val() === selectededucationText;
+                }).length > 0;
+
+                if (isVariantAlreadyAdded) {
+                    toastr.error('This ' + selectededucationText + ' is already added.');
+                    $('#education').val('').trigger('change');
+                    return;
+                }
+
+
+                let index = $('table tbody tr').length;
+                let newRow = $('<tr>');
+                newRow.html(`
                     <td>
-                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="` + selectededucationText + `" readonly>
+                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="` +
+                    selectededucationText + `" readonly>
                         <input type="hidden" name="education_id[]" value="">
                     </td>
                     <td>
@@ -594,92 +700,93 @@ $i = 0;
                     <td><button type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                 `);
 
-            tableBody.append(newRow);
-            newRow.find('.remove_row').on('click', function() {
-                newRow.remove();
+                tableBody.append(newRow);
+                newRow.find('.remove_row').on('click', function() {
+                    newRow.remove();
+                });
+
+                $('#education').val('').trigger('change');
             });
-
-            $('#education').val('').trigger('change');
         });
-    });
 
-    function showMessage(message, type) {
-        toastr[type](message);
-    }
-</script>
-@if (isset($edit))
-<script>
-    // $('#google_drive_rename_folder_url_col').hide();
-    $('.google_drive_rename_folder').on('click', function() {
-        var first_name = $('#first_name').val();
-        var father_name = $('#father_name').val();
-        var last_name = $('#last_name').val();
-
-        let isValid = true;
-
-        if (!first_name) {
-            isValid = false;
-            showMessage("First Name is required", "error");
+        function showMessage(message, type) {
+            toastr[type](message);
         }
+    </script>
+    @if (isset($edit))
+        <script>
+            // $('#google_drive_rename_folder_url_col').hide();
+            $('.google_drive_rename_folder').on('click', function() {
+                var first_name = $('#first_name').val();
+                var father_name = $('#father_name').val();
+                var last_name = $('#last_name').val();
 
-        if (!father_name) {
-            isValid = false;
-            showMessage("Father Name is required", "error");
-        }
+                let isValid = true;
 
-        if (!last_name) {
-            isValid = false;
-            showMessage("Last Name is required", "error");
-        }
+                if (!first_name) {
+                    isValid = false;
+                    showMessage("First Name is required", "error");
+                }
 
-        var id = '{{ $edit?->id }}';
-        var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
-        var OldfolderName = '{{ $edit?->gdrivefoldername }}';
-        var OldfolderId = '{{ $edit?->gdrivefolderid }}';
-        if (isValid) {
-            $.ajax({
-                url: "{{ route($route . '.google-drive-rename-folder') }}",
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    foldername: folderName,
-                    OldfolderName: OldfolderName,
-                    OldfolderId: OldfolderId,
-                },
-                success: function(response) {
-                    console.log(response.folder_id);
-                    console.log(response.folder_url);
-                    $('#GoogleDriveFolderUrl').val(response.folder_url);
-                    $('#GoogleDriveFolderId').val(response.folder_id);
-                    $('#GoogleDriveFolderName').val(response.folder_name);
-                    $('#google_drive_rename_folder_col').hide();
-                    $('#google_drive_rename_folder_url_col').show();
-                },
-                error: function(error) {
-                    console.log(error);
+                if (!father_name) {
+                    isValid = false;
+                    showMessage("Father Name is required", "error");
+                }
+
+                if (!last_name) {
+                    isValid = false;
+                    showMessage("Last Name is required", "error");
+                }
+
+                var id = '{{ $edit?->id }}';
+                var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
+                var OldfolderName = '{{ $edit?->gdrivefoldername }}';
+                var OldfolderId = '{{ $edit?->gdrivefolderid }}';
+                if (isValid) {
+                    $.ajax({
+                        url: "{{ route($route . '.google-drive-rename-folder') }}",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id,
+                            foldername: folderName,
+                            OldfolderName: OldfolderName,
+                            OldfolderId: OldfolderId,
+                        },
+                        success: function(response) {
+                            console.log(response.folder_id);
+                            console.log(response.folder_url);
+                            $('#GoogleDriveFolderUrl').val(response.folder_url);
+                            $('#GoogleDriveFolderId').val(response.folder_id);
+                            $('#GoogleDriveFolderName').val(response.folder_name);
+                            $('#google_drive_rename_folder_col').hide();
+                            $('#google_drive_rename_folder_url_col').show();
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
                 }
             });
-        }
-    });
 
-    $('#GoogleDriveFolderUrlCopy').on('click', function() {
-        var url = $('#GoogleDriveFolderUrl').val();
+            $('#GoogleDriveFolderUrlCopy').on('click', function() {
+                var url = $('#GoogleDriveFolderUrl').val();
 
-        if (url) {
-            navigator.clipboard.writeText(url).then(function() {
-                console.log('URL copied to clipboard:', url);
+                if (url) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        console.log('URL copied to clipboard:', url);
 
-                // Optional: Feedback (e.g., temporary text/icon change)
-                $('#GoogleDriveFolderUrlCopy i').removeClass('bx-copy-alt').addClass('bx-check');
-                setTimeout(function() {
-                    $('#GoogleDriveFolderUrlCopy i').removeClass('bx-check').addClass('bx-copy-alt');
-                }, 1500);
-            }).catch(function(err) {
-                console.error('Failed to copy URL:', err);
+                        // Optional: Feedback (e.g., temporary text/icon change)
+                        $('#GoogleDriveFolderUrlCopy i').removeClass('bx-copy-alt').addClass('bx-check');
+                        setTimeout(function() {
+                            $('#GoogleDriveFolderUrlCopy i').removeClass('bx-check').addClass(
+                                'bx-copy-alt');
+                        }, 1500);
+                    }).catch(function(err) {
+                        console.error('Failed to copy URL:', err);
+                    });
+                }
             });
-        }
-    });
-</script>
-@endif
+        </script>
+    @endif
 @endsection
