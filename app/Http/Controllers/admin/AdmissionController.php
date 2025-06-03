@@ -579,4 +579,77 @@ class AdmissionController extends Controller
     //     return response()->json(['error' => 'Admission not found'], 404);
     // }
 
+    public function aadharCardNoStudentData(Request $request)
+    {
+        $aadhar = $request->input('aadhar');
+
+        // Fetch the user with Aadhaar
+        $user = Admission::where('aadhar_card_no', $aadhar)->first();
+
+        if ($user) {
+
+            $educationDetails = EducationDetails::where('admission_id', $user->id)->get();
+
+            return response()->json([
+                'user' => [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'father_name' => $user->father_name,
+                    'mother_name' => $user->mother_name,
+                    'mobile_no' => $user->mobile_no,
+                    'email' => $user->email_address,
+                    'date_of_birth' => $user->date_of_birth,
+                    'gender' => $user->gender,
+                    'category' => $user->category,
+                    'cast' => $user->cast,
+                    'enrolment_no' => $user->enrolment_no,
+                    'spid' => $user->spid,
+                    'occupation' => $user->occupation,
+                    'status' => $user->status,
+                    'temporary_address' => $user->temporary_address,
+                    'permanent_address' => $user->permanent_address,
+                    'parent_mobile_no' => $user->parent_mobile_no,
+                    'other_mobile_no' => $user->other_mobile_no,
+                    'whatsapp_no' => $user->whatsapp_no,
+                    'apaari_id_abc_id' => $user->apaar_id_abc_id,
+                ],
+                'education_details' => $educationDetails
+            ]);
+        }
+
+        return response()->json([]);
+    }
+
+    public function courseFeesGet(Request $request)
+    {
+        $data = CourceRegistration::join('master_course', 'cource_registration.course_id', '=', 'master_course.id')
+            ->where('cource_registration.register_id', $request->register_id)
+            ->where('cource_registration.course_id', $request->course_id)
+            ->select('master_course.course_name as course_name', 'cource_registration.fee')
+            ->first();
+
+        return response()->json($data);
+    }
+
+    public function courseFeesUpdate(Request $request)
+    {
+        $request->validate([
+            'register_id' => 'required|integer',
+            'course_id' => 'required|integer',
+            'fee' => 'required|numeric'
+        ]);
+
+        $registration = CourceRegistration::where('register_id', $request->register_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+
+        if ($registration) {
+            $registration->fee = $request->fee;
+            $registration->save();
+
+            return response()->json(['message' => 'Course Fee Updated successfully.']);
+        } else {
+            return response()->json(['message' => 'Record not found.'], 404);
+        }
+    }
 }
