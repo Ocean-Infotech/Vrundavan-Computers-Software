@@ -57,6 +57,8 @@ Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::c
 Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
 Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
 Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+Route::match(['get', 'post'], 'admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
+Route::match(['get', 'post'], 'admission-aadhar-card-no-to-data', [AdmissionController::class, 'aadharCardNoStudentData'])->name('admission.aadhar-card-no-to-data');
 
 // routes/web.php or routes/api.php
 
