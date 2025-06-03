@@ -89,27 +89,34 @@
                 </ul>
             </li>
         @enddirectCan
-
-        <li
-            class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['admission', 'NewAdmission']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-school"></i>
                 <div data-i18n="Student">Student</div>
             </a>
             <ul class="menu-sub">
+                <li class="menu-item {{ $sidebar_active == 'NewAdmission' ? 'active' : '' }}">
+                    <a href="{{ route('admission.create') }}" class="menu-link">
+                        <div data-i18n="New Admission">New Admission</div>
+                    </a>
+                </li>
+
+                {{-- Uncomment if needed
+                <li class="menu-item {{ $sidebar_active == 'course-registration' ? 'active' : '' }}">
+                    <a href="{{ route('course-registration.index') }}" class="menu-link">
+                        <div data-i18n="Course Registration">Course Registration</div>
+                    </a>
+                </li>
+                --}}
 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
-                        <div data-i18n="Student">Student</div>
-                    </a>
-                </li>
-                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
-                    <a href="{{ route('cource-registration.index') }}" class="menu-link">
-                        <div data-i18n="Course Registration">Course Registration</div>
+                        <div data-i18n="Registered Student">Registered Student</div>
                     </a>
                 </li>
             </ul>
         </li>
+
 
         <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -126,7 +133,8 @@
             </ul>
         </li>
 
-        <li class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
+        <li
+            class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-receipt"></i>
                 <div data-i18n="Fees Collection">Fees Collection</div>
@@ -167,7 +175,7 @@
                 </li>
             </ul>
         </li>
-        
+
         <li
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -206,67 +214,67 @@
 
             </ul>
         </li>
-        
+
         @directCan('master-module')
             <!-- <li
-                class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode' || $sidebar_active == 'document-type' || $sidebar_active == 'documents' ? 'active open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base bx bx-cog"></i>
-                    <div data-i18n="Master Modules">Master Modules</div>
-                </a>
-                <ul class="menu-sub">
+                    class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode' || $sidebar_active == 'document-type' || $sidebar_active == 'documents' ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon icon-base bx bx-cog"></i>
+                        <div data-i18n="Master Modules">Master Modules</div>
+                    </a>
+                    <ul class="menu-sub">
 
-                    @directCanAny(['country-list', 'country-create', 'country-edit', 'country-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'country' ? 'active' : '' }}">
-                            <a href="{{ route('country.index') }}" class="menu-link">
-                                <div data-i18n="Country">Country</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
+                        @directCanAny(['country-list', 'country-create', 'country-edit', 'country-delete'])
+        <li class="menu-item {{ $sidebar_active == 'country' ? 'active' : '' }}">
+                                    <a href="{{ route('country.index') }}" class="menu-link">
+                                        <div data-i18n="Country">Country</div>
+                                    </a>
+                                </li>
+    @enddirectCanAny
 
-                    @directCanAny(['state-list', 'state-create', 'state-edit', 'state-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'state' ? 'active' : '' }}">
-                            <a href="{{ route('state.index') }}" class="menu-link">
-                                <div data-i18n="State">State</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
+                        @directCanAny(['state-list', 'state-create', 'state-edit', 'state-delete'])
+        <li class="menu-item {{ $sidebar_active == 'state' ? 'active' : '' }}">
+                                    <a href="{{ route('state.index') }}" class="menu-link">
+                                        <div data-i18n="State">State</div>
+                                    </a>
+                                </li>
+    @enddirectCanAny
 
-                    @directCanAny(['city-list', 'city-create', 'city-edit', 'city-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'city' ? 'active' : '' }}">
-                            <a href="{{ route('city.index') }}" class="menu-link">
-                                <div data-i18n="City">City</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
+                        @directCanAny(['city-list', 'city-create', 'city-edit', 'city-delete'])
+        <li class="menu-item {{ $sidebar_active == 'city' ? 'active' : '' }}">
+                                    <a href="{{ route('city.index') }}" class="menu-link">
+                                        <div data-i18n="City">City</div>
+                                    </a>
+                                </li>
+    @enddirectCanAny
 
-                    @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                                                            <a href="{{ route('pincode.index') }}" class="menu-link">
-                                                                <div data-i18n="Pincode">Pincode</div>
-                                                            </a>
-                                                        </li> 
-                    @enddirectCanAny
+                        @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
+        <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
+                                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
+                                                                        <div data-i18n="Pincode">Pincode</div>
+                                                                    </a>
+                                                                </li>
+    @enddirectCanAny
 
-                    @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'document-type' ? 'active' : '' }}">
-                            <a href="{{ route('document-type.index') }}" class="menu-link">
-                                <div data-i18n="Document Type">Document Type</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
+                        @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
+        <li class="menu-item {{ $sidebar_active == 'document-type' ? 'active' : '' }}">
+                                    <a href="{{ route('document-type.index') }}" class="menu-link">
+                                        <div data-i18n="Document Type">Document Type</div>
+                                    </a>
+                                </li>
+    @enddirectCanAny
 
-                    @directCanAny(['documents-list', 'documents-create', 'documents-edit', 'documents-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'documents' ? 'active' : '' }}">
-                            <a href="{{ route('documents.index') }}" class="menu-link">
-                                <div data-i18n="Document's">Document's</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
-                </ul>
-            </li> -->
+                        @directCanAny(['documents-list', 'documents-create', 'documents-edit', 'documents-delete'])
+        <li class="menu-item {{ $sidebar_active == 'documents' ? 'active' : '' }}">
+                                    <a href="{{ route('documents.index') }}" class="menu-link">
+                                        <div data-i18n="Document's">Document's</div>
+                                    </a>
+                                </li>
+    @enddirectCanAny
+                    </ul>
+                </li> -->
         @enddirectCanAny
-        
+
     </ul>
 
 </aside>

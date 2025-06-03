@@ -94,7 +94,7 @@ class CourceRegistrationController extends Controller
                         $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
                         $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
 
-                        $shift = $from_time.' To '.$to_time ?? '';
+                    $shift = $from_time . ' To ' . $to_time ?? '';
                         return trim("{$batch}<br>{$class}<br>{$shift}");
                     })
 
@@ -163,17 +163,35 @@ class CourceRegistrationController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+
+    public function create($id = null)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        // Prefer session value if available, else use route parameter
+        $admissions = session('admission_id') ?? $id;
+
+        if ($admissions) {
+            $student = Admission::find($admissions);
+
+            // Optional: handle not found case
+            if (!$student) {
+                return redirect()->route($modules['route'] . '.index')
+                    ->withErrors('Admission not found.');
+            }
+
+            return view($modules['folder_path'] . '.form', compact('modules', 'student', 'admissions'));
+        }
+
+        // No admission ID – show list
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
         return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
+
+
+
+
 
 
 
@@ -186,8 +204,8 @@ class CourceRegistrationController extends Controller
 
             $admission = Admission::find($id);
             return response()->json([
-            'data' => $getcource,
-            'admission'=> $admission,
+                'data' => $getcource,
+                'admission' => $admission,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -201,7 +219,7 @@ class CourceRegistrationController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        
+
         try {
             $coursereg = $request->validated();
 
@@ -214,8 +232,8 @@ class CourceRegistrationController extends Controller
 
             CourceRegistration::create($coursereg);
 
-            return Redirect::route($modules['route'] . '.index')
-                ->withSuccess($modules['title'] . ' Create Successfully');
+            return Redirect::route('admission.index')
+                ->withSuccess($modules['title'] . ' Create  Successfully');
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
@@ -258,32 +276,28 @@ class CourceRegistrationController extends Controller
         $request['id'] = $id;
 
         $validated = $request->validated();
-        
+
         try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
             $updateData = CourceRegistration::findOrFail($id);
             if ($updateData) {
                 unset($validated['id']);
-                
+
                 if (!empty($validated['date'])) {
                     $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
                 }
-                
+
 
                 $updateData->update($validated);
-                
-                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
+
+                return Redirect::route('admission.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;

@@ -20,13 +20,13 @@ $i = 0;
             'breadcrumbArray' => [
                 ['title' => $page_title, 'url' => route($route . '.index')],
                 [
-                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
+                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'New Add ' . $page_title,
                     'url' => '',
                 ],
             ],
             'route' => $route,
             'show_add_btn' => false,
-            'show_back_btn' => true,
+            'show_back_btn' => false,
         ])
     </div>
 
@@ -343,7 +343,7 @@ $i = 0;
                 <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
                     <div class="form-group">
                         <label class="form-label"> </label>
-                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a> 
+                        <a href="javascript:void(0)" class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google Drive Rename Folder </a>
                     </div>
                 </div>
 
@@ -423,14 +423,14 @@ $i = 0;
                 </div>
             </div>
 
-            <div class="row mt-5">
-                <div class="col-md-12 text-center">
-                    <button type="submit" class="btn btn-success mt-1">
-                        {{ isset($edit) ? 'Update' : 'Submit' }}
-                    </button>
-                    <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
+                <div class="row mt-5">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-success mt-1">
+                            {{ isset($edit) ? 'Update And Next' : 'Save And Next' }}
+                        </button>
+                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
+                    </div>
                 </div>
-            </div>
         </form>
     </div>
 </div>
@@ -442,9 +442,9 @@ $i = 0;
 
 <script>
         $(document).ready(function() {
-            
 
-            
+
+
             $('#mobile_no').on('keyup', function() {
                 whatsapp_no
                 var mobile_no = $(this).val();
@@ -471,7 +471,7 @@ $i = 0;
                 });
             });
 
-            
+
             $('#education').on('change', function () {
 
 
@@ -554,7 +554,7 @@ $i = 0;
                 var folderName = id + '-' + first_name + '-' + father_name + '-' + last_name;
                 var OldfolderName = '{{ $edit?->gdrivefoldername }}';
                 var OldfolderId = '{{ $edit?->gdrivefolderid }}';
-                if (isValid) {  
+                if (isValid) {
                     $.ajax({
                         url: "{{ route($route . '.google-drive-rename-folder') }}",
                         type: 'POST',

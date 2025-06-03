@@ -66,7 +66,7 @@ class AdmissionController extends Controller
             $data = [];
 
             if ($request->ajax()) {
-                $data = Admission::withTrashed();
+                $data = Admission::withTrashed()->orderBy('id', 'desc');
 
                 $editPermisstion = true;
                 $deletePermisstion = false;
@@ -81,9 +81,9 @@ class AdmissionController extends Controller
                     })
 
                     ->editColumn('admission_name', function ($row) {
-                            $first = $row->first_name ?? '';
-                            $father = $row->father_name ?? '';
-                            $last = $row->last_name ?? '';
+                    $first = $row->first_name ?? '';
+                    $father = $row->father_name ?? '';
+                    $last = $row->last_name ?? '';
                         return trim("{$first} {$father} {$last}");
                     })
 
@@ -207,7 +207,8 @@ class AdmissionController extends Controller
                 ]);
             }
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+            return Redirect::route('cource-registration.create', ['id' => $admission_id])
+                ->withSuccess($modules['title'] . ' New Admission created successfully');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -232,62 +233,116 @@ class AdmissionController extends Controller
         }
     }
 
-    public function update(AdmissionRequest $request, string $id)
+    // public function update(AdmissionRequest $request, string $id)
+    // {
+    //     $modules = $this->modules;
+    //     // return $request->all();
+    //     $request['id'] = $id;
+
+    //     $validated = $request->validated();
+    //     try {
+    //         $validated['updated_by'] = Auth::user()->id;
+    //         $admission = Admission::create($validated);
+    //         $admission_id = $admission->id;
+
+    //         // return $validated;
+    //         $updateData = Admission::findOrFail($id);
+    //         if ($updateData) {
+    //             unset($validated['id']);
+    //             $updateData->update($validated);
+
+    //             if ($request->has('education_id')) {
+
+
+    //                 // EducationDetails::where('admission_id', $id)->forceDelete();
+
+    //                 $education = $request->education;
+    //                 foreach ($education as $key => $value) {
+
+    //                     $education_id = $request->education_id[$key];
+    //                     $EducationupdateData = EducationDetails::find($education_id);
+    //                     if ($EducationupdateData) {
+    //                         $EducationupdateData->update([
+    //                             'admission_id' => $id,
+    //                             'education' => $value,
+    //                             'percentage_cgpa' => $request->percentage_cgpa[$key],
+    //                             'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key],
+    //                             'board_university' => $request->board_university[$key],
+    //                             'passing_year' => $request->passing_year[$key],
+    //                             'school_name_college_name' => $request->school_name_college_name[$key],
+    //                         ]);
+    //                     } else {
+    //                         EducationDetails::create([
+    //                             'admission_id' => $id,
+    //                             'education' => $value,
+    //                             'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
+    //                             'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
+    //                             'board_university' => $request->board_university[$key],
+    //                             'passing_year' => $request->passing_year[$key] ?? 0,
+    //                             'school_name_college_name' => $request->school_name_college_name[$key],
+    //                         ]);
+    //                     }
+    //                 }
+    //             }
+
+    //             Redirect::route('cource-registration.update', $admission->id)
+    //                 ->withSuccess($modules['title'] . 'Admission update successfully');
+
+
+    //             // return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . '  successfully');
+    //         }
+    //         return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+    //     } catch (\Exception $e) {
+    //         return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+    //     }
+    // }
+
+    public function update(AdmissionRequest $request, string $register_id)
     {
         $modules = $this->modules;
-        // return $request->all();
-        $request['id'] = $id;
-
         $validated = $request->validated();
         try {
-            $validated['updated_by'] = Auth::user()->id;
-            // return $validated;
-            $updateData = Admission::findOrFail($id);
-            if ($updateData) {
-                unset($validated['id']);
-                $updateData->update($validated);
+            $validated['updated_by'] = Auth::id();
 
-                if ($request->has('education_id')) {
+            $CourceRegistration = CourceRegistration::where('register_id', $register_id)->firstOrFail();
 
+            $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
 
-                    // EducationDetails::where('admission_id', $id)->forceDelete();
+            $admission->update($validated);
 
-                    $education = $request->education;
-                    foreach ($education as $key => $value) {
+            if ($request->has('education_id')) {
+                $education = $request->education;
+                foreach ($education as $key => $value) {
+                    $education_id = $request->education_id[$key];
+                    $data = [
+                        'admission_id' => $admission->id,
+                        'education' => $value,
+                        'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
+                        'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
+                        'board_university' => $request->board_university[$key],
+                        'passing_year' => $request->passing_year[$key] ?? 0,
+                        'school_name_college_name' => $request->school_name_college_name[$key],
+                    ];
 
-                        $education_id = $request->education_id[$key];
-                        $EducationupdateData = EducationDetails::find($education_id);
-                        if ($EducationupdateData) {
-                            $EducationupdateData->update([
-                                'admission_id' => $id,
-                                'education' => $value,
-                                'percentage_cgpa' => $request->percentage_cgpa[$key],
-                                'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key],
-                                'board_university' => $request->board_university[$key],
-                                'passing_year' => $request->passing_year[$key],
-                                'school_name_college_name' => $request->school_name_college_name[$key],
-                            ]);
-                        } else {
-                            EducationDetails::create([
-                                'admission_id' => $id,
-                                'education' => $value,
-                                'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
-                                'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
-                                'board_university' => $request->board_university[$key],
-                                'passing_year' => $request->passing_year[$key] ?? 0,
-                                'school_name_college_name' => $request->school_name_college_name[$key],
-                            ]);
-                        }
+                    if ($education_id) {
+                        $existingEdu = EducationDetails::find($education_id);
+                        $existingEdu ? $existingEdu->update($data) : EducationDetails::create($data);
+                    } else {
+                        EducationDetails::create($data);
                     }
                 }
-
-                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
             }
-            return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+
+            return Redirect::route('cource-registration.edit', [
+                'register_id' => $CourceRegistration->id
+            ])->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            // return $e->getMessage();
+            return Redirect::back()->withErrors($e->getMessage())->withInput();
         }
     }
+
+
 
     public function education_detail_delete(Request $request)
     {

@@ -133,6 +133,8 @@ Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
+Route::get('/cource-registration/create/{id?}', [CourceRegistrationController::class, 'create'])->name('cource-registration.create');
+Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::class, 'edit'])->name('cource-registration.edit');
 
 
 
@@ -146,6 +148,9 @@ Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
+Route::get('fees-collection/export/', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export');
+
+
 
 
 
