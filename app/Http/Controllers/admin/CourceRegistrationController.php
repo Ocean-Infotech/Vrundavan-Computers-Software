@@ -279,13 +279,14 @@ class CourceRegistrationController extends Controller
 
                 $updateData->update($validated);
 
-                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
+                return Redirect::route('admission.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

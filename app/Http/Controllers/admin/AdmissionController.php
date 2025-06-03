@@ -229,22 +229,18 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         $validated = $request->validated();
-
         try {
             $validated['updated_by'] = Auth::id();
 
-            // $register_id is the ID of the CourceRegistration (primary key)
-            $courceRegistration = CourceRegistration::findOrFail($register_id);
+            $CourceRegistration = CourceRegistration::where('register_id', $register_id)->firstOrFail();
 
-            // Now get the related admission record
-            $admission = Admission::findOrFail($courceRegistration->admission_id);
+            $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
 
-            // Update admission details
             $admission->update($validated);
 
-            // Handle education details
             if ($request->has('education_id')) {
-                foreach ($request->education as $key => $value) {
+                $education = $request->education;
+                foreach ($education as $key => $value) {
                     $education_id = $request->education_id[$key];
                     $data = [
                         'admission_id' => $admission->id,
@@ -266,11 +262,10 @@ class AdmissionController extends Controller
             }
 
             return Redirect::route('cource-registration.edit', [
-                'register_id' => $courceRegistration->register_id,
-                'cource_registration_id' => $courceRegistration->id,
+                'register_id' => $CourceRegistration->id
             ])->withSuccess($modules['title'] . ' updated successfully');
-
         } catch (\Exception $e) {
+            // return $e->getMessage();
             return Redirect::back()->withErrors($e->getMessage())->withInput();
         }
     }
