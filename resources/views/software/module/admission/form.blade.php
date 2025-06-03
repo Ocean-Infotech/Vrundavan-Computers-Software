@@ -15,20 +15,20 @@ $i = 0;
 
 
 @section('content')
-    <div class="d-flex justify-content-lg-between px-1">
-        @include('software.includes.breadcrumb', [
-            'breadcrumbArray' => [
-                ['title' => $page_title, 'url' => route($route . '.index')],
-                [
-                    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'New Add ' . $page_title,
-                    'url' => '',
-                ],
-            ],
-            'route' => $route,
-            'show_add_btn' => false,
-            'show_back_btn' => false,
-        ])
-    </div>
+<div class="d-flex justify-content-lg-between px-1">
+    @include('software.includes.breadcrumb', [
+    'breadcrumbArray' => [
+    ['title' => $page_title, 'url' => route($route . '.index')],
+    [
+    'title' => isset($edit) && $edit?->id ? 'Edit ' . $page_title : 'Create ' . $page_title,
+    'url' => '',
+    ],
+    ],
+    'route' => $route,
+    'show_add_btn' => false,
+    'show_back_btn' => true,
+    ])
+</div>
 
 
 
@@ -347,13 +347,13 @@ $i = 0;
                     </div>
                 </div>
 
-                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col" >
+                <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
                     <div class="form-group">
                         <label class="form-label">Google Drive Folder URL </label>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly/>
-                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}"/>
-                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}"/>
+                            <input type="text" class="form-control" name="gdrivefolderurl" id="GoogleDriveFolderUrl" value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}" aria-describedby="GoogleDriveFolderUrlCopy" readonly />
+                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName" value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
+                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId" value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
                             <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i class="icon-base bx bx-copy-alt"></i></span>
                         </div>
                     </div>
@@ -397,25 +397,25 @@ $i = 0;
                         </thead>
                         <tbody>
                             @if (isset($education))
-                                @foreach ($education as $educationdetail)
-                                <tr>
-                                    <td>
-                                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
-                                        <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
-                                    </td>
-                                    <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
-                                    <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
-                                    <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
+                            @foreach ($education as $educationdetail)
+                            <tr>
+                                <td>
+                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="{{ $educationdetail->education }}" readonly>
+                                    <input type="hidden" name="education_id[]" value="{{ $educationdetail->id }}">
+                                </td>
+                                <td>
+                                    <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="{{ $educationdetail->percentage_cgpa }}" autocapitalize="off">
+                                </td>
+                                <td>
+                                    <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="{{ $educationdetail->seat_no_nrollment_no }}" autocapitalize="off">
+                                </td>
+                                <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="{{ $educationdetail->board_university }}" autocapitalize="off"></td>
+                                <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="{{ $educationdetail->passing_year }}" autocapitalize="off"></td>
+                                <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="{{ $educationdetail->school_name_college_name }}" autocapitalize="off"></td>
 
-                                    <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
-                                </tr>
-                                @endforeach
+                                <td><button data-education_id="{{ $educationdetail->id }}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                            @endforeach
                             @endif
 
                         </tbody>
@@ -423,20 +423,19 @@ $i = 0;
                 </div>
             </div>
 
-                <div class="row mt-5">
-                    <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-success mt-1">
-                            {{ isset($edit) ? 'Update And Next' : 'Save And Next' }}
-                        </button>
-                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
-                    </div>
+            <div class="row mt-5">
+                <div class="col-md-12 text-center">
+                    <button type="submit" class="btn btn-success mt-1">
+                        {{ isset($edit) ? 'Update' : 'Submit' }}
+                    </button>
+                    <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                 </div>
+            </div>
         </form>
     </div>
 </div>
 
 @endsection
-
 
 @section('page_script_file')
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
