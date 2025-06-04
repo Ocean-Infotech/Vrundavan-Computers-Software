@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
@@ -46,7 +47,6 @@ class FeescollectionpendingController extends Controller
                 (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'contact_no', 'name' => 'contact_no', 'td_label' => 'Contact No'],
                 (object)['data' => 'course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                // (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'DOJ'],
                 (object)['data' => 'total_fee', 'name' => 'total_fee', 'td_label' => 'Total Fees'],
                 (object)['data' => 'paid_fee', 'name' => 'paid_fee', 'td_label' => 'Paid Fees'],
@@ -54,17 +54,48 @@ class FeescollectionpendingController extends Controller
             ];
             View::share("columns", $columns);
 
+            $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
+            $courses = MasterCourse::all();
+
             if ($request->ajax()) {
                 $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
                     ->where('status', 'active')
                     ->groupBy('register_id');
 
-                $data = CourceRegistration::whereIn('id', $sub)
+                $dataQuery = CourceRegistration::whereIn('id', $sub)
                     ->with(['course', 'admission', 'batch', 'class', 'shift', 'feescollection'])
                     ->withTrashed()
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->orderBy('created_at', 'desc');
 
+                // FILTERING
+
+                // Filter by student - search in ID, name or contact_no
+                if ($request->filled('student_filter')) {
+                    $studentFilter = $request->student_filter;
+
+                    // Use whereHas for relation 'admission' to filter name or contact_no
+                    $dataQuery->where(function ($q) use ($studentFilter) {
+                        $q->where('register_id', $studentFilter)
+                            ->orWhereHas('admission', function ($q2) use ($studentFilter) {
+                                $q2->where(DB::raw("CONCAT(first_name,' ',father_name,' ',last_name)"), 'like', "%$studentFilter%")
+                                    ->orWhere('mobile_no', 'like', "%$studentFilter%");
+                            });
+                    });
+                }
+
+                // Filter by course_id
+                if ($request->filled('course_id')) {
+                    $courseId = $request->course_id;
+                    $dataQuery->where('course_id', $courseId);
+                }
+
+                // Filter by single date (date of joining)
+                if ($request->filled('single_date')) {
+                    $date = Carbon::createFromFormat('d-m-Y', $request->single_date)->format('Y-m-d');
+                    $dataQuery->whereDate('date', $date);
+                }
+
+                $data = $dataQuery->get();
 
                 $allRegistrations = CourceRegistration::with('course')
                     ->whereIn('register_id', $data->pluck('register_id'))
@@ -78,65 +109,51 @@ class FeescollectionpendingController extends Controller
 
                 return Datatables::of($data)
                     ->addIndexColumn()
-
-                    // Student name
                     ->editColumn('student_name', function ($row) {
                         $first = $row->admission->first_name ?? '';
                         $father = $row->admission->father_name ?? '';
                         $last = $row->admission->last_name ?? '';
                         return trim("{$first} {$father} {$last}");
-                    })
-
-                    // Contact number
+                })
                     ->addColumn('contact_no', function ($row) {
                         return $row->admission->mobile_no ?? '-';
-                    })
-
-                    // Course Name and Fee
+                })
                     ->editColumn('course_name', function ($row) use ($allRegistrations) {
                         $registrations = $allRegistrations[$row->register_id] ?? collect();
                         return $registrations->map(function ($item) {
                             return $item->course->course_name . ' (' . number_format($item->fee, 2) . ')';
                         })->implode('<br> ');
-                    })
-
-                    // Date of Joining
+                })
                     ->editColumn('date', function ($row) use ($allRegistrations) {
                         $registrations = $allRegistrations[$row->register_id] ?? collect();
                         return $registrations->map(function ($item) {
                             return Carbon::parse($item->date)->format('d-m-Y');
                         })->implode('<br> ');
-                    })
-
-                    // Total Fee
+                })
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
                         $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
                         return '₹' . number_format($total_fee, 2);
-                    })
-
-                    // Paid Fee
+                })
                     ->addColumn('paid_fee', function ($row) use ($feesCollection) {
                         $paid_fee = $feesCollection[$row->register_id] ?? 0;
                         return '₹' . number_format($paid_fee, 2);
-                    })
-
-                    // Pending Fee
+                })
                     ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
                         $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
                         $paid_fee = $feesCollection[$row->register_id] ?? 0;
                         $pending = $total_fee - $paid_fee;
                         return '₹' . number_format($pending, 2);
-                    })
-
+                })
                     ->rawColumns(['total_fee', 'course_name', 'date'])
                     ->make(true);
             }
 
-            return view($modules['folder_path'] . '.index');
+            return view($modules['folder_path'] . '.index', compact('admissions', 'courses'));
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Show the form for creating a new resource.
