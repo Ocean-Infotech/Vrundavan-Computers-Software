@@ -53,20 +53,22 @@ class AdmissionController extends Controller
 
         try {
             $columns = [
-                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
-                (object)['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
-                (object)['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
-                (object)['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
-                (object)['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' =>  'w-5 text-center'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+                (object) ['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
+                (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
+                (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' => 'w-5 text-center'],
+                (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
+                (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             View::share("columns", $columns);
 
             $data = [];
 
             if ($request->ajax()) {
-                $data = Admission::withTrashed();
+                // $data = Admission::withTrashed();
+                $data = Admission::withTrashed()->orderBy('created_at', 'desc');
+
 
                 $editPermisstion = true;
                 $deletePermisstion = false;
@@ -187,10 +189,8 @@ class AdmissionController extends Controller
         try {
 
             $loginUserId = Auth::user()->id;
-
-            // return $this->adminLoginUser;
             $validated['created_by'] = $loginUserId;
-            // return $validated;
+
             $admission = Admission::create($validated);
             $admission_id = $admission->id;
 
@@ -207,7 +207,8 @@ class AdmissionController extends Controller
                 ]);
             }
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+            return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])
+                ->withSuccess($modules['title'] . ' New Admission created successfully');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -232,62 +233,56 @@ class AdmissionController extends Controller
         }
     }
 
-    public function update(AdmissionRequest $request, string $id)
+    public function update(AdmissionRequest $request, string $register_id)
     {
         $modules = $this->modules;
-        // return $request->all();
-        $request['id'] = $id;
-
         $validated = $request->validated();
         try {
-            $validated['updated_by'] = Auth::user()->id;
-            // return $validated;
-            $updateData = Admission::findOrFail($id);
-            if ($updateData) {
-                unset($validated['id']);
-                $updateData->update($validated);
+            $validated['updated_by'] = Auth::id();
 
-                if ($request->has('education_id')) {
+            $CourceRegistration = CourceRegistration::where('register_id', $register_id)->firstOrFail();
 
+            $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
 
-                    // EducationDetails::where('admission_id', $id)->forceDelete();
+            $admission->update($validated);
 
-                    $education = $request->education;
-                    foreach ($education as $key => $value) {
+            if ($request->has('education_id')) {
+                $education = $request->education;
+                foreach ($education as $key => $value) {
+                    $education_id = $request->education_id[$key];
+                    $data = [
+                        'admission_id' => $admission->id,
+                        'education' => $value,
+                        'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
+                        'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
+                        'board_university' => $request->board_university[$key],
+                        'passing_year' => $request->passing_year[$key] ?? 0,
+                        'school_name_college_name' => $request->school_name_college_name[$key],
+                    ];
 
-                        $education_id = $request->education_id[$key];
-                        $EducationupdateData = EducationDetails::find($education_id);
-                        if ($EducationupdateData) {
-                            $EducationupdateData->update([
-                                'admission_id' => $id,
-                                'education' => $value,
-                                'percentage_cgpa' => $request->percentage_cgpa[$key],
-                                'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key],
-                                'board_university' => $request->board_university[$key],
-                                'passing_year' => $request->passing_year[$key],
-                                'school_name_college_name' => $request->school_name_college_name[$key],
-                            ]);
-                        } else {
-                            EducationDetails::create([
-                                'admission_id' => $id,
-                                'education' => $value,
-                                'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
-                                'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
-                                'board_university' => $request->board_university[$key],
-                                'passing_year' => $request->passing_year[$key] ?? 0,
-                                'school_name_college_name' => $request->school_name_college_name[$key],
-                            ]);
-                        }
+                    if ($education_id) {
+                        $existingEdu = EducationDetails::find($education_id);
+                        $existingEdu ? $existingEdu->update($data) : EducationDetails::create($data);
+                    } else {
+                        EducationDetails::create($data);
                     }
                 }
-
-                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
             }
-            return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
+
+            return Redirect::route('cource-registration.edit', [
+                'register_id' => $CourceRegistration->id
+            ])->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            // return $e->getMessage();
+            return Redirect::back()->withErrors($e->getMessage())->withInput();
         }
     }
+
+
+
+
+
+
 
     public function education_detail_delete(Request $request)
     {
@@ -436,7 +431,7 @@ class AdmissionController extends Controller
             $createfolder->gdrivefoldername = $folder->name;
             $createfolder->save();
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name  . ' Create Google Drive Folder successfully!');
+            return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -518,46 +513,52 @@ class AdmissionController extends Controller
     }
 
 
-    public function aadharCardNoStudentData(Request $request)
+    public function aadharCardNoToData(Request $request)
     {
-        $aadhar = $request->input('aadhar');
-
-        // Fetch the user with Aadhaar
+        $aadhar = $request->aadhar;
         $user = Admission::where('aadhar_card_no', $aadhar)->first();
 
-        if ($user) {
-
-            $educationDetails = EducationDetails::where('admission_id', $user->id)->get();
-
+        // If no admission found, no redirect, just say no user
+        if (!$user) {
             return response()->json([
-                'user' => [
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'father_name' => $user->father_name,
-                    'mother_name' => $user->mother_name,
-                    'mobile_no' => $user->mobile_no,
-                    'email' => $user->email_address,
-                    'date_of_birth' => $user->date_of_birth,
-                    'gender' => $user->gender,
-                    'category' => $user->category,
-                    'cast' => $user->cast,
-                    'enrolment_no' => $user->enrolment_no,
-                    'spid' => $user->spid,
-                    'occupation' => $user->occupation,
-                    'status' => $user->status,
-                    'temporary_address' => $user->temporary_address,
-                    'permanent_address' => $user->permanent_address,
-                    'parent_mobile_no' => $user->parent_mobile_no,
-                    'other_mobile_no' => $user->other_mobile_no,
-                    'whatsapp_no' => $user->whatsapp_no,
-                    'apaari_id_abc_id' => $user->apaar_id_abc_id,
-                ],
-                'education_details' => $educationDetails
+                'redirect' => false,
+                'message' => 'No admission found with this Aadhaar number.'
             ]);
         }
 
-        return response()->json([]);
+        // Check if course registration exists
+        $hasCourseRegistration = CourceRegistration::where('register_id', $user->id)->exists();
+
+        if ($hasCourseRegistration) {
+            // Course registration exists
+            return response()->json([
+                'redirect' => true,
+                'redirect_url' => route('cource-registration.create', ['admission_id' => $user->id]),
+                'message' => "<div style='text-align:left; font-size:16px; line-height:1.7em;'>
+                                <strong>Name:</strong> {$user->first_name} {$user->last_name}<br>
+                                <strong>Father Name:</strong> {$user->father_name}<br>
+                                <strong>Aadhaar:</strong> {$user->aadhar_card_no}<br>
+                                <strong>ID:</strong> {$user->id}<br>
+                                You already have a course registration.
+                              </div>",
+            ]);
+        } else {
+            return response()->json([
+                'redirect' => true,
+                'redirect_url' => route('cource-registration.create', ['admission_id' => $user->id]),
+                'message' => "<div style='text-align:left; font-size:16px; line-height:1.7em;'>
+                                <strong>Name:</strong> {$user->first_name} {$user->last_name}<br>
+                                <strong>Father Name:</strong> {$user->father_name}<br>
+                                <strong>Aadhaar:</strong> {$user->aadhar_card_no}<br>
+                                <strong>ID:</strong> {$user->id}<br>
+                                Admission form complete but course registration not done yet.
+                              </div>",
+            ]);
+        }
     }
+
+
+
 
     public function courseFeesGet(Request $request)
     {

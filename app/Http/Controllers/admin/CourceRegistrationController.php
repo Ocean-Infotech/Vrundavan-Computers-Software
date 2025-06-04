@@ -46,16 +46,16 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Stud ID'],
-                (object)['data' => 'id', 'name' => 'id', 'td_label' => 'Addm ID'],
-                (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
-                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => 'batch_and_class_or_shift', 'name' => 'batch_and_class_or_shift', 'td_label' => 'Batch and Class or Shift'],
-                (object)['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
-                (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
-                (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%', 'orderable' => false],
-                (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action', 'className' => 'w-10 text-center', 'orderable' => false, 'searchable' => false],
+                (object) ['data' => 'register_id', 'name' => 'register_id', 'td_label' => 'Stud ID'],
+                (object) ['data' => 'id', 'name' => 'id', 'td_label' => 'Addm ID'],
+                (object) ['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
+                (object) ['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object) ['data' => 'batch_and_class_or_shift', 'name' => 'batch_and_class_or_shift', 'td_label' => 'Batch and Class or Shift'],
+                (object) ['data' => 'fee', 'name' => 'fee', 'td_label' => 'Course Fees'],
+                (object) ['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
+                (object) ['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
+                (object) ['data' => 'status', 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%', 'orderable' => false],
+                (object) ['data' => 'action', 'name' => 'action', 'td_label' => 'Action', 'className' => 'w-10 text-center', 'orderable' => false, 'searchable' => false],
             ];
             View::share("columns", $columns);
 
@@ -94,7 +94,7 @@ class CourceRegistrationController extends Controller
                         $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
                         $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
 
-                        $shift = $from_time.' To '.$to_time ?? '';
+                        $shift = $from_time . ' To ' . $to_time ?? '';
                         return trim("{$batch}<br>{$class}<br>{$shift}");
                     })
 
@@ -104,12 +104,12 @@ class CourceRegistrationController extends Controller
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
                         // $btn = ucfirst($row->status);
-
+    
                         // $btn .= '<ul class="dropdown-menu" style="">
                         // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Active</a></li>
                         // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Inactive</a></li>
                         // </ul>';
-
+    
                         $dropdown = "";
                         $dropdown .= '<ul class="dropdown-menu" style="">';
 
@@ -166,16 +166,23 @@ class CourceRegistrationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($id = null)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $admission_id = session('admission_id') ?? $id;
+
+        $student = null;
+        if ($admission_id) {
+            $student = Admission::find($admission_id);
+        }
+
+        // Get all admissions if needed for datalist
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
-        return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'student', 'admission_id', 'admissions'));
     }
-
-
 
     public function get_register_cource(Request $request)
     {
@@ -186,8 +193,8 @@ class CourceRegistrationController extends Controller
 
             $admission = Admission::find($id);
             return response()->json([
-            'data' => $getcource,
-            'admission'=> $admission,
+                'data' => $getcource,
+                'admission' => $admission,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -201,7 +208,7 @@ class CourceRegistrationController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        
+
         try {
             $coursereg = $request->validated();
 
@@ -214,7 +221,7 @@ class CourceRegistrationController extends Controller
 
             CourceRegistration::create($coursereg);
 
-            return Redirect::route($modules['route'] . '.index')
+            return Redirect::route('admission.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -239,7 +246,6 @@ class CourceRegistrationController extends Controller
             View::share('modules', $modules);
 
             $admissions = Admission::all();
-            // return view($modules['folder_path'] . '.form', compact('modules', 'courses', 'education'));
             $edit = CourceRegistration::findOrFail($id);
             return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
         } catch (\Exception $e) {
@@ -258,28 +264,29 @@ class CourceRegistrationController extends Controller
         $request['id'] = $id;
 
         $validated = $request->validated();
-        
+
         try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
             $updateData = CourceRegistration::findOrFail($id);
             if ($updateData) {
                 unset($validated['id']);
-                
+
                 if (!empty($validated['date'])) {
                     $validated['date'] = Carbon::parse($validated['date'])->format('Y-m-d');
                 }
-                
+
 
                 $updateData->update($validated);
-                
-                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' update successfully');
+
+                return Redirect::route('admission.index')->withSuccess($modules['title'] . ' update successfully');
             }
             return Redirect::back()->withErrors('something went wrong please try again later')->withInput();
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Remove the specified resource from storage.
