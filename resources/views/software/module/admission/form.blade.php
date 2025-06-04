@@ -10,6 +10,12 @@
 @section('title', $page_title)
 
 @section('page_style_file')
+<style>
+    .swal2-popup.swal-wide {
+        width: 550px !important;
+    }
+    </style>
+
     {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
 @endsection
 
@@ -47,6 +53,10 @@
                     @method('PUT')
                 @endisset
                 <div class="row">
+                    <!-- Hidden fields to pass to controller -->
+                    <input type="hidden" name="aadhar_card_no" id="aadhar_hidden">
+                    <input type="hidden" name="admission_id" id="admission_hidden">
+
                     <div class="col-md-4 col-sm-12  mb-3">
                         <div class="form-group">
                             <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
@@ -529,7 +539,7 @@
                 <div class="row mt-5">
                     <div class="col-md-12 text-center">
                         <button type="submit" class="btn btn-success mt-1">
-                            {{ isset($edit) ? 'Update And Next' : 'Submit And Next' }}
+                            {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
                         <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
@@ -543,9 +553,12 @@
 @section('page_script_file')
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('page_leavel_script')
+
+
 
     <script>
         $(function() {
@@ -556,76 +569,109 @@
                         data: {
                             term: request.term
                         },
+                        dataType: 'json',
                         success: function(data) {
                             response(data);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Suggestion AJAX error:', error);
                         }
                     });
                 },
                 minLength: 3,
                 select: function(event, ui) {
-                    // Auto-fill other fields
+                    event.preventDefault(); // prevent default behavior
+
                     $.ajax({
                         url: "{{ route($route . '.aadhar-card-no-to-data') }}",
                         data: {
                             aadhar: ui.item.value
                         },
+                        dataType: 'json',
                         success: function(data) {
-                            // Fill user fields
-                            $('#first_name').val(data.user.first_name);
-                            $('#last_name').val(data.user.last_name);
-                            $('#father_name').val(data.user.father_name);
-                            $('#mother_name').val(data.user.mother_name);
-                            $('#mobile_no').val(data.user.mobile_no);
-                            $('#email_address').val(data.user.email);
-                            $('#date_of_birth').val(data.user.date_of_birth);
-                            // $('#gender_' + data.user.gender.toLowerCase()).prop('checked', true);
-                            // $('#category_' + data.user.category.toLowerCase()).prop('checked', true);
-                            $("input[name='gender'][value='" + data.user.gender + "']")
-                                .prop("checked", true);
-                            $("input[name='category'][value='" + data.user.category + "']")
-                                .prop("checked", true);
-                            $('#temporary_address').val(data.user.temporary_address);
-                            $('#permanent_address').val(data.user.permanent_address);
-                            $('#parent_mobile_no').val(data.user.parent_mobile_no);
-                            $('#other_mobile_no').val(data.user.other_mobile_no);
-                            $('#whatsapp_no').val(data.user.whatsapp_no);
-                            $('#cast').val(data.user.cast);
-                            $('#occupation').val(data.user.occupation);
-                            $('#enrolment_no').val(data.user.enrolment_no);
-                            $('#spid').val(data.user.spid);
-                            $('#apaar_id_abc_id').val(data.user.apaari_id_abc_id);
+                            console.log('Server response:', data);
 
-                            // Clear existing education rows
-                            $('#education_details_table tbody').empty();
+                            // If redirect is needed
+                            if (data.redirect === true && data.redirect_url) {
+                                Swal.fire({
+                                    title: 'Course Already Registered',
+                                    html: data.message,
+                                    icon: 'info',
+                                    confirmButtonText: 'Proceed',
+                                    customClass: {
+                                        popup: 'swal-wide'
+                                    }
+                                }).then(() => {
+                                    window.location.href = data.redirect_url;
+                                });
+                            }
 
-                            // Fill education details
-                            data.education_details.forEach(function(item) {
-                                $('#education_details_table tbody').append(`
-                            <tr>
-                                <td>
-                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education}" readonly>
-                                    <input type="hidden" name="education_id[]" value="${item.id}">
-                                </td>
-                                <td>
-                                    <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="${item.percentage_cgpa}" autocapitalize="off">
-                                </td>
-                                <td>
-                                    <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="${item.seat_no_nrollment_no}" autocapitalize="off">
-                                </td>
-                                <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="${item.board_university}" autocapitalize="off"></td>
-                                <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value="${item.passing_year}" autocapitalize="off"></td>
-                                <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="${item.school_name_college_name}" autocapitalize="off"></td>
+                            // If no redirect, fill the form
+                            if (data.user) {
+                                $('#first_name').val(data.user.first_name || '');
+                                $('#last_name').val(data.user.last_name || '');
+                                $('#father_name').val(data.user.father_name || '');
+                                $('#mother_name').val(data.user.mother_name || '');
+                                $('#mobile_no').val(data.user.mobile_no || '');
+                                $('#email_address').val(data.user.email || '');
+                                $('#date_of_birth').val(data.user.date_of_birth || '');
 
-                                <td><button data-education_id="${item.id}" type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
-                            </tr>
-                        `);
-                            });
+                                $("input[name='gender'][value='" + (data.user.gender ||
+                                    '') + "']").prop("checked", true);
+                                $("input[name='category'][value='" + (data.user.category ||
+                                    '') + "']").prop("checked", true);
+
+                                $('#temporary_address').val(data.user.temporary_address ||
+                                    '');
+                                $('#permanent_address').val(data.user.permanent_address ||
+                                    '');
+                                $('#parent_mobile_no').val(data.user.parent_mobile_no ||
+                                    '');
+                                $('#other_mobile_no').val(data.user.other_mobile_no || '');
+                                $('#whatsapp_no').val(data.user.whatsapp_no || '');
+                                $('#cast').val(data.user.cast || '');
+                                $('#occupation').val(data.user.occupation || '');
+                                $('#enrolment_no').val(data.user.enrolment_no || '');
+                                $('#spid').val(data.user.spid || '');
+                                $('#apaar_id_abc_id').val(data.user.apaar_id_abc_id || '');
+
+                                // Populate education details
+                                $('#education_details_table tbody').empty();
+                                if (Array.isArray(data.education_details)) {
+                                    data.education_details.forEach(function(item) {
+                                        $('#education_details_table tbody').append(`
+                                                <tr>
+                                                    <td>
+                                                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education || ''}" readonly>
+                                                        <input type="hidden" name="education_id[]" value="${item.id || ''}">
+                                                    </td>
+                                                    <td><input type="text" name="percentage_cgpa[]" class="form-control num_only" value="${item.percentage_cgpa || ''}"></td>
+                                                    <td><input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" value="${item.seat_no_nrollment_no || ''}"></td>
+                                                    <td><input type="text" name="board_university[]" class="form-control" value="${item.board_university || ''}"></td>
+                                                    <td><input type="text" name="passing_year[]" class="form-control" value="${item.passing_year || ''}"></td>
+                                                    <td><input type="text" name="school_name_college_name[]" class="form-control" value="${item.school_name_college_name || ''}"></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger remove_row">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            `);
+                                    });
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Data fetch AJAX error:', error);
                         }
                     });
                 }
             });
         });
     </script>
+
+
+
 
     <script>
         $(document).ready(function() {

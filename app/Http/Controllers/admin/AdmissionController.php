@@ -172,10 +172,18 @@ class AdmissionController extends Controller
     public function store(AdmissionRequest $request)
     {
         $modules = $this->modules;
+        // $modules['addPermission'] = Gate::check('hasPermission', ['add',$modules['module_name']]);
+
+        // if(!$modules['addPermission']){
+        //     abort(403, 'Unauthorized');
+        // }
+
+
 
         View::share('modules', $modules);
 
         $validated = $request->validated();
+        // return $request->all();
 
 
         try {
@@ -505,46 +513,43 @@ class AdmissionController extends Controller
     }
 
 
-    public function aadharCardNoStudentData(Request $request)
+    public function aadharCardNoToData(Request $request)
     {
-        $aadhar = $request->input('aadhar');
-
-        // Fetch the user with Aadhaar
+        $aadhar = $request->aadhar;
         $user = Admission::where('aadhar_card_no', $aadhar)->first();
 
-        if ($user) {
+        if (!$user) {
+            return response()->json(['redirect' => true]);
+        }
 
-            $educationDetails = EducationDetails::where('admission_id', $user->id)->get();
+        $hasCourseRegistration = CourceRegistration::where('register_id', $user->id)->exists();
 
+        if ($hasCourseRegistration) {
             return response()->json([
-                'user' => [
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'father_name' => $user->father_name,
-                    'mother_name' => $user->mother_name,
-                    'mobile_no' => $user->mobile_no,
-                    'email' => $user->email_address,
-                    'date_of_birth' => $user->date_of_birth,
-                    'gender' => $user->gender,
-                    'category' => $user->category,
-                    'cast' => $user->cast,
-                    'enrolment_no' => $user->enrolment_no,
-                    'spid' => $user->spid,
-                    'occupation' => $user->occupation,
-                    'status' => $user->status,
-                    'temporary_address' => $user->temporary_address,
-                    'permanent_address' => $user->permanent_address,
-                    'parent_mobile_no' => $user->parent_mobile_no,
-                    'other_mobile_no' => $user->other_mobile_no,
-                    'whatsapp_no' => $user->whatsapp_no,
-                    'apaari_id_abc_id' => $user->apaar_id_abc_id,
-                ],
-                'education_details' => $educationDetails
+                'redirect' => true,
+                'redirect_url' => route('cource-registration.create', ['admission_id' => $user->id]),
+                'message' => "<div style='text-align:left; font-size:16px; line-height:1.7em;'>
+                                <strong>Name:</strong> {$user->first_name} {$user->last_name}<br>
+                                <strong>Father Name:</strong> {$user->father_name}<br>
+                                <strong>Aadhaar:</strong> {$user->aadhar_card_no}<br>
+                                <strong>ID:</strong> {$user->id}
+                              </div>",
             ]);
         }
 
-        return response()->json([]);
+
+
+        $educationDetails = EducationDetails::where('admission_id', $user->id)->get();
+
+        return response()->json([
+            'redirect' => true,
+            'user' => $user,
+            'education_details' => $educationDetails,
+        ]);
     }
+
+
+
 
     public function courseFeesGet(Request $request)
     {
