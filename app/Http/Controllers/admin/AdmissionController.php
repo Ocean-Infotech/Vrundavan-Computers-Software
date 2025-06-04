@@ -518,13 +518,19 @@ class AdmissionController extends Controller
         $aadhar = $request->aadhar;
         $user = Admission::where('aadhar_card_no', $aadhar)->first();
 
+        // If no admission found, no redirect, just say no user
         if (!$user) {
-            return response()->json(['redirect' => true]);
+            return response()->json([
+                'redirect' => false,
+                'message' => 'No admission found with this Aadhaar number.'
+            ]);
         }
 
+        // Check if course registration exists
         $hasCourseRegistration = CourceRegistration::where('register_id', $user->id)->exists();
 
         if ($hasCourseRegistration) {
+            // Course registration exists
             return response()->json([
                 'redirect' => true,
                 'redirect_url' => route('cource-registration.create', ['admission_id' => $user->id]),
@@ -532,20 +538,23 @@ class AdmissionController extends Controller
                                 <strong>Name:</strong> {$user->first_name} {$user->last_name}<br>
                                 <strong>Father Name:</strong> {$user->father_name}<br>
                                 <strong>Aadhaar:</strong> {$user->aadhar_card_no}<br>
-                                <strong>ID:</strong> {$user->id}
+                                <strong>ID:</strong> {$user->id}<br>
+                                You already have a course registration.
+                              </div>",
+            ]);
+        } else {
+            return response()->json([
+                'redirect' => true,
+                'redirect_url' => route('cource-registration.create', ['admission_id' => $user->id]),
+                'message' => "<div style='text-align:left; font-size:16px; line-height:1.7em;'>
+                                <strong>Name:</strong> {$user->first_name} {$user->last_name}<br>
+                                <strong>Father Name:</strong> {$user->father_name}<br>
+                                <strong>Aadhaar:</strong> {$user->aadhar_card_no}<br>
+                                <strong>ID:</strong> {$user->id}<br>
+                                Admission form complete but course registration not done yet.
                               </div>",
             ]);
         }
-
-
-
-        $educationDetails = EducationDetails::where('admission_id', $user->id)->get();
-
-        return response()->json([
-            'redirect' => true,
-            'user' => $user,
-            'education_details' => $educationDetails,
-        ]);
     }
 
 

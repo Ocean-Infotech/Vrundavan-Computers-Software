@@ -10,10 +10,10 @@
 @section('title', $page_title)
 
 @section('page_style_file')
-<style>
-    .swal2-popup.swal-wide {
-        width: 550px !important;
-    }
+    <style>
+        .swal2-popup.swal-wide {
+            width: 550px !important;
+        }
     </style>
 
     {{-- <link href="{{ asset('public/assets/admin/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"> --}}
@@ -593,8 +593,20 @@
 
                             // If redirect is needed
                             if (data.redirect === true && data.redirect_url) {
+                                // Determine the title dynamically based on message content
+                                let alertTitle = 'Info';
+
+                                if (data.message.includes(
+                                        'already have a course registration')) {
+                                    alertTitle = 'Course Already Registered';
+                                } else if (data.message.includes(
+                                        'Admission form complete but course registration not done yet'
+                                        )) {
+                                    alertTitle = 'Course Registration Pending';
+                                }
+
                                 Swal.fire({
-                                    title: 'Course Already Registered',
+                                    title: alertTitle,
                                     html: data.message,
                                     icon: 'info',
                                     confirmButtonText: 'Proceed',
