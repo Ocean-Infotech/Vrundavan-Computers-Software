@@ -188,6 +188,11 @@
                         <div data-i18n="Batch Master">Batch Master</div>
                     </a>
                 </li>
+                <li class="menu-item {{ $sidebar_active == 'class' ? 'active' : '' }}">
+                    <a href="{{ route('class.index') }}" class="menu-link">
+                        <div data-i18n="Class Master">Class Master</div>
+                    </a>
+                </li>
                 <li class="menu-item {{ $sidebar_active == 'shift' ? 'active' : '' }}">
                     <a href="{{ route('shift.index') }}" class="menu-link">
                         <div data-i18n="Shift Master">Shift Master</div>
@@ -199,73 +204,69 @@
                     </a>
                 </li>
 
-                <li class="menu-item {{ $sidebar_active == 'class' ? 'active' : '' }}">
-                    <a href="{{ route('class.index') }}" class="menu-link">
-                        <div data-i18n="Class Master">Class Master</div>
-                    </a>
-                </li>
+
 
             </ul>
         </li>
 
         @directCan('master-module')
             <!-- <li
-                                                                    class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode' || $sidebar_active == 'document-type' || $sidebar_active == 'documents' ? 'active open' : '' }}">
-                                                                    <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                                                        <i class="menu-icon icon-base bx bx-cog"></i>
-                                                                        <div data-i18n="Master Modules">Master Modules</div>
-                                                                    </a>
-                                                                    <ul class="menu-sub">
+                                                                            class="menu-item {{ $sidebar_active == 'country' || $sidebar_active == 'state' || $sidebar_active == 'city' || $sidebar_active == 'pincode' || $sidebar_active == 'document-type' || $sidebar_active == 'documents' ? 'active open' : '' }}">
+                                                                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                                                                <i class="menu-icon icon-base bx bx-cog"></i>
+                                                                                <div data-i18n="Master Modules">Master Modules</div>
+                                                                            </a>
+                                                                            <ul class="menu-sub">
 
-                                                                        @directCanAny(['country-list', 'country-create', 'country-edit', 'country-delete'])
+                                                                                @directCanAny(['country-list', 'country-create', 'country-edit', 'country-delete'])
         <li class="menu-item {{ $sidebar_active == 'country' ? 'active' : '' }}">
-                                                                                                                                    <a href="{{ route('country.index') }}" class="menu-link">
-                                                                                                                                        <div data-i18n="Country">Country</div>
-                                                                                                                                    </a>
-                                                                                                                                </li>
+                                                                                                                                                    <a href="{{ route('country.index') }}" class="menu-link">
+                                                                                                                                                        <div data-i18n="Country">Country</div>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
     @enddirectCanAny
 
-                                                                        @directCanAny(['state-list', 'state-create', 'state-edit', 'state-delete'])
+                                                                                @directCanAny(['state-list', 'state-create', 'state-edit', 'state-delete'])
         <li class="menu-item {{ $sidebar_active == 'state' ? 'active' : '' }}">
-                                                                                                                                    <a href="{{ route('state.index') }}" class="menu-link">
-                                                                                                                                        <div data-i18n="State">State</div>
-                                                                                                                                    </a>
-                                                                                                                                </li>
+                                                                                                                                                    <a href="{{ route('state.index') }}" class="menu-link">
+                                                                                                                                                        <div data-i18n="State">State</div>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
     @enddirectCanAny
 
-                                                                        @directCanAny(['city-list', 'city-create', 'city-edit', 'city-delete'])
+                                                                                @directCanAny(['city-list', 'city-create', 'city-edit', 'city-delete'])
         <li class="menu-item {{ $sidebar_active == 'city' ? 'active' : '' }}">
-                                                                                                                                    <a href="{{ route('city.index') }}" class="menu-link">
-                                                                                                                                        <div data-i18n="City">City</div>
-                                                                                                                                    </a>
-                                                                                                                                </li>
+                                                                                                                                                    <a href="{{ route('city.index') }}" class="menu-link">
+                                                                                                                                                        <div data-i18n="City">City</div>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
     @enddirectCanAny
 
-                                                                        @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
+                                                                                @directCanAny(['pincode-list', 'pincode-create', 'pincode-edit', 'pincode-delete'])
         <li class="menu-item {{ $sidebar_active == 'pincode' ? 'active' : '' }}">
-                                                                                                                                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
-                                                                                                                                                                        <div data-i18n="Pincode">Pincode</div>
-                                                                                                                                                                    </a>
-                                                                                                                                                                </li>
+                                                                                                                                                                                    <a href="{{ route('pincode.index') }}" class="menu-link">
+                                                                                                                                                                                        <div data-i18n="Pincode">Pincode</div>
+                                                                                                                                                                                    </a>
+                                                                                                                                                                                </li>
     @enddirectCanAny
 
-                                                                        @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
+                                                                                @directCanAny(['document-type-list', 'document-type-create', 'document-type-edit', 'document-type-delete'])
         <li class="menu-item {{ $sidebar_active == 'document-type' ? 'active' : '' }}">
-                                                                                                                                    <a href="{{ route('document-type.index') }}" class="menu-link">
-                                                                                                                                        <div data-i18n="Document Type">Document Type</div>
-                                                                                                                                    </a>
-                                                                                                                                </li>
+                                                                                                                                                    <a href="{{ route('document-type.index') }}" class="menu-link">
+                                                                                                                                                        <div data-i18n="Document Type">Document Type</div>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
     @enddirectCanAny
 
-                                                                        @directCanAny(['documents-list', 'documents-create', 'documents-edit', 'documents-delete'])
+                                                                                @directCanAny(['documents-list', 'documents-create', 'documents-edit', 'documents-delete'])
         <li class="menu-item {{ $sidebar_active == 'documents' ? 'active' : '' }}">
-                                                                                                                                    <a href="{{ route('documents.index') }}" class="menu-link">
-                                                                                                                                        <div data-i18n="Document's">Document's</div>
-                                                                                                                                    </a>
-                                                                                                                                </li>
+                                                                                                                                                    <a href="{{ route('documents.index') }}" class="menu-link">
+                                                                                                                                                        <div data-i18n="Document's">Document's</div>
+                                                                                                                                                    </a>
+                                                                                                                                                </li>
     @enddirectCanAny
-                                                                    </ul>
-                                                                </li> -->
+                                                                            </ul>
+                                                                        </li> -->
         @enddirectCanAny
 
     </ul>

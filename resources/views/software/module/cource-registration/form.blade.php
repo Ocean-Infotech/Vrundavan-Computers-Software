@@ -30,7 +30,7 @@
             ],
             'route' => $route,
             'show_add_btn' => false,
-            'show_back_btn' => true,
+            'show_back_btn' => false,
         ])
     </div>
 
@@ -219,7 +219,8 @@
                     {{-- Submit --}}
                     <div class="col-md-12 text-center mt-4">
                         <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
-                        <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
+                        <a href="{{ route('admission.index') }}" class="btn btn-danger">Cancel</a>
+
                     </div>
                 </div>
             </form>
@@ -236,7 +237,7 @@
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                        <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 
