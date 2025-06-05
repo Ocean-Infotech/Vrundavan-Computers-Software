@@ -176,7 +176,7 @@
 
                             {{-- Date --}}
                             <div class="col-md-12 mb-3">
-                                <label for="date">Date <span class="text-danger">*</span></label>
+                                <label for="date">Joining Date <span class="text-danger">*</span></label>
                                 <input type="date" name="date" id="flatpickr-date"
                                     class="form-control datepicker @error('date') is-invalid @enderror"
                                     value="{{ old('date', $edit->date ?? '') }}" placeholder="DD-MM-YYYY">

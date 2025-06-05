@@ -86,7 +86,8 @@ class AdmissionController extends Controller
                         $first = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
+                        $fullName = trim("{$first} {$father} {$last}");
+                        return strtoupper($fullName);
                     })
 
                     ->editColumn('gdrivefolderurl', function ($row) {
