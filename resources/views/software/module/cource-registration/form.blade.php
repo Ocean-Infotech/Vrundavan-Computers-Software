@@ -129,35 +129,7 @@
                                 </div>
                             </div>
 
-                            <!-- Create Batch Modal -->
-                            <div class="modal fade" id="createBatchModal" tabindex="-1"
-                                aria-labelledby="createBatchModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <form id="createBatchForm">
-                                        @csrf
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="createBatchModalLabel">Create New Batch</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="new_batch_name" class="form-label">Batch Name</label>
-                                                    <input type="text" class="form-control" id="new_batch_name"
-                                                        name="batch_name" required>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-success"
-                                                    id="submitCreateBatch">Save</button>
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+
 
 
 
@@ -188,36 +160,7 @@
                                 </div>
                             </div>
 
-                            <!-- Create Class Modal -->
-                            <div class="modal fade" id="createClassModal" tabindex="-1"
-                                aria-labelledby="createClassModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <form id="createClassForm">
-                                        @csrf
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="createClassModalLabel">Create New Class</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="class" class="form-label">Class Name</label>
-                                                    <input type="text" class="form-control" id="new_class_name"
-                                                        name="class">
 
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" id="submitCreateClass"
-                                                    class="btn btn-success">Save</button>
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
 
 
                             {{-- Shift --}}
@@ -247,36 +190,7 @@
                                 </div>
                             </div>
 
-                            <!-- Create Shift Modal -->
-                            <div class="modal fade" id="createShiftModal" tabindex="-1"
-                                aria-labelledby="createShiftLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <form id="createShiftForm">
-                                        @csrf
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Create Shift</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group mb-3">
-                                                    <label for="from_time">From Time</label>
-                                                    <input type="time" name="from_time" class="form-control" required>
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="to_time">To Time</label>
-                                                    <input type="time" name="to_time" class="form-control" required>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-success" id="saveShiftBtn">Save
-                                                    Shift</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+
 
                             {{-- Fees (auto-filled) --}}
                             <div class="col-md-12 mb-3">
@@ -335,12 +249,97 @@
 
                     {{-- Submit --}}
                     <div class="col-md-12 text-center mt-4">
+
                         <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
                         <a href="{{ route('admission.index') }}" class="btn btn-danger">Cancel</a>
-
                     </div>
                 </div>
             </form>
+
+            <!-- Create Shift Modal -->
+            <div class="modal fade" id="createShiftModal" tabindex="-1" aria-labelledby="createShiftLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createShiftForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Create Shift</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group mb-3">
+                                    <label for="from_time">From Time</label>
+                                    <input type="time" name="from_time" class="form-control" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="to_time">To Time</label>
+                                    <input type="time" name="to_time" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" id="saveShiftBtn">Save
+                                    Shift</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Create Class Modal -->
+            <div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createClassForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createClassModalLabel">Create New Class</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="class" class="form-label">Class Name</label>
+                                    <input type="text" class="form-control" id="new_class_name" name="class">
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="submitCreateClass" class="btn btn-success">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Create Batch Modal -->
+            <div class="modal fade" id="createBatchModal" tabindex="-1" aria-labelledby="createBatchModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createBatchForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createBatchModalLabel">Create New Batch</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="new_batch_name" class="form-label">Batch Name</label>
+                                    <input type="text" class="form-control" id="new_batch_name" name="batch_name"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success" id="submitCreateBatch">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -354,7 +353,7 @@
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                                                                                                                        <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 
