@@ -57,424 +57,431 @@
                     <input type="hidden" name="aadhar_card_no" id="aadhar_hidden">
                     <input type="hidden" name="admission_id" id="admission_hidden">
 
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Aadhar Card No. <span class="text-danger">*</span> </label>
-                            <input id="aadhar_card_no" type="text"
-                                class="form-control @error('aadhar_card_no') is-invalid @enderror num_only" minlength="12"
-                                maxlength="12" name="aadhar_card_no"
-                                value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                                autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhar Card No."
-                                autocapitalize="off">
-
-                            @error('aadhar_card_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> First Name <span class="text-danger">*</span> </label>
-                            <input id="first_name" type="text"
-                                class="form-control @error('first_name') is-invalid @enderror" name="first_name"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
-                                placeholder="Enter First Name">
-
-                            @error('first_name')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
-                            <input id="last_name" type="text"
-                                class="form-control @error('last_name') is-invalid @enderror " name="last_name"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
-                                placeholder="Enter Last Name">
-
-                            @error('last_name')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
-                            <input id="father_name" type="text"
-                                class="form-control @error('father_name') is-invalid @enderror " name="father_name"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
-                                placeholder="Enter Father Name">
-
-                            @error('father_name')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
-                            <input id="mother_name" type="text"
-                                class="form-control @error('mother_name') is-invalid @enderror " name="mother_name"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
-                                placeholder="Enter Mother Name">
-
-                            @error('mother_name')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Temporary Address <span class="text-danger">*</span> </label>
-                            <textarea rows="1" id="temporary_address" type="text"
-                                class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address"
-                                placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
-                            @error('temporary_address')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Permanent Address <span class="text-danger">*</span> </label>
-                            <textarea rows="1" id="permanent_address" type="text"
-                                class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address"
-                                placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
-                            @error('permanent_address')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Mobile No. <span class="text-danger">*</span> </label>
-                            <input id="mobile_no" type="text" minlength="10" maxlength="10"
-                                class="form-control @error('mobile_no') is-invalid @enderror num_only" name="mobile_no"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}"
-                                placeholder="Enter Mobile No.">
-
-                            @error('mobile_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Parent Mobile No. </label>
-                            <input id="parent_mobile_no" type="text" minlength="10" maxlength="10"
-                                class="form-control @error('parent_mobile_no') is-invalid @enderror num_only"
-                                name="parent_mobile_no" autocapitalize="off"
-                                value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}"
-                                placeholder="Enter Parent Mobile No.">
-
-                            @error('parent_mobile_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Other Mobile No. </label>
-                            <input id="other_mobile_no" type="text" minlength="10" maxlength="10"
-                                class="form-control @error('other_mobile_no') is-invalid @enderror num_only"
-                                name="other_mobile_no" autocapitalize="off"
-                                value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}"
-                                placeholder="Enter Other Mobile No.">
-
-                            @error('other_mobile_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Whatsapp No. </label>
-                            <input id="whatsapp_no" type="text" minlength="10" maxlength="10"
-                                class="form-control @error('whatsapp_no') is-invalid @enderror num_only"
-                                name="whatsapp_no" autocapitalize="off"
-                                value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}"
-                                placeholder="Enter Whatsapp No.">
-
-                            @error('whatsapp_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Cast </label>
-                            <input id="cast" type="text"
-                                class="form-control @error('cast') is-invalid @enderror " name="cast"
-                                autocapitalize="off" value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}"
-                                placeholder="Enter Cast">
-
-                            @error('cast')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Occupation </label>
-                            <input id="occupation" type="text"
-                                class="form-control @error('occupation') is-invalid @enderror " name="occupation"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}"
-                                placeholder="Enter Occupation">
-
-                            @error('occupation')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
-                            <input id="date_of_birth" type="date"
-                                class="form-control @error('date_of_birth') is-invalid @enderror " name="date_of_birth"
-                                autocapitalize="off" max="{{ date('Y-m-d') }}"
-                                value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}"
-                                placeholder="Enter Date of Birth">
-
-                            @error('date_of_birth')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Email Address <span class="text-danger">*</span> </label>
-                            <input id="email_address" type="email"
-                                class="form-control @error('email_address') is-invalid @enderror " name="email_address"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}"
-                                placeholder="Enter Email Address">
-
-                            @error('email_address')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <small class="fw-medium d-block">Gender <span class="text-danger">*</span></small>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="gender" class="form-check-input" value="Male"
-                                    id="gender1" {{ old('gender', $edit->gender ?? '') === 'Male' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="gender1"> Male</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="gender" class="form-check-input" value="Female"
-                                    id="gender2" {{ old('gender', $edit->gender ?? '') === 'Female' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="gender2"> Female</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="gender" class="form-check-input" value="Other"
-                                    id="gender3" {{ old('gender', $edit->gender ?? '') === 'Other' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="gender3"> Other</label>
-                            </div>
-
-                            @error('gender')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="category" class="form-check-input" value="SC"
-                                    id="category1" {{ old('category', $edit->category ?? '') === 'SC' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="category1"> SC</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="category" class="form-check-input" value="ST"
-                                    id="category2" {{ old('category', $edit->category ?? '') === 'ST' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="category2"> ST</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="category" class="form-check-input" value="OBC"
-                                    id="category3"
-                                    {{ old('category', $edit->category ?? '') === 'OBC' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="category3"> OBC</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="category" class="form-check-input" value="EWS"
-                                    id="category4"
-                                    {{ old('category', $edit->category ?? '') === 'EWS' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="category4"> EWS</label>
-                            </div>
-                            <div class="form-check form-check-inline mt-1">
-                                <input type="radio" name="category" class="form-check-input" value="General"
-                                    id="category5"
-                                    {{ old('category', $edit->category ?? '') === 'General' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="category5"> General</label>
-                            </div>
-
-                            @error('gender')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Enrolment no </label>
-                            <input id="enrolment_no" type="text"
-                                class="form-control @error('enrolment_no') is-invalid @enderror " name="enrolment_no"
-                                autocapitalize="off"
-                                value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}"
-                                placeholder="Enter Enrolment no">
-
-                            @error('enrolment_no')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> Spid </label>
-                            <input id="spid" type="text"
-                                class="form-control @error('spid') is-invalid @enderror " name="spid"
-                                autocapitalize="off" value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}"
-                                placeholder="Enter Spid">
-
-                            @error('spid')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-4 col-sm-12  mb-3">
-                        <div class="form-group">
-                            <label class="form-label"> APAAR ID/ABC ID </label>
-                            <input id="apaar_id_abc_id" type="text"
-                                class="form-control @error('apaar_id_abc_id') is-invalid @enderror " autocapitalize="off"
-                                name="apaar_id_abc_id"
-                                value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}"
-                                placeholder="Enter APAAR ID/ABC ID">
-
-                            @error('apaar_id_abc_id')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    @if (isset($edit) && $edit?->gdrivefolderurl)
-                        <div class="col-md-3 col-sm-12 mb-3" id="google_drive_rename_folder_col">
+                    <div class="collapse show" id="aadharSection">
+                        <div class="col-md-12 col-sm-12 mb-3">
                             <div class="form-group">
-                                <label class="form-label"> </label>
-                                <a href="javascript:void(0)"
-                                    class="btn rounded-pill btn-info waves-effect waves-light mt-4 google_drive_rename_folder">Google
-                                    Drive Rename Folder </a>
+                                <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
+                                <input id="aadhar_card_no" type="text"
+                                    class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
+                                    minlength="12" maxlength="12" name="aadhar_card_no"
+                                    value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
+                                    autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhaar Card No."
+                                    autocapitalize="off">
+
+                                @error('aadhar_card_no')
+                                    <span class="invalid-feedback">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                         </div>
+                    </div>
+                    <hr>
 
-                        <div class="col-md-4 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
-                            <div class="form-group">
-                                <label class="form-label">Google Drive Folder URL </label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="gdrivefolderurl"
-                                        id="GoogleDriveFolderUrl"
-                                        value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}"
-                                        aria-describedby="GoogleDriveFolderUrlCopy" readonly />
-                                    <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName"
-                                        value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
-                                    <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId"
-                                        value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
-                                    <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i
-                                            class="icon-base bx bx-copy-alt"></i></span>
+                    <div class="text-left">
+                        <h6 class="menu-link menu-toggle d-flex align-items-center justify-content-between"
+                            data-bs-toggle="collapse" href="#personalDetails" role="button" aria-expanded="true"
+                            aria-controls="personalDetails">
+                            <span class="ms-3">Personal Details</span>
+                        </h6>
+                    </div>
+
+
+
+                    <div class="collapse show mt-2" id="personalDetails">
+                        <div class="row">
+                            {{-- First Name --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> First Name <span class="text-danger">*</span> </label>
+                                    <input id="first_name" type="text"
+                                        class="form-control text-uppercase @error('first_name') is-invalid @enderror" name="first_name"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
+                                        placeholder="Enter First Name">
+                                    @error('first_name')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Last Name --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
+                                    <input id="last_name" type="text"
+                                        class="form-control text-uppercase @error('last_name') is-invalid @enderror " name="last_name"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
+                                        placeholder="Enter Last Name">
+                                    @error('last_name')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Father Name --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
+                                    <input id="father_name" type="text"
+                                        class="form-control text-uppercase @error('father_name') is-invalid @enderror " name="father_name"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
+                                        placeholder="Enter Father Name">
+                                    @error('father_name')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Mother Name --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
+                                    <input id="mother_name" type="text"
+                                        class="form-control text-uppercase @error('mother_name') is-invalid @enderror " name="mother_name"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
+                                        placeholder="Enter Mother Name">
+                                    @error('mother_name')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- DOB --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Date of Birth <span class="text-danger">*</span> </label>
+                                    <input id="date_of_birth" type="date"
+                                        class="form-control @error('date_of_birth') is-invalid @enderror "
+                                        name="date_of_birth" max="{{ date('Y-m-d') }}"
+                                        value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}">
+                                    @error('date_of_birth')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Gender --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <small class="fw-medium d-block">Gender <span class="text-danger">*</span></small>
+                                    @foreach (['Male', 'Female', 'Other'] as $gender)
+                                        <div class="form-check form-check-inline mt-1">
+                                            <input type="radio" name="gender" class="form-check-input"
+                                                value="{{ $gender }}" id="gender_{{ $gender }}"
+                                                {{ old('gender', $edit->gender ?? '') === $gender ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="gender_{{ $gender }}">
+                                                {{ $gender }} </label>
+                                        </div>
+                                    @endforeach
+                                    @error('gender')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Cast --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Cast </label>
+                                    <input id="cast" type="text"
+                                        class="form-control @error('cast') is-invalid @enderror " name="cast"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->cast) ? $edit?->cast : old('cast') }}"
+                                        placeholder="Enter Cast">
+                                    @error('cast')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Category --}}
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
+                                    @foreach (['SC', 'ST', 'OBC', 'EWS', 'General'] as $cat)
+                                        <div class="form-check form-check-inline mt-1">
+                                            <input type="radio" name="category" class="form-check-input"
+                                                value="{{ $cat }}" id="category_{{ $cat }}"
+                                                {{ old('category', $edit->category ?? '') === $cat ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="category_{{ $cat }}">
+                                                {{ $cat }} </label>
+                                        </div>
+                                    @endforeach
+                                    @error('category')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="collapse show" id="FatherOccupation">
+                                <div class="col-md-12 col-sm-12  mb-3">
+                                    <div class="form-group">
+                                        <label class="form-label"> Father Occupation </label>
+                                        <input id="occupation" type="text"
+                                            class="form-control @error('occupation') is-invalid @enderror "
+                                            name="occupation" autocapitalize="off"
+                                            value="{{ isset($edit?->occupation) ? $edit?->occupation : old('occupation') }}"
+                                            placeholder="Enter Father Occupation">
+
+                                        @error('occupation')
+                                            <span class="invalid-feedback">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (isset($edit) && $edit?->gdrivefolderurl)
+                                <div class="col-md-6 col-sm-12 mb-3" id="google_drive_rename_folder_col">
+                                    <div class="form-group">
+                                        <label class="form-label"> </label>
+                                        <a href="javascript:void(0)"
+                                            class="btn rounded-pill btn-success waves-effect waves-light  google_drive_rename_folder">Google
+                                            Drive Rename Folder </a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-sm-12 mb-3" id="google_drive_rename_folder_url_col">
+                                    <div class="form-group">
+                                        <label class="form-label">Google Drive Folder URL </label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="gdrivefolderurl"
+                                                id="GoogleDriveFolderUrl"
+                                                value="{{ isset($edit?->gdrivefolderurl) ? $edit?->gdrivefolderurl : old('gdrivefolderurl') }}"
+                                                aria-describedby="GoogleDriveFolderUrlCopy" readonly />
+                                            <input type="hidden" name="gdrivefoldername" id="GoogleDriveFolderName"
+                                                value="{{ isset($edit?->gdrivefoldername) ? $edit?->gdrivefoldername : old('gdrivefoldername') }}" />
+                                            <input type="hidden" name="gdrivefolderid" id="GoogleDriveFolderId"
+                                                value="{{ isset($edit?->gdrivefolderid) ? $edit?->gdrivefolderid : old('gdrivefolderid') }}" />
+                                            <span id="GoogleDriveFolderUrlCopy" class="input-group-text cursor-pointer"><i
+                                                    class="icon-base bx bx-copy-alt"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-left">
+                        <h6 class="text-decoration-none  menu-link menu-toggle d-flex align-items-center justify-content-between"
+                            data-bs-toggle="collapse" href="#ContactDetails" role="button" aria-expanded="true"
+                            aria-controls="ContactDetails">
+                            <span class="ms-3">Contact Details</span>
+
+                        </h6>
+                    </div>
+                    <div class="collapse show mt-2"  id="ContactDetails">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Temporary Address <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea rows="3" id="temporary_address" type="text"
+                                        class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address"
+                                        placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
+                                    @error('temporary_address')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Permanent Address <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea rows="3" id="permanent_address" type="text"
+                                        class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address"
+                                        placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
+                                    @error('permanent_address')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Mobile No. <span class="text-danger">*</span> </label>
+                                    <input id="mobile_no" type="text" minlength="10" maxlength="10"
+                                        class="form-control @error('mobile_no') is-invalid @enderror num_only"
+                                        name="mobile_no" autocapitalize="off"
+                                        value="{{ isset($edit?->mobile_no) ? $edit?->mobile_no : old('mobile_no') }}"
+                                        placeholder="Enter Mobile No.">
+
+                                    @error('mobile_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Parent Mobile No. </label>
+                                    <input id="parent_mobile_no" type="text" minlength="10" maxlength="10"
+                                        class="form-control @error('parent_mobile_no') is-invalid @enderror num_only"
+                                        name="parent_mobile_no" autocapitalize="off"
+                                        value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}"
+                                        placeholder="Enter Parent Mobile No.">
+
+                                    @error('parent_mobile_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Other Mobile No. </label>
+                                    <input id="other_mobile_no" type="text" minlength="10" maxlength="10"
+                                        class="form-control @error('other_mobile_no') is-invalid @enderror num_only"
+                                        name="other_mobile_no" autocapitalize="off"
+                                        value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}"
+                                        placeholder="Enter Other Mobile No.">
+
+                                    @error('other_mobile_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Whatsapp No. </label>
+                                    <input id="whatsapp_no" type="text" minlength="10" maxlength="10"
+                                        class="form-control @error('whatsapp_no') is-invalid @enderror num_only"
+                                        name="whatsapp_no" autocapitalize="off"
+                                        value="{{ isset($edit?->whatsapp_no) ? $edit?->whatsapp_no : old('whatsapp_no') }}"
+                                        placeholder="Enter Whatsapp No.">
+
+                                    @error('whatsapp_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Email Address <span class="text-danger">*</span> </label>
+                                    <input id="email_address" type="email"
+                                        class="form-control @error('email_address') is-invalid @enderror "
+                                        name="email_address" autocapitalize="off"
+                                        value="{{ isset($edit?->email_address) ? $edit?->email_address : old('email_address') }}"
+                                        placeholder="Enter Email Address">
+
+                                    @error('email_address')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
-                    @endif
-                    <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Education <span class="text-danger">*</span></label>
-                            <select name="education_details" id="education" class="form-control select2" autofocus>
-                                <option value="" disabled selected> Select Education </option>
-                                <option value="10"> 10<sup>th</sup> </option>
-                                <option value="12"> 12<sup>th</sup> </option>
-                                <option value="Graduation"> Graduation </option>
-                            </select>
-                            @error('product_variant_id')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
+                    </div>
+                    <hr>
+                    <div class="text-left">
+                        <h6 class="text-decoration-none  menu-link menu-toggle d-flex align-items-center justify-content-between"
+                            data-bs-toggle="collapse" href="#Academy" role="button" aria-expanded="true"
+                            aria-controls="Academy">
+                            <span class="ms-3"> Academy</span>
+                        </h6>
+                    </div>
+
+                    <div class="collapse show mt-2" id="Academy">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> APAAR ID/ABC ID </label>
+                                    <input id="apaar_id_abc_id" type="text"
+                                        class="form-control @error('apaar_id_abc_id') is-invalid @enderror "
+                                        autocapitalize="off" name="apaar_id_abc_id"
+                                        value="{{ isset($edit?->apaar_id_abc_id) ? $edit?->apaar_id_abc_id : old('apaar_id_abc_id') }}"
+                                        placeholder="Enter APAAR ID/ABC ID">
+
+                                    @error('apaar_id_abc_id')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Enrollment No.</label>
+                                    <input id="enrolment_no" type="text"
+                                        class="form-control @error('enrolment_no') is-invalid @enderror "
+                                        name="enrolment_no" autocapitalize="off"
+                                        value="{{ isset($edit?->enrolment_no) ? $edit?->enrolment_no : old('enrolment_no') }}"
+                                        placeholder="Enter Enrollment No.">
+
+                                    @error('enrolment_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> SPID </label>
+                                    <input id="spid" type="text"
+                                        class="form-control @error('spid') is-invalid @enderror " name="spid"
+                                        autocapitalize="off"
+                                        value="{{ isset($edit?->spid) ? $edit?->spid : old('spid') }}"
+                                        placeholder="Enter SPID">
+
+                                    @error('spid')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+
+
+
                         </div>
                     </div>
-                    <div class="col-sm-12">
+
+
+
                         <hr>
-                    </div>
 
                     <div class="col-sm-12" id="education_details">
                         <div class="content-header mt-1 mb-4 mb-3">
                             <h6 class="mb-0">Education Details</h6>
                             <!-- <small>Enter Your Company Information.</small> -->
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">Education <span class="text-danger">*</span></label>
+                                    <select name="education_details" id="education" class="form-control select2"
+                                        autofocus>
+                                        <option value="" disabled selected> Select Education </option>
+                                        <option value="10"> 10<sup>th</sup> </option>
+                                        <option value="12"> 12<sup>th</sup> </option>
+                                        <option value="Graduation"> Graduation </option>
+                                    </select>
+                                    @error('product_variant_id')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                         <table id="education_details_table" class="table table-bordered">
                             <thead>
@@ -601,7 +608,7 @@
                                     alertTitle = 'Course Already Registered';
                                 } else if (data.message.includes(
                                         'Admission form complete but course registration not done yet'
-                                        )) {
+                                    )) {
                                     alertTitle = 'Course Registration Pending';
                                 }
 
