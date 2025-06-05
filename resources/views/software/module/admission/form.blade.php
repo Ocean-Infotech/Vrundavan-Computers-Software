@@ -493,7 +493,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (isset($education))
+                                {{-- @if (isset($education))
                                     @foreach ($education as $educationdetail)
                                         <tr>
                                             <td>
@@ -533,7 +533,82 @@
                                                         class="fa-solid fa-trash"></i></button></td>
                                         </tr>
                                     @endforeach
+                                @endif --}}
+                                @if (old('education'))
+                                    @foreach (old('education') as $index => $edu)
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="education[]" class="form-control"
+                                                    value="{{ $edu }}" readonly>
+                                                <input type="hidden" name="education_id[]"
+                                                    value="{{ old('education_id')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="percentage_cgpa[]" class="form-control"
+                                                    value="{{ old('percentage_cgpa')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="seat_no_nrollment_no[]" class="form-control"
+                                                    value="{{ old('seat_no_nrollment_no')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="board_university[]" class="form-control"
+                                                    value="{{ old('board_university')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="passing_year[]" class="form-control"
+                                                    value="{{ old('passing_year')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="school_name_college_name[]"
+                                                    class="form-control"
+                                                    value="{{ old('school_name_college_name')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger remove_row"><i
+                                                        class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @elseif(isset($education))
+                                    @foreach ($education as $educationdetail)
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="education[]" class="form-control"
+                                                    value="{{ $educationdetail->education }}" readonly>
+                                                <input type="hidden" name="education_id[]"
+                                                    value="{{ $educationdetail->id }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="percentage_cgpa[]" class="form-control"
+                                                    value="{{ $educationdetail->percentage_cgpa }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="seat_no_nrollment_no[]" class="form-control"
+                                                    value="{{ $educationdetail->seat_no_nrollment_no }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="board_university[]" class="form-control"
+                                                    value="{{ $educationdetail->board_university }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="passing_year[]" class="form-control"
+                                                    value="{{ $educationdetail->passing_year }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="school_name_college_name[]"
+                                                    class="form-control"
+                                                    value="{{ $educationdetail->school_name_college_name }}">
+                                            </td>
+                                            <td>
+                                                <button data-education_id="{{ $educationdetail->id }}" type="button"
+                                                    class="btn btn-danger remove_row"><i
+                                                        class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endif
+
 
                             </tbody>
                         </table>
