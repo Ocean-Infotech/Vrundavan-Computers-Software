@@ -95,8 +95,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> First Name <span class="text-danger">*</span> </label>
                                     <input id="first_name" type="text"
-                                        class="form-control text-uppercase @error('first_name') is-invalid @enderror" name="first_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('first_name') is-invalid @enderror"
+                                        name="first_name" autocapitalize="off"
                                         value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
                                         placeholder="Enter First Name">
                                     @error('first_name')
@@ -110,8 +110,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
                                     <input id="last_name" type="text"
-                                        class="form-control text-uppercase @error('last_name') is-invalid @enderror " name="last_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('last_name') is-invalid @enderror "
+                                        name="last_name" autocapitalize="off"
                                         value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
                                         placeholder="Enter Last Name">
                                     @error('last_name')
@@ -125,8 +125,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
                                     <input id="father_name" type="text"
-                                        class="form-control text-uppercase @error('father_name') is-invalid @enderror " name="father_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('father_name') is-invalid @enderror "
+                                        name="father_name" autocapitalize="off"
                                         value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
                                         placeholder="Enter Father Name">
                                     @error('father_name')
@@ -140,8 +140,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
                                     <input id="mother_name" type="text"
-                                        class="form-control text-uppercase @error('mother_name') is-invalid @enderror " name="mother_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('mother_name') is-invalid @enderror "
+                                        name="mother_name" autocapitalize="off"
                                         value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
                                         placeholder="Enter Mother Name">
                                     @error('mother_name')
@@ -274,7 +274,7 @@
 
                         </h6>
                     </div>
-                    <div class="collapse show mt-2"  id="ContactDetails">
+                    <div class="collapse show mt-2" id="ContactDetails">
                         <div class="row">
                             <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
@@ -459,9 +459,6 @@
                         </div>
                     </div>
 
-
-
-                        <hr>
 
                     <div class="col-sm-12" id="education_details">
                         <div class="content-header mt-1 mb-4 mb-3">
