@@ -25,7 +25,7 @@
                             <div class="col-12">
                                 <div class="card-body text-nowrap">
                                     <h5 class="card-title mb-0 text-truncate" style="overflow: hidden; white-space: nowrap;">
-                                        <b>{{ $admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name }}</b>
+                                        <b>{{ strtoupper($admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name) }}</b>
                                     </h5>
                                     <div class="mt-2">
                                         {!! $admissions->folder_button !!}

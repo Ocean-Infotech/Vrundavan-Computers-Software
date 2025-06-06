@@ -231,8 +231,11 @@
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-12" id="{{ isset($edit) ? '' : 'RegisterCource' }}">
-                        <p style="color: #101010;font-weight: bold;">Student Name : <label id="StudentName"
-                                style="font-weight: 400;"></label></p>
+                        <p style="color: #101010; font-weight: bold;">
+                            Student Name :
+                            <label id="StudentName" style="font-weight: 400; text-transform: uppercase;"></label>
+                        </p>
+
                         <table class="table table-bordered" id="RegisterCourceTable">
                             <thead>
                                 <tr>
@@ -363,16 +366,6 @@
     <script>
         $(document).ready(function() {
             $('.select2').select2();
-            // $('.datepicker').datepicker({
-            //     format: 'yyyy-mm-dd',
-            //     autoclose: true,
-            //     todayHighlight: true
-            // });
-
-            // $('#course_name').on('change', function() {
-            //     var fee = $(this).find(':selected').data('fee');
-            //     $('#fee').val(fee);
-            // });
 
             setTimeout(function() {
                 const dateInput = document.getElementById('flatpickr-date');
