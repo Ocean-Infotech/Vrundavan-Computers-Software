@@ -48,6 +48,11 @@ class Admission extends Model
     // }
     // app/Models/Admission.php
 
+    public function courses()
+    {
+        return $this->hasMany(CourceRegistration::class, 'register_id', 'id');
+    }
+
 
     public function courceRegistration()
     {

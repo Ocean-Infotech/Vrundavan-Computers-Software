@@ -19,7 +19,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -161,7 +161,7 @@
                                     <th>Update</th>
                                 </tr>
                             </thead>
-                            <tbody id="courseData">
+                            {{-- <tbody id="courseData">
                                 <th><span id="id"></span></th>
                                 <th><span id="course_id"></span></th>
                                 <th><span id="date"></span></th>
@@ -179,7 +179,11 @@
                                     <button type="button" class="btn btn-warning btn-sm" id="updateBtn"
                                         data-register_id="" data-course_id="">Update</button>
                                 </th>
+                            </tbody> --}}
+                            <tbody id="courseData">
+                                <!-- Rows will be appended dynamically here -->
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -230,7 +234,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -337,6 +341,56 @@
         //         }
         //     });
         // });
+        // $(document).on('click', '.course-btn', function() {
+        //     let id = $(this).data('id');
+
+        //     $.ajax({
+        //         url: "{{ route($route . '.show') }}",
+        //         type: "GET",
+        //         data: {
+        //             id: id
+        //         },
+        //         dataType: "json",
+        //         success: function(response) {
+        //             console.log(response);
+
+        //             if (response.success) {
+        //                 let course = response.course;
+        //                 let data = response.student;
+
+        //                 if (course) {
+        //                     // Course exists: Show in modal
+        //                     $('#modalName').text(
+        //                         `${data.first_name} ${data.father_name} ${data.last_name}`);
+        //                     $('#id').text(course.id);
+        //                     $('#course_id').text(course.course.course_name);
+        //                     $('#date').text(course.date);
+        //                     $('#doc').text(course.date);
+        //                     $('#fee').text(course.fee);
+
+        //                     $('#createBtn').attr('data-id', course.id);
+        //                     $('#updateBtn').attr('data-register_id', course.register_id);
+        //                     $('#updateBtn').attr('data-course_id', course.course_id);
+
+        //                     $('#course').modal('show');
+
+        //                 } else {
+        //                     // Course not exists: Directly redirect
+        //                     window.location.href =
+        //                         "{{ url('software/cource-registration/create') }}/" + data.id;
+        //                 }
+
+        //             } else {
+        //                 toastr.error(response.message || 'Student not found');
+        //             }
+        //         },
+        //         error: function(err) {
+        //             console.error(err);
+        //             toastr.error('Error fetching course info');
+        //         }
+        //     });
+        // });
+
         $(document).on('click', '.course-btn', function() {
             let id = $(this).data('id');
 
@@ -351,31 +405,44 @@
                     console.log(response);
 
                     if (response.success) {
-                        let course = response.course;
-                        let data = response.student;
+                        let courses = response.courses;
+                        let student = response.student;
 
-                        if (course) {
-                            // Course exists: Show in modal
+                        if (courses.length > 0) {
+                            // Set student name
                             $('#modalName').text(
-                                `${data.first_name} ${data.father_name} ${data.last_name}`);
-                            $('#id').text(course.id);
-                            $('#course_id').text(course.course.course_name);
-                            $('#date').text(course.date);
-                            $('#doc').text(course.date);
-                            $('#fee').text(course.fee);
+                                `${student.first_name} ${student.father_name} ${student.last_name}`);
 
-                            $('#createBtn').attr('data-id', course.id);
-                            $('#updateBtn').attr('data-register_id', course.register_id);
-                            $('#updateBtn').attr('data-course_id', course.course_id);
+                            // Clear previous table rows
+                            $('#courseData').empty();
+
+                            // Loop and append course rows
+                            courses.forEach(function(course) {
+                                let row = `
+                            <tr>
+                                <td>${course.id}</td>
+                                <td>${course.course.course_name}</td>
+                                <td>${course.date ?? '-'}</td>
+                                <td>${course.date ?? '-'}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm createBtn" data-id="${course.id}">Create</button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
+                                </td>
+                            </tr>`;
+                                $('#courseData').append(row);
+                            });
 
                             $('#course').modal('show');
-
                         } else {
-                            // Course not exists: Directly redirect
+                            // No course found, redirect
                             window.location.href =
-                                "{{ url('software/cource-registration/create') }}/" + data.id;
+                                "{{ url('software/cource-registration/create') }}/" + student.id;
                         }
-
                     } else {
                         toastr.error(response.message || 'Student not found');
                     }
@@ -386,6 +453,15 @@
                 }
             });
         });
+
+
+        // $(document).on('click', '.createBtn', function() {
+        //     let courseId = $(this).data('id');
+        //     toastr.success('Create clicked for Course ID: ' + courseId);
+
+        //     window.location.href = '/software/fees-collection/get-details/' + courseId;
+
+        // });
 
 
         // Setup CSRF token for AJAX
@@ -477,13 +553,14 @@
             }
         });
 
-        $(document).on('click', '#createBtn', function() {
+        $(document).on('click', '.createBtn', function() {
             let admId = $(this).data('id');
             window.location.href = '/software/fees-collection/get-details/' + admId;
         });
-        $('#updateBtn').on('click', function() {
-            $('#course').hide();
+        $(document).on('click', '.updateBtn', function() {
+            $('#course').modal('hide');
             $('#updateModal').modal('show');
+
             let register_id = $(this).data('register_id');
             let course_id = $(this).data('course_id');
 
@@ -506,6 +583,7 @@
             });
         });
 
+        // Submit Update Form
         $(document).ready(function() {
             $('#updateForm').on('submit', function(e) {
                 e.preventDefault();
@@ -524,12 +602,17 @@
                         fee: fees
                     },
                     success: function(response) {
-                        $('#updateForm')[0].reset();
-                        $('#updateModal').modal('hide');
-                        $('.modal-backdrop').hide();
-                        toastr.success(response.message);
+                        if (response.success) {
+                            $('#updateForm')[0].reset();
+                            $('#updateModal').modal('hide');
+                            $('.modal-backdrop').remove();
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message || 'Update failed');
+                        }
                     },
                     error: function(xhr) {
+                        console.error(xhr.responseText);
                         alert('Error updating fee.');
                     }
                 });

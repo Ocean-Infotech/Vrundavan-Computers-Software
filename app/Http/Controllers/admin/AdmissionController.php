@@ -155,18 +155,20 @@ class AdmissionController extends Controller
     public function show(Request $request)
     {
         $student = Admission::withTrashed()->find($request->id);
-        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
 
+        $studentCourses = CourceRegistration::with(['course'])
+            ->withTrashed()
+            ->where('register_id', $request->id)
+            ->get();
 
-        if (!$student && !$studentCourse) {
+        if (!$student && $studentCourses->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
         }
 
         return response()->json([
             'success' => true,
             'student' => $student,
-            'course' => $studentCourse,
-
+            'courses' => $studentCourses,
         ]);
     }
 
