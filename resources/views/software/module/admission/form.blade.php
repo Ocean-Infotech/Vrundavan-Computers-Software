@@ -128,7 +128,7 @@
                                         class="form-control text-uppercase @error('father_name') is-invalid @enderror "
                                         name="father_name" autocapitalize="off"
                                         value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
-                                        placeholder="Enter Father Name">
+                                        placeholder="Enter Father's Name">
                                     @error('father_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -143,7 +143,7 @@
                                         class="form-control text-uppercase @error('mother_name') is-invalid @enderror "
                                         name="mother_name" autocapitalize="off"
                                         value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
-                                        placeholder="Enter Mother Name">
+                                        placeholder="Enter Mother's Name">
                                     @error('mother_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -292,7 +292,7 @@
 
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label d-flex justify-content-between">
+                                    <label class="form-label">
                                         <span>Permanent Address <span class="text-danger">*</span></span>
                                         <span>
                                             <input type="checkbox" id="copy_address" onclick="copyTemporaryAddress()" />
@@ -336,7 +336,7 @@
                                         class="form-control @error('parent_mobile_no') is-invalid @enderror num_only"
                                         name="parent_mobile_no" autocapitalize="off"
                                         value="{{ isset($edit?->parent_mobile_no) ? $edit?->parent_mobile_no : old('parent_mobile_no') }}"
-                                        placeholder="Enter Parent Mobile No.">
+                                        placeholder="Enter Parent's Mobile No.">
 
                                     @error('parent_mobile_no')
                                         <span class="invalid-feedback">
@@ -471,7 +471,7 @@
                             <!-- <small>Enter Your Company Information.</small> -->
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label">Education <span class="text-danger">*</span></label>
+                                    <label class="form-label">Education </label>
                                     <select name="education_details" id="education" class="form-control select2"
                                         autofocus>
                                         <option value="" disabled selected> Select Education </option>
@@ -742,7 +742,7 @@
                                                         <input type="hidden" name="education_id[]" value="${item.id || ''}">
                                                     </td>
                                                     <td><input type="text" name="percentage_cgpa[]" class="form-control num_only" value="${item.percentage_cgpa || ''}"></td>
-                                                    <td><input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" value="${item.seat_no_nrollment_no || ''}"></td>
+                                                    <td><input type="text" name="seat_no_nrollment_no[]" class="form-control" value="${item.seat_no_nrollment_no || ''}"></td>
                                                     <td><input type="text" name="board_university[]" class="form-control" value="${item.board_university || ''}"></td>
                                                     <td><input type="text" name="passing_year[]" class="form-control" value="${item.passing_year || ''}"></td>
                                                     <td><input type="text" name="school_name_college_name[]" class="form-control" value="${item.school_name_college_name || ''}"></td>
@@ -833,7 +833,7 @@
                         <input type="text" name="percentage_cgpa[]" class="form-control num_only" placeholder="Percentage or CGPA" value="" autocapitalize="off">
                     </td>
                     <td>
-                        <input type="text" name="seat_no_nrollment_no[]" class="form-control num_only" placeholder="Enter Seat Number or Enrollment Number" value="" autocapitalize="off">
+                        <input type="text" name="seat_no_nrollment_no[]" class="form-control " placeholder="Enter Seat Number or Enrollment Number" value="" autocapitalize="off">
                     </td>
                     <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="" autocapitalize="off"></td>
                     <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value=""></td>

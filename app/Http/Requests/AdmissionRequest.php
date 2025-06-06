@@ -129,11 +129,11 @@ class AdmissionRequest extends FormRequest
             'education' => 'nullable|array|min:1',
             'education.*' => 'nullable|string',
 
-            'percentage_cgpa' => 'required|array|min:1',
-            'percentage_cgpa.*' => 'required|string|max:255',
+            'percentage_cgpa' => 'nullable|array|min:1',
+            'percentage_cgpa.*' => 'nullable|string|max:255',
 
             'seat_no_nrollment_no' => 'nullable|array',
-            'seat_no_nrollment_no.*' => 'nullable|numeric',
+            'seat_no_nrollment_no.*' => 'nullable|string',
 
             'board_university' => 'nullable|array',
             'board_university.*' => 'nullable|string',
