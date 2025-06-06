@@ -280,11 +280,6 @@ class AdmissionController extends Controller
     }
 
 
-
-
-
-
-
     public function education_detail_delete(Request $request)
     {
         $id = $request->id;

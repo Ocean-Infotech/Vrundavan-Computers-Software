@@ -95,8 +95,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> First Name <span class="text-danger">*</span> </label>
                                     <input id="first_name" type="text"
-                                        class="form-control text-uppercase @error('first_name') is-invalid @enderror" name="first_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('first_name') is-invalid @enderror"
+                                        name="first_name" autocapitalize="off"
                                         value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
                                         placeholder="Enter First Name">
                                     @error('first_name')
@@ -110,8 +110,8 @@
                                 <div class="form-group">
                                     <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
                                     <input id="last_name" type="text"
-                                        class="form-control text-uppercase @error('last_name') is-invalid @enderror " name="last_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('last_name') is-invalid @enderror "
+                                        name="last_name" autocapitalize="off"
                                         value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
                                         placeholder="Enter Last Name">
                                     @error('last_name')
@@ -123,10 +123,10 @@
                             {{-- Father Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Father Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label"> Father's Name <span class="text-danger">*</span> </label>
                                     <input id="father_name" type="text"
-                                        class="form-control text-uppercase @error('father_name') is-invalid @enderror " name="father_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('father_name') is-invalid @enderror "
+                                        name="father_name" autocapitalize="off"
                                         value="{{ isset($edit?->father_name) ? $edit?->father_name : old('father_name') }}"
                                         placeholder="Enter Father Name">
                                     @error('father_name')
@@ -138,10 +138,10 @@
                             {{-- Mother Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Mother Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label">Mother's Name<span class="text-danger">*</span> </label>
                                     <input id="mother_name" type="text"
-                                        class="form-control text-uppercase @error('mother_name') is-invalid @enderror " name="mother_name"
-                                        autocapitalize="off"
+                                        class="form-control text-uppercase @error('mother_name') is-invalid @enderror "
+                                        name="mother_name" autocapitalize="off"
                                         value="{{ isset($edit?->mother_name) ? $edit?->mother_name : old('mother_name') }}"
                                         placeholder="Enter Mother Name">
                                     @error('mother_name')
@@ -274,14 +274,13 @@
 
                         </h6>
                     </div>
-                    <div class="collapse show mt-2"  id="ContactDetails">
+                    <div class="collapse show mt-2" id="ContactDetails">
                         <div class="row">
-                            <div class="col-md-6 col-sm-12  mb-3">
+                            <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Temporary Address <span class="text-danger">*</span>
-                                    </label>
+                                    <label class="form-label">Temporary Address <span class="text-danger">*</span></label>
                                     <textarea rows="3" id="temporary_address" type="text"
-                                        class="form-control @error('temporary_address') is-invalid @enderror " name="temporary_address"
+                                        class="form-control @error('temporary_address') is-invalid @enderror" name="temporary_address"
                                         placeholder="Enter Temporary Address">{{ isset($edit?->temporary_address) ? $edit?->temporary_address : old('temporary_address') }}</textarea>
                                     @error('temporary_address')
                                         <span class="invalid-feedback">
@@ -291,12 +290,17 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 col-sm-12  mb-3">
+                            <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Permanent Address <span class="text-danger">*</span>
+                                    <label class="form-label d-flex justify-content-between">
+                                        <span>Permanent Address <span class="text-danger">*</span></span>
+                                        <span>
+                                            <input type="checkbox" id="copy_address" onclick="copyTemporaryAddress()" />
+                                            <label for="copy_address" class="mb-0 ms-1" style="font-weight: normal;">Same as Temporary</label>
+                                        </span>
                                     </label>
                                     <textarea rows="3" id="permanent_address" type="text"
-                                        class="form-control @error('permanent_address') is-invalid @enderror " name="permanent_address"
+                                        class="form-control @error('permanent_address') is-invalid @enderror" name="permanent_address"
                                         placeholder="Enter Permanent Address">{{ isset($edit?->permanent_address) ? $edit?->permanent_address : old('permanent_address') }}</textarea>
                                     @error('permanent_address')
                                         <span class="invalid-feedback">
@@ -305,6 +309,7 @@
                                     @enderror
                                 </div>
                             </div>
+
 
 
                             <div class="col-md-6 col-sm-12  mb-3">
@@ -326,7 +331,7 @@
 
                             <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Parent Mobile No. </label>
+                                    <label class="form-label"> Parent's Mobile No. </label>
                                     <input id="parent_mobile_no" type="text" minlength="10" maxlength="10"
                                         class="form-control @error('parent_mobile_no') is-invalid @enderror num_only"
                                         name="parent_mobile_no" autocapitalize="off"
@@ -397,7 +402,7 @@
                         <h6 class="text-decoration-none  menu-link menu-toggle d-flex align-items-center justify-content-between"
                             data-bs-toggle="collapse" href="#Academy" role="button" aria-expanded="true"
                             aria-controls="Academy">
-                            <span class="ms-3"> Academy</span>
+                            <span class="ms-3"> Academic Details </span>
                         </h6>
                     </div>
 
@@ -458,14 +463,11 @@
 
                         </div>
                     </div>
-
-
-
-                        <hr>
+<hr>
 
                     <div class="col-sm-12" id="education_details">
                         <div class="content-header mt-1 mb-4 mb-3">
-                            <h6 class="mb-0">Education Details</h6>
+                            <h6 class="mb-0">Educational Details</h6>
                             <!-- <small>Enter Your Company Information.</small> -->
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
@@ -496,7 +498,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (isset($education))
+                                {{-- @if (isset($education))
                                     @foreach ($education as $educationdetail)
                                         <tr>
                                             <td>
@@ -536,7 +538,82 @@
                                                         class="fa-solid fa-trash"></i></button></td>
                                         </tr>
                                     @endforeach
+                                @endif --}}
+                                @if (old('education'))
+                                    @foreach (old('education') as $index => $edu)
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="education[]" class="form-control"
+                                                    value="{{ $edu }}" readonly>
+                                                <input type="hidden" name="education_id[]"
+                                                    value="{{ old('education_id')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="percentage_cgpa[]" class="form-control"
+                                                    value="{{ old('percentage_cgpa')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="seat_no_nrollment_no[]" class="form-control"
+                                                    value="{{ old('seat_no_nrollment_no')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="board_university[]" class="form-control"
+                                                    value="{{ old('board_university')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="passing_year[]" class="form-control"
+                                                    value="{{ old('passing_year')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="school_name_college_name[]"
+                                                    class="form-control"
+                                                    value="{{ old('school_name_college_name')[$index] ?? '' }}">
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger remove_row"><i
+                                                        class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @elseif(isset($education))
+                                    @foreach ($education as $educationdetail)
+                                        <tr>
+                                            <td>
+                                                <input type="text" name="education[]" class="form-control"
+                                                    value="{{ $educationdetail->education }}" readonly>
+                                                <input type="hidden" name="education_id[]"
+                                                    value="{{ $educationdetail->id }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="percentage_cgpa[]" class="form-control"
+                                                    value="{{ $educationdetail->percentage_cgpa }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="seat_no_nrollment_no[]" class="form-control"
+                                                    value="{{ $educationdetail->seat_no_nrollment_no }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="board_university[]" class="form-control"
+                                                    value="{{ $educationdetail->board_university }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="passing_year[]" class="form-control"
+                                                    value="{{ $educationdetail->passing_year }}">
+                                            </td>
+                                            <td>
+                                                <input type="text" name="school_name_college_name[]"
+                                                    class="form-control"
+                                                    value="{{ $educationdetail->school_name_college_name }}">
+                                            </td>
+                                            <td>
+                                                <button data-education_id="{{ $educationdetail->id }}" type="button"
+                                                    class="btn btn-danger remove_row"><i
+                                                        class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endif
+
 
                             </tbody>
                         </table>
@@ -778,6 +855,28 @@
             toastr[type](message);
         }
     </script>
+    <script>
+        function copyTemporaryAddress() {
+            const tempAddress = document.getElementById('temporary_address');
+            const permAddress = document.getElementById('permanent_address');
+            const checkbox = document.getElementById('copy_address');
+
+            if (checkbox.checked) {
+                permAddress.value = tempAddress.value;
+                permAddress.setAttribute('readonly', true);
+            } else {
+                permAddress.removeAttribute('readonly');
+            }
+
+            // Optional: live update if temp address changes while checkbox is checked
+            tempAddress.addEventListener('input', function () {
+                if (checkbox.checked) {
+                    permAddress.value = this.value;
+                }
+            });
+        }
+    </script>
+
     @if (isset($edit))
         <script>
             // $('#google_drive_rename_folder_url_col').hide();

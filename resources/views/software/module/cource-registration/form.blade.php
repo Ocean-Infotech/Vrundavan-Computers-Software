@@ -105,7 +105,14 @@
                             {{-- Batch --}}
                             <div class="col-md-12 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label">Select Batch <span class="text-danger">*</span></label>
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Select Batch <span class="text-danger">*</span></span>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createBatchModal">
+                                            + Create
+                                        </button>
+                                    </label>
+
                                     <select id="batch" name="batch_id"
                                         class="form-control search_by_batch select2 @error('batch_id') is-invalid @enderror select_filter"
                                         data-append="search_by_batch"
@@ -122,9 +129,21 @@
                                 </div>
                             </div>
 
+
+
+
+
+
                             <div class="col-md-12 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label">Select Class <span class="text-danger">*</span></label>
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Select Class <span class="text-danger">*</span></span>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createClassModal">
+                                            + Create
+                                        </button>
+                                    </label>
+
                                     <select id="class" name="class_id"
                                         class="form-control search_by_class select2 @error('class_id') is-invalid @enderror select_filter"
                                         data-append="search_by_class"
@@ -141,10 +160,20 @@
                                 </div>
                             </div>
 
+
+
+
                             {{-- Shift --}}
                             <div class="col-md-12 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label">Select Shift <span class="text-danger">*</span></label>
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Select Shift <span class="text-danger">*</span></span>
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#createShiftModal">
+                                            + Create
+                                        </button>
+                                    </label>
+
                                     <select id="shift" name="shift_id"
                                         class="form-control search_by_shift select2 @error('shift_id') is-invalid @enderror select_filter"
                                         data-append="search_by_shift"
@@ -160,6 +189,8 @@
                                     @enderror
                                 </div>
                             </div>
+
+
 
                             {{-- Fees (auto-filled) --}}
                             <div class="col-md-12 mb-3">
@@ -218,12 +249,97 @@
 
                     {{-- Submit --}}
                     <div class="col-md-12 text-center mt-4">
+
                         <button type="submit" class="btn btn-success">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
                         <a href="{{ route('admission.index') }}" class="btn btn-danger">Cancel</a>
-
                     </div>
                 </div>
             </form>
+
+            <!-- Create Shift Modal -->
+            <div class="modal fade" id="createShiftModal" tabindex="-1" aria-labelledby="createShiftLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createShiftForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Create Shift</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group mb-3">
+                                    <label for="from_time">From Time</label>
+                                    <input type="time" name="from_time" class="form-control" required>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="to_time">To Time</label>
+                                    <input type="time" name="to_time" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" id="saveShiftBtn">Save
+                                    Shift</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Create Class Modal -->
+            <div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createClassForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createClassModalLabel">Create New Class</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="class" class="form-label">Class Name</label>
+                                    <input type="text" class="form-control" id="new_class_name" name="class">
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="submitCreateClass" class="btn btn-success">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Create Batch Modal -->
+            <div class="modal fade" id="createBatchModal" tabindex="-1" aria-labelledby="createBatchModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <form id="createBatchForm">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createBatchModalLabel">Create New Batch</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="new_batch_name" class="form-label">Batch Name</label>
+                                    <input type="text" class="form-control" id="new_batch_name" name="batch_name"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success" id="submitCreateBatch">Save</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -237,7 +353,7 @@
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                        <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                                                                                                                        <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 
@@ -331,6 +447,156 @@
             }
         });
     </script>
+    <script>
+        $(document).ready(function() {
+            $('#submitCreateBatch').click(function(e) {
+                e.preventDefault();
+
+                let batchName = $('#new_batch_name').val().trim();
+                let courseId = $('#course').val();
+
+                // Validate required fields
+                if (!courseId) {
+                    alert('Please select a course first');
+                    return;
+                }
+                if (!batchName) {
+                    alert('Please enter a batch name');
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route('batch.store') }}', // Your batch store route
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        batch_name: batchName,
+                        course_id: courseId
+                    },
+                    success: function(response) {
+                        // Check if the response contains the new batch ID and name
+                        if (response.id && response.name) {
+                            // Add new batch option to the batch dropdown and select it
+                            let newOption = new Option(response.name, response.id, true, true);
+                            $('#batch').append(newOption).trigger('change');
+
+                            // Hide the modal only after successful insert
+                            $('#createBatchModal').modal('hide');
+
+                            // Reset the form fields
+                            $('#createBatchForm')[0].reset();
+                        } else {
+                            alert('Batch created but response format is incorrect.');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error("Error:", xhr.responseText);
+                        let msg = xhr.responseJSON?.message ?? 'Something went wrong';
+                        alert('Error: ' + msg);
+                    }
+                });
+            });
+        });
+
+        //  bach code End  ===========================      //
+
+        $(document).on('click', '#submitCreateClass', function(e) {
+            e.preventDefault();
+
+            let className = $('#new_class_name').val().trim();
+            console.log("Class Name entered:", className); // Check this in console
+
+            if (!className) {
+                alert('Please enter a class name');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ route('class.store') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    class: className
+                },
+                success: function(response) {
+                    if (response.id && response.name) {
+                        let newOption = new Option(response.name, response.id, true, true);
+                        $('#class').append(newOption).trigger('change');
+                        $('#createClassModal').modal('hide');
+                        $('#createClassForm')[0].reset();
+
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = xhr.responseJSON?.message || 'Something went wrong';
+                    alert('Error: ' + errorMsg);
+                }
+            });
+        });
+
+
+
+        //  clss code End  ===========================      //
+
+        $(document).ready(function() {
+            $('#saveShiftBtn').on('click', function(e) {
+                e.preventDefault();
+
+                $('#saveShiftBtn').prop('disabled', true).text('Saving...');
+
+                let formData = {
+                    _token: $('input[name="_token"]').val(),
+                    from_time: $('input[name="from_time"]').val(),
+                    to_time: $('input[name="to_time"]').val(),
+                    course_id: $('#course').val(),
+                    batch_id: $('#batch').val(),
+                    class_id: $('#class').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('shift.store') }}',
+                    data: formData,
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            let newOption = new Option(response.data.label, response.data.id,
+                                true, true);
+                            $('#shift').append(newOption).trigger('change');
+
+                            $('#createShiftModal').modal('hide');
+                            $('#createShiftForm')[0].reset();
+                        }
+                        $('#saveShiftBtn').prop('disabled', false).text('Save Shift');
+                    },
+                    error: function(xhr) {
+                        let errorMessage = "";
+
+                        if (xhr.status === 422 || xhr.status === 409) {
+                            if (xhr.responseJSON.errors) {
+                                $.each(xhr.responseJSON.errors, function(key, value) {
+                                    errorMessage += value[0] + "\n";
+                                });
+                            } else if (xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                        } else {
+                            errorMessage = "Something went wrong. Please try again.";
+                        }
+
+                        alert(errorMessage);
+                        $('#saveShiftBtn').prop('disabled', false).text('Save Shift');
+                    }
+                });
+            });
+        });
+
+
+
+
+        //  shift code End  ===========================      //
+    </script>
+
+
     @if (isset($edit))
         <script>
             $(document).ready(function() {
