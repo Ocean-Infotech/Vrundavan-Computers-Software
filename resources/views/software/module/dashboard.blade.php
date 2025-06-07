@@ -15,29 +15,27 @@
                 Direct Permissions : {!! Auth::user()->getDirectPermissions() !!}
             @enddirectCan
         </div>
-
-
-        <div class="row">
-            @foreach ($admission as $admissions)
-                <div class="col-xl-2 mb-3">
-                    <div class="card h-100">
-                        <div class="d-flex align-items-end row">
-                            <div class="col-12">
-                                <div class="card-body text-nowrap">
-                                    <h5 class="card-title mb-0 text-truncate" style="overflow: hidden; white-space: nowrap;">
-                                        <b>{{ strtoupper($admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name) }}</b>
-                                    </h5>
-                                    <div class="mt-2">
-                                        {!! $admissions->folder_button !!}
-                                    </div>
+    @endif
+    <div class="row">
+        @foreach ($admission as $admissions)
+            <div class="col-xl-2 mb-3">
+                <div class="card h-100">
+                    <div class="d-flex align-items-end row">
+                        <div class="col-12">
+                            <div class="card-body text-nowrap">
+                                <h5 class="card-title mb-0 text-truncate" style="overflow: hidden; white-space: nowrap;">
+                                    <b>{{ strtoupper($admissions->first_name . ' ' . $admissions->last_name . ' ' . $admissions->father_name) }}</b>
+                                </h5>
+                                <div class="mt-2">
+                                    {!! $admissions->folder_button !!}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endforeach
-        </div>
-    @endif
+            </div>
+        @endforeach
+    </div>
 @endsection
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

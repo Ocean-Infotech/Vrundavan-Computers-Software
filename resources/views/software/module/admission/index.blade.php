@@ -456,7 +456,7 @@
                         foldername: folderName,
                     },
                     success: function(response) {
-                        console.log(response);
+                        console.log("response 459 | success", response);
                         if (response.folder_url) {
                             button.attr('data-folderurl', response.folder_url);
                             toastr.success('Google Drive folder created successfully.');
@@ -467,7 +467,7 @@
                         $('#yajra-datatables').DataTable().ajax.reload(null, false);
                     },
                     error: function(error) {
-                        console.error(error);
+                        console.error("response 470 | Error",error);
                         toastr.error('Error creating Google Drive folder.');
                     },
                     complete: function() {
