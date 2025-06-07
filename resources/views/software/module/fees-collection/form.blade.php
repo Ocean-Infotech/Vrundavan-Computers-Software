@@ -53,19 +53,17 @@
                 @endisset
 
                 @if (!isset($edit))
-
                     <div class="row mb-3">
                         <div class="col-md-4 mb-2">
                             <div class="form-group">
 
                                 <input list="search" id="search_id" name="search"
                                     class="form-control @error('search') is-invalid @enderror"
-                                value="{{ old('search', $edit->admission_id ?? $id ?? '') }}"
-                                    placeholder="Search">
+                                    value="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}" placeholder="Search">
 
                                 <datalist id="search" class="search_by_courceregistration"
                                     data-append="search_by_courceregistration"
-                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? $id ?? '') }}">
+                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}">
                                 </datalist>
                                 @error('search')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -274,7 +272,7 @@
                                 <th>Receipt ID</th>
                                 <th>Fees</th>
                                 <th>Pay Fee Date</th>
-                                <!-- <th>Print Receipt</th> -->
+                                <th>Print Receipt</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -284,11 +282,16 @@
                                         <td>{{ $row->id }}</td>
                                         <td>{{ $row->fees }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->date)->format('d-m-Y') }}</td>
-                                        <!-- <td></td> -->
+                                        <td>
+                                            <a href="{{ route('fees-collection.create', $row->id) }}"
+                                                class="btn btn-primary btn-sm" target="_blank">Print</a>
+
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif
                         </tbody>
+
                     </table>
                     <div class="row mt-2">
                         <div class="col-md-4">
@@ -301,6 +304,7 @@
                             <h4 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h4>
                         </div>
+
                     </div>
                 </div>
 
@@ -412,11 +416,11 @@
             // Trigger search on Enter keyup in search_id input
             $("#search_id").keyup(function() {
 
-                    searchdata();
+                searchdata();
 
             });
             var search_id = $('#search_id').val().trim();
-            if(search_id!==''){
+            if (search_id !== '') {
                 searchdata();
             }
 
@@ -477,13 +481,52 @@
                             var rows = '';
                             var depositedFees = 0;
 
+                            // if (response.fees_collection && response.fees_collection.length > 0) {
+                            //     $.each(response.fees_collection, function(index, item) {
+                            //         rows += '<tr>';
+                            //         rows += '<td>' + item.id + '</td>';
+                            //         rows += '<td>' + item.fees + '</td>';
+                            //         rows += '<td>' + moment(item.date).format('DD-MM-YYYY') +
+                            //             '</td>';
+                            //         rows += '</tr>';
+                            //         depositedFees += parseFloat(item.fees);
+                            //     });
+
+                            //     $('#CourseFees').text(studentdetails.fee);
+                            //     $('#DepositeFees').text(depositedFees.toFixed(2));
+                            //     $('#PendingFees').text((studentdetails.fee - depositedFees).toFixed(2));
+                            // } else {
+                            //     // No fees collection records found
+                            //     $('#CourseFees').text(studentdetails.fee);
+                            //     $('#DepositeFees').text('0.00');
+                            //     $('#PendingFees').text(studentdetails.fee);
+
+                            //     rows =
+                            //         '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                            // }
                             if (response.fees_collection && response.fees_collection.length > 0) {
                                 $.each(response.fees_collection, function(index, item) {
+                                    console.log("Fees ID: ", item.id);
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.fees + '</td>';
                                     rows += '<td>' + moment(item.date).format('DD-MM-YYYY') +
                                         '</td>';
+
+                                    // Add Print button column with link including receipt_id = item.id
+
+                                    if (item.id) {
+                                        rows +=
+                                            '<td><a href="/software/fees-collection/print/' +
+                                            item.id +
+                                            '" target="_blank" class="btn btn-primary btn-sm">Print</a></td>';
+
+                                    } else {
+                                        rows += '<span class="text-muted">No ID</span>';
+                                    }
+                                    rows += '</td>';
+
+
                                     rows += '</tr>';
                                     depositedFees += parseFloat(item.fees);
                                 });
@@ -492,14 +535,15 @@
                                 $('#DepositeFees').text(depositedFees.toFixed(2));
                                 $('#PendingFees').text((studentdetails.fee - depositedFees).toFixed(2));
                             } else {
-                                // No fees collection records found
+                                // No data found
                                 $('#CourseFees').text(studentdetails.fee);
                                 $('#DepositeFees').text('0.00');
                                 $('#PendingFees').text(studentdetails.fee);
 
                                 rows =
-                                    '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                                    '<tr><td class="text-center" colspan="4">No data available</td></tr>'; // colspan 4 now because of extra column
                             }
+
 
                             $('#ReceiptTable tbody').html(rows);
 
