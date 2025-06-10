@@ -294,4 +294,31 @@ class FeesCollectionController extends Controller
     {
         //
     }
+
+
+    public function print($id)
+    {
+        // Fetch the FeesCollection record by ID
+        $feesData = FeesCollection::find($id);
+
+        if (!$feesData) {
+            abort(404, 'Receipt not found');
+        }
+
+        $feesDetails = json_decode($feesData->fee_details, true);
+
+        $totalFee = 0;
+        if ($feesDetails && is_array($feesDetails)) {
+            foreach ($feesDetails as $fee) {
+                $totalFee += $fee['amount'];
+            }
+        } else {
+            $totalFee = $feesData->fees;
+        }
+
+        $totalInWords = ($totalFee);
+        $feesDetails = $feesDetails ?: [];
+
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'totalInWords'));
+    }
 }

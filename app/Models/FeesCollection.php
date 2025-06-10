@@ -32,6 +32,6 @@ class FeesCollection extends Model
     }
     public function admission()
     {
-        return $this->belongsTo(Admission::class, 'student_id');
+        return $this->belongsTo(Admission::class, 'student_id', 'student_id');
     }
 }

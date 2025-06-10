@@ -47,6 +47,14 @@ class Admission extends Model
     //     return $this->hasMany(CourceRegistration::class, 'register_id');
     // }
     // app/Models/Admission.php
+    public function feesCollections()
+    {
+        return $this->hasMany(FeesCollection::class);
+    }
+    public function courses()
+    {
+        return $this->hasMany(CourceRegistration::class, 'register_id', 'id');
+    }
 
 
     public function courceRegistration()

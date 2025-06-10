@@ -152,6 +152,25 @@ class AdmissionController extends Controller
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
+    public function show(Request $request)
+    {
+        $student = Admission::withTrashed()->find($request->id);
+
+        $studentCourses = CourceRegistration::with(['course'])
+            ->withTrashed()
+            ->where('register_id', $request->id)
+            ->get();
+
+        if (!$student && $studentCourses->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student' => $student,
+            'courses' => $studentCourses,
+        ]);
+    }
 
     public function store(AdmissionRequest $request)
     {
