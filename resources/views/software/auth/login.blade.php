@@ -5,30 +5,26 @@
 @section('page_style_file')
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/@form-validation/form-validation.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/vendor/css/pages/page-auth.css') }}" />
-@endsection
 
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+@endsection
 
 @section('content')
     <!-- Content -->
-    <div class="authentication-wrapper authentication-cover"
-        style="min-height: 100vh; background-image: url('{{ asset('admin/assets/img/illustrations/bg-image.avif') }}'); background-size: cover; background-position: center;">
-        <div class="authentication-inner row">
-            <!-- /Left Text -->
-            {{-- <div class="d-none d-lg-flex col-lg-7 p-0"> --}}
-                {{-- <div class="auth-cover-bg auth-cover-bg-color d-flex justify-content-center align-items-center">
-                    <img src="{{ asset('admin/assets/img/illustrations/authimage.png') }}" alt="auth-login-cover"
-                        class="img-fluid my-5 auth-illustration" />
-                    <img src="{{ asset('admin/assets/img/illustrations/bg-shape-image-light.png') }}" alt="auth-login-cover"
-                        class="platform-bg" />
-                </div> --}}
-            {{-- </div> --}}
-            <!-- /Left Text -->
+    <div class="authentication-wrapper authentication-cover position-relative"
+        style="min-height: 100vh; background-image: url('{{ asset('admin/assets/img/illustrations/vector-privacy-protection-and-software-for-development.jpg') }}'); background-size: cover; background-position: center;">
 
-            <!-- Login -->
+        <!-- Dark Overlay -->
+        <div style="position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1;"></div>
+
+        <div class="authentication-inner row" style="position:relative; z-index:2;">
             <!-- Login -->
             <div class="d-flex col-12 col-lg-5 align-items-center justify-content-center p-sm-5 p-4">
                 <div class="w-100"
-                    style="max-width: 420px; background: rgb(255, 255, 255); border-radius: 15px; padding: 30px;">
+                    style="max-width: 420px; background: rgb(255 255 255); border-radius: 15px; padding: 30px;"
+                    data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="200">
+
                     <!-- Logo -->
                     <div class="app-brand mb-4 text-center">
                         <a href="{{ route('login') }}" class="app-brand-link gap-2">
@@ -36,6 +32,7 @@
                         </a>
                     </div>
 
+                    <!-- Login Form -->
                     <form id="formAuthentication" class="mb-3" action="{{ route('login') }}" method="post">
                         @csrf
                         <div class="mb-3">
@@ -56,16 +53,17 @@
                 </div>
             </div>
             <!-- /Login -->
-
-            <!-- /Login -->
         </div>
     </div>
     <!-- / Content -->
 @endsection
 
-
-<!-- / Content -->
-
 @section('page_leavel_script')
     <script src="{{ asset('admin/assets/js/pages-auth.js') }}"></script>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
 @endsection
