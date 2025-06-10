@@ -65,8 +65,8 @@
                                     class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
                                     minlength="14" maxlength="14" name="aadhar_card_no"
                                     value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                                    autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)"
-                                    autocapitalize="off">
+                                    autocomplete="aadhar_card_no" autofocus
+                                    placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)" autocapitalize="off">
 
                                 @error('aadhar_card_no')
                                     <span class="invalid-feedback">
@@ -645,19 +645,25 @@
 @section('page_leavel_script')
 
     <script>
-        var cleave = new Cleave('#aadhar_card_no', {
-            delimiters: [' ', ' ', ' '],
-            blocks: [4, 4, 4],
-            numericOnly: true
-        });
-
         $(function() {
+            // Cleave.js for formatting Aadhaar number
+            var cleave = new Cleave('#aadhar_card_no', {
+                delimiters: [' ', ' ', ' '],
+                blocks: [4, 4, 4],
+                numericOnly: true
+            });
+
+            // Handle Autocomplete
             $("#aadhar_card_no").autocomplete({
                 source: function(request, response) {
+                    let cleanTerm = request.term.replace(/\s/g, '');
+
+                    if (cleanTerm.length < 4) return;
+
                     $.ajax({
                         url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
                         data: {
-                            term: request.term
+                            term: cleanTerm
                         },
                         dataType: 'json',
                         success: function(data) {
@@ -668,30 +674,28 @@
                         }
                     });
                 },
-                minLength: 3,
+                minLength: 4,
                 select: function(event, ui) {
-                    event.preventDefault(); // prevent default behavior
+                    event.preventDefault();
+
+                    $('#aadhar_card_no').val(ui.item.value).trigger('input');
 
                     $.ajax({
                         url: "{{ route($route . '.aadhar-card-no-to-data') }}",
                         data: {
-                            aadhar: ui.item.value
+                            aadhar: ui.item.value.replace(/\s/g,
+                                '')
                         },
                         dataType: 'json',
                         success: function(data) {
-                            console.log('Server response:', data);
-
-                            // If redirect is needed
                             if (data.redirect === true && data.redirect_url) {
-                                // Determine the title dynamically based on message content
                                 let alertTitle = 'Info';
-
                                 if (data.message.includes(
                                         'already have a course registration')) {
                                     alertTitle = 'Course Already Registered';
                                 } else if (data.message.includes(
                                         'Admission form complete but course registration not done yet'
-                                    )) {
+                                        )) {
                                     alertTitle = 'Course Registration Pending';
                                 }
 
@@ -700,15 +704,22 @@
                                     html: data.message,
                                     icon: 'info',
                                     confirmButtonText: 'Proceed',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Cancel',
+                                    buttonsStyling: false,
                                     customClass: {
-                                        popup: 'swal-wide'
+                                        popup: 'swal-wide',
+                                        confirmButton: 'btn btn-info',
+                                        cancelButton: 'btn btn-secondary'
                                     }
-                                }).then(() => {
-                                    window.location.href = data.redirect_url;
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = data.redirect_url;
+                                    }
                                 });
+
                             }
 
-                            // If no redirect, fill the form
                             if (data.user) {
                                 $('#first_name').val(data.user.first_name || '');
                                 $('#last_name').val(data.user.last_name || '');
@@ -728,7 +739,7 @@
                                 $('#permanent_address').val(data.user.permanent_address ||
                                     '');
                                 $('#parent_mobile_no').val(data.user.parent_mobile_no ||
-                                    '');
+                                '');
                                 $('#other_mobile_no').val(data.user.other_mobile_no || '');
                                 $('#whatsapp_no').val(data.user.whatsapp_no || '');
                                 $('#cast').val(data.user.cast || '');
@@ -737,28 +748,27 @@
                                 $('#spid').val(data.user.spid || '');
                                 $('#apaar_id_abc_id').val(data.user.apaar_id_abc_id || '');
 
-                                // Populate education details
                                 $('#education_details_table tbody').empty();
                                 if (Array.isArray(data.education_details)) {
                                     data.education_details.forEach(function(item) {
                                         $('#education_details_table tbody').append(`
-                                                <tr>
-                                                    <td>
-                                                        <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education || ''}" readonly>
-                                                        <input type="hidden" name="education_id[]" value="${item.id || ''}">
-                                                    </td>
-                                                    <td><input type="text" name="percentage_cgpa[]" class="form-control num_only" value="${item.percentage_cgpa || ''}"></td>
-                                                    <td><input type="text" name="seat_no_nrollment_no[]" class="form-control" value="${item.seat_no_nrollment_no || ''}"></td>
-                                                    <td><input type="text" name="board_university[]" class="form-control" value="${item.board_university || ''}"></td>
-                                                    <td><input type="text" name="passing_year[]" class="form-control" value="${item.passing_year || ''}"></td>
-                                                    <td><input type="text" name="school_name_college_name[]" class="form-control" value="${item.school_name_college_name || ''}"></td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger remove_row">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            `);
+                                            <tr>
+                                                <td>
+                                                    <input type="text" name="education[]" class="form-control" placeholder="Education" value="${item.education || ''}" readonly>
+                                                    <input type="hidden" name="education_id[]" value="${item.id || ''}">
+                                                </td>
+                                                <td><input type="text" name="percentage_cgpa[]" class="form-control num_only" value="${item.percentage_cgpa || ''}"></td>
+                                                <td><input type="text" name="seat_no_nrollment_no[]" class="form-control" value="${item.seat_no_nrollment_no || ''}"></td>
+                                                <td><input type="text" name="board_university[]" class="form-control" value="${item.board_university || ''}"></td>
+                                                <td><input type="text" name="passing_year[]" class="form-control" value="${item.passing_year || ''}"></td>
+                                                <td><input type="text" name="school_name_college_name[]" class="form-control" value="${item.school_name_college_name || ''}"></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-danger remove_row">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `);
                                     });
                                 }
                             }
