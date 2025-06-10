@@ -262,7 +262,7 @@ class AdmissionController extends Controller
             $validated['updated_by'] = Auth::id();
 
             $CourceRegistration = CourceRegistration::where('register_id', $register_id)->first();
-            if(!$CourceRegistration){
+            if (!$CourceRegistration) {
                 return Redirect::back()->withErrors('Register id not found on course.');
             }
 
@@ -412,53 +412,140 @@ class AdmissionController extends Controller
         }
     }
 
+    // ============================ juno Code chnage Kyro atle comment krelo code date 10-06-2025
+
+
+
+
+    // public function createFolder(Request $request)
+    // {
+    //     $modules = $this->modules;
+    //     $validator = Validator::make($request->all(), [
+    //         'id' => ['required', Rule::exists($modules['table_name'], 'id')],
+    //         'foldername' => ['required']
+    //     ]);
+
+    //     $folderName = $request->input('name', $request->foldername);
+
+    //     $client = new Google_Client();
+    //     $client->setClientId(config('filesystems.disks.google.clientId'));
+    //     $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
+    //     $client->refreshToken(config('filesystems.disks.google.refreshToken'));
+
+
+    //     $service = new Drive($client);
+
+    //     $fileMetadata = new DriveFile([
+    //         'name' => $folderName,
+    //         'mimeType' => 'application/vnd.google-apps.folder',
+    //     ]);
+
+    //     try {
+
+    //         $folder = $service->files->create($fileMetadata, [
+    //             'fields' => 'id, name'
+    //         ]);
+
+    //         $folderId = $folder?->id;
+    //         $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
+
+    //         // dd("L-428", $request->all(), config('filesystems.disks.google'), $fileMetadata, $folderId);
+    //         $createfolder = Admission::withTrashed()->findOrFail($request?->id);
+    //         $createfolder->gdrivefolderurl = $folderUrl;
+    //         $createfolder->gdrivefolderid = $folderId;
+    //         $createfolder->gdrivefoldername = $folder->name;
+    //         $createfolder->save();
+
+    //         return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
+    //         return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
+    //     } catch (\Exception $e) {
+    //         return $this->sendError($e->getMessage());
+
+    //         return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+    //     }
+    // }
+    // ============================ juno Code chnage Kyro atle comment krelo code date 10-06-2025 End
+
+    //  =================== Main Folder Ni ander Multipal Folder create krva  no code niche no che vrundavan computer line -462 thi start thay che ==============================
     public function createFolder(Request $request)
     {
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'foldername' => ['required']
+            'foldername' => ['required'],
         ]);
 
-        $folderName = $request->input('name', $request->foldername);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors(), 'Validation Error', 422);
+        }
+
+        $recordId = $request->input('id');
+        $subFolderName = $request->input('foldername');
 
         $client = new Google_Client();
         $client->setClientId(config('filesystems.disks.google.clientId'));
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-
         $service = new Drive($client);
 
+        $mainFolderName = 'Vrundavan-Computer';
+        $mainFolderId = $this->getOrCreateFolder($service, $mainFolderName);
+
+
         $fileMetadata = new DriveFile([
-            'name' => $folderName,
+            'name' => $subFolderName,
             'mimeType' => 'application/vnd.google-apps.folder',
+            'parents' => [$mainFolderId],
         ]);
 
         try {
-
             $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id, name'
+                'fields' => 'id, name',
             ]);
 
-            $folderId = $folder?->id;
+            $folderId = $folder->id;
             $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
 
-            // dd("L-428", $request->all(), config('filesystems.disks.google'), $fileMetadata, $folderId);
-            $createfolder = Admission::withTrashed()->findOrFail($request?->id);
+            $createfolder = Admission::withTrashed()->findOrFail($recordId);
             $createfolder->gdrivefolderurl = $folderUrl;
             $createfolder->gdrivefolderid = $folderId;
             $createfolder->gdrivefoldername = $folder->name;
             $createfolder->save();
 
             return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
-            return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
-
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    private function getOrCreateFolder(Drive $service, string $folderName): string
+    {
+        $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
+        $results = $service->files->listFiles([
+            'q' => $query,
+            'fields' => 'files(id, name)',
+        ]);
+
+        $files = $results->getFiles();
+
+        if (empty($files)) {
+            $fileMetadata = new DriveFile([
+                'name' => $folderName,
+                'mimeType' => 'application/vnd.google-apps.folder',
+            ]);
+
+            $folder = $service->files->create($fileMetadata, [
+                'fields' => 'id',
+            ]);
+
+            return $folder->id;
+        } else {
+            return $files[0]->id;
+        }
+    }
+
+    // ========================= line no - 545 lagin che Folder crate thay che ane te folder  ni ander multipal Folder create thay code End ==============================
 
 
     public function renameFolder(Request $request)
