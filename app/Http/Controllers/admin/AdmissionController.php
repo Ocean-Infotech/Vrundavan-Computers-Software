@@ -217,6 +217,24 @@ class AdmissionController extends Controller
         }
     }
 
+    public function show(Request $request)
+    {
+        $student = Admission::withTrashed()->find($request->id);
+        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
+
+
+        if (!$student && !$studentCourse) {
+            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student' => $student,
+            'course' => $studentCourse,
+
+        ]);
+    }
+
     public function edit(string $id)
     {
         try {
@@ -243,7 +261,10 @@ class AdmissionController extends Controller
         try {
             $validated['updated_by'] = Auth::id();
 
-            $CourceRegistration = CourceRegistration::where('register_id', $register_id)->firstOrFail();
+            $CourceRegistration = CourceRegistration::where('register_id', $register_id)->first();
+            if(!$CourceRegistration){
+                return Redirect::back()->withErrors('Register id not found on course.');
+            }
 
             $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
 
@@ -420,17 +441,21 @@ class AdmissionController extends Controller
                 'fields' => 'id, name'
             ]);
 
-            $folderId = $folder->id;
+            $folderId = $folder?->id;
             $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
 
+            // dd("L-428", $request->all(), config('filesystems.disks.google'), $fileMetadata, $folderId);
             $createfolder = Admission::withTrashed()->findOrFail($request?->id);
             $createfolder->gdrivefolderurl = $folderUrl;
             $createfolder->gdrivefolderid = $folderId;
             $createfolder->gdrivefoldername = $folder->name;
             $createfolder->save();
 
+            return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
             return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
         } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }

@@ -63,9 +63,9 @@
                                 <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
                                 <input id="aadhar_card_no" type="text"
                                     class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
-                                    minlength="12" maxlength="12" name="aadhar_card_no"
+                                    minlength="14" maxlength="14" name="aadhar_card_no"
                                     value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                                    autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhaar Card No."
+                                    autocomplete="aadhar_card_no" autofocus placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)"
                                     autocapitalize="off">
 
                                 @error('aadhar_card_no')
@@ -296,7 +296,8 @@
                                         <span>Permanent Address <span class="text-danger">*</span></span>
                                         <span>
                                             <input type="checkbox" id="copy_address" onclick="copyTemporaryAddress()" />
-                                            <label for="copy_address" class="mb-0 ms-1" style="font-weight: normal;">Same as Temporary</label>
+                                            <label for="copy_address" class="mb-0 ms-1" style="font-weight: normal;">Same
+                                                as Temporary</label>
                                         </span>
                                     </label>
                                     <textarea rows="3" id="permanent_address" type="text"
@@ -463,7 +464,7 @@
 
                         </div>
                     </div>
-<hr>
+                    <hr>
 
                     <div class="col-sm-12" id="education_details">
                         <div class="content-header mt-1 mb-4 mb-3">
@@ -637,14 +638,19 @@
 @section('page_script_file')
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+    <script src="{{ asset('admin/assets/vendor/libs/cleavejs/cleave.js') }}"></script>
 @endsection
 
 @section('page_leavel_script')
 
-
-
     <script>
+        var cleave = new Cleave('#aadhar_card_no', {
+            delimiters: [' ', ' ', ' '],
+            blocks: [4, 4, 4],
+            numericOnly: true
+        });
+
         $(function() {
             $("#aadhar_card_no").autocomplete({
                 source: function(request, response) {
@@ -869,7 +875,7 @@
             }
 
             // Optional: live update if temp address changes while checkbox is checked
-            tempAddress.addEventListener('input', function () {
+            tempAddress.addEventListener('input', function() {
                 if (checkbox.checked) {
                     permAddress.value = this.value;
                 }
