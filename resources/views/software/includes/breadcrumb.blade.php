@@ -53,7 +53,7 @@
                 </a>
             </li> --}}
             <li>
-                <a class="dropdown-item" href="#" id="export_excel_btn">
+                <a class="dropdown-item" href="#" id="exportExcelBtn">
                     <i class="fa fa-file-excel me-2 text-success"></i>Export Excel
                 </a>
             </li>
@@ -62,7 +62,7 @@
 
             @if (isset($show_print_btn) && $show_print_btn && isset($route))
                 <li>
-                    <a href="#" class="dropdown-item"  id="print_btn" target="_blank">
+                    <a href="#" class="dropdown-item" id="print_btn">
                         <i class="fa fa-print me-2 text-primary"></i>Print
                     </a>
                 </li>

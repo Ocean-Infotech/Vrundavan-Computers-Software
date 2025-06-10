@@ -63,7 +63,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -162,7 +161,41 @@
                 dtable.draw();
             });
         });
+    </script>
+    <script>
+        $('#exportExcelBtn').on('click', function() {
 
+
+            // console.log("L-169 Excal","Excal Dore");
+            // return;
+
+
+            var studentFilter = $('#student_filter').val();
+            var courseId = $('#course_id').val();
+            var singleDate = $('#single_date').val();
+
+            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
+                '&course_id=' + encodeURIComponent(courseId);
+
+            // console.log("L-180 Excal Rwdirect","Export URL: ", "{{ route($route . '.export-excel') }}" + queryString);
+            // return;
+            window.location.href = "{{ route($route . '.export-excel') }}" + queryString;
+        });
+
+        $('#print_btn').on('click', function(e) {
+            e.preventDefault();
+
+            var studentFilter = $('#student_filter').val();
+            var courseId = $('#course_id').val();
+
+            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
+                '&course_id=' + encodeURIComponent(courseId);
+
+            var url = "{{ route($route . '.print') }}" + queryString;
+
+            // Redirect to new tab
+            window.open(url, '_blank');
+        });
     </script>
 
 

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
+use NumberFormatter;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -298,7 +299,6 @@ class FeesCollectionController extends Controller
 
     public function print($id)
     {
-        // Fetch the FeesCollection record by ID
         $feesData = FeesCollection::find($id);
 
         if (!$feesData) {
@@ -316,9 +316,10 @@ class FeesCollectionController extends Controller
             $totalFee = $feesData->fees;
         }
 
-        $totalInWords = ($totalFee);
+        // Convert to words
+        // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'totalInWords'));
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
     }
 }
