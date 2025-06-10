@@ -18,6 +18,13 @@ class AdmissionRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'aadhar_card_no' => preg_replace('/\s+/', '', $this->aadhar_card_no),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -26,6 +33,7 @@ class AdmissionRequest extends FormRequest
     public function rules(Request $request): array
     {
         $id = $request->route('admission') ?? 0;
+
         $rules = [
             // 'aadhar_card_no' => [
             //     'required',
@@ -39,7 +47,7 @@ class AdmissionRequest extends FormRequest
             'aadhar_card_no' => [
                 'required',
                 'regex:/^[2-9]{1}[0-9]{11}$/', // Valid Aadhaar format
-                Rule::unique((new \App\Models\Admission)->getTable())
+                Rule::unique((new Admission)->getTable())
                     ->ignore($id)
                     ->where(function ($query) {
                         return $query->whereNull('deleted_at'); // If you're using soft deletes
@@ -144,7 +152,7 @@ class AdmissionRequest extends FormRequest
             'school_name_college_name' => 'nullable|array',
             'school_name_college_name.*' => 'nullable|string',
         ];
-        // dd("L-33", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());
+        // dd("L-155", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());
         return $rules;
     }
 
@@ -152,6 +160,7 @@ class AdmissionRequest extends FormRequest
     {
         return [
             'aadhar_card_no.required' => 'The Aadhar Card No. is required.',
+            'aadhar_card_no.regex' => 'Aadhaar number must be 12 digits and cannot start with 0 or 1.',
             'first_name.required' => 'The First Name is required.',
             'last_name.required' => 'The Last Name is required.',
             'father_name.required' => 'The Father Name is required.',
