@@ -217,23 +217,23 @@ class AdmissionController extends Controller
         }
     }
 
-    public function show(Request $request)
-    {
-        $student = Admission::withTrashed()->find($request->id);
-        $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
+    // public function show(Request $request)
+    // {
+    //     $student = Admission::withTrashed()->find($request->id);
+    //     $studentCourse = CourceRegistration::with('course')->withTrashed()->where('register_id', $request->id)->first();
 
 
-        if (!$student && !$studentCourse) {
-            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
-        }
+    //     if (!$student && !$studentCourse) {
+    //         return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
+    //     }
 
-        return response()->json([
-            'success' => true,
-            'student' => $student,
-            'course' => $studentCourse,
+    //     return response()->json([
+    //         'success' => true,
+    //         'student' => $student,
+    //         'course' => $studentCourse,
 
-        ]);
-    }
+    //     ]);
+    // }
 
     public function edit(string $id)
     {
