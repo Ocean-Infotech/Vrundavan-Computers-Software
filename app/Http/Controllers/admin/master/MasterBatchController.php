@@ -126,14 +126,29 @@ class MasterBatchController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
-        // return $request->all();
         $validated = $request->validated();
 
-        try{
+        try {
             $validated['created_by'] = Auth::user()->id;
-            MasterBatch::create($validated);
-            return Redirect::route($modules['route'].'.index')->withSuccess($modules['title'].' Create Successfully');
-        } catch(\Exception $e) {
+            $batch = MasterBatch::create($validated);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'id' => $batch->id,
+                    'name' => $batch->batch_name,
+                    'message' => $modules['title'] . ' created successfully!'
+                ]);
+            }
+
+            // Normal form submit: redirect
+            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' Create Successfully');
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'message' => 'Error: ' . $e->getMessage()
+                ], 500);
+            }
+
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }

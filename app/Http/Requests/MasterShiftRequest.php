@@ -31,43 +31,46 @@ class MasterShiftRequest extends FormRequest
         $rules = [
             'course_id' => [
                 'required',
-                Rule::exists((new MasterCourse())->getTable(), 'id')
+                Rule::exists((new MasterCourse())->getTable(), 'id'),
             ],
-
             'batch_id' => [
                 'required',
-                Rule::exists((new MasterBatch())->getTable(), 'id')
+                Rule::exists((new MasterBatch())->getTable(), 'id'),
             ],
+            'class_id' => ['required'],
 
-            'class_id' => [
-                'required',
-                //Rule::exists((new MasterBatch())->getTable(), 'id')
-            ],
-
-            // 'name' => 'required|string|max:255|unique:' . (new MasterCity())->getTable() . ',name',
             'from_time' => [
                 'required',
                 Rule::unique((new MasterShift())->getTable())
-                    ->where(fn($q) => $q->where('class_id', $request->class_id))
+                    ->where(function ($q) use ($request) {
+                        return $q->where('class_id', $request->class_id)
+                            ->where('batch_id', $request->batch_id)
+                            ->where('course_id', $request->course_id);
+                    })
                     ->ignore($id),
+
                 function ($attribute, $value, $fail) use ($request, $id) {
+                    $fromTime = Carbon::parse($value)->format('H:i:s');
+                    $toTime = Carbon::parse($request->to_time)->format('H:i:s');
 
-                    // Normalize value
-                    $value = Carbon::parse($value)->format('H:i:s');
-
-                    // Retrieve conflicting shift (if any)
                     $conflict = MasterShift::where('class_id', $request->class_id)
+                        ->where('batch_id', $request->batch_id)
+                        ->where('course_id', $request->course_id)
                         ->when($id, fn($q) => $q->where('id', '!=', $id))
-                        ->whereTime('to_time', '>=', $value)
-                        ->orderBy('to_time')
+                        ->where(function ($query) use ($fromTime, $toTime) {
+                            $query->where(function ($q) use ($fromTime, $toTime) {
+                                $q->where('from_time', '<', $toTime)
+                                ->where('to_time', '>', $fromTime);
+                            });
+                        })
                         ->first();
 
                     if ($conflict) {
                         $start = Carbon::parse($conflict->from_time)->format('h:i A');
-                        $end   = Carbon::parse($conflict->to_time)->format('h:i A');
-                        $fail("The shift existing from $start to $end.");
+                        $end = Carbon::parse($conflict->to_time)->format('h:i A');
+                        $fail("Shift already exists from $start to $end.");
                     }
-                },
+                }
             ],
 
             'to_time' => ['required', 'after:from_time'],

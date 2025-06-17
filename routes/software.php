@@ -51,16 +51,30 @@ Route::resource('permissions', PermissionController::class);
 
 /** Master Admission Modules */
 
-Route::resource('/admission', AdmissionController::class);
-Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
-Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
-Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
-Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
-Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
-Route::match(['get', 'post'], 'admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
-Route::match(['get', 'post'], 'admission-aadhar-card-no-to-data', [AdmissionController::class, 'aadharCardNoStudentData'])->name('admission.aadhar-card-no-to-data');
-
+// Route::resource('/admission', AdmissionController::class);
+// Route::match(['get', 'post'], 'admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
+// Route::match(['get', 'post'], 'admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+// Route::match(['get', 'post'], 'admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
+// Route::match(['get', 'post'], 'admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
+// Route::match(['get', 'post'], 'admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+// Route::match(['get', 'post'], 'admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
+// Route::match(['get', 'post'], 'admission-aadhar-card-no-to-data', [AdmissionController::class, 'aadharCardNoStudentData'])->name('admission.aadhar-card-no-to-data');
+// Route::get('/aadhar-card-no-to-data', [AdmissionController::class, 'aadharCardNoToData'])->name('admission.aadhar-card-no-to-data');
 // routes/web.php or routes/api.php
+
+// Resource routes for Admission
+Route::resource('admission', AdmissionController::class);
+
+// Additional routes
+Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
+Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+Route::post('admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
+Route::post('admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
+Route::post('admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+
+// AJAX routes for Aadhaar
+Route::get('admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
+Route::get('admission-aadhar-card-no-to-data', [AdmissionController::class, 'aadharCardNoToData'])->name('admission.aadhar-card-no-to-data');
 
 // Route::get('/admission/details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
 
@@ -135,8 +149,6 @@ Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
-Route::get('/cource-registration/create/{id?}', [CourceRegistrationController::class, 'create'])->name('cource-registration.create');
-Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::class, 'edit'])->name('cource-registration.edit');
 
 
 
@@ -148,6 +160,11 @@ Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionCo
 Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionController::class, 'search_fees_collection_details'])->name('fees-collection.search-fees-collection-details');
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
+Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
+// routes/web.php or admin.php (as per your project)
+
+Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
+Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
 
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 Route::get('fees-collection/export/', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export');

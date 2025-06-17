@@ -18,6 +18,13 @@ class AdmissionRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'aadhar_card_no' => preg_replace('/\s+/', '', $this->aadhar_card_no),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -26,20 +33,15 @@ class AdmissionRequest extends FormRequest
     public function rules(Request $request): array
     {
         $id = $request->route('admission') ?? 0;
-        $rules = [
-            // 'aadhar_card_no' => [
-            //     'required',
-            //     'regex:/^[2-9]{1}[0-9]{11}$/',
-            //     Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
-            //     // Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
-            //     //     return $query->where('aadhar_card_no', $request->aadhar_card_no);
-            //     // })->ignore($id),
-            // ],
 
+        $rules = [
             'aadhar_card_no' => [
                 'required',
                 'regex:/^[2-9]{1}[0-9]{11}$/',
                 Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
+                // Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
+                //     return $query->where('aadhar_card_no', $request->aadhar_card_no);
+                // })->ignore($id),
             ],
 
             'first_name' => [
@@ -125,11 +127,11 @@ class AdmissionRequest extends FormRequest
             'education' => 'nullable|array|min:1',
             'education.*' => 'nullable|string',
 
-            'percentage_cgpa' => 'required|array|min:1',
-            'percentage_cgpa.*' => 'required|string|max:255',
+            'percentage_cgpa' => 'nullable|array|min:1',
+            'percentage_cgpa.*' => 'nullable|string|max:255',
 
             'seat_no_nrollment_no' => 'nullable|array',
-            'seat_no_nrollment_no.*' => 'nullable|numeric',
+            'seat_no_nrollment_no.*' => 'nullable|string',
 
             'board_university' => 'nullable|array',
             'board_university.*' => 'nullable|string',
@@ -140,7 +142,7 @@ class AdmissionRequest extends FormRequest
             'school_name_college_name' => 'nullable|array',
             'school_name_college_name.*' => 'nullable|string',
         ];
-        // dd("L-33", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());
+        // dd("L-155", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());
         return $rules;
     }
 
@@ -148,6 +150,7 @@ class AdmissionRequest extends FormRequest
     {
         return [
             'aadhar_card_no.required' => 'The Aadhar Card No. is required.',
+            'aadhar_card_no.regex' => 'Aadhaar number must be 12 digits and cannot start with 0 or 1.',
             'first_name.required' => 'The First Name is required.',
             'last_name.required' => 'The Last Name is required.',
             'father_name.required' => 'The Father Name is required.',
