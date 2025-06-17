@@ -53,19 +53,17 @@
                 @endisset
 
                 @if (!isset($edit))
-
                     <div class="row mb-3">
                         <div class="col-md-4 mb-2">
                             <div class="form-group">
 
                                 <input list="search" id="search_id" name="search"
                                     class="form-control @error('search') is-invalid @enderror"
-                                value="{{ old('search', $edit->admission_id ?? $id ?? '') }}"
-                                    placeholder="Search">
+                                    value="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}" placeholder="Search">
 
                                 <datalist id="search" class="search_by_courceregistration"
                                     data-append="search_by_courceregistration"
-                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? $id ?? '') }}">
+                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}">
                                 </datalist>
                                 @error('search')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -84,80 +82,50 @@
                 @endif
                 <div class="col-md-6">
                     <div class="row">
-                        {{-- student id --}}
-                        <div class="col-md-3 mb-3">
-                            <div class="form-group">
-                                <label class="form-label">Student Id <span class="text-danger">*</span> </label>
-                                <input id="student_id" type="text"
-                                    class="form-control required @error('student_id') is-invalid @enderror num_only"
-                                    name="student_id"
-                                    value="{{ isset($edit?->student_id) ? $edit?->student_id : old('student_id') }}"
-                                    placeholder="Student Id" readonly>
-
-                                @error('student_id')
-                                    <span class="invalid-feedback">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                        <!-- Student Name (Shown as Text) -->
+                        <div class="col-md-12">
+                            <label class="form-label"><strong>Student Name :</strong> <span id="student_name"
+                                    class="">--</span></label>
                         </div>
 
-                        {{-- Admission Id --}}
-                        <div class="col-md-3 mb-3">
-                            <div class="form-group">
-                                <label class="form-label">Admission Id <span class="text-danger">*</span></label>
-                                <input id="admission_id" type="text"
-                                    class="form-control required @error('admission_id') is-invalid @enderror num_only"
-                                    name="admission_id"
-                                    value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('admission_id') }}"
-                                    placeholder="Admission Id" readonly>
 
-                                @error('admission_id')
-                                    <span class="invalid-feedback">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                        <!-- Student Id (Shown as Text) -->
+                        <div class="col-md-12">
+                            <label class="form-label"><strong>Student Id:</strong> <span id="student_id">--</span> </label>
+                            {{-- <p id="student_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
 
-                        {{-- Course Name --}}
-                        <div class="col-md-6 mb-3">
-                            <label for="course_id" class="form-label">
-                                Course Name <span class="text-danger">*</span>
-                            </label>
-                            <input type="hidden" id="courseid" name="course_id"
-                                value="{{ isset($edit?->course_id) ? $edit?->course_id : old('courseid') }}">
-                            <input id="course_id" type="text"
-                                class="form-control required @error('course_id') is-invalid @enderror num_only"
-                                name="courseid"
-                                value="{{ isset($edit?->course_id) ? $edit?->course->course_name : old('courseid') }}"
-                                placeholder="Course Name" readonly>
 
-                            @error('course_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+
+                        <!-- Admission Id (Shown as Text) -->
+                        <div class="col-md-12">
+                            <label class="form-label"><strong>Admission Id:</strong> <span id="admission_id"
+                                    class="">--</span></label>
+                            {{-- <p id="admission_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
 
-                        {{-- Student name --}}
+                        <!-- Course Name (Shown as Text) -->
                         <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <label class="form-label"> Student Name <span class="text-danger">*</span> </label>
-                                <input id="student_name" type="text"
-                                    class="form-control required @error('student_name') is-invalid @enderror num_only"
-                                    name="student_name"
-                                    value="{{ isset($edit?->student_name) ? $edit?->student_name : old('student_name') }}"
-                                    placeholder="Student Name" readonly>
-                                @error('student_name')
-                                    <span class="invalid-feedback">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                            <label class="form-label"><strong>Course Name:</strong> <span id="course_id"
+                                    class="">--</span></label>
+                            {{-- <p id="course_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
+
+                        <!-- Hidden field for course ID (for submission) -->
+                        <input type="hidden" id="courseid" name="course_id">
+                        <input type="hidden" id="student_id" name="student_id">
+                        <input type="hidden" id="admission_id" name="admission_id">
+                        <input type="hidden" id="student_name" name="student_name">
+
+
+
+
+
+
 
 
                         {{-- Year / Semester --}}
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-12 mb-3">
                             <div class="form-group">
                                 <label for="year_semester">Year / Semester <span class="text-danger">*</span></label>
                                 <select name="year_semester" id="year_semester"
@@ -181,7 +149,7 @@
                         </div>
 
                         {{-- Date --}}
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-12 mb-3">
                             <div class="form-group">
                                 <label for="date">Date <span class="text-danger">*</span></label>
                                 <input type="date" name="date" id="date"
@@ -194,7 +162,7 @@
                         </div>
 
                         {{-- Course Fees (Auto-filled) --}}
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-12 mb-3">
                             <label for="fees" class="form-label">
                                 Course Fees <span class="text-danger">*</span>
                             </label>
@@ -207,7 +175,7 @@
                         </div>
 
                         {{-- Mode --}}
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-12 mb-3">
                             <label for="mode" class="form-label">
                                 Mode <span class="text-danger">*</span>
                             </label>
@@ -232,7 +200,12 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
-
+                        {{-- submit  --}}
+                        <div class="col-md-12 text-center mt-4">
+                            <button type="button" class="btn btn-success"
+                                id="openPasswordModal">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
+                            <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
+                        </div>
                         {{-- UPI ID --}}
                         <div class="col-md-12 mb-3" id="upi_id_box" style="display: none;">
                             <label for="upi_id">UPI ID <span class="text-danger">*</span></label>
@@ -304,12 +277,7 @@
                     </div>
                 </div>
 
-                {{-- submit  --}}
-                <div class="col-md-12 text-center mt-4">
-                    <button type="button" class="btn btn-success"
-                        id="openPasswordModal">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
-                    <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
-                </div>
+
         </div>
 
 
@@ -412,11 +380,11 @@
             // Trigger search on Enter keyup in search_id input
             $("#search_id").keyup(function() {
 
-                    searchdata();
+                searchdata();
 
             });
             var search_id = $('#search_id').val().trim();
-            if(search_id!==''){
+            if (search_id !== '') {
                 searchdata();
             }
 
@@ -451,18 +419,24 @@
 
                             var studentdetails = response.data[0];
 
-                            // Fill readonly inputs
-                            $('#student_id').val(studentdetails.admission.id);
-                            $('#admission_id').val(studentdetails.id);
+                            var studentname = studentdetails.admission.first_name + ' ' +
+                                studentdetails.admission.father_name + ' ' +
+                                studentdetails.admission.last_name;
 
-                            $('#course_id').val(studentdetails.course.course_name);
-                            $('#courseid').val(studentdetails.course.id);
+                            $('#student_id').text(studentdetails.admission.id);
+                            $('#admission_id').text(studentdetails.id);
+                            $('#course_id').text(studentdetails.course.course_name);
+                            $('#student_name').text(studentname);
+                            
+                            //hidden set
+                            $('#student_name[name="student_name"]').val(studentname);
+                            $('#student_id[name="student_id"]').val(studentdetails.admission.id);
+                            $('#admission_id[name="admission_id"]').val(studentdetails.id);
+                            $('#courseid[name="course_id"]').val(studentdetails.course.id);
 
-                            // $('#fees').val(studentdetails.fee);
-
-                            var studentname = studentdetails.admission.first_name + ' ' + studentdetails
-                                .admission.father_name + ' ' + studentdetails.admission.last_name;
-                            $('#student_name').val(studentname);
+                            // var studentname = studentdetails.admission.first_name + ' ' + studentdetails
+                            //     .admission.father_name + ' ' + studentdetails.admission.last_name;
+                            // $('#student_name').val(studentname);
 
                             // Fill semester dropdown options dynamically
                             var semester_total = studentdetails.course.semester;
