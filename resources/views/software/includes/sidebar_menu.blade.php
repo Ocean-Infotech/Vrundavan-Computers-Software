@@ -108,7 +108,7 @@
                         <div data-i18n="Course Registration">Course Registration</div>
                     </a>
                 </li>
-                --}}
+                
 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">

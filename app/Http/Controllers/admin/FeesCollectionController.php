@@ -155,7 +155,7 @@ class FeesCollectionController extends Controller
 
             return response()->json([
                 'data' => $getcource,
-                'fees_collection'=> $getfeescollection,
+                'fees_collection' => $getfeescollection,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -213,26 +213,27 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+   
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         $validated = $request->validated();
+
         try {
-
             $loginUserId = Auth::user()->id;
-
-            // return $this->adminLoginUser;
             $validated['created_by'] = $loginUserId;
-            // return $validated;
-            FeesCollection::create($validated);
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+            $feesCollection = FeesCollection::create($validated);
+
+
+            return redirect()->route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -247,7 +248,7 @@ class FeesCollectionController extends Controller
      */
     public function edit(string $id)
     {
-        try{
+        try {
             $modules = $this->modules;
             View::share('modules', $modules);
 
@@ -256,8 +257,8 @@ class FeesCollectionController extends Controller
             $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
             //return $edit;
 
-            return view($modules['folder_path'].'.form',compact('modules','edit','getfeescollection'));
-        } catch(\Exception $e) {
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'getfeescollection'));
+        } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
@@ -311,11 +312,13 @@ class FeesCollectionController extends Controller
         } else {
             $totalFee = $feesData->fees;
         }
-
-        // Convert to words
+        $modules = [
+        'route' => 'fees-collection', // Change to your actual route name
+    ];
+        //  Convert to words
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee','modules'));
     }
 }

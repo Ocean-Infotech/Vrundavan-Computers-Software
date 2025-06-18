@@ -117,13 +117,6 @@
                         <input type="hidden" id="admission_id" name="admission_id">
                         <input type="hidden" id="student_name" name="student_name">
 
-
-
-
-
-
-
-
                         {{-- Year / Semester --}}
                         <div class="col-md-12 mb-3">
                             <div class="form-group">
@@ -148,18 +141,21 @@
                             </div>
                         </div>
 
+
                         {{-- Date --}}
                         <div class="col-md-12 mb-3">
                             <div class="form-group">
                                 <label for="date">Date <span class="text-danger">*</span></label>
                                 <input type="date" name="date" id="date"
                                     class="form-control required datepicker @error('date') is-invalid @enderror"
-                                    value="{{ isset($edit?->date) ? $edit?->date : old('date') }}" placeholder="Date">
+                                    value="{{ isset($edit?->date) ? $edit->date : old('date') ?? \Carbon\Carbon::now()->format('Y-m-d') }}"
+                                    placeholder="Date">
                                 @error('date')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
+
 
                         {{-- Course Fees (Auto-filled) --}}
                         <div class="col-md-12 mb-3">
@@ -200,12 +196,7 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
-                        {{-- submit  --}}
-                        <div class="col-md-12 text-center mt-4">
-                            <button type="button" class="btn btn-success"
-                                id="openPasswordModal">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
-                            <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
-                        </div>
+
                         {{-- UPI ID --}}
                         <div class="col-md-12 mb-3" id="upi_id_box" style="display: none;">
                             <label for="upi_id">UPI ID <span class="text-danger">*</span></label>
@@ -236,6 +227,12 @@
                             @error('return_reason')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
+                        </div>
+                        {{-- submit  --}}
+                        <div class="col-md-12 text-center mt-4">
+                            <button type="button" class="btn btn-success"
+                                id="openPasswordModal">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
+                            <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
                         </div>
                     </div>
                 </div>
@@ -279,7 +276,6 @@
                             <h4 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h4>
                         </div>
-
                     </div>
                 </div>
 
@@ -316,6 +312,15 @@
 @section('page_leavel_script')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#date').on('click', function() {
+                this.showPicker?.(); // Opens the datepicker if browser supports `showPicker()`
+            });
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
 
@@ -400,7 +405,14 @@
                 searchdata();
             });
 
-            // Search function - AJAX call to fetch fees collection details and fill form
+
+            window.currentStudentDetails = null;
+
+            // Utility function to format number as currency
+            function formatCurrency(amount) {
+                return parseFloat(amount).toFixed(2);
+            }
+
             function searchdata() {
                 var search_id = $('#search_id').val().trim();
 
@@ -421,11 +433,24 @@
                     },
                     success: function(response) {
                         if (response.data && response.data.length > 0) {
+                            var studentdetails = response.data[0];
+                            window.currentStudentDetails = studentdetails; // Save for global use
+
                             $('#FeesCollectionDetails').show();
 
-                            var studentdetails = response.data[0];
+                            let fullCourseFee = parseFloat(studentdetails.fee);
+                            let totalSemesters = studentdetails.course.semester;
 
-                            var studentname = studentdetails.admission.first_name + ' ' +
+                            // Fill semester dropdown
+                            let semester_rows = '<option value="">Select Semester</option>';
+                            for (let semester = 1; semester <= totalSemesters; semester++) {
+                                semester_rows += '<option value="' + semester + '">' + semester +
+                                    '</option>';
+                            }
+                            $('#year_semester').html(semester_rows);
+
+                            // Fill other student info
+                            let studentname = studentdetails.admission.first_name + ' ' +
                                 studentdetails.admission.father_name + ' ' +
                                 studentdetails.admission.last_name;
 
@@ -433,96 +458,42 @@
                             $('#admission_id').text(studentdetails.id);
                             $('#course_id').text(studentdetails.course.course_name);
                             $('#student_name').text(studentname);
-                            
-                            //hidden set
+
+                            // Hidden inputs
                             $('#student_name[name="student_name"]').val(studentname);
                             $('#student_id[name="student_id"]').val(studentdetails.admission.id);
                             $('#admission_id[name="admission_id"]').val(studentdetails.id);
                             $('#courseid[name="course_id"]').val(studentdetails.course.id);
 
-                            // var studentname = studentdetails.admission.first_name + ' ' + studentdetails
-                            //     .admission.father_name + ' ' + studentdetails.admission.last_name;
-                            // $('#student_name').val(studentname);
-
-                            // Fill semester dropdown options dynamically
-                            var semester_total = studentdetails.course.semester;
-                            var semester_rows = '<option value="">Select Semester</option>';
-                            for (var semester = 1; semester <= semester_total; semester++) {
-                                semester_rows += '<option value="' + semester + '">' + semester +
-                                    '</option>';
-                            }
-                            $('#year_semester').html(semester_rows);
-
-                            // Fill fees collection table rows
-                            var rows = '';
+                            // Fees collection
                             var depositedFees = 0;
+                            var rows = '';
 
-                            // if (response.fees_collection && response.fees_collection.length > 0) {
-                            //     $.each(response.fees_collection, function(index, item) {
-                            //         rows += '<tr>';
-                            //         rows += '<td>' + item.id + '</td>';
-                            //         rows += '<td>' + item.fees + '</td>';
-                            //         rows += '<td>' + moment(item.date).format('DD-MM-YYYY') +
-                            //             '</td>';
-                            //         rows += '</tr>';
-                            //         depositedFees += parseFloat(item.fees);
-                            //     });
-
-                            //     $('#CourseFees').text(studentdetails.fee);
-                            //     $('#DepositeFees').text(depositedFees.toFixed(2));
-                            //     $('#PendingFees').text((studentdetails.fee - depositedFees).toFixed(2));
-                            // } else {
-                            //     // No fees collection records found
-                            //     $('#CourseFees').text(studentdetails.fee);
-                            //     $('#DepositeFees').text('0.00');
-                            //     $('#PendingFees').text(studentdetails.fee);
-
-                            //     rows =
-                            //         '<tr><td class="text-center" colspan="3">No data available</td></tr>';
-                            // }
                             if (response.fees_collection && response.fees_collection.length > 0) {
                                 $.each(response.fees_collection, function(index, item) {
-                                    console.log("Fees ID: ", item.id);
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.fees + '</td>';
                                     rows += '<td>' + moment(item.date).format('DD-MM-YYYY') +
                                         '</td>';
-
-                                    // Add Print button column with link including receipt_id = item.id
-
-                                    if (item.id) {
-                                        rows +=
-                                            '<td><a href="/software/fees-collection/print/' +
-                                            item.id +
-                                            '" target="_blank" class="btn btn-primary btn-sm">Print</a></td>';
-
-                                    } else {
-                                        rows += '<span class="text-muted">No ID</span>';
-                                    }
-                                    rows += '</td>';
-
-
+                                    rows += '<td><a href="/software/fees-collection/print/' +
+                                        item.id +
+                                        '" target="_blank" class="btn btn-primary btn-sm">Print</a></td>';
                                     rows += '</tr>';
+
                                     depositedFees += parseFloat(item.fees);
                                 });
-
-                                $('#CourseFees').text(studentdetails.fee);
-                                $('#DepositeFees').text(depositedFees.toFixed(2));
-                                $('#PendingFees').text((studentdetails.fee - depositedFees).toFixed(2));
                             } else {
-                                // No data found
-                                $('#CourseFees').text(studentdetails.fee);
-                                $('#DepositeFees').text('0.00');
-                                $('#PendingFees').text(studentdetails.fee);
-
                                 rows =
-                                    '<tr><td class="text-center" colspan="4">No data available</td></tr>'; // colspan 4 now because of extra column
+                                    '<tr><td class="text-center" colspan="4">No data available</td></tr>';
                             }
-
 
                             $('#ReceiptTable tbody').html(rows);
 
+                            // Set fee values initially
+                            $('#CourseFees').text(formatCurrency(fullCourseFee));
+                            $('#DepositeFees').text(formatCurrency(depositedFees));
+                            $('#PendingFees').text(formatCurrency(fullCourseFee - depositedFees));
                         } else {
                             $('#FeesCollectionDetails').hide();
                             showMessage("No data found for the given ID", "error");
@@ -534,6 +505,28 @@
                 });
             }
 
+            // Semester change handler
+            $('#year_semester').on('change', function() {
+                var selectedSemester = $(this).val();
+                var studentdetails = window.currentStudentDetails;
+
+                if (selectedSemester && studentdetails) {
+                    var semesterWiseFee = (studentdetails.fee / studentdetails.course.semester);
+                    var depositedFee = parseFloat($('#DepositeFees').text().replace(/[^0-9.-]+/g, "")) || 0;
+
+                    $('#CourseFees').text(formatCurrency(semesterWiseFee));
+
+                    // Calculate new pending fee = total fee - deposited
+                    var pendingFee = studentdetails.fee - depositedFee;
+
+                    $('#PendingFees').text(formatCurrency(pendingFee));
+                } else if (studentdetails) {
+                    // Reset to full if no semester selected
+                    $('#CourseFees').text(formatCurrency(studentdetails.fee));
+                    var depositedFee = parseFloat($('#DepositeFees').text().replace(/[^0-9.-]+/g, "")) || 0;
+                    $('#PendingFees').text(formatCurrency(studentdetails.fee - depositedFee));
+                }
+            });
             // Toastr message helper function
             function showMessage(message, type) {
                 toastr[type](message);
@@ -579,6 +572,83 @@
             }
         });
     </script>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+    function getSemesterFee() {
+        // Assuming fixed fee per semester (like 25000 total / 6 semesters)
+        return parseFloat($('#TotalCourseFees').text()) || 0;
+    }
+
+    function getTotalDepositedFees() {
+        return parseFloat($('#TotalDepositedFees').text()) || 0;
+    }
+
+    function getPendingFees() {
+        return parseFloat($('#PendingFees').text()) || 0;
+    }
+
+    $('#fees').on('input', function () {
+        var perSemesterFee = getSemesterFee();
+        var depositedFee = getTotalDepositedFees();
+        var pendingFee = getPendingFees();
+
+        var newFee = parseFloat($(this).val()) || 0;
+
+        // Clear previous error
+        $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
+        $(this).removeClass('is-invalid');
+
+        if (pendingFee <= 0) {
+            $(this).val('');
+            $('<div id="feeErrorZero" class="text-danger mt-1">All course fees are paid.</div>')
+                .insertAfter($(this));
+            $(this).addClass('is-invalid');
+            $(this).prop('disabled', true);
+            $('#PendingFees').text("0.00");
+            return;
+        }
+
+        if (isNaN(newFee) || newFee <= 0) {
+            $(this).val('');
+            $('<div id="feeErrorZero" class="text-danger mt-1">Enter valid amount greater than 0.</div>')
+                .insertAfter($(this));
+            $(this).addClass('is-invalid');
+            $('#PendingFees').text(pendingFee.toFixed(2));
+            return;
+        }
+
+        if (newFee > pendingFee) {
+            $(this).val('');
+            $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fees (' +
+                pendingFee.toFixed(2) + ').</div>')
+                .insertAfter($(this));
+            $(this).addClass('is-invalid');
+            $('#PendingFees').text(pendingFee.toFixed(2));
+            return;
+        }
+
+        // Valid case
+        var newPending = pendingFee - newFee;
+        $('#PendingFees').text(newPending.toFixed(2));
+    });
+
+    $('#semester').on('change', function () {
+        $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
+        $('#PendingFees').text(calculatePendingFees().toFixed(2));
+    });
+
+    function calculatePendingFees() {
+        var total = parseFloat($('#TotalCourseFees').text()) || 0;
+        var deposited = parseFloat($('#TotalDepositedFees').text()) || 0;
+        return total - deposited;
+    }
+});
+</script
 
 
 
