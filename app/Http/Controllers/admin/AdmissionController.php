@@ -284,15 +284,15 @@ class AdmissionController extends Controller
                     }
                 }
             }
+        }
 
-            return Redirect::route('cource-registration.edit', [
-                'register_id' => $CourceRegistration->id
-            ])->withSuccess($modules['title'] . ' updated successfully');
-        } catch (\Exception $e) {
+            return Redirect::route('cource-registration.edit', ['register_id' => $CourceRegistration->id])->withSuccess($modules['title'] . ' updated successfully');
+        } catch(\Exception $e) {
             // return $e->getMessage();
             return Redirect::back()->withErrors($e->getMessage())->withInput();
         }
     }
+
 
     public function education_detail_delete(Request $request)
     {
@@ -403,63 +403,8 @@ class AdmissionController extends Controller
         }
     }
 
-    // ============================ juno Code chnage Kyro atle comment krelo code date 10-06-2025
-
-
-
-
-    // public function createFolder(Request $request)
-    // {
-    //     $modules = $this->modules;
-    //     $validator = Validator::make($request->all(), [
-    //         'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-    //         'foldername' => ['required']
-    //     ]);
-
-    //     $folderName = $request->input('name', $request->foldername);
-
-    //     $client = new Google_Client();
-    //     $client->setClientId(config('filesystems.disks.google.clientId'));
-    //     $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
-    //     $client->refreshToken(config('filesystems.disks.google.refreshToken'));
-
-
-    //     $service = new Drive($client);
-
-    //     $fileMetadata = new DriveFile([
-    //         'name' => $folderName,
-    //         'mimeType' => 'application/vnd.google-apps.folder',
-    //     ]);
-
-    //     try {
-
-    //         $folder = $service->files->create($fileMetadata, [
-    //             'fields' => 'id, name'
-    //         ]);
-
-    //         $folderId = $folder?->id;
-    //         $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
-
-    //         // dd("L-428", $request->all(), config('filesystems.disks.google'), $fileMetadata, $folderId);
-    //         $createfolder = Admission::withTrashed()->findOrFail($request?->id);
-    //         $createfolder->gdrivefolderurl = $folderUrl;
-    //         $createfolder->gdrivefolderid = $folderId;
-    //         $createfolder->gdrivefoldername = $folder->name;
-    //         $createfolder->save();
-
-    //         return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
-    //         return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
-    //     } catch (\Exception $e) {
-    //         return $this->sendError($e->getMessage());
-
-    //         return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
-    //     }
-    // }
-    // ============================ juno Code chnage Kyro atle comment krelo code date 10-06-2025 End
-
     //  =================== Main Folder Ni ander Multipal Folder create krva  no code niche no che vrundavan computer line -462 thi start thay che ==============================
-    public function createFolder(Request $request)
-    {
+    public function createFolder(Request $request){
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
@@ -603,22 +548,6 @@ class AdmissionController extends Controller
 
         return response()->json(['error' => 'Admission not found'], 404);
     }
-
-    // public function getAdmissionDetails($id)
-    // {
-    //     $admission = Admission::with('courceRegistration')->find($id);
-
-    //     if ($admission) {
-    //         return response()->json([
-    //             'first_name' => $admission->first_name,
-    //             'last_name'  => $admission->last_name,
-    //             'course_id'  => optional($admission->courceRegistration)->course_id,
-    //             'date'       => optional($admission->courceRegistration)->date,
-    //         ]);
-    //     }
-
-    //     return response()->json(['error' => 'Admission not found'], 404);
-    // }
 
     public function aadharCardNoToData(Request $request)
     {

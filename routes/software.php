@@ -83,6 +83,9 @@ Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmiss
 Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
 Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
 
+Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
+Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
@@ -118,6 +121,7 @@ Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceControl
 Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
+
 // Route::match(['get', 'post'], 'attedance-rollNoIn', [AttedanceController::class, 'rollNoIn'])->name('attedance.rollNoIn');
 
 /** Master Copuntry Modules */
@@ -149,6 +153,9 @@ Route::resource('cource-registration', CourceRegistrationController::class);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
+Route::get('/cource-registration/create/{admission_id?}', [CourceRegistrationController::class, 'create'])->name('cource-registration.create');
+Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::class, 'edit'])->name('cource-registration.edit');
+
 
 
 
@@ -167,9 +174,6 @@ Route::get('fees-collection-pending/export-excel', [FeescollectionpendingControl
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
 
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
-Route::get('fees-collection/export/', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export');
-
-
 
 
 
@@ -190,4 +194,3 @@ Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController:
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
 
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
-
