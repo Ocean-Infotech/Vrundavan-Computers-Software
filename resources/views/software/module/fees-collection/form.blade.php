@@ -325,7 +325,37 @@
     <script>
         window.paidSemesters = @json($paid_semesters ?? []);
         window.currentStudentDetails = @json($studentdetails ?? []);
-        console.log(window.paidSemesters)
+        window.paidSemestersByAdmission = @json($paidSemestersGroupedByAdmission ?? []);
+        // console.log(window.paidSemesters)
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#year_semester').on('change', function() {
+                $('#semErrorMsg').remove(); // clear old error
+
+                let selectedSemester = parseInt($(this).val());
+                if (isNaN(selectedSemester)) return;
+
+                if (selectedSemester === 1) return; // always allow semester 1
+
+                // Find previous option
+                let previousSemester = selectedSemester - 1;
+                let previousOption = $('#year_semester option[value="' + previousSemester + '"]');
+
+                if (!previousOption.length || !previousOption.prop('disabled')) {
+                    $(this).val(''); // reset selection
+                    $('<div id="semErrorMsg" class="text-danger mt-1">You must complete payment for Semester ' +
+                            previousSemester + ' before selecting Semester ' + selectedSemester + '.</div>')
+                        .insertAfter($(this));
+                }
+            });
+
+            $('#search_id').on('change', function() {
+                $('#year_semester').val('');
+                $('#semErrorMsg').remove();
+            });
+        });
     </script>
 
 
@@ -563,8 +593,8 @@
                     showMessage("All semester fees have been paid.", "info");
                     return;
                 }
-                  $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
-                  $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
+                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
+                $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
 
                 // Calculate semester fee
                 var semesterFee = studentdetails.course.course_fees / studentdetails.course.semester;
@@ -581,10 +611,11 @@
                     $('#CourseFees').text(formatCurrency(semesterFee));
 
                     let unpaid = window.unpaidSemesters.find(item => parseInt(
-                                        item.semester) === selectedSemester);
+                        item.semester) === selectedSemester);
                     if (unpaid) {
-
+                        var DepositeFees = semesterFee - unpaid.pending_fee
                         $('#PendingFees').text(formatCurrency(unpaid.pending_fee));
+                        $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
                     }
 
                 }
@@ -680,7 +711,7 @@
                     $('<div id="feeErrorZero" class="text-danger mt-1">Enter valid amount greater than 0.</div>')
                         .insertAfter($(this));
                     $(this).addClass('is-invalid');
-                    $('#PendingFees').text(currentPending.toFixed(2));
+                    $('#PendingFees').text($('#CourseFees').text());
                     return;
                 }
 
@@ -696,7 +727,12 @@
                 }
 
 
-                let newPending = currentPending.toFixed(2) - enteredFee;
+                console.log("enteredFee"+enteredFee)
+
+                var currentCurseFees = $("#CourseFees").text();
+                 console.log("currentCurseFees"+$('#CourseFees').text())
+                let newPending = currentCurseFees - enteredFee;
+                console.log("newPending"+newPending)
                 if (newPending < 0) newPending = 0;
 
                 $('#PendingFees').text(newPending.toFixed(2));
