@@ -108,7 +108,7 @@
                         <div data-i18n="Course Registration">Course Registration</div>
                     </a>
                 </li>
-                
+
 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
@@ -181,7 +181,7 @@
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate"></i>
-                <div data-i18n="Course Masters ">Course Masters</div>
+                <div data-i18n="Masters">Masters</div>
             </a>
             <ul class="menu-sub">
 
