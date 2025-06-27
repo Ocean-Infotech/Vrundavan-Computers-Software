@@ -1,9 +1,17 @@
 |-------------------------------------------- Local
 
+
 |-------------------------------------------- On Development
 
 
 |-------------------------------------------- Live
+ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
+
+ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
+
+ALTER TABLE `fees_collections` DROP `register_id`;
+ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
 ALTER TABLE `attedance` ADD `batch_id` INT NULL AFTER `course_id`;

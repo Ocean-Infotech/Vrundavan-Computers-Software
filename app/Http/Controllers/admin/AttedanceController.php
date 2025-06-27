@@ -59,11 +59,11 @@ class AttedanceController extends Controller
                 // dd($request->all());
                 $data = Attedance::select('*');
                 $data = $data->withTrashed();
-                $data = $data->with(['admission','course', 'batch']);
-                // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-                // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
+                $data = $data->orderBy('created_at', 'desc');
+                $data = $data->with(['course', 'admission', 'batch']);
+
+                $editPermission = true;
+                $deletePermission = true;
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -96,7 +96,7 @@ class AttedanceController extends Controller
                         }else{
                             $out_time = Carbon::parse($row->out_time)->format('h:i A');
                         }
-                        
+
                         return $out_time;
                     })
                     ->editColumn('leave', function ($row) {
@@ -107,8 +107,8 @@ class AttedanceController extends Controller
                         }
                         return $leave;
                     })
-                    
-                    
+
+
                     ->rawColumns(['student_name','date','in_time','out_time','leave'])
                     ->make(true);
                 return $returnData;

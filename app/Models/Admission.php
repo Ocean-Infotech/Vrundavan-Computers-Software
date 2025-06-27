@@ -13,6 +13,7 @@ class Admission extends Model
     public $table = 'admission';
 
     protected $fillable = [
+        'biometric_id',
         'aadhar_card_no',
         'first_name',
         'last_name',
