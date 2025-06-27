@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\View;
 use App\Http\Requests\AdmissionRequest;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterCourse;
+use App\Traits\BioMetricTrait;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -25,10 +26,14 @@ use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 use Google_Client;
 use Illuminate\Container\Attributes\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class AdmissionController extends Controller
 {
+    use BioMetricTrait;
+
     public $modules = [];
     public function __construct()
     {
@@ -48,6 +53,14 @@ class AdmissionController extends Controller
 
     public function index(Request $request)
     {
+
+        /*
+        return $apiResponse = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            // 'Authorization' => 'Bearer ' . $token,
+        ])->get('http://192.168.1.88:88/api/Employees');
+        */
+
         $modules = $this->modules;
         View::share('modules', $modules);
 
@@ -66,9 +79,7 @@ class AdmissionController extends Controller
             $data = [];
 
             if ($request->ajax()) {
-                // $data = Admission::withTrashed();
-                $data = Admission::withTrashed()->orderBy('created_at', 'desc');
-
+                $data = Admission::withTrashed();
 
                 $editPermisstion = true;
                 $deletePermisstion = false;
@@ -77,7 +88,7 @@ class AdmissionController extends Controller
                     ->addIndexColumn()
 
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
+                    if ($request->has('search')) {
                             $query->orWhere('first_name', 'like', "%" . $request->search . "%");
                         }
                     })
@@ -86,29 +97,28 @@ class AdmissionController extends Controller
                         $first = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
-                        $fullName = trim("{$first} {$father} {$last}");
-                        return strtoupper($fullName);
+                        return trim("{$first} {$father} {$last}");
                     })
 
                     ->editColumn('gdrivefolderurl', function ($row) {
                         $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-                        return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
+                    return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
                     })
 
                     ->editColumn('status', function ($row) use ($modules) {
-                        $dropdown = '<ul class="dropdown-menu">';
-                        $button = '';
+                    $dropdown = '<ul class="dropdown-menu">';
+                    $button = '';
 
                         if ($row->status == "created") {
-                            $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
+                        $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
                         } elseif ($row->status == "rejected") {
-                            $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
+                        $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
                         }
 
-                        $dropdown .= '</ul>';
-                        return $button . $dropdown;
+                    $dropdown .= '</ul>';
+                    return $button . $dropdown;
                     })
 
                     ->addColumn('course_button', function ($row) {
@@ -121,18 +131,18 @@ class AdmissionController extends Controller
 
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
-                        if (!$row->deleted_at) {
+                    if (!$row->deleted_at) {
                             if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                             }
                             if ($deletePermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
+                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                             }
                         } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore"><i class="ti ti-history"></i> Restore</a>';
+                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore"><i class="ti ti-history"></i> Restore</a>';
                         }
 
-                        return $btn ?: '-';
+                    return $btn ?: '-';
                     })
 
                     ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button'])
@@ -152,42 +162,16 @@ class AdmissionController extends Controller
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
 
-    public function show(Request $request)
-    {
-        $student = Admission::withTrashed()->find($request->id);
-
-        $studentCourses = CourceRegistration::with(['course'])
-            ->withTrashed()
-            ->where('register_id', $request->id)
-            ->get();
-
-        if (!$student && $studentCourses->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
-        }
-
-        return response()->json([
-            'success' => true,
-            'student' => $student,
-            'courses' => $studentCourses,
-        ]);
-    }
 
     public function store(AdmissionRequest $request)
     {
         $modules = $this->modules;
-        // $modules['addPermission'] = Gate::check('hasPermission', ['add',$modules['module_name']]);
-
-        // if(!$modules['addPermission']){
-        //     abort(403, 'Unauthorized');
-        // }
-
-
 
         View::share('modules', $modules);
 
         $validated = $request->validated();
-        // return $request->all();
 
+        $token = Session::get('external_api_token');
 
         try {
 
@@ -210,11 +194,124 @@ class AdmissionController extends Controller
                 ]);
             }
 
-            return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])
-                ->withSuccess($modules['title'] . ' New Admission created successfully');
+            $gender = $admission?->gender;
+            if ($gender == "Male") {
+                $gender = 0;
+            } else if ($gender == "Female") {
+                $gender = 1;
+            } else if ($gender == "Other") {
+                $gender = 2;
+            }
+
+            $student_name = $admission?->first_name . " " . $admission?->last_name;
+            $apiResponse = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ])->post('http://192.168.1.88:88/api/Employees', [
+                "Id" => 0,
+                "Code" => (string) 'SA' . $admission_id,
+                "DeviceRegisterId" => (string) $admission->aadhar_card_no ?? '',
+                "Name" => $student_name ?? '',
+                "Gender" => $gender ?? "",
+                "DepartmentId" => 0,
+                "Department" => "",
+                "LocationId" => 0,
+                "Location" => $admission->permanent_address ?? "",
+                "ImagePath" => "",
+                "CreatedBy" => (string) $loginUserId,
+                "CreatedOn" => now()->toIso8601String(),
+                "UpdatedBy" => "",
+                "UpdatedOn" => now()->toIso8601String()
+            ]);
+
+            if ($apiResponse->successful()) {
+
+                $responseBody = $apiResponse->json();
+                $biometricId = $responseBody['Id'] ?? null;
+
+                if ($biometricId) {
+                    $admission->update([
+                        'biometric_id' => $biometricId
+                    ]);
+                }
+
+                $deviceResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                ])->get('http://192.168.1.88:88/api/Device');
+
+                if (!$deviceResponse->successful()) {
+                    // dd("ln-246" . $deviceResponse->body());
+                    return Redirect::route($modules['route'] . '.create')
+                        ->withErrors('Device fetch failed : ' . $deviceResponse->body());
+                }
+
+                $deviceData = $deviceResponse->json();
+
+                $device_id = $deviceData[0]['DeviceKey'] ?? null;
+
+                $deviceKey = $device_id;
+
+                $uploadUserPayload = [
+                    [
+                        "UserId" => (string) $biometricId,
+                        "UserName" => $student_name ?? '',
+                        "CardNumber" => (string) ($admission->aadhar_card_no ?? ''),
+                        "Password" => $admission->mobile_no ?? '',
+                        "AccessLevel" => "USER",
+                        "DeviceKeys" => [
+                            $deviceKey
+                        ],
+                        "OnlineEnrollment" => false,
+                        "UploadBiometricDataIfAvailable" => true,
+                        "FingerPrintUpload" => false,
+                        "FaceUpload" => false,
+                        "CardUpload" => false,
+                        "PasswordUpload" => false
+                    ]
+                ];
+
+                $uploadUserResponse = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ])->post('http://192.168.1.88:88/api/DeviceCommand/UploadUser', $uploadUserPayload);
+
+                // dd($uploadUserResponse->body(), $uploadUserResponse->successful());
+
+
+                if (!$uploadUserResponse->successful()) {
+                    return Redirect::route($modules['route'] . '.index')
+                        ->withErrors('Admission created and synced, but device upload failed: ' . $uploadUserResponse->body());
+                }
+
+                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])
+                    ->with('success', $admission->name . ' has been successfully admitted and synced with the external system.');
+            } else {
+                return Redirect::route($modules['route'] . '.index')
+                    ->withErrors('Admission created, but API sync failed: ' . $apiResponse->body());
+            }
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
+    }
+
+    public function show(Request $request)
+    {
+        $student = Admission::withTrashed()->find($request->id);
+
+        $studentCourses = CourceRegistration::with(['course'])
+            ->withTrashed()
+            ->where('register_id', $request->id)
+            ->get();
+
+        if (!$student && $studentCourses->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Student and Course not found.']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'student' => $student,
+            'courses' => $studentCourses,
+        ]);
     }
 
     // public function show(Request $request)
@@ -254,15 +351,16 @@ class AdmissionController extends Controller
         }
     }
 
-    public function update(AdmissionRequest $request, string $register_id)
+    public function update(AdmissionRequest $request, string $id)
     {
         $modules = $this->modules;
         $validated = $request->validated();
         try {
-            $validated['updated_by'] = Auth::id();
+            $loginUserId = Auth::user()->id;
+            $validated['updated_by'] = $loginUserId;
 
             $CourceRegistration = CourceRegistration::where('register_id', $register_id)->first();
-            if(!$CourceRegistration){
+            if (!$CourceRegistration) {
                 return Redirect::back()->withErrors('Register id not found on course.');
             }
 
@@ -290,6 +388,19 @@ class AdmissionController extends Controller
                     } else {
                         EducationDetails::create($data);
                     }
+                }
+            }
+
+
+            if (!$admission?->biometric_id) {
+                $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
+                return $response;
+                if ($response['status'] && $response['data']) {
+                    $responseData = (object)$response['data'];
+                    $responseData?->root?->Id;
+                    $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
+                    $admission->biometric_id = $responseData?->root?->Id;
+                    $admission->save();
                 }
             }
 
@@ -412,53 +523,85 @@ class AdmissionController extends Controller
         }
     }
 
-    public function createFolder(Request $request)
-    {
+    //  =================== Main Folder Ni ander Multipal Folder create krva  no code niche no che vrundavan computer line -462 thi start thay che ==============================
+    public function createFolder(Request $request){
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'foldername' => ['required']
+            'foldername' => ['required'],
         ]);
 
-        $folderName = $request->input('name', $request->foldername);
+        if ($validator->fails()) {
+            return $this->sendError($validator->errors(), 'Validation Error', 422);
+        }
+
+        $recordId = $request->input('id');
+        $subFolderName = $request->input('foldername');
 
         $client = new Google_Client();
         $client->setClientId(config('filesystems.disks.google.clientId'));
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
 
-
         $service = new Drive($client);
 
+        $mainFolderName = 'Vrundavan-Computer';
+        $mainFolderId = $this->getOrCreateFolder($service, $mainFolderName);
+
+
         $fileMetadata = new DriveFile([
-            'name' => $folderName,
+            'name' => $subFolderName,
             'mimeType' => 'application/vnd.google-apps.folder',
+            'parents' => [$mainFolderId],
         ]);
 
         try {
-
             $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id, name'
+                'fields' => 'id, name',
             ]);
 
-            $folderId = $folder?->id;
+            $folderId = $folder->id;
             $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
 
-            // dd("L-428", $request->all(), config('filesystems.disks.google'), $fileMetadata, $folderId);
-            $createfolder = Admission::withTrashed()->findOrFail($request?->id);
+            $createfolder = Admission::withTrashed()->findOrFail($recordId);
             $createfolder->gdrivefolderurl = $folderUrl;
             $createfolder->gdrivefolderid = $folderId;
             $createfolder->gdrivefoldername = $folder->name;
             $createfolder->save();
 
             return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
-            return Redirect::route($modules['route'] . '.index')->withSuccess($folder->name . ' Create Google Drive Folder successfully!');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
-
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    private function getOrCreateFolder(Drive $service, string $folderName): string
+    {
+        $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
+        $results = $service->files->listFiles([
+            'q' => $query,
+            'fields' => 'files(id, name)',
+        ]);
+
+        $files = $results->getFiles();
+
+        if (empty($files)) {
+            $fileMetadata = new DriveFile([
+                'name' => $folderName,
+                'mimeType' => 'application/vnd.google-apps.folder',
+            ]);
+
+            $folder = $service->files->create($fileMetadata, [
+                'fields' => 'id',
+            ]);
+
+            return $folder->id;
+        } else {
+            return $files[0]->id;
+        }
+    }
+
+    // ========================= line no - 545 lagin che Folder crate thay che ane te folder  ni ander multipal Folder create thay code End ==============================
 
 
     public function renameFolder(Request $request)
@@ -525,16 +668,6 @@ class AdmissionController extends Controller
 
         return response()->json(['error' => 'Admission not found'], 404);
     }
-    public function aadharCardNoSuggestion(Request $request)
-    {
-        $term = $request->input('term');
-
-        $aadhars = Admission::where('aadhar_card_no', 'LIKE', $term . '%')
-            ->pluck('aadhar_card_no');
-
-        return response()->json($aadhars);
-    }
-
 
     public function aadharCardNoToData(Request $request)
     {

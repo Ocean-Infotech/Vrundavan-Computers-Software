@@ -12,6 +12,7 @@ class MasterCourse extends Model
 	public $table = 'master_course';
 
 	protected $fillable = [
+        'biometric_id',
         'course_name',
         'course_fees',
         'course_year',

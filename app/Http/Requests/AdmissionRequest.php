@@ -35,23 +35,13 @@ class AdmissionRequest extends FormRequest
         $id = $request->route('admission') ?? 0;
 
         $rules = [
-            // 'aadhar_card_no' => [
-            //     'required',
-            //     'regex:/^[2-9]{1}[0-9]{11}$/',
-            //     // Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
-            //     Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
-            //         return $query->where('aadhar_card_no', $request->aadhar_card_no);
-            //     })->ignore($id),
-            // ],
-
             'aadhar_card_no' => [
                 'required',
-                'regex:/^[2-9]{1}[0-9]{11}$/', // Valid Aadhaar format
-                Rule::unique((new Admission)->getTable())
-                    ->ignore($id)
-                    ->where(function ($query) {
-                        return $query->whereNull('deleted_at'); // If you're using soft deletes
-                    }),
+                'regex:/^[2-9]{1}[0-9]{11}$/',
+                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($id)
+                // Rule::unique((new Admission())->getTable())->where(function ($query) use ($request) {
+                //     return $query->where('aadhar_card_no', $request->aadhar_card_no);
+                // })->ignore($id),
             ],
 
             'first_name' => [

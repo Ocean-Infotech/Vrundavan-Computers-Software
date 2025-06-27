@@ -42,19 +42,25 @@ class MasterShiftRequest extends FormRequest
             'from_time' => [
                 'required',
                 Rule::unique((new MasterShift())->getTable())
-                    ->where(fn($q) => $q->where('class_id', $request->class_id))
+                    ->where(function ($q) use ($request) {
+                        return $q->where('class_id', $request->class_id)
+                            ->where('batch_id', $request->batch_id)
+                            ->where('course_id', $request->course_id);
+                    })
                     ->ignore($id),
+
                 function ($attribute, $value, $fail) use ($request, $id) {
-                    $value = Carbon::parse($value)->format('H:i:s');
+                    $fromTime = Carbon::parse($value)->format('H:i:s');
                     $toTime = Carbon::parse($request->to_time)->format('H:i:s');
 
-                    // check conflict in time range
                     $conflict = MasterShift::where('class_id', $request->class_id)
+                        ->where('batch_id', $request->batch_id)
+                        ->where('course_id', $request->course_id)
                         ->when($id, fn($q) => $q->where('id', '!=', $id))
-                        ->where(function ($query) use ($value, $toTime) {
-                            $query->where(function ($q) use ($value, $toTime) {
+                        ->where(function ($query) use ($fromTime, $toTime) {
+                            $query->where(function ($q) use ($fromTime, $toTime) {
                                 $q->where('from_time', '<', $toTime)
-                                    ->where('to_time', '>', $value);
+                                ->where('to_time', '>', $fromTime);
                             });
                         })
                         ->first();
@@ -66,6 +72,7 @@ class MasterShiftRequest extends FormRequest
                     }
                 }
             ],
+
             'to_time' => ['required', 'after:from_time'],
         ];
         // dd("L-33", $rules, $id, $request->all(), $request->route('master-city'), $request->route()->parameters());

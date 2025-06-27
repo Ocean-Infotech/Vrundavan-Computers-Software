@@ -72,7 +72,6 @@ class FeesCollectionController extends Controller
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
                 $deletePermisstion = true;
-                $viewPermisstion = true;
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -114,7 +113,7 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion, $viewPermisstion) {
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
@@ -123,9 +122,6 @@ class FeesCollectionController extends Controller
                             }
                             if ($deletePermisstion) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                            if ($viewPermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1"><i class="fa-solid fa-download"></i></i></a>';
                             }
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
@@ -217,26 +213,27 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+   
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         $validated = $request->validated();
+
         try {
-
             $loginUserId = Auth::user()->id;
-
-            // return $this->adminLoginUser;
             $validated['created_by'] = $loginUserId;
-            // return $validated;
-            FeesCollection::create($validated);
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+            $feesCollection = FeesCollection::create($validated);
+
+
+            return redirect()->route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -315,11 +312,13 @@ class FeesCollectionController extends Controller
         } else {
             $totalFee = $feesData->fees;
         }
-
-        // Convert to words
+        $modules = [
+        'route' => 'fees-collection', // Change to your actual route name
+    ];
+        //  Convert to words
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee','modules'));
     }
 }
