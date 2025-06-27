@@ -198,16 +198,18 @@ class AdmissionController extends Controller
             $admission_id = $admission->id;
 
             $education = $request->education;
-            foreach ($education as $key => $value) {
-                EducationDetails::create([
-                    'admission_id' => $admission_id,
-                    'education' => $value,
-                    'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
-                    'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
-                    'board_university' => $request->board_university[$key],
-                    'passing_year' => $request->passing_year[$key] ?? 0,
-                    'school_name_college_name' => $request->school_name_college_name[$key],
-                ]);
+            if ($education != "") {
+                foreach ($education as $key => $value) {
+                    EducationDetails::create([
+                        'admission_id' => $admission_id,
+                        'education' => $value,
+                        'percentage_cgpa' => $request->percentage_cgpa[$key] ?? 0,
+                        'seat_no_nrollment_no' => $request->seat_no_nrollment_no[$key] ?? '',
+                        'board_university' => $request->board_university[$key],
+                        'passing_year' => $request->passing_year[$key] ?? 0,
+                        'school_name_college_name' => $request->school_name_college_name[$key],
+                    ]);
+                }
             }
 
             return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])
