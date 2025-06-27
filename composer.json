@@ -13,6 +13,7 @@
         "laravel/passport": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
+        "maatwebsite/excel": "*",
         "openspout/openspout": "4.28.5",
         "spatie/laravel-permission": "^6.16",
         "yajra/laravel-datatables": "12.0",
