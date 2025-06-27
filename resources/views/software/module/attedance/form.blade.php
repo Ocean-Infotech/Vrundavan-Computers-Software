@@ -220,6 +220,9 @@ $i = 0;
                                 }
                             }
 
+                            if (!item.admission) {
+                                console.warn("Admission data missing for register_id:", item.register_id);
+                            }
 
                             rows += '<tr>';
                             rows += '<td><input class="form-check-input studentcheck" name="student[]" type="checkbox" id="studentcheck" data-attendance_id="' + attendance_id + '"  data-course_id="' + item.course_id + '" value="' + item.id + '"></td>';

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Session;
 
 class MasterCourseController extends Controller
 {
+
     use BioMetricTrait;
 
     public $modules = [];
@@ -227,7 +228,6 @@ class MasterCourseController extends Controller
                     return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
                 }
             }
-
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
