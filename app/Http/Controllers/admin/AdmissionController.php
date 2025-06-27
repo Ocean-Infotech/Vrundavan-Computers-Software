@@ -390,7 +390,7 @@ class AdmissionController extends Controller
                     }
                 }
             }
-        }
+
 
             if (!$admission?->biometric_id) {
                 $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
