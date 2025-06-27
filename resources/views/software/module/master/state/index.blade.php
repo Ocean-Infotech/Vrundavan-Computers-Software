@@ -21,18 +21,18 @@ $i = 0;
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-lg-between px-1">
-    @include('software.includes.breadcrumb', [
-    'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
-    'route' => $route,
-    'show_add_btn' => true,
-    'show_filter_btn' => false,
-    'show_export_btns' => false,
-    'show_excal_btn' => false,
-    'show_print_btn' => false,
-    'show_back_btn' => false,
-    ])
-</div>
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
+            'route' => $route,
+            'show_add_btn' => true,
+            'show_filter_btn' => false,
+            'show_export_btns' => false,
+            'show_excal_btn' => false,
+            'show_print_btn' => false,
+            'show_back_btn' => false,
+        ])
+    </div>
 
 <!-- @include('software.partials.flash_messages') -->
 <div class="row">
@@ -60,7 +60,7 @@ $i = 0;
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap" style="width: 100%;">
+                    <table id="yajra-datatables" class="display table table-hover">
                         @if (isset($columns))
                         <thead>
                             <tr>

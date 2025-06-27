@@ -79,7 +79,8 @@
     </style>
 </head>
 
-<body>
+<body onload="printAndRedirect();">
+
     @for ($i = 0; $i < 2; $i++)
         <div class="receipt">
             <div class="header">
@@ -160,102 +161,58 @@
 </body>
 <script>
     function convertToWords(amount) {
-        var words = new Array();
-        words[0] = '';
-        words[1] = 'One';
-        words[2] = 'Two';
-        words[3] = 'Three';
-        words[4] = 'Four';
-        words[5] = 'Five';
-        words[6] = 'Six';
-        words[7] = 'Seven';
-        words[8] = 'Eight';
-        words[9] = 'Nine';
-        words[10] = 'Ten';
-        words[11] = 'Eleven';
-        words[12] = 'Twelve';
-        words[13] = 'Thirteen';
-        words[14] = 'Fourteen';
-        words[15] = 'Fifteen';
-        words[16] = 'Sixteen';
-        words[17] = 'Seventeen';
-        words[18] = 'Eighteen';
-        words[19] = 'Nineteen';
-        words[20] = 'Twenty';
-        words[30] = 'Thirty';
-        words[40] = 'Forty';
-        words[50] = 'Fifty';
-        words[60] = 'Sixty';
-        words[70] = 'Seventy';
-        words[80] = 'Eighty';
-        words[90] = 'Ninety';
+        var words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+            'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
+            'Eighteen', 'Nineteen'
+        ];
+        var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
-        amount = amount.toString();
-        var atemp = amount.split(".");
-        var number = atemp[0].split(",").join("");
-        var n_length = number.length;
-        var words_string = "";
+        if (isNaN(amount) || amount === '') return 'Invalid amount';
+        if (parseInt(amount) === 0) return 'Zero Rupees Only';
 
-        if (n_length <= 9) {
-            var n_array = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            var received_n_array = number.split("");
-            for (var i = 0; i < received_n_array.length; i++) {
-                n_array[9 - n_length + i] = parseInt(received_n_array[i]);
-            }
-            for (var i = 0; i < 9; i++) {
-                switch (i) {
-                    case 0:
-                        if (n_array[i] !== 0) {
-                            words_string += words[n_array[i]] + " Crore ";
-                        }
-                        break;
-                    case 1:
-                        if (n_array[i] !== 0) {
-                            words_string += words[n_array[i]] + " Lakh ";
-                        }
-                        break;
-                    case 2:
-                        if (n_array[i] !== 0) {
-                            words_string += words[n_array[i]] + " Lakh ";
-                        }
-                        break;
-                    case 3:
-                        if (n_array[i] !== 0) {
-                            words_string += words[n_array[i]] + " Thousand ";
-                        }
-                        break;
-                    case 4:
-                        if (n_array[i] !== 0) {
-                            words_string += words[n_array[i]] + " Hundred ";
-                        }
-                        break;
-                    case 5:
-                    case 6:
-                        if (n_array[i] !== 0) {
-                            if (n_array[i] === 1) {
-                                words_string += words[10 + n_array[i + 1]] + " ";
-                                i++;
-                            } else {
-                                words_string += words[n_array[i] * 10] + " ";
-                                if (n_array[i + 1] !== 0) {
-                                    words_string += words[n_array[i + 1]] + " ";
-                                }
-                                i++;
-                            }
-                        }
-                        break;
-                }
-            }
+        amount = amount.toString().replace(/[, ]/g, '');
+        if (amount.includes('.')) {
+            amount = amount.split('.')[0]; // Only take integer part
         }
-        return words_string + "Rupees Only";
+
+        var num = parseInt(amount);
+        var result = '';
+
+        function numToWords(n, label) {
+            let str = '';
+            if (n > 19) {
+                str += tens[Math.floor(n / 10)] + ' ' + words[n % 10];
+            } else {
+                str += words[n];
+            }
+            return str ? str + ' ' + label + ' ' : '';
+        }
+
+        var crore = Math.floor(num / 10000000);
+        num %= 10000000;
+        var lakh = Math.floor(num / 100000);
+        num %= 100000;
+        var thousand = Math.floor(num / 1000);
+        num %= 1000;
+        var hundred = Math.floor(num / 100);
+        var remainder = num % 100;
+
+        if (crore) result += numToWords(crore, 'Crore');
+        if (lakh) result += numToWords(lakh, 'Lakh');
+        if (thousand) result += numToWords(thousand, 'Thousand');
+        if (hundred) result += words[hundred] + ' Hundred ';
+        if (remainder) {
+            result += (result !== '' ? 'and ' : '') + numToWords(remainder, '');
+        }
+
+        return result.trim() + ' Rupees Only';
     }
 
-    // Example usage
     document.addEventListener("DOMContentLoaded", function() {
         const rows = document.querySelectorAll("table.info-table td");
         rows.forEach(row => {
             if (row.textContent.includes("Amount In Words") || row.textContent.includes(
-                    "Rs. In Words")) {
+                "Rs. In Words")) {
                 const totalCell = document.querySelector(
                     "table.fees-table tbody tr:last-child th:last-child");
                 if (totalCell) {
@@ -268,9 +225,15 @@
 </script>
 
 <script>
-    window.onload = function() {
+    function printAndRedirect() {
         window.print();
-    };
+
+        window.onafterprint = function() {
+            setTimeout(function() {
+                window.location.href = "{{ route($modules['route'] . '.create') }}";
+            }, 1);
+        };
+    }
 </script>
 
 </html>

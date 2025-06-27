@@ -94,7 +94,7 @@ class CourceRegistrationController extends Controller
                         $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
                         $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
 
-                        $shift = $from_time . ' To ' . $to_time ?? '';
+                        $shift = $from_time.' To '.$to_time ?? '';
                         return trim("{$batch}<br>{$class}<br>{$shift}");
                     })
 
@@ -104,12 +104,12 @@ class CourceRegistrationController extends Controller
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
                         // $btn = ucfirst($row->status);
-    
+
                         // $btn .= '<ul class="dropdown-menu" style="">
                         // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Active</a></li>
                         // <li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route('master-country.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Inactive</a></li>
                         // </ul>';
-    
+
                         $dropdown = "";
                         $dropdown .= '<ul class="dropdown-menu" style="">';
 
@@ -166,23 +166,17 @@ class CourceRegistrationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($id = null)
+    public function create()
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        $admission_id = session('admission_id') ?? $id;
-
-        $student = null;
-        if ($admission_id) {
-            $student = Admission::find($admission_id);
-        }
-
-        // Get all admissions if needed for datalist
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
 
         return view($modules['folder_path'] . '.form', compact('modules', 'student', 'admission_id', 'admissions'));
     }
+
+
 
     public function get_register_cource(Request $request)
     {
@@ -221,7 +215,7 @@ class CourceRegistrationController extends Controller
 
             CourceRegistration::create($coursereg);
 
-            return Redirect::route('admission.index')
+            return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -286,7 +280,6 @@ class CourceRegistrationController extends Controller
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
-
 
     /**
      * Remove the specified resource from storage.

@@ -13,8 +13,13 @@
         "laravel/passport": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
+        "maatwebsite/excel": "^3.1",
         "openspout/openspout": "4.28.5",
+<<<<<<< HEAD
+        "phpoffice/phpspreadsheet": "^1.29",
+=======
         "phpoffice/phpspreadsheet": "^4.3",
+>>>>>>> 6a266214a401f2c3a1101541a83f6d324e46dab7
         "spatie/laravel-permission": "^6.16",
         "yajra/laravel-datatables": "12.0",
         "yaza/laravel-google-drive-storage": "^4.1"

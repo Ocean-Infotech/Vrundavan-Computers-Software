@@ -42,7 +42,7 @@ class FeesCollectionRequest extends FormRequest
                 'required',
                 Rule::exists((new MasterCourse())->getTable(), 'id')
             ],
-            
+
             'student_name' => [
                 'required',
             ],
@@ -50,7 +50,9 @@ class FeesCollectionRequest extends FormRequest
             'year_semester' => [
                 'required',
             ],
-
+            //  'password' => [
+            //     'required',
+            // ],
             'date' => [
                 'required',
             ],

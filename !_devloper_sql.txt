@@ -16,5 +16,3 @@ ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER
 ALTER TABLE `attedance` ADD `batch_id` INT NULL AFTER `course_id`;
 
 ALTER TABLE `attedance` CHANGE `leave` `leave` DATETIME NULL DEFAULT NULL;
-
-

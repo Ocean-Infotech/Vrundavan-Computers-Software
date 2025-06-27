@@ -34,59 +34,31 @@
         ])
     </div>
 
-    <!-- @include('software.partials.flash_messages') -->
-    <div class="row my-3">
-        <div class="col-md-12 mb-5" id="filter_section">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row" id="filter_section">
-                        <div class="col-md-4 mb-2 col-sm-12">
-                            <div class="form-group">
-                                <label for="student_filter">Filter by Student (ID, Name, Contact)</label>
-                                <input type="text" id="student_filter" name="student_filter"
-                                    class="form-control select_filter" placeholder="Enter student ID, name or contact">
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-sm-12">
-                            <div class="form-group">
-                                <label for="course_id">Filter by Course</label>
-                                <select id="course_id" name="course_id"
-                                    class="form-control search_by_expense_subcategory select2 select_filter"
-                                    data-append="search_by_expense_subcategory">
-                                    <option value="">Filter by Category</option>
-                                    @foreach ($courses as $course)
-                                        <option value="{{ $course->id }}">{{ $course->course_name }}</option>
-                                    @endforeach
-                                </select>
-
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
-                            @if (isset($columns))
-                                <thead>
-                                    <tr>
-                                        @foreach ($columns as $item)
-                                            <th class="{{ $item?->className ?? '' }}">
-                                                {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                            @endif
-                        </table>
-                    </div>
+<!-- @include('software.partials.flash_messages') -->
+<div class="row my-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <!-- <table id="yajra-datatables" class="display table table-hover"> -->
+                    <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap" style="width: 100%;">
+                        @if (isset($columns))
+                        <thead>
+                            <tr>
+                                @foreach ($columns as $item)
+                                <th class="{{ $item?->className ?? '' }}">
+                                    {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}
+                                </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        @endif
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('page_script_file')
@@ -134,69 +106,23 @@
                         data.search = $('input[type="search"]').val();
                     }
                 },
-                columns: {!! json_encode($columns) !!},
-                language: {
-                    searchPlaceholder: 'Search...',
-                },
-            });
-            $(document).ready(function() {
-                $('#filter_section').hide();
-                $("#show_filter").click(function() {
-
-                    if ($('#filter_section').is(':hidden')) {
-                        $('#filter_section').show();
-                    } else {
-                        $('#filter_section').hide();
-                    }
-                });
-
-                $("#cilory_filter").click(function() {
-                    $('.select_filter').val(null).trigger('change');
-                    $('.search').val('');
-                    dtable.draw();
-                });
-            });
-
-            $('.select_filter').on('change keyup', function() {
-                dtable.draw();
-            });
+            },
+            columns: {!!json_encode($columns) !!},
+            language: {
+                searchPlaceholder: 'Search...',
+            },
+            // dom:'lBfrtip',
+            // buttons: ["csv"],
         });
-    </script>
-    <script>
-        $('#exportExcelBtn').on('click', function() {
-
-
-            // console.log("L-169 Excal","Excal Dore");
-            // return;
-
-
-            var studentFilter = $('#student_filter').val();
-            var courseId = $('#course_id').val();
-            var singleDate = $('#single_date').val();
-
-            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
-
-            // console.log("L-180 Excal Rwdirect","Export URL: ", "{{ route($route . '.export-excel') }}" + queryString);
-            // return;
-            window.location.href = "{{ route($route . '.export-excel') }}" + queryString;
-        });
-
-        $('#print_btn').on('click', function(e) {
-            e.preventDefault();
-
-            var studentFilter = $('#student_filter').val();
-            var courseId = $('#course_id').val();
-
-            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
-
-            var url = "{{ route($route . '.print') }}" + queryString;
-
-            // Redirect to new tab
-            window.open(url, '_blank');
-        });
-    </script>
+    });
+    $('input[name="search"]').keyup(function() {
+        dtable.draw();
+    });
+    jQuery(document).on('change', 'select', function(event) {
+        event.preventDefault();
+        dtable.draw();
+    });
+</script>
 
 
     @include('software.utils.getAdmission')
