@@ -98,17 +98,17 @@
             </a>
             <ul class="menu-sub">
 
-                <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
-                    <a href="{{ route('admission.index') }}" class="menu-link">
+                <li class="menu-item {{ $sidebar_active == 'admission.create' ? 'active' : '' }}">
+                    <a href="{{ route('admission.create') }}" class="menu-link">
                         <div data-i18n="Student">Student</div>
                     </a>
                 </li>
-                <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
+                {{-- <li class="menu-item {{ $sidebar_active == 'cource-registration' ? 'active' : '' }}">
                     <a href="{{ route('cource-registration.index') }}" class="menu-link">
                         <div data-i18n="Course Registration">Course Registration</div>
                     </a>
-                </li>
-                
+                </li> --}}
+
 
                 <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
