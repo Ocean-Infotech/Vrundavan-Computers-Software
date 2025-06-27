@@ -12,9 +12,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterCourceRequest;
+use App\Traits\BioMetricTrait;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 
 class MasterCourseController extends Controller
 {
+
+    use BioMetricTrait;
+
     public $modules = [];
     public function __construct()
     {
@@ -133,11 +139,37 @@ class MasterCourseController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $token = Session::get('external_api_token');
+
         try {
             $data = $request->validated();
             $data['created_by'] = Auth::user()->id;
 
-            MasterCourse::create($data);
+            $mastercourse = MasterCourse::create($data);
+
+            if ($mastercourse?->biometric_id ==  null) {
+                $apiPayload = [
+                    'Name' => $mastercourse->course_name,
+                ];
+
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ])->post('http://192.168.1.8  8:88/api/Department', $apiPayload);
+
+                if ($response->successful()) {
+                    $responseData = $response->json();
+
+                    if (isset($responseData['Id'])) {
+                        $mastercourse->update([
+                            'biometric_id' => $responseData['Id']
+                        ]);
+                    }
+                } else {
+                    return Redirect::route('software.dashboard')
+                        ->withErrors('Biometric API Error: ' . $response->body());
+                }
+            }
 
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
@@ -172,6 +204,31 @@ class MasterCourseController extends Controller
             $updateData = MasterCourse::findOrFail($id);
             $updateData->update($validated);
 
+            if ($updateData?->biometric_id != "") {
+                $token = Session::get('external_api_token');
+
+                $apiResponse = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token
+                ])->post('http://192.168.1.88:88/api/Department', [
+                    "ID" => (int)$updateData->biometric_id,
+                    "Name" => $updateData->course_name
+                ]);
+
+                if ($apiResponse->successful()) {
+                    $responseData = $apiResponse->json();
+
+                    if (isset($responseData['Id'])) {
+                        $updateData->update([
+                            'biometric_id' => $responseData['Id']
+                        ]);
+                    } else {
+                        return Redirect::route('software.dashboard')->withErrors('Biometric API did not return a valid ID.');
+                    }
+                } else {
+                    return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
+                }
+            }
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
