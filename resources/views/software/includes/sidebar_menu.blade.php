@@ -212,12 +212,6 @@
                     </a>
                 </li>
 
-                <li class="menu-item {{ $sidebar_active == 'class' ? 'active' : '' }}">
-                    <a href="{{ route('class.index') }}" class="menu-link">
-                        <div data-i18n="Class Master">Class Master</div>
-                    </a>
-                </li>
-
             </ul>
         </li>
 
