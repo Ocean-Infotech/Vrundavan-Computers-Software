@@ -136,20 +136,23 @@ class MasterShiftController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
         $validated = $request->validated();
 
         try {
-            // Check for existing shift with same details
-            $exists = MasterShift::where('from_time', $validated['from_time'])
-                ->where('to_time', $validated['to_time'])
-                ->where('course_id', $validated['course_id'])
+            // Final check before save (defensive duplication prevention)
+            $exists = MasterShift::where('course_id', $validated['course_id'])
                 ->where('batch_id', $validated['batch_id'])
                 ->where('class_id', $validated['class_id'])
+                ->where(function ($query) use ($validated) {
+                    $query->where('from_time', '<', $validated['to_time'])
+                        ->where('to_time', '>', $validated['from_time']);
+                })
                 ->exists();
 
             if ($exists) {
-                $message = "The shift already exists from " .
-                    date('h:i A', strtotime($validated['from_time'])) . " to " .
+                $message = "A shift already exists between " .
+                    date('h:i A', strtotime($validated['from_time'])) . " and " .
                     date('h:i A', strtotime($validated['to_time'])) . ".";
 
                 if ($request->ajax()) {
@@ -177,7 +180,7 @@ class MasterShiftController extends Controller
             }
 
             return Redirect::route($modules['route'] . '.index')
-                ->withSuccess($modules['title'] . ' Create Successfully');
+                ->withSuccess($modules['title'] . ' created successfully.');
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([
@@ -191,6 +194,95 @@ class MasterShiftController extends Controller
         }
     }
 
+
+
+    // public function store(MasterShiftRequest $request)
+    // {
+    //     $modules = $this->modules;
+    //     View::share('modules', $modules);
+    //     $validated = $request->validated();
+
+    //     try {
+    //         // 1. Check for exact duplicate shift (same course, batch, class, from_time, to_time)
+    //         $exactDuplicate = MasterShift::where('course_id', $validated['course_id'])
+    //             ->where('batch_id', $validated['batch_id'])
+    //             ->where('class_id', $validated['class_id'])
+    //             ->where('from_time', $validated['from_time'])
+    //             ->where('to_time', $validated['to_time'])
+    //             ->exists();
+
+    //         dd($exactDuplicate);
+    //         exit();
+
+    //         if ($exactDuplicate) {
+    //             $message = "A shift with the same course, batch, class, and exact time already exists.";
+
+    //             if ($request->ajax()) {
+    //                 return response()->json([
+    //                     'status' => 'error',
+    //                     'message' => $message,
+    //                 ], 409);
+    //             }
+
+    //             return back()->withErrors($message);
+    //         }
+
+    //         // 2. Check for overlapping time with same course, batch, class
+    //         $timeOverlap = MasterShift::where('course_id', $validated['course_id'])
+    //             ->where('batch_id', $validated['batch_id'])
+    //             ->where('class_id', $validated['class_id'])
+    //             ->where(function ($query) use ($validated) {
+    //                 $query->where(function ($q) use ($validated) {
+    //                     $q->where('from_time', '<', $validated['to_time'])
+    //                         ->where('to_time', '>', $validated['from_time']);
+    //                 });
+    //             })
+    //             ->exists();
+
+    //         if ($timeOverlap) {
+    //             $message = "Another shift already exists between " .
+    //                 date('h:i A', strtotime($validated['from_time'])) . " and " .
+    //                 date('h:i A', strtotime($validated['to_time'])) . ".";
+
+    //             if ($request->ajax()) {
+    //                 return response()->json([
+    //                     'status' => 'error',
+    //                     'message' => $message,
+    //                 ], 409);
+    //             }
+
+    //             return back()->withErrors($message);
+    //         }
+
+    //         // 3. If all good, save new shift
+    //         $validated['created_by'] = Auth::user()->id;
+    //         $shift = MasterShift::create($validated);
+
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'status' => 'success',
+    //                 'data' => [
+    //                     'id' => $shift->id,
+    //                     'label' => $shift->from_time . ' - ' . $shift->to_time,
+    //                 ],
+    //                 'message' => $modules['title'] . ' created successfully.',
+    //             ]);
+    //         }
+
+    //         return Redirect::route($modules['route'] . '.index')
+    //             ->withSuccess($modules['title'] . ' Create Successfully');
+    //     } catch (\Exception $e) {
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'Something went wrong.',
+    //                 'error' => $e->getMessage(),
+    //             ], 500);
+    //         }
+
+    //         return Redirect::route('dashboard')->withErrors($e->getMessage());
+    //     }
+    // }
 
 
     public function edit(string $id)

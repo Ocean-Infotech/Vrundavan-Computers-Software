@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
+use NumberFormatter;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -293,5 +294,32 @@ class FeesCollectionController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function print($id)
+    {
+        $feesData = FeesCollection::find($id);
+
+        if (!$feesData) {
+            abort(404, 'Receipt not found');
+        }
+
+        $feesDetails = json_decode($feesData->fee_details, true);
+
+        $totalFee = 0;
+        if ($feesDetails && is_array($feesDetails)) {
+            foreach ($feesDetails as $fee) {
+                $totalFee += $fee['amount'];
+            }
+        } else {
+            $totalFee = $feesData->fees;
+        }
+
+        // Convert to words
+        // $totalInWords = $this->$totalFee;
+        $feesDetails = $feesDetails ?: [];
+
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
     }
 }

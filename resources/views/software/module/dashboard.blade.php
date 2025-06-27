@@ -2,20 +2,25 @@
 
 @section('content')
     @include('software.partials.flash_messages')
+
+    {{-- Developer-only debug info --}}
     @if (in_array(\App\Helpers\Helper::getLoginUserRole(), ['developer', 'Developer']))
         <div class="d-none">
+            {{-- Full authenticated user dump --}}
             <pre> {!! Auth::user() !!} </pre>
 
             <br />
-            Roles {{ Auth::user()->getRoleNames() }}
+            Roles: {{ Auth::user()->getRoleNames() }}
             <hr />
-            Permissions : {{ Auth::user()->getPermissionNames() }}
+            Permissions: {{ Auth::user()->getPermissionNames() }}
             <hr />
             @directCan('users-list')
-                Direct Permissions : {!! Auth::user()->getDirectPermissions() !!}
+                Direct Permissions: {!! Auth::user()->getDirectPermissions() !!}
             @enddirectCan
         </div>
     @endif
+
+    {{-- Show all admissions to all users --}}
     <div class="row">
         @foreach ($admission as $admissions)
             <div class="col-xl-2 mb-3">
@@ -37,9 +42,11 @@
         @endforeach
     </div>
 @endsection
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    // Open folder in new tab when button clicked
     $(document).on('click', '.open_google_drive_folder', function() {
         const url = $(this).data('folderurl');
         if (url) {
