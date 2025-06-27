@@ -1,5 +1,9 @@
 |-------------------------------------------- Local
 
+ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
+
+ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
+
 ALTER TABLE `fees_collections` DROP `register_id`;
 ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
 

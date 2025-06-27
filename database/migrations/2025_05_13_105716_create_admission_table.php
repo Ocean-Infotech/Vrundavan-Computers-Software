@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('admission', function (Blueprint $table) {
             $table->id();
+            $table->string('biometric_id')->nullable();
             $table->string('aadhar_card_no');
             $table->string('first_name');
             $table->string('last_name');
