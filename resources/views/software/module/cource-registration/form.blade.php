@@ -1,11 +1,11 @@
 @extends('software.layout.app')
 
 @php
-    $page_title = isset($modules['title']) ? $modules['title'] : null;
-    $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
-    $route = isset($modules['route']) ? $modules['route'] : null;
-    $permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
-    $i = 0;
+$page_title = isset($modules['title']) ? $modules['title'] : null;
+$folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
+$route = isset($modules['route']) ? $modules['route'] : null;
+$permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
+$i = 0;
 @endphp
 
 @section('title', $page_title)
@@ -13,7 +13,7 @@
 @section('page_style_file')
 
 
-    <link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/flatpickr/flatpickr.css') }}" />
+<link rel="stylesheet" href="{{ asset('admin/assets/vendor/libs/flatpickr/flatpickr.css') }}" />
 
 @endsection
 
@@ -30,11 +30,11 @@
             ],
             'route' => $route,
             'show_add_btn' => false,
-            'show_back_btn' => false,
+            'show_back_btn' => true,
         ])
     </div>
 
-    <!-- @include('software.partials.flash_messages') -->
+<!-- @include('software.partials.flash_messages') -->
 
 <div class="card shadow my-3">
     <div class="card-header d-none">
@@ -76,25 +76,25 @@
                             </div>
                         </div>
 
-                            {{-- Course Name --}}
-                            <div class="col-md-12 col-sm-12 mb-3">
-                                <div class="form-group">
-                                    <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                    <select id="course" name="course_id"
-                                        class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
-                                        data-append="search_by_course"
-                                        data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
-                                        autofocus required>
-                                        <option value="">Select Course</option>
-                                    </select>
+                        {{-- Course Name --}}
+                        <div class="col-md-12 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                                <select id="course" name="course_id"
+                                    class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
+                                    data-append="search_by_course"
+                                    data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
+                                    autofocus required>
+                                    <option value="">Select Course</option>
+                                </select>
 
-                                    @error('course_id')
-                                        <span class="invalid-feedback">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
+                                @error('course_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
                             </div>
+                        </div>
 
                         {{-- Batch --}}
                         <div class="col-md-12 col-sm-12 mb-3">
@@ -155,18 +155,18 @@
                             </div>
                         </div>
 
-                            {{-- Fees (auto-filled) --}}
-                            <div class="col-md-12 mb-3">
-                                <div class="form-group">
-                                    <label for="fee">Course Fees <span class="text-danger">*</span></label>
-                                    <input type="text" name="fee" id="fee"
-                                        class="form-control num_only @error('fee') is-invalid @enderror"
-                                        value="{{ old('fee', $edit->fee ?? '') }}" placeholder="Course Fees">
-                                    @error('fee')
-                                        <span class="invalid-feedback">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                        {{-- Fees (auto-filled) --}}
+                        <div class="col-md-12 mb-3">
+                            <div class="form-group">
+                                <label for="fee">Course Fees <span class="text-danger">*</span></label>
+                                <input type="text" name="fee" id="fee"
+                                    class="form-control num_only @error('fee') is-invalid @enderror"
+                                    value="{{ old('fee', $edit->fee ?? '') }}" placeholder="Course Fees">
+                                @error('fee')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
                             </div>
+                        </div>
 
                         {{-- Date --}}
                         <div class="col-md-12 mb-3">
@@ -175,10 +175,10 @@
                                 class="form-control datepicker @error('date') is-invalid @enderror"
                                 value="{{ old('date', $edit->date ?? '') }}" placeholder="DD-MM-YYYY">
 
-                                @error('date')
-                                    <span class="invalid-feedback">{{ $message }}</span>
-                                @enderror
-                            </div>
+                            @error('date')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
 
                         {{-- Note --}}
                         <div class="col-md-12 mb-3">
@@ -205,9 +205,9 @@
                         </thead>
                         <tbody>
 
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
+                </div>
 
                 {{-- Submit --}}
                 <div class="col-md-12 text-center mt-4">
@@ -233,26 +233,36 @@
 
 
 
-    <script src="{{ asset('admin/assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
+<script src="{{ asset('admin/assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
 
-    <script src="{{ asset('admin/assets/js/forms-pickers.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2();
+<script src="{{ asset('admin/assets/js/forms-pickers.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2();
+        // $('.datepicker').datepicker({
+        //     format: 'yyyy-mm-dd',
+        //     autoclose: true,
+        //     todayHighlight: true
+        // });
 
-            setTimeout(function() {
-                const dateInput = document.getElementById('flatpickr-date');
-                if (dateInput && !dateInput.value) {
-                    const today = new Date();
-                    const yyyy = today.getFullYear();
-                    const mm = String(today.getMonth() + 1).padStart(2, '0');
-                    const dd = String(today.getDate()).padStart(2, '0');
+        // $('#course_name').on('change', function() {
+        //     var fee = $(this).find(':selected').data('fee');
+        //     $('#fee').val(fee);
+        // });
 
-                    dateInput.value = `${dd}-${mm}-${yyyy}`; // browser required format
-                }
-            }, 1000);
+        setTimeout(function () {
+            const dateInput = document.getElementById('flatpickr-date');
+            if (dateInput && !dateInput.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
 
-        });
+                dateInput.value = `${dd}-${mm}-${yyyy}`; // browser required format
+            }
+        }, 1000);
+
+    });
 
     let firstOldFee = null; // store first old value only once
 
@@ -282,27 +292,27 @@
                 type:'POST',
                 url:"{{ route($route . '.get-register-cource') }}",
 
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: register_id,
-                    },
-                    success: function(response) {
-                        $('#RegisterCource').show();
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id:register_id,
+                },
+                success : function(response)
+                {
+                    $('#RegisterCource').show();
 
-                        let rows = '';
+                    let rows = '';
 
-                        if (response.data && response.data.length > 0) {
-                            $.each(response.data, function(index, item) {
-                                rows += '<tr>';
+                    if (response.data && response.data.length > 0) {
+                        $.each(response.data, function(index, item) {
+                            rows += '<tr>';
                                 rows += '<td>' + item.id + '</td>';
                                 rows += '<td>' + item.course.course_name + '</td>';
                                 rows += '<td>' + item.date + '</td>';
-                                rows += '</tr>';
-                            });
-                        } else {
-                            rows =
-                                '<tr><td class="text-center" colspan="3">No data available</td></tr>';
-                        }
+                            rows += '</tr>';
+                        });
+                    } else {
+                        rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                    }
 
                     $('#RegisterCourceTable tbody').html(rows);
                     var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;
@@ -330,20 +340,19 @@
                     {
                         $('#RegisterCource').show();
 
-                            let rows = '';
+                        let rows = '';
 
-                            if (response.data && response.data.length > 0) {
-                                $.each(response.data, function(index, item) {
-                                    rows += '<tr>';
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(index, item) {
+                                rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.course.course_name + '</td>';
                                     rows += '<td>' + item.date + '</td>';
-                                    rows += '</tr>';
-                                });
-                            } else {
-                                rows =
-                                    '<tr><td class="text-center" colspan="3">No data available</td></tr>';
-                            }
+                                rows += '</tr>';
+                            });
+                        } else {
+                            rows = '<tr><td class="text-center" colspan="3">No data available</td></tr>';
+                        }
 
                         $('#RegisterCourceTable tbody').html(rows);
                         var studentname = response.admission.first_name+' '+response.admission.father_name+' '+response.admission.last_name;

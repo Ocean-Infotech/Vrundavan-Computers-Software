@@ -173,7 +173,7 @@ class CourceRegistrationController extends Controller
 
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'student', 'admission_id', 'admissions'));
+        return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
 
