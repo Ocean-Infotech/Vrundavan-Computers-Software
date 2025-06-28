@@ -149,20 +149,20 @@ class LoginController extends Controller
             // }
 
             try {
-                $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
-                    'Id'          => 0,
-                    'Username'    => 'biomax',
-                    'Password'    => 'biomax',
-                    'OldPassword' => ''
-                ]);
+                // $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
+                //     'Id'          => 0,
+                //     'Username'    => 'biomax',
+                //     'Password'    => 'biomax',
+                //     'OldPassword' => ''
+                // ]);
 
-                if ($apiResponse->successful()) {
-                    $responseData = $apiResponse->json();
+                // if ($apiResponse->successful()) {
+                //     $responseData = $apiResponse->json();
 
-                    if (isset($responseData['Token'])) {
-                        $token = $responseData['Token'];
+                //     if (isset($responseData['Token'])) {
+                //         $token = $responseData['Token'];
 
-                        Session::put('external_api_token', $token);
+                //         Session::put('external_api_token', $token);
 
                         // api response token add in database
                         // $loginUserId = Auth::user()->id;
@@ -173,14 +173,14 @@ class LoginController extends Controller
 
                         return Redirect::route('software.dashboard')
                             ->with('success', 'Login successful! New token saved.');
-                    } else {
-                        return Redirect::route('software.dashboard')
-                            ->with('success', 'Login successful! No token returned.');
-                    }
-                } else {
-                    Auth::logout();
-                    return Redirect::back()->withErrors(['External API login failed.']);
-                }
+                    // } else {
+                    //     return Redirect::route('software.dashboard')
+                    //         ->with('success', 'Login successful! No token returned.');
+                    // }
+                // } else {
+                //     Auth::logout();
+                //     return Redirect::back()->withErrors(['External API login failed.']);
+                // }
             } catch (\Exception $e) {
                 Auth::logout();
                 return Redirect::back()->withErrors(['API connection error: ' . $e->getMessage()]);

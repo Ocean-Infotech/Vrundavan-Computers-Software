@@ -244,6 +244,7 @@
                         <thead>
                             <tr>
                                 <th>Receipt ID</th>
+                                <th>Semester Name</th>
                                 <th>Fees</th>
                                 <th>Pay Fee Date</th>
                                 <th>Print Receipt</th>
@@ -254,6 +255,7 @@
                                 @foreach ($getfeescollection as $row)
                                     <tr>
                                         <td>{{ $row->id }}</td>
+                                        <th>{{ $row->year_semester }}</th>
                                         <td>{{ $row->fees }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->date)->format('d-m-Y') }}</td>
                                         <td>
@@ -275,8 +277,9 @@
                             <h5 style="color: rgb(0, 128, 0);">Deposite Fees : <span id="DepositeFees">00</span></h5>
                         </div>
                         <div class="col-md-4">
-                            <h4 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
-                                    id="PendingFees">00</span></h4>
+                            <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
+                                    id="PendingFees">00</span></h5>
+                                    <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
                         </div>
                     </div>
                 </div>
@@ -326,7 +329,7 @@
         window.paidSemesters = @json($paid_semesters ?? []);
         window.currentStudentDetails = @json($studentdetails ?? []);
         window.paidSemestersByAdmission = @json($paidSemestersGroupedByAdmission ?? []);
-        // console.log(window.paidSemesters)
+        console.log(window.paidSemesters)
     </script>
 
     <script>
@@ -539,6 +542,7 @@
                                 $.each(response.fees_collection, function(index, item) {
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
+                                    rows += '<td>' + item.year_semester + '</td>';
                                     rows += '<td>' + item.fees + '</td>';
                                     rows += '<td>' + moment(item.date).format('DD-MM-YYYY') +
                                         '</td>';
@@ -615,6 +619,7 @@
                     if (unpaid) {
                         var DepositeFees = semesterFee - unpaid.pending_fee
                         $('#PendingFees').text(formatCurrency(unpaid.pending_fee));
+                        $('#pandingfeesinput').val(formatCurrency(unpaid.pending_fee));
                         $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
                     }
 
@@ -680,6 +685,10 @@
                 return parseFloat($('#PendingFees').text().replace(/[^0-9.-]+/g, "")) || 0;
             }
 
+            function getPendingFeesinut() {
+                return parseFloat($('#pandingfeesinput').val().replace(/[^0-9.-]+/g, "")) || 0;
+            }
+
             function getDepositedFees() {
                 return parseFloat($('#DepositeFees').text().replace(/[^0-9.-]+/g, "")) || 0;
             }
@@ -687,7 +696,7 @@
             $('#fees').on('input', function() {
                 let perSemesterFee = getSemesterFee();
                 let depositedFee = getDepositedFees();
-                let currentPending = getPendingFees();
+                let currentPending = getPendingFeesinut();
 
                 let enteredFee = parseFloat($(this).val()) || 0;
 
@@ -719,20 +728,21 @@
                 if (enteredFee > currentPending) {
                     $(this).val('');
                     $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fee (₹' +
-                            currentPending.toFixed(2) + ').</div>')
+                        currentPending.toFixed(2) + ').</div>')
                         .insertAfter($(this));
                     $(this).addClass('is-invalid');
-                    $('#PendingFees').text(pending_f.toFixed(2));
+                    $('#PendingFees').text(currentPending.toFixed(2));
                     return;
                 }
 
 
                 console.log("enteredFee"+enteredFee)
 
-                var currentCurseFees = $("#CourseFees").text();
-                 console.log("currentCurseFees"+$('#CourseFees').text())
+                // var currentCurseFees = $("#CourseFees").text();
+                var currentCurseFees = $("#PendingFees").text();
+                //  console.log("currentCurseFees"+$('#CourseFees').text())
                 let newPending = currentCurseFees - enteredFee;
-                console.log("newPending"+newPending)
+                // console.log("newPending"+newPending)
                 if (newPending < 0) newPending = 0;
 
                 $('#PendingFees').text(newPending.toFixed(2));
