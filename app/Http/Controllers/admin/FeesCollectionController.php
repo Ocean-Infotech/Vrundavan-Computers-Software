@@ -144,23 +144,122 @@ class FeesCollectionController extends Controller
     }
 
 
+    // public function search_fees_collection_details(Request $request)
+    // {
+    //     $id = $request->id;
+
+    //     try {
+    //         // Get course registration with related course, admission, batch
+    //         $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+    //         $getcourceSingle = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->first();
+    //         // dd($getcource);
+    //         // Get semester fee from course
+    //         $semester_fee = ($getcourceSingle->course->course_fees != '') ?  $getcourceSingle->course->course_fees / $getcourceSingle->course->semester : 0;
+    //         // dd($semester_fee);
+
+
+    //         $feesCollections = FeesCollection::where('admission_id', $id)->get();
+
+
+    //         $semesterPaid = [];
+
+    //         foreach ($feesCollections as $fee) {
+    //             $sem = $fee->year_semester;
+    //             $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+    //         }
+    //         //dd($semester_fee);
+    //         // Collect semesters where pending = 0
+    //         $paid_semesters = [];
+    //         $unpaid_semesters = [];
+
+    //         foreach ($semesterPaid as $semester => $totalPaid) {
+    //             $pending = $semester_fee - $totalPaid;
+
+    //             if ($pending <= 0) {
+    //                 $paid_semesters[] = $semester;
+    //             } else {
+    //                 $unpaid_semesters[] = [
+    //                     'semester' => $semester,
+    //                     'pending_fee' => $pending
+    //                 ];
+    //             }
+    //         }
+
+    //         return response()->json([
+    //             'data' => $getcource,
+    //             'fees_collection' => $feesCollections,
+    //             'paid_semesters' => $paid_semesters,
+    //             'unpaid_semesters' => $unpaid_semesters,
+    //             'course_fee' => $semester_fee,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+    //     }
+    // }
     public function search_fees_collection_details(Request $request)
     {
         $id = $request->id;
 
         try {
+            // Get course registration with related course, admission, batch
             $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+            $getcourceSingle = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->first();
 
-            $getfeescollection = FeesCollection::where('admission_id', $id)->get();
+            if (!$getcourceSingle || !$getcourceSingle->course) {
+                throw new \Exception('Course registration or course not found.');
+            }
 
+            // Calculate semester fee
+            $semester_fee = ($getcourceSingle->course->course_fees != '' && $getcourceSingle->course->semester != 0)
+                ? $getcourceSingle->course->course_fees / $getcourceSingle->course->semester
+                : 0;
+            //dd($semester_fee);
+            // Get fees collection entries
+            $feesCollections = FeesCollection::where('admission_id', $id)->get();
+
+            // Track total fees paid per semester
+            $semesterPaid = [];
+            foreach ($feesCollections as $fee) {
+                $sem = $fee->year_semester;
+                $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+            }
+
+            // Initialize semester tracking
+            $total_semesters = $getcourceSingle->course->semester;
+            $paid_semesters = [];
+            $unpaid_semesters = [];
+
+            // Loop over all semesters to calculate pending fees
+            for ($sem = 1; $sem <= $total_semesters; $sem++) {
+                $paid = $semesterPaid[$sem] ?? 0;
+                $pending = $semester_fee - $paid;
+
+                if ($pending <= 0) {
+                    $paid_semesters[] = $sem;
+                } else {
+                    $unpaid_semesters[] = [
+                        'semester' => $sem,
+                        // 'pending_fee' => $pending
+                         'pending_fee' => $pending,
+                    ];
+                }
+            }
+
+            // Return result as JSON
             return response()->json([
                 'data' => $getcource,
-                'fees_collection' => $getfeescollection,
+                'fees_collection' => $feesCollections,
+                'paid_semesters' => $paid_semesters,
+                'unpaid_semesters' => $unpaid_semesters,
+                // 'course_fee' => $semester_fee,
+                 'course_fee' => $semester_fee,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
+
 
     public function check_master_password(Request $request)
     {
@@ -191,6 +290,7 @@ class FeesCollectionController extends Controller
 
     //     return response()->json(['status' => 'success', 'data' => $details]);
     // }
+
     public function getDetails($id)
     {
 
@@ -198,6 +298,8 @@ class FeesCollectionController extends Controller
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules', 'id'));
     }
+
+
 
 
     /**
@@ -213,7 +315,7 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   
+
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
@@ -313,12 +415,12 @@ class FeesCollectionController extends Controller
             $totalFee = $feesData->fees;
         }
         $modules = [
-        'route' => 'fees-collection', // Change to your actual route name
-    ];
+            'route' => 'fees-collection', // Change to your actual route name
+        ];
         //  Convert to words
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee','modules'));
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'modules'));
     }
 }
