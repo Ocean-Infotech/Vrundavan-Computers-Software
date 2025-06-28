@@ -18,7 +18,9 @@ use App\Models\CourseRegister;
 use App\Models\Master\MasterBatch;
 use App\Models\master\MasterClass;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class AttedanceController extends Controller
 {
@@ -39,104 +41,15 @@ class AttedanceController extends Controller
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
-    // public function index(Request $request)
-    // {
-    //     $modules = $this->modules;
-    //     View::share('modules', $modules);
-    //     try {
-    //         $columns = [
-    //             (object)['data' => "course_name", 'name' => 'id', 'td_label' => 'Course Name'],
-    //             (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => ''],
-    //             (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
-    //             (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
-    //             (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-    //             (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-    //             (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
-    //         ];
-    //         View::share("columns", $columns);
-
-    //         $data = [];
-
-    //         if ($request->ajax()) {
-    //             // dd($request->all());
-    //             $data = Attedance::select('*');
-    //             $data = $data->withTrashed();
-    //             $data = $data->with(['course', 'batch']);
-    //             // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-    //             // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-    //             $editPermisstion = true;
-    //             $deletePermisstion = true;
-
-    //             $returnData = Datatables::of($data)
-    //                 ->addIndexColumn()
-    //                 ->filter(function ($query) use ($request) {
-    //                     if ($request->has('search')) {
-    //                         $query->where('subject_name', 'like', "%" . $request->search . "%");
-    //                         // $query->orWhere('subject_name', 'like',"%".$request->search."%");
-    //                     }
-    //                 })
-    //                 ->editColumn('status', function ($row) use ($modules) {
-    //                     $status = '';
-    //                     $dropdown = "";
-    //                     $dropdown .= '<ul class="dropdown-menu" style="">';
-
-    //                     if ($row->status == "active") {
-    //                         $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-    //                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-    //                         // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-    //                     } elseif ($row->status == "inactive") {
-    //                         $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-    //                         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-    //                         // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-    //                     } else {
-    //                         return $status;
-    //                     }
-    //                     $dropdown .= '</ul>';
-    //                     $status .= $dropdown;
-    //                     return $status;
-    //                 })
-    //                 ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
-    //                     $btn = '';
-    //                     if (!$row?->deleted_at) {
-    //                         // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-    //                         if ($editPermisstion) {
-    //                             $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-    //                         }
-    //                         if ($deletePermisstion) {
-    //                             $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-    //                         }
-    //                     } else {
-    //                         $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-    //                     }
-    //                     // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-    //                     if ($btn == '') {
-    //                         $btn = '-';
-    //                     }
-
-    //                     return $btn;
-    //                 })
-    //                 ->rawColumns(['status', 'action'])
-    //                 ->make(true);
-    //             return $returnData;
-    //         }
-    //         return view($modules['folder_path'] . '.index', compact('data'));
-    //     } catch (\Exception $e) {
-    //         return Redirect::route('dashboard')->withErrors($e->getMessage());
-    //     }
-    // }
-
-
     public function index(Request $request)
     {
-        $modules = $this->modules; // Assuming $this->modules contains route info
+        $modules = $this->modules;
         View::share('modules', $modules);
 
         try {
-            // DataTable columns
             $columns = [
                 (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
                 (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
-                
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
@@ -152,7 +65,7 @@ class AttedanceController extends Controller
                 $data = $data->withTrashed();
                 $data = $data->orderBy('created_at', 'desc');
                 $data = $data->with(['course', 'admission', 'batch']);
-                
+
                 $editPermission = true;
                 $deletePermission = true;
 
@@ -254,7 +167,6 @@ class AttedanceController extends Controller
             'attedances' => $attedances,
         ]);
     }
-
 
     public function store(AttedanceRequest $request)
     {
@@ -521,4 +433,125 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    public function fetchLogs(Request $request)
+    {
+        try {
+            $fromDate = now()->toDateString();
+            $toDate = now()->toDateString();
+
+            $token = Session::get('external_api_token');
+
+            $response = Http::withToken($token)
+                ->get("http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate", [
+                    'FromDate' => $fromDate,
+                    'ToDate' => $toDate,
+                ]);
+
+            if ($response->successful()) {
+
+                $logs = $response->json();
+
+                // dd($logs);
+                return response()->json([
+                    'message' => 'Raw API response:',
+                    'data' => $logs
+                ]);
+
+                // foreach ($logs as $log) {
+                //     Attedance::updateOrCreate(
+                //         [
+                //             'biometric_id' => $log['Id'],
+                //         ],
+                //         [
+                //             'admission_id' => $log['UserId'] ?? null,
+                //             'date' => $log['DateTime'] ?? now(),
+                //             'status' => 'Present',
+                //         ]
+                //     );
+                // }
+
+                return response()->json(['message' => 'Attendance synced successfully.']);
+            }
+
+            return response()->json(['message' => 'Failed to fetch logs from API.'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // public function syncFromDeviceLogs()
+    // {
+    //     try {
+    //         $fromDate = Carbon::now()->format('Y-m-d');
+    //         $toDate = $fromDate;
+
+    //         $url = "http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate?FromDate={$fromDate}&ToDate={$toDate}";
+
+    //         $token = Session::get('external_api_token');
+
+    //         $response = Http::withHeaders([
+    //             'Authorization' => $token,
+    //         ])->get($url);
+
+    //         if (!$response->successful()) {
+    //             return response()->json(['error' => 'Failed to fetch data from device API.'], 500);
+    //         }
+
+    //         $logs = $response->json();
+    //         dd($logs);
+    //         $newCount = 0;
+
+    //         foreach ($logs as $log) {
+    //             $admissionId = $log['AdmissionId'] ?? null; // update if key is different
+    //             $logDateTime = Carbon::parse($log['LogDate']);
+
+    //             $date = $logDateTime->toDateString();
+    //             $time = $logDateTime->toTimeString();
+
+    //             if (!$admissionId) {
+    //                 continue; // skip if ID is missing
+    //             }
+
+    //             // Check for duplicates
+    //             $alreadyExists = Attedance::where('admission_id', $admissionId)
+    //                 ->where('date', $date)
+    //                 ->where(function ($q) use ($time) {
+    //                     $q->where('in_time', $time)
+    //                         ->orWhere('out_time', $time);
+    //                 })
+    //                 ->exists();
+
+    //             if (!$alreadyExists) {
+    //                 // Logic to determine in/out time
+    //                 $lastAttendance = Attedance::where('admission_id', $admissionId)
+    //                     ->where('date', $date)
+    //                     ->first();
+
+    //                 if (!$lastAttendance) {
+    //                     Attedance::create([
+    //                         'admission_id' => $admissionId,
+    //                         'date' => $date,
+    //                         'in_time' => $time,
+    //                         'created_by' => Auth::user()?->id ?? 1,
+    //                         'updated_by' => Auth::user()?->id ?? 1,
+    //                     ]);
+    //                 } else if (!$lastAttendance->out_time) {
+    //                     $lastAttendance->update([
+    //                         'out_time' => $time,
+    //                         'updated_by' => Auth::user()?->id ?? 1,
+    //                     ]);
+    //                 }
+
+    //                 $newCount++;
+    //             }
+    //         }
+
+    //         return response()->json([
+    //             'message' => "Synced successfully. {$newCount} new records added.",
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
 }

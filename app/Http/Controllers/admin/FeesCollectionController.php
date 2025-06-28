@@ -72,7 +72,6 @@ class FeesCollectionController extends Controller
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
                 $editPermisstion = true;
                 $deletePermisstion = true;
-                $viewPermisstion = true;
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -114,7 +113,7 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion, $viewPermisstion) {
+                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
@@ -123,10 +122,7 @@ class FeesCollectionController extends Controller
                             }
                             if ($deletePermisstion) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                            if ($viewPermisstion) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1"><i class="fa-solid fa-download"></i></i></a>';
-                            }
+                        }
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
@@ -148,23 +144,122 @@ class FeesCollectionController extends Controller
     }
 
 
+    // public function search_fees_collection_details(Request $request)
+    // {
+    //     $id = $request->id;
+
+    //     try {
+    //         // Get course registration with related course, admission, batch
+    //         $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+    //         $getcourceSingle = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->first();
+    //         // dd($getcource);
+    //         // Get semester fee from course
+    //         $semester_fee = ($getcourceSingle->course->course_fees != '') ?  $getcourceSingle->course->course_fees / $getcourceSingle->course->semester : 0;
+    //         // dd($semester_fee);
+
+
+    //         $feesCollections = FeesCollection::where('admission_id', $id)->get();
+
+
+    //         $semesterPaid = [];
+
+    //         foreach ($feesCollections as $fee) {
+    //             $sem = $fee->year_semester;
+    //             $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+    //         }
+    //         //dd($semester_fee);
+    //         // Collect semesters where pending = 0
+    //         $paid_semesters = [];
+    //         $unpaid_semesters = [];
+
+    //         foreach ($semesterPaid as $semester => $totalPaid) {
+    //             $pending = $semester_fee - $totalPaid;
+
+    //             if ($pending <= 0) {
+    //                 $paid_semesters[] = $semester;
+    //             } else {
+    //                 $unpaid_semesters[] = [
+    //                     'semester' => $semester,
+    //                     'pending_fee' => $pending
+    //                 ];
+    //             }
+    //         }
+
+    //         return response()->json([
+    //             'data' => $getcource,
+    //             'fees_collection' => $feesCollections,
+    //             'paid_semesters' => $paid_semesters,
+    //             'unpaid_semesters' => $unpaid_semesters,
+    //             'course_fee' => $semester_fee,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+    //     }
+    // }
     public function search_fees_collection_details(Request $request)
     {
         $id = $request->id;
 
         try {
+            // Get course registration with related course, admission, batch
             $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
+            $getcourceSingle = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->first();
 
-            $getfeescollection = FeesCollection::where('admission_id', $id)->get();
+            if (!$getcourceSingle || !$getcourceSingle->course) {
+                throw new \Exception('Course registration or course not found.');
+            }
 
+            // Calculate semester fee
+            $semester_fee = ($getcourceSingle->course->course_fees != '' && $getcourceSingle->course->semester != 0)
+                ? $getcourceSingle->course->course_fees / $getcourceSingle->course->semester
+                : 0;
+            //dd($semester_fee);
+            // Get fees collection entries
+            $feesCollections = FeesCollection::where('admission_id', $id)->get();
+
+            // Track total fees paid per semester
+            $semesterPaid = [];
+            foreach ($feesCollections as $fee) {
+                $sem = $fee->year_semester;
+                $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+            }
+
+            // Initialize semester tracking
+            $total_semesters = $getcourceSingle->course->semester;
+            $paid_semesters = [];
+            $unpaid_semesters = [];
+
+            // Loop over all semesters to calculate pending fees
+            for ($sem = 1; $sem <= $total_semesters; $sem++) {
+                $paid = $semesterPaid[$sem] ?? 0;
+                $pending = $semester_fee - $paid;
+
+                if ($pending <= 0) {
+                    $paid_semesters[] = $sem;
+                } else {
+                    $unpaid_semesters[] = [
+                        'semester' => $sem,
+                        // 'pending_fee' => $pending
+                        'pending_fee' => $pending,
+                    ];
+                }
+            }
+
+            // Return result as JSON
             return response()->json([
                 'data' => $getcource,
-                'fees_collection' => $getfeescollection,
+                'fees_collection' => $feesCollections,
+                'paid_semesters' => $paid_semesters,
+                'unpaid_semesters' => $unpaid_semesters,
+                // 'course_fee' => $semester_fee,
+                'course_fee' => $semester_fee,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
+
 
     public function check_master_password(Request $request)
     {
@@ -195,6 +290,7 @@ class FeesCollectionController extends Controller
 
     //     return response()->json(['status' => 'success', 'data' => $details]);
     // }
+
     public function getDetails($id)
     {
 
@@ -202,6 +298,8 @@ class FeesCollectionController extends Controller
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules', 'id'));
     }
+
+
 
 
     /**
@@ -217,26 +315,27 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         $validated = $request->validated();
+
         try {
-
             $loginUserId = Auth::user()->id;
-
-            // return $this->adminLoginUser;
             $validated['created_by'] = $loginUserId;
-            // return $validated;
-            FeesCollection::create($validated);
 
-            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
+            $feesCollection = FeesCollection::create($validated);
+
+
+            return redirect()->route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -315,11 +414,13 @@ class FeesCollectionController extends Controller
         } else {
             $totalFee = $feesData->fees;
         }
-
-        // Convert to words
+        $modules = [
+            'route' => 'fees-collection', // Change to your actual route name
+        ];
+        //  Convert to words
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'modules'));
     }
 }

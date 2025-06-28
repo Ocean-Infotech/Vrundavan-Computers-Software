@@ -26,6 +26,7 @@ $i = 0;
     'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
     'route' => $route,
     'show_add_btn' => true,
+    'show_api_attendance' => true,
     'show_filter_btn' => true,
     'show_export_btns' => false,
     'show_excal_btn' => false,
@@ -253,6 +254,36 @@ $i = 0;
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
+        $('#add-attendance-btn').on('click', function () {
+            $.ajax({
+                url: "{{ route('attedance.fetch-logs') }}",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                beforeSend: function () {
+                    $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
+                },
+                success: function (res) {
+
+                    console.log(res);
+
+                    // alert(res.message);
+                    // location.reload(); // Reload table afster uccess
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.message || 'Something went wrong.');
+                },
+                complete: function () {
+                    $('#add-attendance-btn').prop('disabled', false).text('Fetch Attendance Logs');
+                }
+            });
+        });
+    });
+</script>
+
 
 
 @include('software.includes.script-delete-record')
