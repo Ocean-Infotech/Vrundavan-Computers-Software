@@ -23,10 +23,10 @@
         </a>
     @endif
 
-    @if (isset($show_assign_to_team_btn) && $show_assign_to_team_btn && isset($route))
-        <a class="btn btn-primary btn-sm waves-effect waves-light text-white " href="javascript:void(0)"
-            id="assign_to_team">
-            <i class="menu-icon ti ti-user"></i> Assign to team
+    @if (isset($show_api_attendance) && $show_api_attendance && isset($route))
+        <a class="btn btn-success btn-sm waves-effect waves-light text-white " href="javascript:void(0)"
+            id="add-attendance-btn">
+            <i class="menu-icon ti ti-plus"></i> Fetch Attendance Logs
         </a>
     @endif
 

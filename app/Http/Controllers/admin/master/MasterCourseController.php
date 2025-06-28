@@ -146,29 +146,29 @@ class MasterCourseController extends Controller
 
             $mastercourse = MasterCourse::create($data);
 
-            if ($mastercourse?->biometric_id ==  null) {
-                $apiPayload = [
-                    'Name' => $mastercourse->course_name,
-                ];
+            // if ($mastercourse?->biometric_id ==  null) {
+            //     $apiPayload = [
+            //         'Name' => $mastercourse->course_name,
+            //     ];
 
-                $response = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token,
-                ])->post('http://192.168.1.8  8:88/api/Department', $apiPayload);
+            //     $response = Http::withHeaders([
+            //         'Content-Type' => 'application/json',
+            //         'Authorization' => 'Bearer ' . $token,
+            //     ])->post('http://192.168.1.8  8:88/api/Department', $apiPayload);
 
-                if ($response->successful()) {
-                    $responseData = $response->json();
+            //     if ($response->successful()) {
+            //         $responseData = $response->json();
 
-                    if (isset($responseData['Id'])) {
-                        $mastercourse->update([
-                            'biometric_id' => $responseData['Id']
-                        ]);
-                    }
-                } else {
-                    return Redirect::route('software.dashboard')
-                        ->withErrors('Biometric API Error: ' . $response->body());
-                }
-            }
+            //         if (isset($responseData['Id'])) {
+            //             $mastercourse->update([
+            //                 'biometric_id' => $responseData['Id']
+            //             ]);
+            //         }
+            //     } else {
+            //         return Redirect::route('software.dashboard')
+            //             ->withErrors('Biometric API Error: ' . $response->body());
+            //     }
+            // }
 
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
@@ -203,31 +203,31 @@ class MasterCourseController extends Controller
             $updateData = MasterCourse::findOrFail($id);
             $updateData->update($validated);
 
-            if ($updateData?->biometric_id != "") {
-                $token = Session::get('external_api_token');
+            // if ($updateData?->biometric_id != "") {
+            //     $token = Session::get('external_api_token');
 
-                $apiResponse = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token
-                ])->post('http://192.168.1.88:88/api/Department', [
-                    "ID" => (int)$updateData->biometric_id,
-                    "Name" => $updateData->course_name
-                ]);
+            //     $apiResponse = Http::withHeaders([
+            //         'Content-Type' => 'application/json',
+            //         'Authorization' => 'Bearer ' . $token
+            //     ])->post('http://192.168.1.88:88/api/Department', [
+            //         "ID" => (int)$updateData->biometric_id,
+            //         "Name" => $updateData->course_name
+            //     ]);
 
-                if ($apiResponse->successful()) {
-                    $responseData = $apiResponse->json();
+            //     if ($apiResponse->successful()) {
+            //         $responseData = $apiResponse->json();
 
-                    if (isset($responseData['Id'])) {
-                        $updateData->update([
-                            'biometric_id' => $responseData['Id']
-                        ]);
-                    } else {
-                        return Redirect::route('software.dashboard')->withErrors('Biometric API did not return a valid ID.');
-                    }
-                } else {
-                    return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
-                }
-            }
+            //         if (isset($responseData['Id'])) {
+            //             $updateData->update([
+            //                 'biometric_id' => $responseData['Id']
+            //             ]);
+            //         } else {
+            //             return Redirect::route('software.dashboard')->withErrors('Biometric API did not return a valid ID.');
+            //         }
+            //     } else {
+            //         return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
+            //     }
+            // }
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {

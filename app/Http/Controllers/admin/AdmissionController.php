@@ -196,101 +196,101 @@ class AdmissionController extends Controller
                 }
             }
 
-            $gender = $admission?->gender;
-            if ($gender == "Male") {
-                $gender = 0;
-            } else if ($gender == "Female") {
-                $gender = 1;
-            } else if ($gender == "Other") {
-                $gender = 2;
-            }
+            // $gender = $admission?->gender;
+            // if ($gender == "Male") {
+            //     $gender = 0;
+            // } else if ($gender == "Female") {
+            //     $gender = 1;
+            // } else if ($gender == "Other") {
+            //     $gender = 2;
+            // }
 
-            $student_name = $admission?->first_name . " " . $admission?->last_name;
-            $apiResponse = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token,
-            ])->post('http://192.168.1.88:88/api/Employees', [
-                "Id" => 0,
-                "Code" => (string) 'SA' . $admission_id,
-                "DeviceRegisterId" => (string) $admission->aadhar_card_no ?? '',
-                "Name" => $student_name ?? '',
-                "Gender" => $gender ?? "",
-                "DepartmentId" => 0,
-                "Department" => "",
-                "LocationId" => 0,
-                "Location" => $admission->permanent_address ?? "",
-                "ImagePath" => "",
-                "CreatedBy" => (string) $loginUserId,
-                "CreatedOn" => now()->toIso8601String(),
-                "UpdatedBy" => "",
-                "UpdatedOn" => now()->toIso8601String()
-            ]);
+            // $student_name = $admission?->first_name . " " . $admission?->last_name;
+            // $apiResponse = Http::withHeaders([
+            //     'Content-Type' => 'application/json',
+            //     'Authorization' => 'Bearer ' . $token,
+            // ])->post('http://192.168.1.88:88/api/Employees', [
+            //     "Id" => 0,
+            //     "Code" => (string) 'SA' . $admission_id,
+            //     "DeviceRegisterId" => (string) $admission->aadhar_card_no ?? '',
+            //     "Name" => $student_name ?? '',
+            //     "Gender" => $gender ?? "",
+            //     "DepartmentId" => 0,
+            //     "Department" => "",
+            //     "LocationId" => 0,
+            //     "Location" => $admission->permanent_address ?? "",
+            //     "ImagePath" => "",
+            //     "CreatedBy" => (string) $loginUserId,
+            //     "CreatedOn" => now()->toIso8601String(),
+            //     "UpdatedBy" => "",
+            //     "UpdatedOn" => now()->toIso8601String()
+            // ]);
 
-            if ($apiResponse->successful()) {
+            // if ($apiResponse->successful()) {
 
-                $responseBody = $apiResponse->json();
-                $biometricId = $responseBody['Id'] ?? null;
+                // $responseBody = $apiResponse->json();
+                // $biometricId = $responseBody['Id'] ?? null;
 
-                if ($biometricId) {
-                    $admission->update([
-                        'biometric_id' => $biometricId
-                    ]);
-                }
+                // if ($biometricId) {
+                //     $admission->update([
+                //         'biometric_id' => $biometricId
+                //     ]);
+                // }
 
-                $deviceResponse = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $token,
-                ])->get('http://192.168.1.88:88/api/Device');
+                // $deviceResponse = Http::withHeaders([
+                //     'Authorization' => 'Bearer ' . $token,
+                // ])->get('http://192.168.1.88:88/api/Device');
 
-                if (!$deviceResponse->successful()) {
-                    // dd("ln-246" . $deviceResponse->body());
-                    return Redirect::route($modules['route'] . '.create')
-                        ->withErrors('Device fetch failed : ' . $deviceResponse->body());
-                }
+                // if (!$deviceResponse->successful()) {
+                //     // dd("ln-246" . $deviceResponse->body());
+                //     return Redirect::route($modules['route'] . '.create')
+                //         ->withErrors('Device fetch failed : ' . $deviceResponse->body());
+                // }
 
-                $deviceData = $deviceResponse->json();
+                // $deviceData = $deviceResponse->json();
 
-                $device_id = $deviceData[0]['DeviceKey'] ?? null;
+                // $device_id = $deviceData[0]['DeviceKey'] ?? null;
 
-                $deviceKey = $device_id;
+                // $deviceKey = $device_id;
 
-                $uploadUserPayload = [
-                    [
-                        "UserId" => (string) $biometricId,
-                        "UserName" => $student_name ?? '',
-                        "CardNumber" => (string) ($admission->aadhar_card_no ?? ''),
-                        "Password" => $admission->mobile_no ?? '',
-                        "AccessLevel" => "USER",
-                        "DeviceKeys" => [
-                            $deviceKey
-                        ],
-                        "OnlineEnrollment" => false,
-                        "UploadBiometricDataIfAvailable" => true,
-                        "FingerPrintUpload" => false,
-                        "FaceUpload" => false,
-                        "CardUpload" => false,
-                        "PasswordUpload" => false
-                    ]
-                ];
+                // $uploadUserPayload = [
+                //     [
+                //         "UserId" => (string) $biometricId,
+                //         "UserName" => $student_name ?? '',
+                //         "CardNumber" => (string) ($admission->aadhar_card_no ?? ''),
+                //         "Password" => $admission->mobile_no ?? '',
+                //         "AccessLevel" => "USER",
+                //         "DeviceKeys" => [
+                //             $deviceKey
+                //         ],
+                //         "OnlineEnrollment" => false,
+                //         "UploadBiometricDataIfAvailable" => true,
+                //         "FingerPrintUpload" => false,
+                //         "FaceUpload" => false,
+                //         "CardUpload" => false,
+                //         "PasswordUpload" => false
+                //     ]
+                // ];
 
-                $uploadUserResponse = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token,
-                ])->post('http://192.168.1.88:88/api/DeviceCommand/UploadUser', $uploadUserPayload);
+                // $uploadUserResponse = Http::withHeaders([
+                //     'Content-Type' => 'application/json',
+                //     'Authorization' => 'Bearer ' . $token,
+                // ])->post('http://192.168.1.88:88/api/DeviceCommand/UploadUser', $uploadUserPayload);
 
                 // dd($uploadUserResponse->body(), $uploadUserResponse->successful());
 
 
-                if (!$uploadUserResponse->successful()) {
-                    return Redirect::route($modules['route'] . '.index')
-                        ->withErrors('Admission created and synced, but device upload failed: ' . $uploadUserResponse->body());
-                }
+                // if (!$uploadUserResponse->successful()) {
+                //     return Redirect::route($modules['route'] . '.index')
+                //         ->withErrors('Admission created and synced, but device upload failed: ' . $uploadUserResponse->body());
+                // }
 
                 return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])
                     ->with('success', $admission->name . ' has been successfully admitted and synced with the external system.');
-            } else {
-                return Redirect::route($modules['route'] . '.index')
-                    ->withErrors('Admission created, but API sync failed: ' . $apiResponse->body());
-            }
+            // } else {
+            //     return Redirect::route($modules['route'] . '.index')
+            //         ->withErrors('Admission created, but API sync failed: ' . $apiResponse->body());
+            // }
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -393,17 +393,17 @@ class AdmissionController extends Controller
                 }
             }
 
-            if (!$admission?->biometric_id) {
-                $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
-                return $response;
-                if ($response['status'] && $response['data']) {
-                    $responseData = (object)$response['data'];
-                    $responseData?->root?->Id;
-                    $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
-                    $admission->biometric_id = $responseData?->root?->Id;
-                    $admission->save();
-                }
-            }
+            // if (!$admission?->biometric_id) {
+            //     $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
+            //     return $response;
+            //     if ($response['status'] && $response['data']) {
+            //         $responseData = (object)$response['data'];
+            //         $responseData?->root?->Id;
+            //         $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
+            //         $admission->biometric_id = $responseData?->root?->Id;
+            //         $admission->save();
+            //     }
+            // }
 
             return Redirect::route('cource-registration.edit', [
                 'register_id' => $CourceRegistration->id

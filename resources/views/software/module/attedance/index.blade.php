@@ -21,18 +21,19 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-lg-between px-1">
-        @include('software.includes.breadcrumb', [
-            'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
-            'route' => $route,
-            'show_add_btn' => true,
-            'show_filter_btn' => false,
-            'show_export_btns' => false,
-            'show_excal_btn' => false,
-            'show_print_btn' => false,
-            'show_back_btn' => false,
-        ])
-    </div>
+<div class="d-flex justify-content-lg-between px-1">
+    @include('software.includes.breadcrumb', [
+    'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
+    'route' => $route,
+    'show_add_btn' => true,
+    'show_api_attendance' => true,
+    'show_filter_btn' => true,
+    'show_export_btns' => false,
+    'show_excal_btn' => false,
+    'show_print_btn' => false,
+    'show_back_btn' => false,
+    ])
+</div>
 
     <!-- @include('software.partials.flash_messages') -->
     <div class="row my-3">
@@ -119,11 +120,45 @@
             event.preventDefault();
             dtable.draw();
         });
-    </script>
+        $('#filter_section').hide();
+        $("#show_filter").click(function() {
+            $('#filter_section').toggle();
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#add-attendance-btn').on('click', function () {
+            $.ajax({
+                url: "{{ route('attedance.fetch-logs') }}",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                beforeSend: function () {
+                    $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
+                },
+                success: function (res) {
+
+                    console.log(res);
+
+                    // alert(res.message);
+                    // location.reload(); // Reload table afster uccess
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.message || 'Something went wrong.');
+                },
+                complete: function () {
+                    $('#add-attendance-btn').prop('disabled', false).text('Fetch Attendance Logs');
+                }
+            });
+        });
+    });
+</script>
 
 
-    @include('software.includes.script-delete-record')
-    @include('software.includes.script-restore-record')
-    @include('software.includes.script-update-status')
+
+@include('software.includes.script-delete-record')
+@include('software.includes.script-restore-record')
+@include('software.includes.script-update-status')
 @endsection
-

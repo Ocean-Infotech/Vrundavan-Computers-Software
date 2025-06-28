@@ -16,7 +16,9 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
 use App\Models\CourseRegister;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class AttedanceController extends Controller
 {
@@ -43,8 +45,9 @@ class AttedanceController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => "student_name", 'name' => 'admission_id', 'td_label' => 'Student Name'],
-                (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
+                (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
+                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => "in_time", 'name' => 'in_time', 'td_label' => 'In Time'],
@@ -156,7 +159,6 @@ class AttedanceController extends Controller
             'attedances' => $attedances,
         ]);
     }
-
 
     public function store(AttedanceRequest $request)
     {
@@ -423,4 +425,125 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
+    public function fetchLogs(Request $request)
+    {
+        try {
+            $fromDate = now()->toDateString();
+            $toDate = now()->toDateString();
+
+            $token = Session::get('external_api_token');
+
+            $response = Http::withToken($token)
+                ->get("http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate", [
+                    'FromDate' => $fromDate,
+                    'ToDate' => $toDate,
+                ]);
+
+            if ($response->successful()) {
+
+                $logs = $response->json();
+
+                // dd($logs);
+                return response()->json([
+                    'message' => 'Raw API response:',
+                    'data' => $logs
+                ]);
+
+                // foreach ($logs as $log) {
+                //     Attedance::updateOrCreate(
+                //         [
+                //             'biometric_id' => $log['Id'],
+                //         ],
+                //         [
+                //             'admission_id' => $log['UserId'] ?? null,
+                //             'date' => $log['DateTime'] ?? now(),
+                //             'status' => 'Present',
+                //         ]
+                //     );
+                // }
+
+                return response()->json(['message' => 'Attendance synced successfully.']);
+            }
+
+            return response()->json(['message' => 'Failed to fetch logs from API.'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // public function syncFromDeviceLogs()
+    // {
+    //     try {
+    //         $fromDate = Carbon::now()->format('Y-m-d');
+    //         $toDate = $fromDate;
+
+    //         $url = "http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate?FromDate={$fromDate}&ToDate={$toDate}";
+
+    //         $token = Session::get('external_api_token');
+
+    //         $response = Http::withHeaders([
+    //             'Authorization' => $token,
+    //         ])->get($url);
+
+    //         if (!$response->successful()) {
+    //             return response()->json(['error' => 'Failed to fetch data from device API.'], 500);
+    //         }
+
+    //         $logs = $response->json();
+    //         dd($logs);
+    //         $newCount = 0;
+
+    //         foreach ($logs as $log) {
+    //             $admissionId = $log['AdmissionId'] ?? null; // update if key is different
+    //             $logDateTime = Carbon::parse($log['LogDate']);
+
+    //             $date = $logDateTime->toDateString();
+    //             $time = $logDateTime->toTimeString();
+
+    //             if (!$admissionId) {
+    //                 continue; // skip if ID is missing
+    //             }
+
+    //             // Check for duplicates
+    //             $alreadyExists = Attedance::where('admission_id', $admissionId)
+    //                 ->where('date', $date)
+    //                 ->where(function ($q) use ($time) {
+    //                     $q->where('in_time', $time)
+    //                         ->orWhere('out_time', $time);
+    //                 })
+    //                 ->exists();
+
+    //             if (!$alreadyExists) {
+    //                 // Logic to determine in/out time
+    //                 $lastAttendance = Attedance::where('admission_id', $admissionId)
+    //                     ->where('date', $date)
+    //                     ->first();
+
+    //                 if (!$lastAttendance) {
+    //                     Attedance::create([
+    //                         'admission_id' => $admissionId,
+    //                         'date' => $date,
+    //                         'in_time' => $time,
+    //                         'created_by' => Auth::user()?->id ?? 1,
+    //                         'updated_by' => Auth::user()?->id ?? 1,
+    //                     ]);
+    //                 } else if (!$lastAttendance->out_time) {
+    //                     $lastAttendance->update([
+    //                         'out_time' => $time,
+    //                         'updated_by' => Auth::user()?->id ?? 1,
+    //                     ]);
+    //                 }
+
+    //                 $newCount++;
+    //             }
+    //         }
+
+    //         return response()->json([
+    //             'message' => "Synced successfully. {$newCount} new records added.",
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
 }
