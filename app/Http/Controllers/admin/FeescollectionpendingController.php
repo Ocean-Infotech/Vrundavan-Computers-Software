@@ -204,12 +204,23 @@ class FeescollectionpendingController extends Controller
                 // Filter: Course ID
                 if ($request->filled('course_id')) {
                     $dataQuery->where('course_id', $request->course_id);
+                    dd($request->course_id);
                 }
 
-                // Filter: Date of Joining
-                if ($request->filled('single_date')) {
-                    $date = Carbon::createFromFormat('d-m-Y', $request->single_date)->format('Y-m-d');
-                    $dataQuery->whereDate('date', $date);
+                // Filter: Batch ID
+                if ($request->filled('batch_id')) {
+                    $dataQuery->where('batch_id', $request->batch_id);
+                }
+
+                // Filter: Class ID
+                if ($request->filled('class_id')) {
+                    $dataQuery->where('class_id', $request->class_id);
+                }
+
+                if ($request->filled('semester_id')) {
+                    $dataQuery->whereHas('feescollection', function ($query) use ($request) {
+                        $query->where('year_semester', $request->semester);
+                    });
                 }
 
                 $data = $dataQuery->get();

@@ -65,4 +65,9 @@ class CourceRegistration extends Model
     {
         return $this->belongsTo(FeesCollection::class, 'register_id', 'student_id');
     }
+
+    public function semester()
+    {
+        return $this->belongsTo(FeesCollection::class, 'year_semester'); // adjust name/key as needed
+    }
 }

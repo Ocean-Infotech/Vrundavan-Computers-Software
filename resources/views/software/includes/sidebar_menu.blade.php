@@ -145,6 +145,12 @@
                         <div data-i18n="Fees Pending">Fees pending</div>
                     </a>
                 </li>
+
+                <li class="menu-item {{ $sidebar_active == 'students-fees-report' ? 'active' : '' }}">
+                    <a href="{{ route('students-fees-report.index') }}" class="menu-link">
+                        <div data-i18n="Students Fees Report">Students Fees Report</div>
+                    </a>
+                </li>
             </ul>
         </li>
 

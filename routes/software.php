@@ -27,6 +27,7 @@ use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
+use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
@@ -176,6 +177,9 @@ Route::get('fees-collection-pending/export-excel', [FeescollectionpendingControl
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
 
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
+
+Route::resource('students-fees-report', StudentsFeesReportController::class);
+
 
 
 
