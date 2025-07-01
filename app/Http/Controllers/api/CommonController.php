@@ -34,12 +34,18 @@ class CommonController extends Controller
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->where('cr.status', 'active')
                 ->orderBy('cr.id', 'DESC')
-                ->select('cr.id', 'a.first_name', 'a.father_name', 'a.last_name')
+                ->select(
+                    'cr.id as course_reg_id',
+                    'a.id as admission_id',
+                    'a.first_name',
+                    'a.father_name',
+                    'a.last_name'
+                )
                 ->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-                $temp['id'] = $row?->id . "";
+                $temp['id'] = $row?->admission_id . "";
                 $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
                 return $temp;
             });

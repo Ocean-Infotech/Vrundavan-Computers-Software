@@ -44,8 +44,8 @@
                         <div class="col-md-4 mb-2">
                             <div class="form-group">
                                 <label class="form-label">Search Student Name</label>
-                                <input list="search" id="search_id" name="search"
-                                    class="form-control @error('search') is-invalid @enderror"
+                                <input list="search" id="search_id" name="search_id"
+                                    class="form-control select_filter"
                                     value="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}" placeholder="Search">
                                 <datalist id="search" class="search_by_courceregistration"
                                     data-append="search_by_courceregistration"
@@ -133,7 +133,7 @@
                     url: "{{ route($route . '.index') }}",
                     type: "GET",
                     data: function(data) {
-                        data.student_filter = $('#search_id').val();
+                        data.search_id = $('#search_id').val();
                         data.course_id = $('#course_id').val();
                         data.search = $('input[type="search"]').val();
                     }
@@ -142,6 +142,25 @@
                 language: {
                     searchPlaceholder: 'Search...',
                 },
+                drawCallback: function(settings) {
+                let api = this.api();
+                let data = api.rows({
+                    page: 'current'
+                }).data();
+                let search_id = $('#search_id').val();
+                let course_id = $('#course_id').val();
+
+
+                if (data.length === 0 && (!search_id) && (!course_id)) {
+                    $('#yajra-datatables tbody').html(`
+                            <tr class="odd">
+                                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                                    Please select <strong>Student</strong> And <strong>Course</strong> to View Records.
+                                </td>
+                            </tr>
+                        `);
+                }
+            }
             });
             $(document).ready(function() {
                 $('#filter_section').hide();
@@ -164,26 +183,26 @@
             $('.select_filter').on('change keyup', function() {
                 dtable.draw();
             });
+            
         });
     </script>
-    {{-- <script>
+    <script>
         $('#exportExcelBtn').on('click', function() {
 
+            var search_id = $('#search_id').val();
+            var course_id = $('#course_id').val();
+            
+            console.log("ln-194",search_id, course_id);
 
-            // console.log("L-169 Excal","Excal Dore");
-            // return;
+            if (!search_id || !course_id) {
+                alert('Please select student and course.');
+                return;
+            }
 
+            var queryString = '?search_id=' + encodeURIComponent(search_id) + '&course_id=' + encodeURIComponent(course_id);
 
-            var studentFilter = $('#student_filter').val();
-            var courseId = $('#course_id').val();
-            var singleDate = $('#single_date').val();
-
-            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
-
-            // console.log("L-180 Excal Rwdirect","Export URL: ", "{{ route($route . '.export-excel') }}" + queryString);
-            // return;
-            window.location.href = "{{ route($route . '.export-excel') }}" + queryString;
+            window.location.href = "{{ route('students-fees-report.export-excel') }}" + queryString;
+            // window.location.href = "{{ route($route . '.export-excel') }}" + queryString;
         });
 
         $('#print_btn').on('click', function(e) {
@@ -200,7 +219,7 @@
             // Redirect to new tab
             window.open(url, '_blank');
         });
-    </script> --}}
+    </script>
 
 
     @include('software.utils.getAdmission')

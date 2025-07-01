@@ -200,7 +200,7 @@
         $('#exportExcelBtn').on('click', function() {
 
             var studentFilter = $('#student_filter').val();
-            var courseId = $('#course_id').val();
+            var courseId = $('#course').val();
             var singleDate = $('#single_date').val();
 
             var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +

@@ -369,10 +369,10 @@ class FeescollectionpendingController extends Controller
                 $dataQuery->where('course_id', $request->course_id);
             }
 
-            if ($request->filled('single_date')) {
-                $date = Carbon::createFromFormat('d-m-Y', $request->single_date)->format('Y-m-d');
-                $dataQuery->whereDate('date', $date);
-            }
+            // if ($request->filled('single_date')) {
+            //     $date = Carbon::createFromFormat('d-m-Y', $request->single_date)->format('Y-m-d');
+            //     $dataQuery->whereDate('date', $date);
+            // }
 
             $data = $dataQuery->get();
 

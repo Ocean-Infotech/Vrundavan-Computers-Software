@@ -171,17 +171,18 @@ Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionC
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
-// routes/web.php or admin.php (as per your project)
 
+
+// fees collection pending
+Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
 
-Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 
+// Students Fees Report
 Route::resource('students-fees-report', StudentsFeesReportController::class);
-
-
-
+Route::get('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::get('students-fees-report/print', [StudentsFeesReportController::class, 'printView'])->name('students-fees-report.print');
 
 //syllabus
 
