@@ -187,23 +187,42 @@
         });
     </script>
     <script>
-        $('#exportExcelBtn').on('click', function() {
+        // $('#exportExcelBtn').on('click', function() {
 
-            var search_id = $('#search_id').val();
-            var course_id = $('#course_id').val();
+        //     var search_id = $('#search_id').val();
+        //     var course_id = $('#course_id').val();
             
-            console.log("ln-194",search_id, course_id);
+        //     console.log("ln-194",search_id, course_id);
 
-            if (!search_id || !course_id) {
-                alert('Please select student and course.');
-                return;
-            }
+        //     if (!search_id || !course_id) {
+        //         alert('Please select student and course.');
+        //         return;
+        //     }
 
-            var queryString = '?search_id=' + encodeURIComponent(search_id) + '&course_id=' + encodeURIComponent(course_id);
+        //     var queryString = '?search_id=' + encodeURIComponent(search_id) + '&course_id=' + encodeURIComponent(course_id);
 
-            window.location.href = "{{ route('students-fees-report.export-excel') }}" + queryString;
-            // window.location.href = "{{ route($route . '.export-excel') }}" + queryString;
+        //     window.location.href = "{{ route($route .'.export-excel') }}" + queryString;
+        //     // window.location.href = "{{ route($route .'.export-excel') }}" + queryString;
+        // });
+
+        $(document).ready(function () {
+            $('#exportExcelBtn').on('click', function () {
+                var search_id = $('#search_id').val();
+                var course_id = $('#course_id').val();
+
+                if (!search_id || !course_id) {
+                    alert('Please select student and course.');
+                    return;
+                }
+
+                const url = "{{ route('students-fees-report.export-excel') }}" +
+                            '?search_id=' + encodeURIComponent(search_id) +
+                            '&course_id=' + encodeURIComponent(course_id);
+
+                window.location.href = url;
+            });
         });
+
 
         $('#print_btn').on('click', function(e) {
             e.preventDefault();

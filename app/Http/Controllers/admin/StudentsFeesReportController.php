@@ -11,11 +11,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentsFeesReportController extends Controller
 {
@@ -173,10 +175,6 @@ class StudentsFeesReportController extends Controller
     //             ->with('course')
     //             ->first();
 
-    //         if (!$courseRegistration || !$courseRegistration->course) {
-    //             dd('Course or student not found.');
-    //         }
-
     //         $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
     //             ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
     //             : 0;
@@ -231,28 +229,22 @@ class StudentsFeesReportController extends Controller
     //         }
 
     //         $writer = new Xlsx($spreadsheet);
-    //         $fileName = 'Student_Fees_Report_Filtered.xlsx';
-
-
-    //         if (ob_get_contents()) {
-    //             ob_end_clean(); // Prevent corrupted output
-    //         }
+    //         // $fileName = 'Student_Fees_Report_Filtered.xlsx';
+    //         $fileName = 'Student_Fees_Report_' . now()->format('Ymd_His') . '.xlsx';
 
     //         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     //         header("Content-Disposition: attachment; filename=\"$fileName\"");
     //         $writer->save("php://output");
     //         exit;
     //     } catch (\Exception $e) {
-    //         dd('Error: ', $e->getMessage(), $e->getTraceAsString());
-    //         return Redirect::back()->withErrors($e->getMessage());
+    //         Log::error('Export Excel Error', ['message' => $e->getMessage(), 'trace' => $e->getTrace()]);
+    //         return back()->withErrors('An error occurred while exporting the file.');
     //     }
     // }
+
     public function exportExcel(Request $request)
     {
         try {
-
-            dd("ln-255", "request - ", $request->all());
-
             $student_id = $request->search_id;
             $course_id = $request->course_id;
 
@@ -261,10 +253,8 @@ class StudentsFeesReportController extends Controller
                 ->with('course')
                 ->first();
 
-            dd("ln-265", "course - ", $courseRegistration->course->course_fees, "samaster - ", $courseRegistration->course->semester);
-
             if (!$courseRegistration || !$courseRegistration->course) {
-                dd('Course or student not found.');
+                return back()->withErrors('Course or student not found.');
             }
 
             $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
@@ -298,6 +288,7 @@ class StudentsFeesReportController extends Controller
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
+            
 
             $sheet->setCellValue('A1', 'Semester');
             $sheet->setCellValue('B1', 'Total Fee');
@@ -305,6 +296,7 @@ class StudentsFeesReportController extends Controller
             $sheet->setCellValue('D1', 'Pending Fee');
 
             $row = 2;
+
             foreach ($data as $item) {
                 $sheet->setCellValue('A' . $row, $item['semester']);
                 $sheet->setCellValue('B' . $row, $item['total_fee']);
@@ -314,14 +306,26 @@ class StudentsFeesReportController extends Controller
             }
 
             $writer = new Xlsx($spreadsheet);
+
+            // Laravel stream response - safe and clean
+            $response = new StreamedResponse(function () use ($writer) {
+                $writer->save('php://output');
+            });
+
             $fileName = 'Student_Fees_Report_Filtered.xlsx';
 
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header("Content-Disposition: attachment; filename=\"$fileName\"");
-            $writer->save("php://output");
-            exit;
+            $disposition = $response->headers->makeDisposition(
+                \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                $fileName
+            );
+
+            $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            $response->headers->set('Content-Disposition', $disposition);
+
+            return $response;
         } catch (\Exception $e) {
-            dd('Export Excel Error: ', $e->getMessage(), $e->getTraceAsString());
+            Log::error('Export Excel Error: ' . $e->getMessage());
+            return back()->withErrors('Something went wrong while exporting the Excel.');
         }
     }
 }
