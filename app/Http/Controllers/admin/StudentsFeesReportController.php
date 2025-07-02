@@ -136,6 +136,7 @@ class StudentsFeesReportController extends Controller
     public function show(string $id)
     {
         //
+        // dd("show method called with id: $id");
     }
 
     /**
@@ -327,5 +328,57 @@ class StudentsFeesReportController extends Controller
             Log::error('Export Excel Error: ' . $e->getMessage());
             return back()->withErrors('Something went wrong while exporting the Excel.');
         }
+    }
+
+    public function printView(Request $request)
+    {
+        $student_id = $request->search_id;
+        $course_id = $request->course_id;
+
+        // Get course and fee data
+        $courseRegistration = CourceRegistration::where('register_id', $student_id)
+            ->where('course_id', $course_id)
+            ->with(['course'])
+            ->first();
+
+        if (!$courseRegistration || !$courseRegistration->course) {
+            return DataTables::of([])->make(true);
+        }
+        // dd("ln-376", "course - ", $courseRegistration->course->course_fees, "samaster - ",$courseRegistration->course->semester);
+        $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
+            ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
+            : 0;
+
+        // dd($semester_fee);
+        // Get fees paid per semester
+        $feesCollections = FeesCollection::where('admission_id', $student_id)
+            ->where('course_id', $course_id)
+            ->get();
+
+        $semesterPaid = [];
+        foreach ($feesCollections as $fee) {
+            $sem = $fee->year_semester;
+            $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+        }
+
+        // Create flat array per semester
+        $data = [];
+        $total_semesters = $courseRegistration->course->semester;
+
+        for ($sem = 1; $sem <= $total_semesters; $sem++) {
+            $paid = $semesterPaid[$sem] ?? 0;
+            $pending = $semester_fee - $paid;
+
+            $data[] = [
+                'year_semester' => "Semester $sem",
+                'total_fee' => $semester_fee,
+                'paid_fee' => $paid,
+                'pending_fee' => max($pending, 0),
+            ];
+        }
+
+        // dd($data);    
+
+        return view('software.module.students-fees-report.print', compact('data'));
     }
 }
