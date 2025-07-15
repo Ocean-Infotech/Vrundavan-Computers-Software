@@ -147,29 +147,29 @@ class MasterCourseController extends Controller
 
             $mastercourse = MasterCourse::create($data);
 
-            // if ($mastercourse?->biometric_id ==  null) {
-            //     $apiPayload = [
-            //         'Name' => $mastercourse->course_name,
-            //     ];
+            if ($mastercourse?->biometric_id ==  null) {
+                $apiPayload = [
+                    'Name' => $mastercourse->course_name,
+                ];
 
-            //     $response = Http::withHeaders([
-            //         'Content-Type' => 'application/json',
-            //         'Authorization' => 'Bearer ' . $token,
-            //     ])->post('http://192.168.1.8  8:88/api/Department', $apiPayload);
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ])->post('http://192.168.1.88:88/api/Department', $apiPayload);
 
-            //     if ($response->successful()) {
-            //         $responseData = $response->json();
+                if ($response->successful()) {
+                    $responseData = $response->json();
 
-            //         if (isset($responseData['Id'])) {
-            //             $mastercourse->update([
-            //                 'biometric_id' => $responseData['Id']
-            //             ]);
-            //         }
-            //     } else {
-            //         return Redirect::route('software.dashboard')
-            //             ->withErrors('Biometric API Error: ' . $response->body());
-            //     }
-            // }
+                    if (isset($responseData['Id'])) {
+                        $mastercourse->update([
+                            'biometric_id' => $responseData['Id']
+                        ]);
+                    }
+                } else {
+                    return Redirect::route('software.dashboard')
+                        ->withErrors('Biometric API Error: ' . $response->body());
+                }
+            }
 
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');

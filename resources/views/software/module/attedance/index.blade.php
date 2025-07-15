@@ -267,11 +267,7 @@ $i = 0;
                     $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
                 },
                 success: function (res) {
-
-                    console.log(res);
-
-                    // alert(res.message);
-                    // location.reload(); // Reload table afster uccess
+                    location.reload();
                 },
                 error: function (xhr) {
                     alert(xhr.responseJSON?.message || 'Something went wrong.');

@@ -181,9 +181,7 @@ Route::get('fees-collection-pending/print', [FeescollectionpendingController::cl
 
 // Students Fees Report
 Route::resource('students-fees-report', StudentsFeesReportController::class);
-// Route::get('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
 Route::get('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
-
 Route::get('students-fees-report/print', [StudentsFeesReportController::class, 'printView'])->name('students-fees-report.print');
 
 //syllabus

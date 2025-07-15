@@ -1,6 +1,6 @@
 |-------------------------------------------- Local
 
-
+ALTER TABLE `attedance` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `batch_id` `batch_id` INT(11) NULL;
 
 |-------------------------------------------- On Development
 
@@ -21,4 +21,3 @@ ALTER TABLE `attedance` CHANGE `leave` `leave` DATETIME NULL DEFAULT NULL;
 ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
 
 ALTER TABLE `fees_collections` DROP `register_id`;
-    
