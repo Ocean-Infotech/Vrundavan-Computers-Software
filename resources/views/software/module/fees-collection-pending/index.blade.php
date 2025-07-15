@@ -51,7 +51,7 @@
                         <div class="col-md-2 col-sm-12 mb-3">
                             <div class="form-group">
                                 <label class="form-label">Filter by Course </label>
-                                <select id="course" name="course_id"
+                                <select id="course_id" name="course_id"
                                     class="form-control search_by_course select2 select_filter"
                                     data-append="search_by_course" autofocus>
                                     <option value="">Filter by Course</option>
@@ -63,7 +63,7 @@
                             <div class="form-group">
                                 <label class="form-label d-flex justify-content-between align-items-center">Filter by
                                     Batch</label>
-                                <select id="batch" name="batch_id"
+                                <select id="batch_id" name="batch_id"
                                     class="form-control search_by_batch select2 select_filter" data-append="search_by_batch"
                                     autofocus>
                                     <option value="">Filter by Batch</option>
@@ -75,7 +75,7 @@
                             <div class="form-group">
                                 <label class="form-label d-flex justify-content-between align-items-center">Filter by
                                     Class</label>
-                                <select id="class" name="class_id"
+                                <select id="class_id" name="class_id"
                                     class="form-control search_by_class select2 select_filter" data-append="search_by_class"
                                     autofocus>
                                     <option value="">Filter by Class</option>
@@ -87,7 +87,7 @@
                             <div class="form-group">
                                 <label class="form-label d-flex justify-content-between align-items-center">Filter by
                                     Semester</label>
-                                <select id="semester" name="semester_id"
+                                <select id="semester_id" name="semester_id"
                                     class="form-control search_by_semester select2 select_filter"
                                     data-append="search_by_semester" autofocus>
                                     <option value="">Filter by Semester</option>
@@ -164,8 +164,6 @@
                         data.batch_id = $('#batch_id').val();
                         data.class_id = $('#class_id').val();
                         data.semester_id = $('#semester_id').val();
-                        data.single_date = $('#single_date').val();
-                        data.search = $('input[type="search"]').val();
                     }
                 },
                 columns: {!! json_encode($columns) !!},
@@ -200,11 +198,16 @@
         $('#exportExcelBtn').on('click', function() {
 
             var studentFilter = $('#student_filter').val();
-            var courseId = $('#course').val();
-            var singleDate = $('#single_date').val();
+            var courseId = $('#course_id').val();
+            var batch_id = $('#batch_id').val();
+            var class_id = $('#class_id').val();
+            var semester_id = $('#semester_id').val();
 
             var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
+                              '&course_id=' + encodeURIComponent(courseId) +
+                              '&batch_id=' + encodeURIComponent(courseId) + 
+                              '&class_id=' + encodeURIComponent(class_id) +
+                              '&semester_id=' + encodeURIComponent(semester_id);
 
             // console.log("L-180 Excal Rwdirect","Export URL: ", "{{ route($route . '.export-excel') }}" + queryString);
             // return;
@@ -216,9 +219,15 @@
 
             var studentFilter = $('#student_filter').val();
             var courseId = $('#course_id').val();
+            var batch_id = $('#batch_id').val();
+            var class_id = $('#class_id').val();
+            var semester_id = $('#semester_id').val();
 
             var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
+                              '&course_id=' + encodeURIComponent(courseId) +
+                              '&batch_id=' + encodeURIComponent(courseId) + 
+                              '&class_id=' + encodeURIComponent(class_id) +
+                              '&semester_id=' + encodeURIComponent(semester_id);
 
             var url = "{{ route($route . '.print') }}" + queryString;
 

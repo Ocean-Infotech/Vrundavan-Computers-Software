@@ -73,6 +73,11 @@
                 </div>
             </div>
         </div>
+        <form id="exportExcelForm" method="POST" action="{{ route('students-fees-report.export-excel') }}">
+            @csrf
+            <input type="hidden" name="search_id" id="export_search_id">
+            <input type="hidden" name="course_id" id="export_course_id">
+        </form>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
@@ -187,58 +192,63 @@
         });
     </script>
     <script>
-        // $('#exportExcelBtn').on('click', function() {
-
-        //     var search_id = $('#search_id').val();
-        //     var course_id = $('#course_id').val();
-            
-        //     console.log("ln-194",search_id, course_id);
-
-        //     if (!search_id || !course_id) {
-        //         alert('Please select student and course.');
-        //         return;
-        //     }
-
-        //     var queryString = '?search_id=' + encodeURIComponent(search_id) + '&course_id=' + encodeURIComponent(course_id);
-
-        //     window.location.href = "{{ route($route .'.export-excel') }}" + queryString;
-        //     // window.location.href = "{{ route($route .'.export-excel') }}" + queryString;
-        // });
-
         $(document).ready(function () {
-            $('#exportExcelBtn').on('click', function () {
-                var search_id = $('#search_id').val();
-                var course_id = $('#course_id').val();
+            $('#exportExcelBtn').on('click', function (e) {
+                e.preventDefault();
+
+                let search_id = $('#search_id').val();
+                let course_id = $('#course_id').val();
 
                 if (!search_id || !course_id) {
                     alert('Please select student and course.');
                     return;
                 }
 
-                const url = "{{ route('students-fees-report.export-excel') }}" +
-                            '?search_id=' + encodeURIComponent(search_id) +
-                            '&course_id=' + encodeURIComponent(course_id);
+                $('#export_search_id').val(search_id);
+                $('#export_course_id').val(course_id);
 
-                window.location.href = url;
+                $('#exportExcelForm').submit();
             });
         });
 
+        // $('#print_btn').on('click', function(e) {
+        //     e.preventDefault();
 
-        $('#print_btn').on('click', function(e) {
-            e.preventDefault();
+        //     var search_id = $('#search_id').val();
+        //     var course_id = $('#course_id').val();
 
-            var studentFilter = $('#student_filter').val();
-            var courseId = $('#course_id').val();
+        //     var queryString = '?search_id=' + encodeURIComponent(search_id) +
+        //         '&course_id=' + encodeURIComponent(course_id);
 
-            var queryString = '?student_filter=' + encodeURIComponent(studentFilter) +
-                '&course_id=' + encodeURIComponent(courseId);
+        //     var url = "{{ route($route . '.print') }}" + queryString;
 
-            var url = "{{ route($route . '.print') }}" + queryString;
-
-            // Redirect to new tab
-            window.open(url, '_blank');
-        });
+        //     // Redirect to new tab
+        //     window.open(url, '_blank');
+        // });
     </script>
+
+<script>
+    $('#print_btn').on('click', function(e) {
+        e.preventDefault();
+
+        var search_id = $('#search_id').val();
+        var course_id = $('#course_id').val();
+
+        if (!search_id || !course_id) {
+            alert("Please select student and course.");
+            return;
+        }
+
+        var queryString = '?search_id=' + encodeURIComponent(search_id) +
+                          '&course_id=' + encodeURIComponent(course_id);
+
+                          
+
+        var url = "{{ route('students-fees-report.print') }}" + queryString;
+
+        window.open(url, '_blank');
+    });
+</script>
 
 
     @include('software.utils.getAdmission')

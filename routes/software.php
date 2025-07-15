@@ -174,15 +174,16 @@ Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'pri
 
 
 // fees collection pending
-Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
+Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 
 
 // Students Fees Report
-Route::resource('students-fees-report', StudentsFeesReportController::class);
-Route::get('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+// Route::post('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::post('/students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
 Route::get('students-fees-report/print', [StudentsFeesReportController::class, 'printView'])->name('students-fees-report.print');
+Route::resource('students-fees-report', StudentsFeesReportController::class);
 
 //syllabus
 
