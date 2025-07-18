@@ -44,7 +44,7 @@ class AdmissionController extends Controller
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
-            'api_ip' => 'http://192.168.1.88:88/',
+            'api_ip' => 'http://192.168.31.5:98/',
         ];
 
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);

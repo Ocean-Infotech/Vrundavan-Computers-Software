@@ -34,7 +34,7 @@ class AttedanceController extends Controller
             'route' => 'attedance',
             'table_name' => (new Attedance())->getTable(),
             'permisstion_prefix' => 'attedance',
-            'api_ip' => 'http://192.168.1.88:88/',
+            'api_ip' => 'http://192.168.31.5:98/',
         ];
 
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);

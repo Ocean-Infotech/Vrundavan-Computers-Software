@@ -115,7 +115,7 @@ class LoginController extends Controller
             // }
 
             try {
-                $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
+                $apiResponse = Http::post('http://192.168.31.5:98/api/Auth/Login', [
                     'Id'          => 0,
                     'Username'    => 'biomax',
                     'Password'    => 'biomax',
