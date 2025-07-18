@@ -515,25 +515,27 @@ class AttedanceController extends Controller
                         ]);
                     }
                 } else {
-                    Attedance::create([
-                        'biometric_id' => $log['Id'],
-                        'admission_id' => $admissionId,
-                        'course_id' => $courseId,
-                        'batch_id' => $batchId,
-                        'date' => $date,
-                        'in_time' => $log['IOMode'] === 'in' ? $time : null,
-                        'out_time' => $log['IOMode'] === 'out' ? $time : null,
-                        'DeviceKey' => $log['DeviceKey'] ?? null,
-                        'DeviceName' => $log['DeviceName'] ?? null,
-                        'UserId' => $log['UserId'] ?? null,
-                        'EmpCode' => $log['EmpCode'] ?? null,
-                        'UserName' => $employeeName,
-                        'IOTime' => $ioTime ?? null,
-                        'IOMode' => $log['IOMode'] ?? null,
-                        'VerifyMode' => $log['VerifyMode'] ?? null,
-                        'WorkCode' => $log['WorkCode'] ?? null,
-                        'ImagePath' => $log['ImagePath'] ?? null,
-                    ]);
+                    if ($admissionId) {
+                        Attedance::create([
+                            'biometric_id' => $log['Id'],
+                            'admission_id' => $admissionId,
+                            'course_id' => $courseId,
+                            'batch_id' => $batchId,
+                            'date' => $date,
+                            'in_time' => $log['IOMode'] === 'in' ? $time : null,
+                            'out_time' => $log['IOMode'] === 'out' ? $time : null,
+                            'DeviceKey' => $log['DeviceKey'] ?? null,
+                            'DeviceName' => $log['DeviceName'] ?? null,
+                            'UserId' => $log['UserId'] ?? null,
+                            'EmpCode' => $log['EmpCode'] ?? null,
+                            'UserName' => $employeeName,
+                            'IOTime' => $ioTime ?? null,
+                            'IOMode' => $log['IOMode'] ?? null,
+                            'VerifyMode' => $log['VerifyMode'] ?? null,
+                            'WorkCode' => $log['WorkCode'] ?? null,
+                            'ImagePath' => $log['ImagePath'] ?? null,
+                        ]);
+                    }
                 }
             }
 
