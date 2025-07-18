@@ -34,6 +34,7 @@ class AttedanceController extends Controller
             'route' => 'attedance',
             'table_name' => (new Attedance())->getTable(),
             'permisstion_prefix' => 'attedance',
+            'api_ip' => 'http://192.168.1.88:88/',
         ];
 
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
@@ -296,9 +297,6 @@ class AttedanceController extends Controller
         }
         return Redirect::back()->with('error', 'Invalid request');
     }
-
-
-
     public function edit(string $id)
     {
         try {
@@ -371,8 +369,6 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
@@ -417,8 +413,6 @@ class AttedanceController extends Controller
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-
     public function restore($id)
     {
 
@@ -437,6 +431,9 @@ class AttedanceController extends Controller
 
     public function fetchLogs(Request $request)
     {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
         try {
             $fromDate = now()->toDateString();
             $toDate = now()->toDateString();
@@ -444,7 +441,7 @@ class AttedanceController extends Controller
             $token = Session::get('external_api_token');
 
             // Fetch all employees
-            $employeeResponse = Http::withToken($token)->get("http://192.168.1.88:88/api/Employees");
+            $employeeResponse = Http::withToken($token)->get($modules['api_ip'] . "api/Employees");
 
             if (!$employeeResponse->successful()) {
                 return response()->json(['message' => 'Failed to fetch employee data.'], 500);
@@ -453,7 +450,7 @@ class AttedanceController extends Controller
             $employees = collect($employeeResponse->json());
 
             // Fetch device logs
-            $logResponse = Http::withToken($token)->get("http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate", [
+            $logResponse = Http::withToken($token)->get($modules['api_ip'] . "api/DeviceLog/GetAllLogsByDate", [
                 'FromDate' => $fromDate,
                 'ToDate' => $toDate,
             ]);

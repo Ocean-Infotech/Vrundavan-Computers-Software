@@ -44,6 +44,7 @@ class AdmissionController extends Controller
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
             'permisstion_prefix' => 'admission',
+            'api_ip' => 'http://192.168.1.88:88/',
         ];
 
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
@@ -225,7 +226,7 @@ class AdmissionController extends Controller
             $apiResponse = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $token,
-            ])->post('http://192.168.1.88:88/api/Employees', [
+            ])->post($modules['api_ip'] . 'api/Employees', [
                 "Id" => 0,
                 "Code" => (string) 'SA' . $admission_id,
                 "DeviceRegisterId" => (string) $admission->aadhar_card_no ?? '',
@@ -255,7 +256,7 @@ class AdmissionController extends Controller
 
                 $deviceResponse = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $token,
-                ])->get('http://192.168.1.88:88/api/Device');
+                ])->get($modules['api_ip'] . 'api/Device');
 
                 if (!$deviceResponse->successful()) {
                     // dd("ln-246" . $deviceResponse->body());
@@ -291,7 +292,7 @@ class AdmissionController extends Controller
                 $uploadUserResponse = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer ' . $token,
-                ])->post('http://192.168.1.88:88/api/DeviceCommand/UploadUser', $uploadUserPayload);
+                ])->post($modules['api_ip'] . 'api/DeviceCommand/UploadUser', $uploadUserPayload);
 
                 // dd($uploadUserResponse->body(), $uploadUserResponse->successful());
 
