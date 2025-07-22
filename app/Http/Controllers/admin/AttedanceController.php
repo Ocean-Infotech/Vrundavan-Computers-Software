@@ -16,7 +16,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
 use App\Models\CourseRegister;
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;

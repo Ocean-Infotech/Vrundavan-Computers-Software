@@ -7,7 +7,7 @@ use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterBatch;
-use App\Models\master\MasterClass;
+use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
