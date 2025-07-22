@@ -98,12 +98,12 @@
             </a>
             <ul class="menu-sub">
 
-                <li class="menu-item {{ $sidebar_active == 'admission.create' ? 'active' : '' }}">
+                <li class="menu-item {{ Route::current()->getName() == 'admission.create' ? 'active' : '' }}">
                     <a href="{{ route('admission.create') }}" class="menu-link">
-                        <div data-i18n="New Addmission">New Addmission </div>
+                        <div data-i18n="New Addmission ">New Addmission</div>
                     </a>
                 </li>
-                <li class="menu-item {{ $sidebar_active == 'admission' ? 'active' : '' }}">
+                <li class="menu-item {{ Route::current()->getName() == 'admission.index' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
                         <div data-i18n="Registered Student"> Registered Student </div>
                     </a>
