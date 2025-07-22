@@ -354,6 +354,8 @@ class AdmissionController extends Controller
     {
         $modules = $this->modules;
         $validated = $request->validated();
+        
+        $token = Session::get('external_api_token');
         try {
             $loginUserId = Auth::user()->id;
             $validated['updated_by'] = $loginUserId;
@@ -364,6 +366,8 @@ class AdmissionController extends Controller
             }
 
             $admission = Admission::where('id', $CourceRegistration->register_id)->firstOrFail();
+            $admission_id = $admission->id;
+
 
             $admission->update($validated);
 
@@ -390,7 +394,7 @@ class AdmissionController extends Controller
                 }
             }
 
-            // if (!$admission?->biometric_id) {
+            if (!$admission?->biometric_id) {
             //     $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
             //     return $response;
             //     if ($response['status'] && $response['data']) {
@@ -400,13 +404,111 @@ class AdmissionController extends Controller
             //         $admission->biometric_id = $responseData?->root?->Id;
             //         $admission->save();
             //     }
-            // }
+                $gender 
+                = $admission?->gender;
+                if ($gender == "Male") {
+                    $gender = 0;
+                } else if ($gender == "Female") {
+                    $gender = 1;
+                } else if ($gender == "Other") {
+                    $gender = 2;
+                }
+
+                $student_name = $admission?->first_name . " " . $admission?->last_name;
+                $apiResponse = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ])->post($modules['api_ip'] . 'api/Employees', [
+                    "Id" => 0,
+                    "Code" => (string) 'SA' . $admission_id,
+                    "DeviceRegisterId" => (string) $admission->aadhar_card_no ?? '',
+                    "Name" => $student_name ?? '',
+                    "Gender" => $gender ?? "",
+                    "DepartmentId" => 0,
+                    "Department" => "",
+                    "LocationId" => 0,
+                    "Location" => $admission->permanent_address ?? "",
+                    "ImagePath" => "",
+                    "CreatedBy" => (string) $loginUserId,
+                    "CreatedOn" => now()->toIso8601String(),
+                    "UpdatedBy" => "",
+                    "UpdatedOn" => now()->toIso8601String()
+                ]);
+
+                if ($apiResponse->successful()) {
+
+                    $responseBody = $apiResponse->json();
+                    $biometricId = $responseBody['Id'] ?? null;
+
+                    if ($biometricId) {
+                        $admission->update([
+                            'biometric_id' => $biometricId
+                        ]);
+                    }
+
+                    $deviceResponse = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $token,
+                    ])->get($modules['api_ip'] . 'api/Device');
+
+                    if (!$deviceResponse->successful()) {
+                        // dd("ln-246" . $deviceResponse->body());
+                        return Redirect::route($modules['route'] . '.create')
+                            ->withErrors('Device fetch failed : ' . $deviceResponse->body());
+                    }
+
+                    $deviceData = $deviceResponse->json();
+
+                    $device_id = $deviceData[0]['DeviceKey'] ?? null;
+
+                    $deviceKey = $device_id;
+
+                    $uploadUserPayload = [
+                        [
+                            "UserId" => (string) $biometricId,
+                            "UserName" => $student_name ?? '',
+                            "CardNumber" => (string) ($admission->aadhar_card_no ?? ''),
+                            "Password" => $admission->mobile_no ?? '',
+                            "AccessLevel" => "USER",
+                            "DeviceKeys" => [
+                                $deviceKey
+                            ],
+                            "OnlineEnrollment" => false,
+                            "UploadBiometricDataIfAvailable" => true,
+                            "FingerPrintUpload" => false,
+                            "FaceUpload" => false,
+                            "CardUpload" => false,
+                            "PasswordUpload" => false
+                        ]
+                    ];
+
+                    $uploadUserResponse = Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer ' . $token,
+                    ])->post($modules['api_ip'] . 'api/DeviceCommand/UploadUser', $uploadUserPayload);
+
+                    // dd($uploadUserResponse->body(), $uploadUserResponse->successful());
+
+
+                    if (!$uploadUserResponse->successful()) {
+                        return Redirect::route($modules['route'] . '.index')
+                            ->withErrors('Admission created and synced, but device upload failed: ' . $uploadUserResponse->body());
+                    }
+                    return Redirect::route('cource-registration.edit', [
+                    'register_id' => $CourceRegistration->id
+                    ])->withSuccess($modules['title'] . ' updated successfully');
+                }else{
+                    return Redirect::back()
+                        ->withErrors('Admission updated, but API sync failed: ' . $apiResponse->body());
+                }
+            }
+
+            return $admission;
 
             return Redirect::route('cource-registration.edit', [
                 'register_id' => $CourceRegistration->id
             ])->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
-            // return $e->getMessage();
+            return $e->getMessage();
             return Redirect::back()->withErrors($e->getMessage())->withInput();
         }
     }
@@ -590,17 +692,17 @@ class AdmissionController extends Controller
 
         $recordId = $request->input('id');
         $subFolderName = $request->input('foldername');
-
+        
         $client = new Google_Client();
         $client->setClientId(config('filesystems.disks.google.clientId'));
         $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
         $client->refreshToken(config('filesystems.disks.google.refreshToken'));
-
+        
         $service = new Drive($client);
 
         $mainFolderName = 'Vrundavan-Computer';
         $mainFolderId = $this->getOrCreateFolder($service, $mainFolderName);
-
+        
 
         $fileMetadata = new DriveFile([
             'name' => $subFolderName,
