@@ -106,13 +106,13 @@ class AttedanceController extends Controller
                     })
                     ->editColumn('in_time', function ($row) {
                         if($row?->in_time){
-                            return $row?->in_time;
+                            return \Carbon\Carbon::parse($row?->in_time)->format('h:i A');
                         }
                         return "-";
                     })
                     ->editColumn('out_time', function ($row) {
-                        if($row?->out_time){
-                            return $row?->out_time;
+                        if ($row?->out_time) {
+                        return \Carbon\Carbon::parse($row?->out_time)->format('h:i A');
                         }
                         return "-";
                     })
