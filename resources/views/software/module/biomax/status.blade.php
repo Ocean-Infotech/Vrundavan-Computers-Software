@@ -37,6 +37,9 @@
                         <span id="biomax_login"></span>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <div id="divice_detail"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -72,6 +75,9 @@
                             if (resposneData?.external_api_token) {
                                 $("#biomax_login").text("Login Success. External API Token: " + resposneData
                                     ?.external_api_token);
+                            }
+                            if (resposneData?.api_device && resposneData?.api_device_html) {
+                                $("#divice_detail").html(resposneData?.api_device_html);
                             }
                         }
                     } else {
