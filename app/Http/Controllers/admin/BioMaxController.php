@@ -23,7 +23,8 @@ class BioMaxController extends Controller
             'route' => 'biomax',
             'table_name' => "",
             'permisstion_prefix' => 'Test Report',
-            'biomax_url' => 'http://192.168.1.88:88/',
+            // 'biomax_url' => 'http://192.168.1.88:88/',
+            'biomax_url' => 'http://192.168.31.5:98/',
         ];
     }
 

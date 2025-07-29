@@ -52,10 +52,13 @@ class AttedanceController extends Controller
             $columns = [
                 (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
                 (object)['data' => 'UserName', 'name' => 'UserName', 'td_label' => 'Student Name'],
-                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
+                (object)['data' => 'course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => 'in_and_out_and_leve_status', 'name' => 'in_and_out_and_leve_status', 'td_label' => 'In / Out / Leave Status'],
+                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'In Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'out_time', 'name' => 'out_time', 'td_label' => 'Out Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'leve_status', 'name' => 'leve_status', 'td_label' => 'Leave Status', 'orderable' => false, 'searchable' => false],
+                // (object)['data' => 'in_and_out_and_leve_status', 'name' => 'in_and_out_and_leve_status', 'td_label' => 'In / Out / Leave Status'],
             ];
             View::share("columns", $columns);
 
@@ -94,6 +97,39 @@ class AttedanceController extends Controller
                         $father = $row->admission->father_name ?? '';
                         $last = $row->admission->last_name ?? '';
                         return trim("{$first} {$father} {$last}");
+                    })
+                    ->addColumn('course_name', function($row){
+                        return $row ?->course?->course_name ?? '-';
+                    })
+                    ->addColumn('batch_name', function($row){
+                        return $row ?->batch?->batch_name ?? '-';
+                    })
+                    ->editColumn('in_time', function ($row) {
+                        if($row?->in_time){
+                            return $row?->in_time;
+                        }
+                        return "-";
+                    })
+                    ->editColumn('out_time', function ($row) {
+                        if($row?->out_time){
+                            return $row?->out_time;
+                        }
+                        return "-";
+                    })
+                    ->editColumn('leve_status', function ($row) {
+                        $in_time = $row->in_time ?? '';
+                        $out_time = $row->out_time ?? '';
+                        $leave = $row->leave ?? "";
+                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
+                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
+
+                        if ($in_time == "" && $out_time == "" && $leave != "") {
+                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
+                        }else{
+                            $status = '-';
+                        }
+
+                        return $status;
                     })
                     ->editColumn('in_and_out_and_leve_status', function ($row) {
                         $in_time = $row->in_time ?? '';
