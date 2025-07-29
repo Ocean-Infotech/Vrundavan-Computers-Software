@@ -9,8 +9,8 @@
         </thead>
     @endif
     @if ($data)
-        <tr>
-            @foreach ($data as $item)
+    @foreach ($data as $item)
+    <tr>
                 @php
                     $item = (object) $item;
                 @endphp
@@ -24,7 +24,7 @@
                 <td>{{ $item?->PalmCount ?? '-PlamCount-' }}</td>
                 <td>{{ $item?->Location ?? '-LocationCount-' }}</td>
                 {{-- <td>{{ $item?->FPCount ?? '-LeaveStatus-' }}</td> --}}
+            </tr>
             @endforeach
-        </tr>
     @endif
 </table>
