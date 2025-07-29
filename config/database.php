@@ -112,6 +112,16 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'sqlsrv_dmps' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DMPS_DB_HOST', 'localhost'),
+            'port' => env('DMPS_DB_PORT', '1433'),
+            'database' => env('DMPS_DB_DATABASE', 'dmps'),
+            'username' => env('DMPS_DB_USERNAME', 'sa'),
+            'password' => env('DB_SQLSRV_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+        ],
     ],
 
     /*
@@ -147,7 +157,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

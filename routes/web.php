@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Middleware\SoftwareAuthMiddleware;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,21 @@ Route::get('/nimit', function () {
 
 Route::get('/', function () {
     return redirect('software/', 301);
+});
+
+/** SSMS Database */
+Route::get('/db-check', function () {
+    try {
+        DB::connection('sqlsrv_dmps')->getPdo();
+        return "✅ Connected successfully to DMPS SQL Server!";
+    } catch (\Exception $e) {
+        return "❌ Connection failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/test-sqlserver', function () {
+    // $data = DB::connection('sqlsrv_dmps')->select('SELECT TOP 10 * FROM Devices');
+    $data = DB::connection('sqlsrv_dmps')->table('Devices')->get();
+
+    return $data;
 });

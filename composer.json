@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
         "openspout/openspout": "4.28.5",
+        "phpoffice/phpspreadsheet": "*",
         "spatie/laravel-permission": "^6.16",
         "yajra/laravel-datatables": "12.0",
         "yaza/laravel-google-drive-storage": "^4.1"
