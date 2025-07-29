@@ -54,6 +54,12 @@
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
+        <li class="menu-item {{ $sidebar_active == 'Biomax' ? 'active' : '' }}">
+            <a href="{{ route('biomax.status') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home"></i>
+                <div data-i18n="Biomax">Biomax</div>
+            </a>
+        </li>
         @directCan('panel-user-managment')
             <li
                 class="menu-item {{ $sidebar_active == 'users' || $sidebar_active == 'roles' || $sidebar_active == 'permissions' ? 'active open' : '' }}">
