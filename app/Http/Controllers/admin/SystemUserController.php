@@ -80,8 +80,9 @@ class SystemUserController extends Controller
 
                     $data = $data->whereHas("roles", function ($q) use ($login_user_role) {
                         if(count(Helper::getAfterAuthRole()) > 0){
-                            $q->whereIn("name", Helper::getAfterAuthRole()->pluck('name')->toArray());
+                            $q->whereIn(DB::raw('LOWER(name)'), Helper::getAfterAuthRole()->pluck('name')->toArray());
                         }
+                        $q->where("name", "!=", 'developer');
                         $q->where("name", "!=", $login_user_role);
                     });
                 }
