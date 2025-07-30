@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admission;
@@ -42,14 +43,9 @@ class AdmissionController extends Controller
             'folder_path' => 'software.module.admission',
             'route' => 'admission',
             'table_name' => (new Admission())->getTable(),
-            'permisstion_prefix' => 'admission',
+            'permission_prefix' => 'admission',
             'api_ip' => 'http://192.168.31.5:98/',
         ];
-
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
@@ -63,6 +59,17 @@ class AdmissionController extends Controller
         */
 
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -75,6 +82,11 @@ class AdmissionController extends Controller
                 (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
                 (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
+            if (!$modules['permission_edit'] && !$modules['permission_delete']) {
+                $columns = array_filter($columns, function ($col) {
+                    return $col->name !== 'action';
+                });
+            }
             View::share("columns", $columns);
 
             $data = [];
@@ -82,7 +94,8 @@ class AdmissionController extends Controller
             if ($request->ajax()) {
                 $data = Admission::withTrashed();
 
-                $editPermisstion = true;
+                $editPermisstion = $modules['permission_edit'];
+                // $deletePermisstion = $modules['permission_delete'];
                 $deletePermisstion = false;
 
                 return Datatables::of($data)
@@ -159,6 +172,14 @@ class AdmissionController extends Controller
     public function create()
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
@@ -167,6 +188,14 @@ class AdmissionController extends Controller
     public function store(AdmissionRequest $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
 
         View::share('modules', $modules);
 
@@ -322,9 +351,17 @@ class AdmissionController extends Controller
 
     public function edit(string $id)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+        View::share('modules', $modules);
         try {
-            $modules = $this->modules;
-            View::share('modules', $modules);
 
             $edit = Admission::findOrFail($id);
 
@@ -342,6 +379,14 @@ class AdmissionController extends Controller
     public function update(AdmissionRequest $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $validated = $request->validated();
 
         $token = Session::get('external_api_token');
@@ -519,6 +564,14 @@ class AdmissionController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_delete']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $isAjax = $request->ajax();
 
         try {
