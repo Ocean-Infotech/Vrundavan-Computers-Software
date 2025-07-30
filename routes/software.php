@@ -22,11 +22,13 @@ use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
+use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
@@ -170,14 +172,19 @@ Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionC
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
-// routes/web.php or admin.php (as per your project)
 
+
+// fees collection pending
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
-
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 
 
+// Students Fees Report
+// Route::post('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::post('/students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::get('students-fees-report/print', [StudentsFeesReportController::class, 'printView'])->name('students-fees-report.print');
+Route::resource('students-fees-report', StudentsFeesReportController::class);
 
 //syllabus
 
@@ -196,3 +203,6 @@ Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController:
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
 
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
+
+
+Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');

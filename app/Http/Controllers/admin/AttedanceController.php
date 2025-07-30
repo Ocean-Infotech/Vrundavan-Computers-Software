@@ -15,7 +15,10 @@ use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\AttedanceRequest;
 use App\Models\CourseRegister;
+use App\Models\Master\MasterBatch;
+use App\Models\Master\MasterClass;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -31,6 +34,7 @@ class AttedanceController extends Controller
             'route' => 'attedance',
             'table_name' => (new Attedance())->getTable(),
             'permisstion_prefix' => 'attedance',
+            'api_ip' => 'http://192.168.31.5:98/',
         ];
 
         // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
@@ -46,13 +50,14 @@ class AttedanceController extends Controller
         try {
             $columns = [
                 (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
-                (object)['data' => 'student_name', 'name' => 'admission_id', 'td_label' => 'Student Name'],
-                (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
+                (object)['data' => 'UserName', 'name' => 'UserName', 'td_label' => 'Student Name'],
+                (object)['data' => 'course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
+                (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => "in_time", 'name' => 'in_time', 'td_label' => 'In Time'],
-                (object)['data' => "out_time", 'name' => 'out_time', 'td_label' => 'Out Time'],
-                (object)['data' => "leave", 'name' => 'leave', 'td_label' => 'Leave'],
+                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'In Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'out_time', 'name' => 'out_time', 'td_label' => 'Out Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'leve_status', 'name' => 'leve_status', 'td_label' => 'Leave Status', 'orderable' => false, 'searchable' => false],
+                // (object)['data' => 'in_and_out_and_leve_status', 'name' => 'in_and_out_and_leve_status', 'td_label' => 'In / Out / Leave Status'],
             ];
             View::share("columns", $columns);
 
@@ -81,6 +86,58 @@ class AttedanceController extends Controller
                         $father = $row->admission->father_name ?? '';
                         $last = $row->admission->last_name ?? '';
                         return trim("{$first} {$father} {$last}");
+                    })
+                    ->addColumn('course_name', function($row){
+                        return $row ?->course?->course_name ?? '-';
+                    })
+                    ->addColumn('batch_name', function($row){
+                        return $row ?->batch?->batch_name ?? '-';
+                    })
+                    ->editColumn('in_time', function ($row) {
+                        if($row?->in_time){
+                            return \Carbon\Carbon::parse($row?->in_time)->format('h:i A');
+                        }
+                        return "-";
+                    })
+                    ->editColumn('out_time', function ($row) {
+                        if ($row?->out_time) {
+                        return \Carbon\Carbon::parse($row?->out_time)->format('h:i A');
+                        }
+                        return "-";
+                    })
+                    ->editColumn('leve_status', function ($row) {
+                        $in_time = $row->in_time ?? '';
+                        $out_time = $row->out_time ?? '';
+                        $leave = $row->leave ?? "";
+                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
+                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
+
+                        if ($in_time == "" && $out_time == "" && $leave != "") {
+                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
+                        }else{
+                            $status = '-';
+                        }
+
+                        return $status;
+                    })
+                    ->editColumn('in_and_out_and_leve_status', function ($row) {
+                        $in_time = $row->in_time ?? '';
+                        $out_time = $row->out_time ?? '';
+                        $leave = $row->leave ?? "";
+                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
+                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
+
+                        if ($in_time != "" && $out_time == "") {
+                            $status = '<span class="badge badge-center bg-warning bg-glow" style="width:4.5rem;">On Duty</span>';
+                        } else if ($in_time != "" && $out_time != "") {
+                            $status = '<span class="badge badge-center bg-success bg-glow" style="width:4.5rem;">Present</span>';
+                        } else if ($in_time == "" && $out_time == "") {
+                            $status = '<span class="badge badge-center bg-danger bg-glow" style="width:4.5rem;">Absent</span>';
+                        } else if ($in_time == "" && $out_time == "" && $leave != "") {
+                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
+                        }
+
+                        return $status;
                     })
                     ->editColumn('date', function ($row) {
                         return Carbon::parse($row->date)->format('d-m-Y');
@@ -287,9 +344,6 @@ class AttedanceController extends Controller
         }
         return Redirect::back()->with('error', 'Invalid request');
     }
-
-
-
     public function edit(string $id)
     {
         try {
@@ -362,8 +416,6 @@ class AttedanceController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
@@ -408,8 +460,6 @@ class AttedanceController extends Controller
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-
     public function restore($id)
     {
 
@@ -428,122 +478,202 @@ class AttedanceController extends Controller
 
     public function fetchLogs(Request $request)
     {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
         try {
             $fromDate = now()->toDateString();
             $toDate = now()->toDateString();
 
             $token = Session::get('external_api_token');
 
-            $response = Http::withToken($token)
-                ->get("http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate", [
-                    'FromDate' => $fromDate,
-                    'ToDate' => $toDate,
-                ]);
+            // Fetch all employees
+            $employeeResponse = Http::withToken($token)->get($modules['api_ip'] . "api/Employees");
 
-            if ($response->successful()) {
-
-                $logs = $response->json();
-
-                // dd($logs);
-                return response()->json([
-                    'message' => 'Raw API response:',
-                    'data' => $logs
-                ]);
-
-                // foreach ($logs as $log) {
-                //     Attedance::updateOrCreate(
-                //         [
-                //             'biometric_id' => $log['Id'],
-                //         ],
-                //         [
-                //             'admission_id' => $log['UserId'] ?? null,
-                //             'date' => $log['DateTime'] ?? now(),
-                //             'status' => 'Present',
-                //         ]
-                //     );
-                // }
-
-                return response()->json(['message' => 'Attendance synced successfully.']);
+            if (!$employeeResponse->successful()) {
+                return response()->json(['message' => 'Failed to fetch employee data.'], 500);
             }
 
-            return response()->json(['message' => 'Failed to fetch logs from API.'], 500);
+            $employees = collect($employeeResponse->json());
+
+            // Fetch device logs
+            $logResponse = Http::withToken($token)->get($modules['api_ip'] . "api/DeviceLog/GetAllLogsByDate", [
+                'FromDate' => $fromDate,
+                'ToDate' => $toDate,
+            ]);
+
+            if (!$logResponse->successful()) {
+                return response()->json(['message' => 'Failed to fetch logs from API.'], 500);
+            }
+
+            $logs = $logResponse->json();
+
+            foreach ($logs as $log) {
+                $attendance = Attedance::where('biometric_id', $log['Id'])->first();
+
+                $date = \Carbon\Carbon::parse($log['IOTime'])->toDateString();
+                $time = \Carbon\Carbon::parse($log['IOTime'])->format('H:i:s');
+                $ioTime = \Carbon\Carbon::parse($log['IOTime'])->format('Y-m-d H:i:s');
+
+                // Get employee name
+                $employee = $employees->firstWhere('id', $log['UserId']);
+                $employeeName = $employee['name'] ?? $log['UserName'] ?? null;
+
+                $courseId = null;
+                $batchId = null;
+                $admissionId = null;
+
+
+                if ($employeeName) {
+                    $nameParts = explode(" ", $employeeName);
+                    $firstName = $nameParts[0] ?? '';
+                    $lastName = $nameParts[1] ?? '';
+
+                    $admission = DB::table('admission')
+                        ->whereRaw('LOWER(first_name) = ?', [strtolower($firstName)])
+                        ->whereRaw('LOWER(last_name) = ?', [strtolower($lastName)])
+                        ->first();
+
+                    if ($admission) {
+                        $admissionId = $admission->id;
+
+                        $course = DB::table('cource_registration')
+                            ->where('register_id', $admissionId)
+                            ->orderByDesc('id') // In case multiple, get latest
+                            ->first();
+
+                        if ($course) {
+                            $courseId = $course->course_id;
+                            $batchId = $course->batch_id;
+
+                            // dd($admissionId, $courseId, $batchId);
+                        }
+                    }
+                }
+
+                if ($attendance) {
+                    if ($log['IOMode'] === 'in') {
+                        $attendance->update([
+                            'in_time' => $time,
+                        ]);
+                    } elseif ($log['IOMode'] === 'out') {
+                        $attendance->update([
+                            'out_time' => $time,
+                        ]);
+                    }
+                } else {
+                    if ($admissionId) {
+                        Attedance::create([
+                            'biometric_id' => $log['Id'],
+                            'admission_id' => $admissionId,
+                            'course_id' => $courseId,
+                            'batch_id' => $batchId,
+                            'date' => $date,
+                            'in_time' => $log['IOMode'] === 'in' ? $time : null,
+                            'out_time' => $log['IOMode'] === 'out' ? $time : null,
+                            'DeviceKey' => $log['DeviceKey'] ?? null,
+                            'DeviceName' => $log['DeviceName'] ?? null,
+                            'UserId' => $log['UserId'] ?? null,
+                            'EmpCode' => $log['EmpCode'] ?? null,
+                            'UserName' => $employeeName,
+                            'IOTime' => $ioTime ?? null,
+                            'IOMode' => $log['IOMode'] ?? null,
+                            'VerifyMode' => $log['VerifyMode'] ?? null,
+                            'WorkCode' => $log['WorkCode'] ?? null,
+                            'ImagePath' => $log['ImagePath'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Attendance synced successfully.']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
-    // public function syncFromDeviceLogs()
+
+    // public function fetchLogs(Request $request)
     // {
     //     try {
-    //         $fromDate = Carbon::now()->format('Y-m-d');
-    //         $toDate = $fromDate;
-
-    //         $url = "http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate?FromDate={$fromDate}&ToDate={$toDate}";
+    //         $fromDate = now()->toDateString();
+    //         $toDate = now()->toDateString();
 
     //         $token = Session::get('external_api_token');
 
-    //         $response = Http::withHeaders([
-    //             'Authorization' => $token,
-    //         ])->get($url);
+    //         // Fetch all employees
+    //         $employeeResponse = Http::withToken($token)->get("http://192.168.1.88:88/api/Employees");
 
-    //         if (!$response->successful()) {
-    //             return response()->json(['error' => 'Failed to fetch data from device API.'], 500);
+    //         if (!$employeeResponse->successful()) {
+    //             return response()->json(['message' => 'Failed to fetch employee data.'], 500);
     //         }
 
-    //         $logs = $response->json();
-    //         dd($logs);
-    //         $newCount = 0;
+    //         $employees = collect($employeeResponse->json());
+
+    //         // Fetch device logs
+    //         $logResponse = Http::withToken($token)
+    //             ->get("http://192.168.1.88:88/api/DeviceLog/GetAllLogsByDate", [
+    //                 'FromDate' => $fromDate,
+    //                 'ToDate' => $toDate,
+    //             ]);
+
+    //         if (!$logResponse->successful()) {
+    //             return response()->json(['message' => 'Failed to fetch logs from API.'], 500);
+    //         }
+
+    //         $logs = $logResponse->json();
 
     //         foreach ($logs as $log) {
-    //             $admissionId = $log['AdmissionId'] ?? null; // update if key is different
-    //             $logDateTime = Carbon::parse($log['LogDate']);
+    //             $attendance = Attedance::where('biometric_id', $log['Id'])->first();
 
-    //             $date = $logDateTime->toDateString();
-    //             $time = $logDateTime->toTimeString();
+    //             $date = \Carbon\Carbon::parse($log['IOTime'])->toDateString();
+    //             $time = \Carbon\Carbon::parse($log['IOTime'])->format('H:i:s');
+    //             $ioTime = \Carbon\Carbon::parse($log['IOTime'])->format('Y-m-d H:i:s');
 
-    //             if (!$admissionId) {
-    //                 continue; // skip if ID is missing
-    //             }
+    //             // Find employee by matching UserId
+    //             $employee = $employees->firstWhere('id', $log['UserId']);
+    //             $employeeName = $employee['name'] ?? $log['UserName'] ?? null;
 
-    //             // Check for duplicates
-    //             $alreadyExists = Attedance::where('admission_id', $admissionId)
-    //                 ->where('date', $date)
-    //                 ->where(function ($q) use ($time) {
-    //                     $q->where('in_time', $time)
-    //                         ->orWhere('out_time', $time);
-    //                 })
-    //                 ->exists();
-
-    //             if (!$alreadyExists) {
-    //                 // Logic to determine in/out time
-    //                 $lastAttendance = Attedance::where('admission_id', $admissionId)
-    //                     ->where('date', $date)
-    //                     ->first();
-
-    //                 if (!$lastAttendance) {
-    //                     Attedance::create([
-    //                         'admission_id' => $admissionId,
-    //                         'date' => $date,
+    //             if ($attendance) {
+    //                 if ($log['IOMode'] === 'in') {
+    //                     $attendance->update([
     //                         'in_time' => $time,
-    //                         'created_by' => Auth::user()?->id ?? 1,
-    //                         'updated_by' => Auth::user()?->id ?? 1,
     //                     ]);
-    //                 } else if (!$lastAttendance->out_time) {
-    //                     $lastAttendance->update([
+    //                 } elseif ($log['IOMode'] === 'out') {
+    //                     $attendance->update([
     //                         'out_time' => $time,
-    //                         'updated_by' => Auth::user()?->id ?? 1,
     //                     ]);
     //                 }
-
-    //                 $newCount++;
+    //             } else {
+    //                 Attedance::create([
+    //                     'biometric_id' => $log['Id'],
+    //                     'admission_id' => $log['UserId'] ?? null,
+    //                     'date' => $date,
+    //                     'in_time' => $log['IOMode'] === 'in' ? $time : null,
+    //                     'out_time' => $log['IOMode'] === 'out' ? $time : null,
+    //                     'DeviceKey' => $log['DeviceKey'] ?? null,
+    //                     'DeviceName' => $log['DeviceName'] ?? null,
+    //                     'UserId' => $log['UserId'] ?? null,
+    //                     'EmpCode' => $log['EmpCode'] ?? null,
+    //                     'UserName' => $employeeName, // store name from Employee API
+    //                     'IOTime' => $ioTime ?? null,
+    //                     'IOMode' => $log['IOMode'] ?? null,
+    //                     'VerifyMode' => $log['VerifyMode'] ?? null,
+    //                     'WorkCode' => $log['WorkCode'] ?? null,
+    //                     'ImagePath' => $log['ImagePath'] ?? null,
+    //                 ]);
     //             }
     //         }
 
-    //         return response()->json([
-    //             'message' => "Synced successfully. {$newCount} new records added.",
-    //         ]);
+    //         return response()->json(['message' => 'Attendance synced successfully.']);
     //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
+    //         return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
     //     }
     // }
+
+
+
+
+
+
 }

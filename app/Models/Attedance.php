@@ -14,6 +14,7 @@ class Attedance extends Model
     public $table = 'attedance';
 
     protected $fillable = [
+        'biometric_id',
         'admission_id',
         'course_id',
         'batch_id',
@@ -21,9 +22,21 @@ class Attedance extends Model
         'in_time',
         'out_time',
         'leave',
+        'DeviceKey',
+        'DeviceName',
+        'UserId',
+        'EmpCode',
+        'UserName',
+        'IOTime',
+        'IOMode',
+        'VerifyMode',
+        'WorkCode',
+        'ImagePath',
+        'status',
         'created_by',
         'updated_by',
         'deleted_by',
+        'deleted_at',
     ];
 
     public function admission()

@@ -61,8 +61,18 @@ class CourceRegistration extends Model
         return $this->belongsTo(MasterShift::class, 'shift_id');
     }
 
+    // public function feescollection()
+    // {
+    //     return $this->belongsTo(FeesCollection::class, 'register_id', 'student_id');
+    // }
     public function feescollection()
     {
-        return $this->belongsTo(FeesCollection::class, 'register_id', 'student_id');
+        return $this->hasMany(FeesCollection::class, 'student_id', 'register_id');
+    }
+
+
+    public function semester()
+    {
+        return $this->belongsTo(FeesCollection::class, 'year_semester'); // adjust name/key as needed
     }
 }

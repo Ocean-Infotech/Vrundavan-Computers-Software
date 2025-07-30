@@ -34,12 +34,18 @@ class CommonController extends Controller
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->where('cr.status', 'active')
                 ->orderBy('cr.id', 'DESC')
-                ->select('cr.id', 'a.first_name', 'a.father_name', 'a.last_name')
+                ->select(
+                    'cr.id as course_reg_id',
+                    'a.id as admission_id',
+                    'a.first_name',
+                    'a.father_name',
+                    'a.last_name'
+                )
                 ->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-                $temp['id'] = $row?->id . "";
+                $temp['id'] = $row?->admission_id . "";
                 $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
                 return $temp;
             });
@@ -187,6 +193,85 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    // public function get_semester(Request $request)
+    // {
+    //     try {
+    //         $validator =  Validator::make($request->all(), [
+    //             'course_id' => [
+    //                 'required',
+    //                 Rule::exists((new MasterCourse())->getTable(), 'id')
+    //             ]
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+    //         }
+
+    //         if (!$request?->course_id) {
+    //             return $this->sendError("Course id is required.");
+    //         }
+    //         $MasterCourse = MasterCourse::where('id', $request?->course_id,)->where('status', 'active')->get();
+    //         $totalsemester = $MasterCourse?->semester;
+
+    //         $data = [];
+
+    //         for ($sem = 1; $sem <= $totalsemester; $sem++) {
+    //             $data[] = [
+    //                 'semester' => $sem
+    //             ];
+    //         }
+    //         // $data = $data->map(function ($row) {
+    //         //     // $temp = $row;
+    //         //     $temp['id'] = $row?->id . "";
+    //         //     $temp['semester'] = $row?->semester . "";
+    //         //     return $temp;
+    //         // });
+
+
+    //         return $this->sendResponse($data, "Batch list.");
+    //     } catch (\Exception $e) {
+    //         return $this->sendError($e->getMessage());
+    //     }
+    //     return $this->sendError("Something want to wrong in register API");
+    // }
+
+    public function get_semester(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'course_id' => [
+                    'required',
+                    Rule::exists((new MasterCourse())->getTable(), 'id')
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+            }
+
+            $MasterCourse = MasterCourse::where('id', $request->course_id)
+                ->where('status', 'active')
+                ->first(); // Changed from get() to first()
+
+            if (!$MasterCourse) {
+                return $this->sendError("Course not found or inactive.");
+            }
+
+            $totalsemester = $MasterCourse->semester;
+
+            $data = [];
+            for ($sem = 1; $sem <= $totalsemester; $sem++) {
+                $data[] = [
+                    'semester' => $sem
+                ];
+            }
+
+            return $this->sendResponse($data, "Semester list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendError("Something went wrong in register API");
+    }
 
     public function get_batch(Request $request)
     {

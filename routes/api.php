@@ -18,6 +18,7 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('check-pincode', 'check_pincode')->name('check-pincode');
 
     Route::any('get-course', 'get_course')->name('get-course');
+    Route::any('get-semester', 'get_semester')->name('get-semester');
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-admission', 'get_admission')->name('get-admission');
     Route::any('get-class', 'get_class')->name('get-class');

@@ -1,22 +1,12 @@
 |-------------------------------------------- Local
 
-
-|-------------------------------------------- On Development
-
-
-|-------------------------------------------- Live
-
-===> 2025-06-28
-ALTER TABLE `attedance` ADD `biometric_id` VARCHAR(255) NULL AFTER `course_id`;
-
-ALTER TABLE `attedance` CHANGE `biometric_id` `biometric_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL AFTER `admission_id`
-
-ALTER TABLE `attedance` ADD `DeviceKey` TEXT NULL DEFAULT NULL AFTER `leave`, ADD `DeviceName` TEXT NULL DEFAULT NULL AFTER `DeviceKey`, ADD `UserId` TEXT NULL DEFAULT NULL AFTER `DeviceName`, ADD `EmpCode` TEXT NULL DEFAULT NULL AFTER `UserId`, ADD `UserName` VARCHAR(255) NULL DEFAULT NULL AFTER `EmpCode`, ADD `IOTime` DATETIME NULL DEFAULT NULL AFTER `UserName`, ADD `IOMode` TEXT NULL DEFAULT NULL AFTER `IOTime`, ADD `VerifyMode` TEXT NULL DEFAULT NULL AFTER `IOMode`, ADD `WorkCode` TEXT NULL DEFAULT NULL AFTER `VerifyMode`, ADD `ImagePath` TEXT NULL DEFAULT NULL AFTER `WorkCode`;
+ALTER TABLE `attedance` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `batch_id` `batch_id` INT(11) NULL;
 
 ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
 ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
+|-------------------------------------------- Live
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
 ALTER TABLE `attedance` ADD `batch_id` INT NULL AFTER `course_id`;
