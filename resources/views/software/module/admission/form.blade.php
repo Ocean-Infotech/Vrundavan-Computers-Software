@@ -201,7 +201,7 @@
                             {{-- Category --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <small class="fw-medium d-block">Category <span class="text-danger">*</span></small>
+                                    <small class="fw-medium d-block @error('category') is-invalid @enderror">Category <span class="text-danger">*</span></small>
                                     @foreach (['SC', 'ST', 'OBC', 'EWS', 'General'] as $cat)
                                         <div class="form-check form-check-inline mt-1">
                                             <input type="radio" name="category" class="form-check-input"

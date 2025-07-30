@@ -79,6 +79,12 @@ class PermissionTableSeeder extends Seeder
                 'documents-edit',
                 'documents-delete',
             ],
+            'system-user' => [
+                'system-user-list',
+                'system-user-create',
+                'system-user-edit',
+                'system-user-delete',
+            ],
             'Application' => [
                 'about-us',
             ],
