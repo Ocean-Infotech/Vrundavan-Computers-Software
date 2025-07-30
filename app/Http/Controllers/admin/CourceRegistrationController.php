@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
@@ -94,7 +95,7 @@ class CourceRegistrationController extends Controller
                         $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
                         $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
 
-                        $shift = $from_time.' To '.$to_time ?? '';
+                        $shift = $from_time . ' To ' . $to_time ?? '';
                         return trim("{$batch}<br>{$class}<br>{$shift}");
                     })
 
@@ -172,8 +173,12 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
 
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
-
-        return view($modules['folder_path'] . '.form', compact('modules', 'student', 'admission_id', 'admissions'));
+        if (Session::get('admission_id')) {
+            View::share('admission_id', Session::get('admission_id'));
+            // Session::remove('admission_id');
+        }
+        // dd(request()->all(), Session::get('admission_id'), $admissions);
+        return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
 
@@ -212,7 +217,11 @@ class CourceRegistrationController extends Controller
             }
 
             $coursereg['created_by'] = Auth::id();
-
+            if (Session::get('admission_id')) {
+                $coursereg['admission_id'] = Session::get('admission_id');
+                Session::remove('admission_id');
+            }
+            // return $coursereg;
             CourceRegistration::create($coursereg);
 
             return Redirect::route($modules['route'] . '.index')

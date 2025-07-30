@@ -147,6 +147,7 @@ class MasterCourseController extends Controller
             $mastercourse = MasterCourse::create($data);
 
             if ($mastercourse?->biometric_id ==  null) {
+                /*
                 $apiPayload = [
                     'Name' => $mastercourse->course_name,
                 ];
@@ -168,6 +169,7 @@ class MasterCourseController extends Controller
                     return Redirect::route('software.dashboard')
                         ->withErrors('Biometric API Error: ' . $response->body());
                 }
+                        */
             }
 
             return Redirect::route($modules['route'] . '.index')
