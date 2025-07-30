@@ -134,9 +134,9 @@ class PermissionTableSeeder extends Seeder
                 'generate-api-documents',
             ]
         ];
-
+        Permission::truncate();
         foreach ($permissions as $groupKey => $permissionGroup) {
-            foreach($permissionGroup as $key => $permission){
+            foreach ($permissionGroup as $key => $permission) {
                 // dd($groupKey, $permissionGroup, $key, $permission);
                 Permission::create(['group' => $groupKey, 'name' => $permission]);
             }
