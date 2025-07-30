@@ -29,6 +29,7 @@ use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
+use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
@@ -206,3 +207,8 @@ Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks
 
 
 Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
+
+
+/** System Login User */
+Route::resource('system-user', SystemUserController::class);
+Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class, 'redemptionItemStatuUpdate'])->name('system-user-status');

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class Helper
@@ -47,11 +48,25 @@ class Helper
 
     static function getAfterAuthRole()
     {
-        $login_user_role = Auth::user()->getRoleNames()->first();
         $roles = new Role();
-        if ($login_user_role != "developer") {
-            $roles = $roles->whereNotIn("name", ["developer"]);
+
+        $whereNotIn = ["developer"];
+        if(strtolower(self::getLoginUserRole()) == "developer"){
+            $whereNotIn = [];
+        }else if(strtolower(self::getLoginUserRole()) == "super-admin"){
+            $whereNotIn[] = "super-admin";
+        }else{
+            $permissionToiRoles = Permission::where('name', 'system-user-list')->first()?->roles;
+            if(count($permissionToiRoles)){
+                $whereNotIn = array_merge($whereNotIn, $permissionToiRoles->pluck('name')->toArray());
+                $whereNotIn = array_unique($whereNotIn);
+            }
         }
+
+        if(count($whereNotIn) > 0){
+            $roles = $roles->whereNotIn(DB::raw('LOWER(name)'),  $whereNotIn);
+        }
+        // dd($roles->get()->toArray(), strtolower(self::getLoginUserRole()));
         return $roles = $roles->get();
     }
 

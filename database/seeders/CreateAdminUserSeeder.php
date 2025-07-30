@@ -38,7 +38,9 @@ class CreateAdminUserSeeder extends Seeder
         $role = Role::where('name', 'developer')->first();
         $user = User::where('email', 'nimit.work.1922@gmail.com')->first();
         $user->assignRole([$role->id]);
-
+        if ($role && $role?->permissions->count()) {
+            $user->syncPermissions($role?->permissions->pluck('name'));
+        }
 
         $role = Role::where('name', 'super-admin')->first();
         $user = User::where('email', 'admin.ocean@gmail.com')->first();
