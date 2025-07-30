@@ -27,15 +27,10 @@ class SystemUserController extends Controller
             'folder_path' => 'software.module.system-user',
             'route' => 'system-user',
             'table_name' => (new User())->getTable(),
-            'permisstion_prefix' => 'system-user',
+            'permission_prefix' => 'system-user',
             // 'public_folder' => public_path(Redemption::$folderPath),
             'public_folder' => public_path(),
         ];
-
-        // $this->middleware('permission:' . $this->modules['permisstion_prefix'] . '-list', ['only' => ['index', 'show']]);
-        // $this->middleware('permission:' . $this->modules['permisstion_prefix'] . '-create', ['only' => ['create', 'store']]);
-        // $this->middleware('permission:' . $this->modules['permisstion_prefix'] . '-edit', ['only' => ['edit', 'update']]);
-        // $this->middleware('permission:' . $this->modules['permisstion_prefix'] . '-delete', ['only' => ['destroy']]);
 
 
         $roles = Role::where('guard_name', 'api')->get();
@@ -50,6 +45,17 @@ class SystemUserController extends Controller
         View::share('roles', $roles);
 
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -61,7 +67,11 @@ class SystemUserController extends Controller
                 (object)['data' => "status", 'name' => 'status'],
                 (object)['data' => "action", 'name' => 'action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
-
+            if (!$modules['permission_edit'] && !$modules['permission_delete']) {
+                $columns = array_filter($columns, function ($col) {
+                    return $col->name !== 'action';
+                });
+            }
             // $columns = array_values($columns);
             View::share("columns", $columns);
 
@@ -79,7 +89,7 @@ class SystemUserController extends Controller
                     $data = $data->whereNull('deleted_by')->whereNull('deleted_at');
 
                     $data = $data->whereHas("roles", function ($q) use ($login_user_role) {
-                        if(count(Helper::getAfterAuthRole()) > 0){
+                        if (count(Helper::getAfterAuthRole()) > 0) {
                             $q->whereIn(DB::raw('LOWER(name)'), Helper::getAfterAuthRole()->pluck('name')->toArray());
                         }
                         $q->where("name", "!=", 'developer');
@@ -125,12 +135,12 @@ class SystemUserController extends Controller
                         // $btn = '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
                         // if ($editPermisstion || $deletePermisstion) {
 
-                        // if ($editPermisstion) {
-                        $btn .= '<div class="edit"><a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-info btn-icon mr-2"><i class="bx bx-edit-alt"></i></a></div>';
-                        // }
-                        // if ($deletePermisstion) {
-                        $btn .= '<div class="remove"><a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton"><i class="bx bx-trash"></i></i></a></div>';
-                        // }
+                        if ($modules['permission_edit'] && !$row->deleted_at) {
+                            $btn .= '<div class="edit"><a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-info btn-icon mr-2"><i class="bx bx-edit-alt"></i></a></div>';
+                        }
+                        if ($modules['permission_delete'] && !$row->deleted_at) {
+                            $btn .= '<div class="remove"><a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton"><i class="bx bx-trash"></i></i></a></div>';
+                        }
                         // } else {
                         // $btn .= "-";
                         // }
@@ -152,6 +162,14 @@ class SystemUserController extends Controller
     public function create()
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -169,8 +187,16 @@ class SystemUserController extends Controller
 
     public function store(UserRequest $request)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         try {
-            $modules = $this->modules;
 
             $input = $request->all();
             $input['sp'] = Str::random(4) . $input['password'];
@@ -199,6 +225,14 @@ class SystemUserController extends Controller
     public function edit(string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -225,9 +259,17 @@ class SystemUserController extends Controller
      */
     public function update(UserRequest $request, string $id)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         DB::beginTransaction();
         try {
-            $modules = $this->modules;
             $updateData = $request->all();
 
             unset($updateData['password']);
@@ -271,8 +313,16 @@ class SystemUserController extends Controller
 
     public function destroy(Request $request, string $id)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_delete']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         try {
-            $modules = $this->modules;
             $dataDelete = User::findOrFail($id);
             if ($dataDelete) {
                 $dataDelete->deleted_by = Auth::user()?->id;

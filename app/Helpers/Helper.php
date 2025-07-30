@@ -12,6 +12,16 @@ use Spatie\Permission\Models\Role;
 
 class Helper
 {
+    static function directCan($permission)
+    {
+        return Auth::check() && Auth::user()->permissions->pluck('name')->contains($permission);
+    }
+
+    static function directCanAny(array $permissions)
+    {
+        return Auth::check() && Auth::user()->permissions->whereIn('name', $permissions)->isNotEmpty();
+    }
+
     static function randomToken()
     {
         return sha1(md5(time()) . time() . rand());
