@@ -94,7 +94,7 @@
             <li class="menu-item {{ $sidebar_active == 'system-user' ? 'active' : '' }}">
                 <a href="{{ route('system-user.index') }}" class="menu-link">
                     <i class="menu-icon bx bx-user me-2"></i>
-                    <div data-i18n="Systme User">System User</div>
+                    <div data-i18n="System User">System User</div>
                 </a>
             </li>
         @enddirectCanAny

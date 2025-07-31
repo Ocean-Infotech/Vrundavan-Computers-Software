@@ -227,6 +227,7 @@
 @section('page_script_file')
     <!-- jQuery (required by DataTables) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <!-- DataTables JS -->
     <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
@@ -256,11 +257,15 @@
                         if (data) {
                             $('#modalID').text(data.id);
                             if (data.date_of_birth) {
+                                /*
                                 let date = new Date(data.date_of_birth);
                                 let day = ('0' + date.getDate()).slice(-2);
                                 let month = ('0' + (date.getMonth() + 1)).slice(-2);
                                 let year = date.getFullYear();
                                 $('#modalDOB').text(`${day} ${month} ${year}`);
+                                */
+
+                                $('#modalDOB').text(moment(data?.date_of_birth).format('DD-MM-YYYY'));
                             } else {
                                 $('#modalDOB').text('-');
                             }
@@ -422,8 +427,8 @@
                             <tr>
                                 <td>${course.id}</td>
                                 <td>${course.course.course_name}</td>
-                                <td>${course.date ?? '-'}</td>
-                                <td>${course.date ?? '-'}</td>
+                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
+                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
                                 <td>
                                     <button type="button" class="btn btn-success btn-sm createBtn" data-id="${course.id}">Create</button>
                                 </td>
