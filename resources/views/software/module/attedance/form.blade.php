@@ -180,12 +180,15 @@
         $(document).ready(function() {
             // Load data into simple table
             function loadTableData() {
+
+                console.log("loadTableData 184");
+
                 $.ajax({
                     url: "{{ route($route . '.filter-student-data') }}",
                     type: "GET",
                     dataType: "json",
                     data: {
-                        filter_admission: $('select[name="admission_id"]').val(),
+                        filter_admission: $('#admission_id').val(),
                         filter_course: $('select[name="course_id"]').val(),
                         filter_batch: $('select[name="batch_id"]').val()
                     },
@@ -195,7 +198,7 @@
                     },
                     success: function(response) {
 
-                        // console.log(response);
+                        console.log("loadTableData 198", response);
 
                         $("#checkallstudent").prop("checked", false);
 
@@ -332,6 +335,7 @@
                         }
 
                         $('#simple-table tbody').html(rows);
+                        $('#education_details').show();
                     },
                     error: function(xhr) {
                         console.error(xhr.responseText);
@@ -617,9 +621,9 @@
                     return true;
                 }
                 $('#admission_id').removeClass('is-invalid');
-                console.log("L-601", admissionId);
 
                 if (admissionId) {
+                    loadTableData(); // reload DataTable
                     $.ajax({
                         type: "POST",
                         url: "{{ route('attedance.student-in') }}",
@@ -659,7 +663,6 @@
                     return true;
                 }
                 $('#admission_id').removeClass('is-invalid');
-                console.log("L-601", admissionId);
 
                 if (admissionId) {
                     $.ajax({
@@ -673,6 +676,7 @@
                         success: function(data) {
 
                             if (data?.status == "true") {
+                                loadTableData(); // reload DataTable
                                 toastr.success(data?.message);
                                 $('#admission_id').val()
                             } else {

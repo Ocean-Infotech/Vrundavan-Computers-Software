@@ -198,7 +198,13 @@ class AttedanceController extends Controller
             // Apply filters if present
 
             if ($request->filled('filter_admission') && $request->filter_admission) {
-                $data->where('register_id', $request->input('filter_admission'));
+                $CourceRegistration = CourceRegistration::where('id', $request->filter_admission)->first();
+                if($CourceRegistration){
+                    $data->where('course_id', $CourceRegistration?->course_id);
+                    $data->where('batch_id', $CourceRegistration?->batch_id);
+                }else{
+                    $data->where('id', $request->filter_admission);
+                }
             }
 
             if ($request->filled('filter_course') && $request->filter_course) {
