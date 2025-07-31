@@ -49,7 +49,7 @@ class FeesCollectionController extends Controller
         try {
             $columns = [
                 (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Id'],
-                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Addmission Id'],
+                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission Id'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
                 (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],

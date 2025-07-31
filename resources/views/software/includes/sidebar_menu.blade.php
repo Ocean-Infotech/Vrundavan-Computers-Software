@@ -111,7 +111,7 @@
                     @directCan('admission-create')
                         <li class="menu-item {{ Route::current()->getName() == 'admission.create' ? 'active' : '' }}">
                             <a href="{{ route('admission.create') }}" class="menu-link">
-                                <div data-i18n="New Addmission ">New Addmission</div>
+                                <div data-i18n="New Admission ">New Admission</div>
                             </a>
                         </li>
                     @enddirectCan
