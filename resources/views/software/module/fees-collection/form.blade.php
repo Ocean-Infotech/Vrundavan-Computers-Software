@@ -279,7 +279,7 @@
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h5>
-                                    <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
+                            <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
                         </div>
                     </div>
                 </div>
@@ -459,7 +459,7 @@
 
                 if (search_id === '') {
                     $('#search_id').addClass('is-invalid');
-                    showMessage("Search is required", "error");
+                    showMessage("Search is required", "warning");
                     return;
                 } else {
                     $("#search_id").removeClass("is-invalid");
@@ -526,7 +526,8 @@
                                         item.semester) === semVal);
                                     if (unpaid) {
                                         $(this).prop('disabled', false).text(
-                                            `${semVal} (Pending ₹${unpaid.pending_fee.toFixed(2)})`);
+                                            `${semVal} (Pending ₹${unpaid.pending_fee.toFixed(2)})`
+                                        );
                                     }
                                 }
                             });
@@ -724,7 +725,7 @@
                 if (enteredFee > currentPending) {
                     $(this).val('');
                     $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fee (₹' +
-                        currentPending.toFixed(2) + ').</div>')
+                            currentPending.toFixed(2) + ').</div>')
                         .insertAfter($(this));
                     $(this).addClass('is-invalid');
                     $('#PendingFees').text(currentPending.toFixed(2));
@@ -732,7 +733,7 @@
                 }
 
 
-                console.log("enteredFee"+enteredFee)
+                console.log("enteredFee" + enteredFee)
 
                 // var currentCurseFees = $("#CourseFees").text();
                 var currentCurseFees = $("#PendingFees").text();
@@ -761,82 +762,79 @@
 
 
 
-<script>
+    <script>
+        $(document).ready(function() {
 
-    $(document).ready(function () {
+            function getSemesterFee() {
+                // Assuming fixed fee per semester (like 25000 total / 6 semesters)
+                return parseFloat($('#TotalCourseFees').text()) || 0;
+            }
 
-    function getSemesterFee() {
-        // Assuming fixed fee per semester (like 25000 total / 6 semesters)
-        return parseFloat($('#TotalCourseFees').text()) || 0;
-    }
+            function getTotalDepositedFees() {
+                return parseFloat($('#TotalDepositedFees').text()) || 0;
+            }
 
-    function getTotalDepositedFees() {
-        return parseFloat($('#TotalDepositedFees').text()) || 0;
-    }
+            function getPendingFees() {
+                return parseFloat($('#PendingFees').text()) || 0;
+            }
 
-    function getPendingFees() {
-        return parseFloat($('#PendingFees').text()) || 0;
-    }
+            $('#fees').on('input', function() {
+                var perSemesterFee = getSemesterFee();
+                var depositedFee = getTotalDepositedFees();
+                var pendingFee = getPendingFees();
 
-    $('#fees').on('input', function () {
-        var perSemesterFee = getSemesterFee();
-        var depositedFee = getTotalDepositedFees();
-        var pendingFee = getPendingFees();
+                var newFee = parseFloat($(this).val()) || 0;
 
-        var newFee = parseFloat($(this).val()) || 0;
+                // Clear previous error
+                $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
+                $(this).removeClass('is-invalid');
 
-        // Clear previous error
-        $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
-        $(this).removeClass('is-invalid');
+                if (pendingFee <= 0) {
+                    $(this).val('');
+                    $('<div id="feeErrorZero" class="text-danger mt-1">All course fees are paid.</div>')
+                        .insertAfter($(this));
+                    $(this).addClass('is-invalid');
+                    $(this).prop('disabled', true);
+                    $('#PendingFees').text("0.00");
+                    return;
+                }
 
-        if (pendingFee <= 0) {
-            $(this).val('');
-            $('<div id="feeErrorZero" class="text-danger mt-1">All course fees are paid.</div>')
-                .insertAfter($(this));
-            $(this).addClass('is-invalid');
-            $(this).prop('disabled', true);
-            $('#PendingFees').text("0.00");
-            return;
-        }
+                if (isNaN(newFee) || newFee <= 0) {
+                    $(this).val('');
+                    $('<div id="feeErrorZero" class="text-danger mt-1">Enter valid amount greater than 0.</div>')
+                        .insertAfter($(this));
+                    $(this).addClass('is-invalid');
+                    $('#PendingFees').text(pendingFee.toFixed(2));
+                    return;
+                }
 
-        if (isNaN(newFee) || newFee <= 0) {
-            $(this).val('');
-            $('<div id="feeErrorZero" class="text-danger mt-1">Enter valid amount greater than 0.</div>')
-                .insertAfter($(this));
-            $(this).addClass('is-invalid');
-            $('#PendingFees').text(pendingFee.toFixed(2));
-            return;
-        }
+                if (newFee > pendingFee) {
+                    $(this).val('');
+                    $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fees (' +
+                            pendingFee.toFixed(2) + ').</div>')
+                        .insertAfter($(this));
+                    $(this).addClass('is-invalid');
+                    $('#PendingFees').text(pendingFee.toFixed(2));
+                    return;
+                }
 
-        if (newFee > pendingFee) {
-            $(this).val('');
-            $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fees (' +
-                pendingFee.toFixed(2) + ').</div>')
-                .insertAfter($(this));
-            $(this).addClass('is-invalid');
-            $('#PendingFees').text(pendingFee.toFixed(2));
-            return;
-        }
+                // Valid case
+                var newPending = pendingFee - newFee;
+                $('#PendingFees').text(newPending.toFixed(2));
+            });
 
-        // Valid case
-        var newPending = pendingFee - newFee;
-        $('#PendingFees').text(newPending.toFixed(2));
-    });
+            $('#semester').on('change', function() {
+                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
+                $('#PendingFees').text(calculatePendingFees().toFixed(2));
+            });
 
-    $('#semester').on('change', function () {
-        $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
-        $('#PendingFees').text(calculatePendingFees().toFixed(2));
-    });
-
-    function calculatePendingFees() {
-        var total = parseFloat($('#TotalCourseFees').text()) || 0;
-        var deposited = parseFloat($('#TotalDepositedFees').text()) || 0;
-        return total - deposited;
-    }
-});
-</script
-
-
+            function calculatePendingFees() {
+                var total = parseFloat($('#TotalCourseFees').text()) || 0;
+                var deposited = parseFloat($('#TotalDepositedFees').text()) || 0;
+                return total - deposited;
+            }
+        });
+    </script>
 
     <script>
         $(document).ready(function() {
