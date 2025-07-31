@@ -86,7 +86,7 @@
                             $(".course_div").remove();
                             instance.parent().parent().after(html);
                         } else if (instance.parent("tr")) {
-                            // console.log("getBatch 39", instance, instance.parent(), instance.next("th"));
+                            console.log("getBatch 89", instance, instance.parent(), instance.next("th"));
                             $(".search_by_course").removeClass('d-none').empty().append(options);
                             /*
                             // $(".search_by_course").remove();

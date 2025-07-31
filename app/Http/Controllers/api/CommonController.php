@@ -32,6 +32,7 @@ class CommonController extends Controller
         try {
             $data = DB::table('cource_registration as cr')
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
+                ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
                 ->where('cr.status', 'active')
                 ->orderBy('cr.id', 'DESC')
                 ->select(
@@ -39,14 +40,17 @@ class CommonController extends Controller
                     'a.id as admission_id',
                     'a.first_name',
                     'a.father_name',
-                    'a.last_name'
+                    'a.last_name',
+                    'mc.course_name',
                 )
                 ->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-                $temp['id'] = $row?->admission_id . "";
+                $temp['id'] = $row?->course_reg_id . "";
+                // $temp['course_reg_id'] = $row?->course_reg_id . "";
                 $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                $temp['course_name'] = $row?->course_name;
                 return $temp;
             });
             return $this->sendResponse($data, "Course list.");

@@ -87,21 +87,21 @@ class AttedanceController extends Controller
                         $last = $row->admission->last_name ?? '';
                         return trim("{$first} {$father} {$last}");
                     })
-                    ->addColumn('course_name', function($row){
-                        return $row ?->course?->course_name ?? '-';
+                    ->addColumn('course_name', function ($row) {
+                        return $row?->course?->course_name ?? '-';
                     })
-                    ->addColumn('batch_name', function($row){
-                        return $row ?->batch?->batch_name ?? '-';
+                    ->addColumn('batch_name', function ($row) {
+                        return $row?->batch?->batch_name ?? '-';
                     })
                     ->editColumn('in_time', function ($row) {
-                        if($row?->in_time){
+                        if ($row?->in_time) {
                             return \Carbon\Carbon::parse($row?->in_time)->format('h:i A');
                         }
                         return "-";
                     })
                     ->editColumn('out_time', function ($row) {
                         if ($row?->out_time) {
-                        return \Carbon\Carbon::parse($row?->out_time)->format('h:i A');
+                            return \Carbon\Carbon::parse($row?->out_time)->format('h:i A');
                         }
                         return "-";
                     })
@@ -114,7 +114,7 @@ class AttedanceController extends Controller
 
                         if ($in_time == "" && $out_time == "" && $leave != "") {
                             $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
-                        }else{
+                        } else {
                             $status = '-';
                         }
 
@@ -143,33 +143,33 @@ class AttedanceController extends Controller
                         return Carbon::parse($row->date)->format('d-m-Y');
                     })
                     ->editColumn('in_time', function ($row) {
-                        if($row->in_time==''){
+                        if ($row->in_time == '') {
                             $in_time = '<p class="text-center">-</p>';
-                        }else{
+                        } else {
                             $in_time = Carbon::parse($row->in_time)->format('h:i A');
                         }
                         return $in_time;
                     })
                     ->editColumn('out_time', function ($row) {
-                        if($row->out_time==''){
+                        if ($row->out_time == '') {
                             $out_time = '<p class="text-center">-</p>';
-                        }else{
+                        } else {
                             $out_time = Carbon::parse($row->out_time)->format('h:i A');
                         }
 
                         return $out_time;
                     })
                     ->editColumn('leave', function ($row) {
-                        if($row->leave==''){
+                        if ($row->leave == '') {
                             $leave = '<p class="text-center">-</p>';
-                        }else{
+                        } else {
                             $leave = '<p class="text-center text-danger"><strong>Leave</strong></p>';
                         }
                         return $leave;
                     })
 
 
-                    ->rawColumns(['student_name','date','in_time','out_time','leave'])
+                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave'])
                     ->make(true);
                 return $returnData;
             }
@@ -189,32 +189,35 @@ class AttedanceController extends Controller
 
     public function filter_student_data(Request $request)
     {
+        try {
 
+            $data = CourceRegistration::select('*');
+            $data = $data->withTrashed();
+            $data = $data->with(['admission', 'course']);
+            // $data = $data->orWith(['attedance']);
+            // Apply filters if present
 
-        $data = CourceRegistration::select('*');
-        $data = $data->withTrashed();
-        $data = $data->with(['admission', 'course']);
-        // $data = $data->orWith(['attedance']);
-        // Apply filters if present
+            if ($request->filled('filter_admission') && $request->filter_admission) {
+                $data->where('register_id', $request->input('filter_admission'));
+            }
 
-        if ($request->filled('filter_admission') && $request->filter_admission) {
-            $data->where('register_id', $request->input('filter_admission'));
+            if ($request->filled('filter_course') && $request->filter_course) {
+                $data->where('course_id', $request->input('filter_course'));
+            }
+
+            $registrations = $data->get();
+
+            $attedances = Attedance::where('date', Carbon::now()->toDateString())->get();
+            // $combined = $registrations->merge($attedances);
+            //dd('L-176', $combined); // Now you’ll see all values
+            // return $returnData;
+            return response()->json([
+                'data' => $registrations,
+                'attedances' => $attedances,
+            ]);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
         }
-
-        if ($request->filled('filter_course') && $request->filter_course) {
-            $data->where('course_id', $request->input('filter_course'));
-        }
-
-        $registrations = $data->get();
-
-        $attedances = Attedance::where('date', Carbon::now()->toDateString())->get();
-        // $combined = $registrations->merge($attedances);
-        //dd('L-176', $combined); // Now you’ll see all values
-        // return $returnData;
-        return response()->json([
-            'data' => $registrations,
-            'attedances' => $attedances,
-        ]);
     }
 
     public function store(AttedanceRequest $request)
@@ -237,28 +240,66 @@ class AttedanceController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $studentIds = explode(',', $request->studentid);
-                $coursereg = [];
-                foreach ($studentIds as $value) {
-                    $CourceRegistr = CourceRegistration::findOrFail($value);
-                    $BatchRegistr = CourceRegistration::findOrFail($value);
+                if ($request?->admissionId) {
+                    $studenCurceRegistration = CourceRegistration::where('id', $request->admissionId)->first();
+                    if (!$studenCurceRegistration) {
+                        return $this->sendError("Student course not found.");
+                    }
+                    $admission_id = $studenCurceRegistration?->register_id;
+                    $course_id = $studenCurceRegistration?->course_id;
+                    $batch_id = $studenCurceRegistration?->batch_id;
+                    $attedanceDate = Carbon::now()->toDateString();
 
+                    $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
+
+                    /** If Record found return message */
+                    if ($checkAttedance) {
+                        return $this->sendError("This student Attedance all ready In.");
+                    }
                     $coursereg = [
-                        'admission_id' => $CourceRegistr->register_id,
-                        'course_id'    => $CourceRegistr->course_id,
-                        'batch_id'     => $BatchRegistr->batch_id,
+                        'admission_id' => $admission_id,
+                        'course_id'    => $course_id,
+                        'batch_id'     => $batch_id,
                         'date'         => Carbon::now()->toDateString(),
                         'in_time'      => Carbon::now()->toTimeString(),
                         'created_by'   => Auth::id(),
                     ];
 
                     Attedance::create($coursereg);
+                    return $this->sendResponse([], 'Attendance marked successfully.');
+                } else if ($request?->studentid) {
+                    $studentIds = explode(',', $request->studentid);
+                    $coursereg = [];
+                    foreach ($studentIds as $value) {
+                        $CourceRegistr = CourceRegistration::findOrFail($value);
+                        $BatchRegistr = CourceRegistration::findOrFail($value);
+
+                        $admission_id = $CourceRegistr?->register_id;
+                        $course_id = $CourceRegistr?->course_id;
+                        $batch_id = $CourceRegistr?->batch_id;
+                        $attedanceDate = Carbon::now()->toDateString();
+
+                        $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
+
+                        if (!$checkAttedance) {
+                            $coursereg = [
+                                'admission_id' => $CourceRegistr->register_id,
+                                'course_id'    => $CourceRegistr->course_id,
+                                'batch_id'     => $BatchRegistr->batch_id,
+                                'date'         => Carbon::now()->toDateString(),
+                                'in_time'      => Carbon::now()->toTimeString(),
+                                'created_by'   => Auth::id(),
+                            ];
+
+                            Attedance::create($coursereg);
+                        }
+                    }
+                    //dd('L-176', $coursereg); // Now you’ll see all values
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Attendance marked successfully.',
+                    ]);
                 }
-                //dd('L-176', $coursereg); // Now you’ll see all values
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Attendance marked successfully.',
-                ]);
             } catch (\Exception $e) {
                 return response()->json([
                     'status' => false,
@@ -275,31 +316,54 @@ class AttedanceController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $studentIds = explode(',', $request->studentid);
-                $attendanceIds = explode(',', $request->attendanceid);
+                if ($request?->admissionId) {
+                    $studenCurceRegistration = CourceRegistration::where('id', $request->admissionId)->first();
+                    if (!$studenCurceRegistration) {
+                        return $this->sendError("Student course not found.");
+                    }
+                    $admission_id = $studenCurceRegistration?->register_id;
+                    $course_id = $studenCurceRegistration?->course_id;
+                    $batch_id = $studenCurceRegistration?->batch_id;
+                    $attedanceDate = Carbon::now()->toDateString();
 
-                foreach ($studentIds as $index => $studentId) {
-                    // Get the corresponding attendance ID
-                    $attId = $attendanceIds[$index] ?? null;
+                    $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
 
-                    if ($attId) {
-                        // Find the attendance record by ID and update it
-                        $attendance = Attedance::where('id', $attId)
-                            ->whereDate('date', Carbon::today())
-                            ->first();
+                    if (!$checkAttedance) {
+                        return $this->sendError("This student attedance not in.");
+                    }
 
-                        if ($attendance) {
-                            $attendance->update([
-                                'out_time' => Carbon::now()->toTimeString(),
-                                'updated_by' => Auth::id(),
-                            ]);
+                    $checkAttedance->out_time = Carbon::now()->toTimeString();
+                    $checkAttedance->save();
+
+                    return $this->sendResponse([], 'Attendance Out Marked successfully.');
+                } else if ($request?->studentid) {
+
+                    $studentIds = explode(',', $request->studentid);
+                    $attendanceIds = explode(',', $request->attendanceid);
+
+                    foreach ($studentIds as $index => $studentId) {
+                        // Get the corresponding attendance ID
+                        $attId = $attendanceIds[$index] ?? null;
+
+                        if ($attId) {
+                            // Find the attendance record by ID and update it
+                            $attendance = Attedance::where('id', $attId)
+                                ->whereDate('date', Carbon::today())
+                                ->first();
+
+                            if ($attendance) {
+                                $attendance->update([
+                                    'out_time' => Carbon::now()->toTimeString(),
+                                    'updated_by' => Auth::id(),
+                                ]);
+                            }
                         }
                     }
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Attendance updated successfully.',
+                    ]);
                 }
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Attendance updated successfully.',
-                ]);
             } catch (\Exception $e) {
                 return response()->json([
                     'status' => false,
