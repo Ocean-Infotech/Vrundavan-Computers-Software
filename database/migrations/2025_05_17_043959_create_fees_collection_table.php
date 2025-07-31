@@ -23,10 +23,10 @@ return new class extends Migration
             $table->string('fees');
 
             $table->string('mode');
-            $table->string('upi_id')->nullable();;
-            $table->string('cheque_no')->nullable();;
-            $table->string('return_reason')->nullable();;
-            $table->string('password');
+            $table->string('upi_id')->nullable();
+            $table->string('cheque_no')->nullable();
+            $table->string('return_reason')->nullable();
+            $table->string('password')->nullable();
             $table->string('status')->default('active')->comment('active, inactive');
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

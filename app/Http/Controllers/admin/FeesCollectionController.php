@@ -328,12 +328,12 @@ class FeesCollectionController extends Controller
         try {
             $loginUserId = Auth::user()->id;
             $validated['created_by'] = $loginUserId;
-
+            // return $validated;
             $feesCollection = FeesCollection::create($validated);
 
-
-            return redirect()->route('software.fees-collection.print', $feesCollection->id);
+            return Redirect::route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
+            return Redirect::back()->withErrors($e->getMessage());
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
@@ -400,6 +400,10 @@ class FeesCollectionController extends Controller
 
     public function print($id)
     {
+        $modules = $this->modules;
+        $modules['route'] = 'fees-collection';
+        View::share('modules', $modules);
+
         $feesData = FeesCollection::find($id);
 
         if (!$feesData) {

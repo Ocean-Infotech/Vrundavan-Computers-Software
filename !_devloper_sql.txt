@@ -1,5 +1,8 @@
 |-------------------------------------------- Local
 
+php artisan migrate:refresh --path=database/migrations/2025_05_17_043959_create_fees_collection_table.php
+
+
 ALTER TABLE `cource_registration` CHANGE `admission_id` `admission_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
 
 ALTER TABLE `attedance` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `batch_id` `batch_id` INT(11) NULL;
