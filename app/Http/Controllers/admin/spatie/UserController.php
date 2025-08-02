@@ -372,9 +372,9 @@ class UserController extends Controller
                 if (Helper::getLoginUserRole() == "Developer") {
                     $temp = $item;
                 }
-                $temp['id'] = $item->id . "";
-                $temp['group'] = $item->group . "";
-                $temp['name'] = $item->name . "";
+                $temp['id'] = $item?->id . "";
+                $temp['group'] = $item?->group . "";
+                $temp['name'] = $item?->name . "";
                 $temp['getLoginUserRole'] = Helper::getLoginUserRole();
                 return $temp;
             });
@@ -392,7 +392,7 @@ class UserController extends Controller
             return Redirect::back()->with('success', "Permission list");
         } catch (\Exception $e) {
             if ($isAjax) {
-                return $this->sendError($e->getMessage(), [], []);
+                return $this->sendError($e->getMessage(), $e, []);
             }
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }

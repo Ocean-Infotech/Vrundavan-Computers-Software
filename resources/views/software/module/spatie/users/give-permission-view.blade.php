@@ -17,14 +17,26 @@
                     for="group-{{ Str::slug($group) }}">{{ ucfirst($group) }}</label>
             </div>
             <div class="row mt-2">
-                @foreach ($perms as $perm)
+                @foreach ($perms as $i => $perm)
+                    @php
+                        $permId = is_array($perm) ? $perm['id'] ?? $i : $perm->id ?? $i;
+                        $permName = is_array($perm) ? $perm['name'] ?? '' : $perm->name ?? '';
+                    @endphp
+                    {{-- {{ dd('L-13', $permissions, $checkedPermissionIds, $perms, $group, $perm) }} --}}
                     <div class="col-md-3">
                         <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input permission-checkbox"
-                                id="perm-{{ $perm?->id }}" name="directPermission[]" value="{{ $perm?->name }}"
+                                id="perm-{{ $permId }}" name="directPermission[]" value="{{ $permName }}"
+                                {{ in_array($permId, $checkedPermissionIds) ? 'checked' : '' }}>
+
+                            <label class="custom-control-label"
+                                for="perm-{{ $permId }}">{{ $permName }}</label>
+                            {{-- <input type="checkbox" class="custom-control-input permission-checkbox"
+                                id="perm-{{ $perm?->id ?? $i }}" name="directPermission[]"
+                                value="{{ $perm?->name ?? '' }}"
                                 {{ isset($checkedPermissionIds) && in_array($perm?->id, $checkedPermissionIds) ? 'checked' : '' }}>
                             <label class="custom-control-label"
-                                for="perm-{{ $perm?->id }}">{{ $perm->name }}</label>
+                                for="perm-{{ $perm?->id ?? $i }}">{{ $perm?->name ?? '-' }}</label> --}}
                         </div>
                     </div>
                 @endforeach
@@ -44,7 +56,7 @@
         // Handle group checkbox click
         document.querySelectorAll('.group-checkbox').forEach(groupCheckbox => {
             groupCheckbox.addEventListener('change', function() {
-                let groupId = this.id.replace('group-', '');
+                let groupId = this?.id?.replace('group-', '');
                 let checkboxes = document.querySelectorAll(`.permission-checkbox[id^="perm-"]`);
 
                 checkboxes.forEach(checkbox => {
