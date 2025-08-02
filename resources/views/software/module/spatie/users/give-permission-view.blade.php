@@ -21,10 +21,10 @@
                     <div class="col-md-3">
                         <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input permission-checkbox"
-                                id="perm-{{ $perm->id }}" name="directPermission[]" value="{{ $perm->name }}"
-                                {{ isset($checkedPermissionIds) && in_array($perm->id, $checkedPermissionIds) ? 'checked' : '' }}>
+                                id="perm-{{ $perm?->id }}" name="directPermission[]" value="{{ $perm?->name }}"
+                                {{ isset($checkedPermissionIds) && in_array($perm?->id, $checkedPermissionIds) ? 'checked' : '' }}>
                             <label class="custom-control-label"
-                                for="perm-{{ $perm->id }}">{{ $perm->name }}</label>
+                                for="perm-{{ $perm?->id }}">{{ $perm->name }}</label>
                         </div>
                     </div>
                 @endforeach
