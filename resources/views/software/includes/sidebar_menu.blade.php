@@ -130,13 +130,13 @@
             <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-calendar me-2"></i>
-                    <div data-i18n="Attedance">Attedance</div>
+                    <div data-i18n="Attendance">Attendance</div>
                 </a>
                 <ul class="menu-sub">
 
                     <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active' : '' }}">
                         <a href="{{ route('attedance.index') }}" class="menu-link">
-                            <div data-i18n="Attedance">Attedance</div>
+                            <div data-i18n="Attendance">Attendance</div>
                         </a>
                     </li>
                 </ul>

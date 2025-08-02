@@ -30,7 +30,7 @@ class AttedanceController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Attedance',
+            'title' => 'Attendance',
             'folder_path' => 'software.module.attedance',
             'route' => 'attedance',
             'table_name' => (new Attedance())->getTable(),
