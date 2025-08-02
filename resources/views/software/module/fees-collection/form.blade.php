@@ -286,7 +286,7 @@
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h5>
-                            <input type="text" name="pandingfeesinput" id="pandingfeesinput" value="">
+                            <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
                         </div>
                     </div>
                 </div>
