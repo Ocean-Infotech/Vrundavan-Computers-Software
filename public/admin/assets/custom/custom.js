@@ -39,3 +39,8 @@ function isDecimal(evt) {
     }
     return false;
 }
+
+// Utility function to format number as currency
+function formatCurrency(amount) {
+    return parseFloat(amount).toFixed(2);
+}

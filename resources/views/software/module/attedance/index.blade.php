@@ -21,19 +21,21 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-lg-between px-1">
-    @include('software.includes.breadcrumb', [
-    'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
-    'route' => $route,
-    'show_add_btn' => true,
-    'show_api_attendance' => true,
-    'show_filter_btn' => true,
-    'show_export_btns' => false,
-    'show_excal_btn' => false,
-    'show_print_btn' => false,
-    'show_back_btn' => false,
-    ])
-</div>
+    <div class="d-flex justify-content-lg-between px-1">
+        @include('software.includes.breadcrumb', [
+            'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
+            'route' => $route,
+            'show_add_btn' =>
+                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
+            'show_api_attendance' =>
+                isset($modules) && isset($modules['permission_show_api_attendance']) ? $modules['permission_show_api_attendance'] : false,
+            'show_filter_btn' => false,
+            'show_export_btns' => false,
+            'show_excal_btn' => false,
+            'show_print_btn' => false,
+            'show_back_btn' => false,
+        ])
+    </div>
 
     <!-- @include('software.partials.flash_messages') -->
     <div class="row my-3">
@@ -43,13 +45,14 @@
                     <div class="table-responsive">
                         <table id="yajra-datatables" class="display table table-hover">
                             @if (isset($columns))
-                            <thead>
-                                <tr>
-                                    @foreach ($columns as $item)
-                                        <th class="{{ $item?->className ?? '' }}">{{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
-                                    @endforeach
-                                </tr>
-                            </thead>
+                                <thead>
+                                    <tr>
+                                        @foreach ($columns as $item)
+                                            <th class="{{ $item?->className ?? '' }}">
+                                                {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
                             @endif
                         </table>
                     </div>
@@ -124,37 +127,37 @@
         $("#show_filter").click(function() {
             $('#filter_section').toggle();
         });
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        $('#add-attendance-btn').on('click', function () {
-            $.ajax({
-                url: "{{ route('attedance.fetch-logs') }}",
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                beforeSend: function () {
-                    $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
-                },
-                success: function (res) {
-                    location.reload();
-                },
-                error: function (xhr) {
-                    alert(xhr.responseJSON?.message || 'Something went wrong.');
-                },
-                complete: function () {
-                    $('#add-attendance-btn').prop('disabled', false).text('Fetch Attendance Logs');
-                }
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#add-attendance-btn').on('click', function() {
+                $.ajax({
+                    url: "{{ route('attedance.fetch-logs') }}",
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
+                    },
+                    success: function(res) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.message || 'Something went wrong.');
+                    },
+                    complete: function() {
+                        $('#add-attendance-btn').prop('disabled', false).text(
+                            'Fetch Attendance Logs');
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 
 
 
-@include('software.includes.script-delete-record')
-@include('software.includes.script-restore-record')
-@include('software.includes.script-update-status')
+    @include('software.includes.script-delete-record')
+    @include('software.includes.script-restore-record')
+    @include('software.includes.script-update-status')
 @endsection

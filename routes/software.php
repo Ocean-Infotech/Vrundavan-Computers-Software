@@ -110,11 +110,6 @@ Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
 
-/** Test Modules */
-Route::resource('/test', TestController::class);
-Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
-Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
-Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
@@ -198,6 +193,11 @@ Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
 
+/** Test Modules */
+Route::resource('/test', TestController::class);
+Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
+Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
+Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
@@ -206,7 +206,7 @@ Route::match(['get', 'post'], 'test_report-update-status', [TestreportController
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
 
 
-Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
+// Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
 
 
 /** System Login User */

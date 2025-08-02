@@ -78,20 +78,26 @@
 
                     <div class="row" id="FeesCollectionDetails">
                     @else
+                        <input type="hidden" id="search_id" name="search"
+                            class="form-control @error('search') is-invalid @enderror"
+                            value="{{ old('search', $edit?->admission_id ?? ($edit?->admission_id ?? '')) }}"
+                            placeholder="Search">
                         <div class="row">
                 @endif
                 <div class="col-md-6">
                     <div class="row">
                         <!-- Student Name (Shown as Text) -->
                         <div class="col-md-12">
-                            <label class="form-label"><strong>Student Name :</strong> <span id="student_name"
-                                    class="">--</span></label>
+                            <label class="form-label"><strong>Student Name :</strong> <span
+                                    id="student_name"class="">{{ isset($edit) && $edit?->student_name ? $edit?->student_name : '---' }}</span></label>
                         </div>
 
 
                         <!-- Student Id (Shown as Text) -->
                         <div class="col-md-12">
-                            <label class="form-label"><strong>Student Id:</strong> <span id="student_id">--</span> </label>
+                            <label class="form-label"><strong>Student Id:</strong> <span
+                                    id="student_id">{{ isset($edit) && $edit?->student_id ? $edit?->student_id : '---' }}</span>
+                            </label>
                             {{-- <p id="student_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
 
@@ -100,14 +106,14 @@
                         <!-- Admission Id (Shown as Text) -->
                         <div class="col-md-12">
                             <label class="form-label"><strong>Admission Id:</strong> <span id="admission_id"
-                                    class="">--</span></label>
+                                    class="">{{ isset($edit) && $edit?->admission_id ? $edit?->admission_id : '---' }}</span></label>
                             {{-- <p id="admission_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
 
                         <!-- Course Name (Shown as Text) -->
                         <div class="col-md-12 mb-3">
                             <label class="form-label"><strong>Course Name:</strong> <span id="course_id"
-                                    class="">--</span></label>
+                                    class="">{{ isset($edit) && $edit?->course && $edit?->course?->course_name ? $edit?->course?->course_name : '---' }}</span></label>
                             {{-- <p id="course_id" class="form-control-plaintext mb-0">--</p> --}}
                         </div>
 
@@ -166,7 +172,8 @@
                             </label>
                             <input type="number" name="fees" id="fees"
                                 class="form-control required @error('fees') is-invalid @enderror" placeholder="Course Fee"
-                                value="{{ old('fees', $edit->fees ?? '') }}">
+                                value="{{ old('fees', $edit->fees ?? '') }}"
+                                data-editValue="{{ isset($edit) && $edit?->fees ? $edit?->fees : 0.0 }}">
                             @error('fees')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -279,16 +286,11 @@
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h5>
-                            <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
+                            <input type="text" name="pandingfeesinput" id="pandingfeesinput" value="">
                         </div>
                     </div>
                 </div>
-
-
         </div>
-
-
-
         </form>
     </div>
     </div>
@@ -319,17 +321,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <script>
+        let editId = null;
         $(document).ready(function() {
             $('#date').on('click', function() {
                 this.showPicker?.(); // Opens the datepicker if browser supports `showPicker()`
             });
         });
-    </script>
-    <script>
+
         window.paidSemesters = @json($paid_semesters ?? []);
         window.currentStudentDetails = @json($studentdetails ?? []);
         window.paidSemestersByAdmission = @json($paidSemestersGroupedByAdmission ?? []);
-        console.log(window.paidSemesters)
     </script>
 
     <script>
@@ -364,6 +365,7 @@
 
     <script>
         $(document).ready(function() {
+            editId = "{{ isset($edit) && $edit?->id ? $edit?->id : '' }}";
 
             // Open Password Modal button click - Validate required fields before opening modal
             $('#openPasswordModal').on('click', function(e) {
@@ -432,30 +434,26 @@
             // Trigger search on Enter keyup in search_id input
             $("#search_id").keyup(function() {
 
-                searchdata();
+                searchData();
 
             });
-            var search_id = $('#search_id').val().trim();
+            var search_id = $('#search_id').val()?.trim();
             if (search_id !== '') {
-                searchdata();
+                searchData();
             }
 
             // Trigger search on search button click
             $('#searchbtn').on('click', function(e) {
                 e.preventDefault();
-                searchdata();
+                searchData();
             });
 
 
             window.currentStudentDetails = null;
 
-            // Utility function to format number as currency
-            function formatCurrency(amount) {
-                return parseFloat(amount).toFixed(2);
-            }
-
-            function searchdata() {
-                var search_id = $('#search_id').val().trim();
+            function searchData() {
+                var search_id = $('#search_id').val()?.trim();
+                console.log("L-461", search_id);
 
                 if (search_id === '') {
                     $('#search_id').addClass('is-invalid');
@@ -485,11 +483,14 @@
                             // Fill semester dropdown
                             let semester_rows = '<option value="">Select Semester</option>';
                             for (let semester = 1; semester <= totalSemesters; semester++) {
-                                semester_rows += '<option value="' + semester + '">' + semester +
+                                semester_rows += '<option value="' + semester + '"';
+                                if ($("#year_semester").attr("data-semester") == semester) {
+                                    semester_rows += " selected ";
+                                }
+                                semester_rows += '>' + semester +
                                     '</option>';
                             }
                             $('#year_semester').html(semester_rows);
-
                             // Fill other student info
                             let studentname = studentdetails.admission.first_name + ' ' +
                                 studentdetails.admission.father_name + ' ' +
@@ -562,6 +563,9 @@
                             $('#CourseFees').text(formatCurrency(fullCourseFee));
                             $('#DepositeFees').text(formatCurrency(depositedFees));
                             $('#PendingFees').text(formatCurrency(fullCourseFee - depositedFees));
+
+
+                            $('#year_semester').trigger("change");
                         } else {
                             $('#FeesCollectionDetails').hide();
                             showMessage("No data found for the given ID", "error");
@@ -594,7 +598,9 @@
                     showMessage("All semester fees have been paid.", "info");
                     return;
                 }
-                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
+
+                $('#fees').val($("#fees").attr('data-editValue')).prop('disabled', false).removeClass(
+                    'is-invalid');
                 $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
 
                 // Calculate semester fee
@@ -620,6 +626,11 @@
                         $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
                     }
 
+                }
+
+                /** Edit time show table */
+                if ($("#fees").attr('data-editValue')) {
+                    $('#fees').val($("#fees").attr('data-editValue'));
                 }
             });
 
@@ -668,12 +679,7 @@
                 // Clear sessionStorage after use if you want
                 sessionStorage.removeItem('admissionDetails');
             }
-        });
-    </script>
 
-
-    <script>
-        $(document).ready(function() {
             function getSemesterFee() {
                 return parseFloat($('#CourseFees').text().replace(/[^0-9.-]+/g, "")) || 0;
             }
@@ -693,48 +699,85 @@
             $('#fees').on('input', function() {
                 let perSemesterFee = getSemesterFee();
                 let depositedFee = getDepositedFees();
-                let currentPending = getPendingFeesinut();
+                let currentPending = getPendingFees();
 
-                let enteredFee = parseFloat($(this).val()) || 0;
+                let enteredFee = formatCurrency($(this).val()) || 0;
 
                 // Clear any previous messages
                 $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
                 $(this).removeClass('is-invalid');
 
-
-                if (currentPending <= 0) {
-                    $(this).val('');
-                    $(this).prop('disabled', true);
-                    $('<div id="feeErrorZero" class="text-danger mt-1">All semester fees are already paid.</div>')
-                        .insertAfter($(this));
-                    $('#PendingFees').text("0.00");
-                    return;
-                }
-
+                console.log("L-702", perSemesterFee, depositedFee, currentPending, enteredFee, editId);
 
                 if (isNaN(enteredFee) || enteredFee <= 0) {
                     $(this).val('');
                     $('<div id="feeErrorZero" class="text-danger mt-1">Enter valid amount greater than 0.</div>')
                         .insertAfter($(this));
                     $(this).addClass('is-invalid');
-                    $('#PendingFees').text($('#CourseFees').text());
+
+                    let newPendingFees = formatCurrency(perSemesterFee - depositedFee);
+                    $('#PendingFees').text(newPendingFees);
+                    $('#pandingfeesinput').val(newPendingFees);
+
+                    console.log("enteredFee 707", getSemesterFee(), getDepositedFees(),
+                        getPendingFeesinut(), $(this).val());
                     return;
                 }
 
-
-                if (enteredFee > currentPending) {
-                    $(this).val('');
-                    $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fee (₹' +
-                            currentPending.toFixed(2) + ').</div>')
-                        .insertAfter($(this));
+                if (currentPending <= 0) {
+                    $(this).val(0);
+                    // $(this).prop('disabled', true);
                     $(this).addClass('is-invalid');
-                    $('#PendingFees').text(currentPending.toFixed(2));
+                    $('<div id="feeErrorZero" class="text-danger mt-1">All semester fees are already paid.</div>')
+                        .insertAfter($(this));
+                    let newValue = formatCurrency(getSemesterFee() - (getDepositedFees() + enteredFee));
+
+                    $('#PendingFees').text(newValue);
+                    if ($(this).val() == 0) {
+                        $('#PendingFees').text(parseFloat(getSemesterFee()) - parseFloat(
+                            getDepositedFees()));
+                    }
+                    // $('#pandingfeesinput').val(newValue);
+                    console.log("enteredFee 731", getSemesterFee(), getDepositedFees(), getPendingFees(),
+                        getPendingFeesinut(), $(this).val(), newValue);
                     return;
                 }
 
+                if (editId) {
+                    let editTimePending = parseFloat(getSemesterFee()) - parseFloat(getDepositedFees());
+                    editTimePending = editTimePending + parseFloat($('#fees').attr('data-editValue'));
+                    console.log("enteredFee 748", editTimePending);
+                    let newValue = 0;
+                    newValue = editTimePending - parseFloat(enteredFee);
+                    newValue = formatCurrency(newValue);
+                    $('#PendingFees').text(newValue);
+                } else {
+                    if (enteredFee > parseFloat(getPendingFeesinut())) {
+                        $(this).val('');
+                        $('<div id="feeError" class="text-danger mt-1">Entered amount exceeds pending fee (₹' +
+                            parseFloat(getPendingFeesinut()) + ').</div>').insertAfter($(this));
+                        $(this).addClass('is-invalid');
+                        let newValuePending = parseFloat(getSemesterFee()) - parseFloat(getDepositedFees());
+                        newValuePending = formatCurrency(newValuePending);
 
-                console.log("enteredFee" + enteredFee)
+                        $('#PendingFees').text(newValuePending);
+                        // $('#pandingfeesinput').val(newValuePending);
+                        console.log("enteredFee 743", getSemesterFee(), getDepositedFees(),
+                            getPendingFeesinut(), newValuePending);
+                        return;
+                    }
 
+                    let newValue = 0;
+                    newValue = parseFloat(getSemesterFee()) - (parseFloat(getDepositedFees()) + parseFloat(
+                        enteredFee));
+                    console.log("enteredFee 766", getSemesterFee(), getDepositedFees(), getPendingFees(),
+                        getPendingFeesinut(), enteredFee, newValue);
+                    newValue = formatCurrency(newValue);
+                    $('#PendingFees').text(newValue);
+                }
+
+
+                /*
                 // var currentCurseFees = $("#CourseFees").text();
                 var currentCurseFees = $("#PendingFees").text();
                 //  console.log("currentCurseFees"+$('#CourseFees').text())
@@ -743,19 +786,10 @@
                 if (newPending < 0) newPending = 0;
 
                 $('#PendingFees').text(newPending.toFixed(2));
+                */
+                // $('#pandingfeesinput').val(newValue);
+
             });
-
-            // // Optional: Reset on semester change
-            // $('#year_semester').on('change', function() {
-            //     $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
-            //     $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
-
-            //     let selectedSem = parseInt($(this).val());
-            //     let semesterFee = getSemesterFee();
-
-            //     // Optionally set initial pending as full fee
-            //     $('#PendingFees').text(semesterFee.toFixed(2));
-            // });
 
         });
     </script>

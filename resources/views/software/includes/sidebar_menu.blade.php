@@ -143,7 +143,7 @@
             </li>
         @enddirectCanAny
 
-        @directCanAny(['attedance-list', 'attedance-create', 'attedance-edit', 'attedance-delete'])
+        @directCanAny(['fees-collection-list', 'fees-collection-create', 'fees-collection-edit', 'fees-collection-delete', 'fees-collection-pending', 'fees-collection-report'])
             <li
                 class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -160,17 +160,21 @@
                         </li>
                     @enddirectCan
 
-                    <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
-                        <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
-                            <div data-i18n="Fees Pending">Fees pending</div>
-                        </a>
-                    </li>
+                    @directCan('fees-collection-pending')
+                        <li class="menu-item {{ $sidebar_active == 'fees-collection-pending' ? 'active' : '' }}">
+                            <a href="{{ route('fees-collection-pending.index') }}" class="menu-link">
+                                <div data-i18n="Fees Pending">Fees pending</div>
+                            </a>
+                        </li>
+                    @enddirectCan
 
-                    <li class="menu-item {{ $sidebar_active == 'students-fees-report' ? 'active' : '' }}">
-                        <a href="{{ route('students-fees-report.index') }}" class="menu-link">
-                            <div data-i18n="Students Fees Report">Students Fees Report</div>
-                        </a>
-                    </li>
+                    @directCan('fees-collection-report')
+                        <li class="menu-item {{ $sidebar_active == 'students-fees-report' ? 'active' : '' }}">
+                            <a href="{{ route('students-fees-report.index') }}" class="menu-link">
+                                <div data-i18n="Students Fees Report">Students Fees Report</div>
+                            </a>
+                        </li>
+                    @enddirectCan
                 </ul>
             </li>
         @enddirectCanAny
