@@ -3,12 +3,17 @@
 namespace App\Models;
 
 use App\Models\Master\MasterCourse;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 
-class Admission extends Model
+class Admission extends Authenticatable
 {
     use SoftDeletes;
+    use HasApiTokens, Notifiable;
 
     public $table = 'admission';
 

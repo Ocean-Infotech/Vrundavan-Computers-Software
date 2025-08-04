@@ -531,8 +531,30 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
+    public function get_personal_details(Request $request)
+{
+    $user = Auth::user();
+dd($user);
+    if (!$user) {
+        return $this->sendError("Unauthorization", [], [], 401);
+    }
 
 
-    // 🔹 Step 2: Verify OTP API
-  
+
+    try {
+
+
+        $responseData = [
+            'admission_id'      => $user->id,
+            'mobile_no'         => $user->mobile_no,
+            'aadhar_card_no'    => $user->aadhar_card_no,
+            'email_address'     => $user->email_address,
+            'temporary_address' => $user->temporary_address,
+        ];
+
+        return $this->sendResponse($responseData, 'Personal details updated successfully.');
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+    }
+}
 }

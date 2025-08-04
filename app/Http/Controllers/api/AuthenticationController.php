@@ -4,6 +4,8 @@ namespace App\Http\Controllers\api;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\Admission;
+use App\Models\CourceRegistration;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class AuthenticationController extends Controller
@@ -171,90 +174,118 @@ class AuthenticationController extends Controller
      *     ),
      * )
      */
+
+
+
     public function login(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'phone' => [
+                'mobile_no' => [
                     'required',
                     'digits_between:10,15',
                     function ($attribute, $value, $fail) {
-                        if (!User::where('phone', $value)->exists()) {
+                        if (!Admission::where('mobile_no', $value)->exists()) {
                             $fail('This phone number is not registered.');
                         }
                     }
                 ],
-                'course_name' => 'required|string'
+                'course_id' => [
+                    'required',
+                    'integer',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $user = Admission::where('mobile_no', $request->mobile_no)->first();
+                        if (!$user) {
+                            return;
+                        }
+
+                        $exists = CourceRegistration::where('register_id', $user->id)
+                            ->where('course_id', $value)
+                            ->exists();
+
+                        if (!$exists) {
+                            $fail("You are not registered for the selected course.");
+                        }
+                    }
+                ],
             ]);
-
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation Error.',
-                    'errors' => $validator->errors()
-                ], 403);
+                return $this->sendError($validator->errors()->first(), $validator->errors(), [], 422);
             }
+            // dd('hello');
 
-            $course = MasterCourse::where('course_name', $request->course_name)->first();
-            if (!$course) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Invalid course selected.'
-                ], 404);
-            }
+            $user = Admission::where('mobile_no', $request->mobile_no)->first();
+            $course = MasterCourse::find($request->course_id);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'OTP has been sent successfully.'
-            ], 200);
+            $otp = '5432';
+
+            $responseData = [
+                'admission_id'     => $user->id,
+                'mobile_no'   => $user->mobile_no,
+                'course_id'   => $course->id,
+                'course_name' => $course->course_name,
+                'otp'         => $otp,
+            ];
+
+            return $this->sendResponse($responseData, 'OTP has been sent successfully. OTP: ' . $otp);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    public function verifyOtp(Request $request)
-    {
+
+
+  public function verifyOtp(Request $request)
+{
+    try {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|digits:10',
+            'mobile_no' => [
+                'required',
+                'digits_between:10,15',
+                function ($attribute, $value, $fail) {
+                    if (!Admission::where('mobile_no', $value)->exists()) {
+                        $fail('This phone number is not registered.');
+                    }
+                }
+            ],
             'otp' => 'required|digits:4',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError(
-                $validator->messages()->first(),
-                $validator->messages(),
+                $validator->errors()->first(),
+                $validator->errors(),
                 [],
-                401
+                422
             );
         }
 
+        // Hardcoded OTP validation (can be made dynamic later)
         if ($request->otp !== '5432') {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid OTP.',
-            ], 401);
+            return $this->sendError('Invalid OTP.', ['otp' => ['Invalid OTP.']], [], 401);
         }
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = Admission::where('mobile_no', $request->mobile_no)->first();
 
         if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'User not found.',
-            ], 404);
+            return $this->sendError(
+                'User not found.',
+                ['mobile_no' => ['User not found.']],
+                [],
+                404
+            );
         }
 
-        return response()->json([
-            'status' => true,
-            'message' => 'OTP verified successfully.',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone
-            ]
-        ]);
+        // You can include more admission-specific data here
+        $responseData = [
+            'admission_id' => $user->id,
+
+            'mobile_no'    => $user->mobile_no,
+        ];
+
+        return $this->sendResponse($responseData, 'OTP verified successfully.');
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
+}
+
 }
