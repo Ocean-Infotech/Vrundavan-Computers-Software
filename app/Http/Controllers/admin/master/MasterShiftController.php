@@ -69,8 +69,8 @@ class MasterShiftController extends Controller
                 $data = $data->with(['batch', 'course', 'class']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
+                $editPermisstion = $modules['permission_edit'];
+                $deletePermisstion = $modules['permission_delete'];
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
