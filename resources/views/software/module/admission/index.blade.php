@@ -164,7 +164,7 @@
                                     @if ($fees_collection_create == 'true')
                                         <th>Fees</th>
                                     @endif
-                                    <th>Form</th>
+                                    {{-- <th>Form</th> --}}
                                     @if ($fees_collection_edit == 'true')
                                         <th>Update</th>
                                     @endif
@@ -444,10 +444,12 @@
                                         <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Create</button>
                                     </td>`;
                                 }
+                                /*
                                 row += `
                                     <td>
                                         <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
                                     </td>`;
+                                    */
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
                                     row += `
                                 <td>
