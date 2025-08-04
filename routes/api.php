@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
 use App\Http\Controllers\api\UserController;
@@ -12,6 +13,7 @@ Route::any('test', function () {
 
 Route::controller(CommonController::class)->group(function () {
 
+    Route::any('get-personal-details', 'get_personal_details')->name('get-personal-details');
     Route::post('user_type', 'user_type');
     Route::any('get-country', 'get_country');
     Route::any('get-state', 'get_state')->name('get-state');
@@ -32,11 +34,14 @@ Route::controller(AuthenticationController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('verify-otp', 'verifyOtp');
 
-    Route::post('register', 'register');
+    // Route::post('register', 'register');
     // Route::post('profile', 'profile');
 });
 
+
 /** */
+Route::middleware('auth:api')->post('/get-personal-details', [CommonController::class, 'get_personal_details']);
+
 Route::group(['middleware' => ['auth:api']], function () {
     Route::controller(UserController::class)->group(function () {
         Route::post('get-profile', 'getProfile');
@@ -44,6 +49,7 @@ Route::group(['middleware' => ['auth:api']], function () {
         Route::post('withdraw-request', 'withdrawRequest');
         Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
         Route::post('withdraw-history', 'withdrawHistory');
+
     });
 
     Route::controller(CommonController::class)->group(function () {
