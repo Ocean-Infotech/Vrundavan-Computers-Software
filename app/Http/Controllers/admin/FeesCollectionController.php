@@ -68,8 +68,8 @@ class FeesCollectionController extends Controller
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => "fees", 'name' => 'fees', 'td_label' => 'Course Fees'],
                 (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+                   // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+                // (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             View::share("columns", $columns);
 

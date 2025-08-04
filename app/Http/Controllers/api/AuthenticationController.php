@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
+use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterState;
 use App\Models\User;
@@ -174,67 +175,86 @@ class AuthenticationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'username' => [
+                'phone' => [
                     'required',
-                    /*
+                    'digits_between:10,15',
                     function ($attribute, $value, $fail) {
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL) && !preg_match('/^\+?[0-9]{10,15}$/', $value)) {
-                    $fail('The username must be a valid email or phone number.');
+                        if (!User::where('phone', $value)->exists()) {
+                            $fail('This phone number is not registered.');
+                        }
                     }
-                    },
-                    */
-                    function ($attribute, $value, $fail) {
-                        // Check if the username is a valid email
-                        $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
-
-                        // Check if the username is a valid phone number
-                        $isPhone = preg_match('/^\+?[0-9]{10,15}$/', $value);
-
-                        if (!$isEmail && !$isPhone) {
-                            $fail('The username must be a valid email or phone number.');
-                            return;
-                        }
-
-                        // Check if it exists in the database (either email or phone field)
-                        $userExists = User::where('email', $value)->orWhere('phone', $value)->exists();
-
-                        if (!$userExists) {
-                            $fail('The username does not exist in our records.');
-                        }
-                    },
                 ],
-                'password' => 'required',
+                'course_name' => 'required|string'
             ]);
 
-
             if ($validator->fails()) {
-                return $this->sendError('Validation Error.', $validator->errors()->first(), $validator->errors(), 403);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation Error.',
+                    'errors' => $validator->errors()
+                ], 403);
             }
 
-            $field = filter_var($request->get('username'), FILTER_VALIDATE_EMAIL)
-                ? 'email'
-                : 'phone';
-
-            // return [Auth::attempt([$field => $request?->username, 'password' => $request->password]).""];
-            if (Auth::attempt([$field => $request?->username, 'password' => $request->password])) {
-
-                $user = Auth::user();
-
-                $success =  $user;
-
-                $newRequest = new Request();
-                $newRequest['id'] = $user?->id;
-                $success = (array)(new UserController())->getProfileResponse($newRequest);
-
-                $success['token'] =  $user->createToken(env("APP_NAME"))->accessToken;
-
-                return $this->sendResponse($success, 'User login successfully.');
-            } else {
-                return $this->sendError('login details missmatch. enter correct login details. please try again', ['error' => 'Unauthorised']);
+            $course = MasterCourse::where('course_name', $request->course_name)->first();
+            if (!$course) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid course selected.'
+                ], 404);
             }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP has been sent successfully.'
+            ], 200);
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage(), [], [], 201);
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-        return $request->all();
+    }
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|digits:10',
+            'otp' => 'required|digits:4',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError(
+                $validator->messages()->first(),
+                $validator->messages(),
+                [],
+                401
+            );
+        }
+
+        if ($request->otp !== '5432') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid OTP.',
+            ], 401);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP verified successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone
+            ]
+        ]);
     }
 }

@@ -11,6 +11,7 @@ Route::any('test', function () {
 });
 
 Route::controller(CommonController::class)->group(function () {
+
     Route::post('user_type', 'user_type');
     Route::any('get-country', 'get_country');
     Route::any('get-state', 'get_state')->name('get-state');
@@ -28,8 +29,10 @@ Route::controller(CommonController::class)->group(function () {
 });
 
 Route::controller(AuthenticationController::class)->group(function () {
-    Route::post('register', 'register');
     Route::post('login', 'login');
+    Route::post('verify-otp', 'verifyOtp');
+
+    Route::post('register', 'register');
     // Route::post('profile', 'profile');
 });
 

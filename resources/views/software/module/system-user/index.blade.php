@@ -40,7 +40,7 @@ $i = 0;
                         <input type="search" class="form-control" name="search" placeholder="search...">
                     </div>
                     <div class="col-md-3">
-                        <select class="form-control" name="status">
+                        <select class="form-control select2" name="status">
                             <option value="">Select Status</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>

@@ -15,6 +15,7 @@ use App\Models\Master\MasterClass;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,7 @@ class CommonController extends Controller
                 // $temp = $row;
                 $temp['id'] = $row?->course_reg_id . "";
                 // $temp['course_reg_id'] = $row?->course_reg_id . "";
-                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
                 $temp['course_name'] = $row?->course_name;
                 return $temp;
             });
@@ -72,28 +73,27 @@ class CommonController extends Controller
         try {
 
             $shift = MasterShift::select('class_id', DB::raw('COUNT(*) as total'))
-                    ->where('status', 'active')
-                    ->where('batch_id', $request?->batch_id)
-                    ->groupBy('class_id')
-                    ->orderBy('class_id', 'ASC')
-                    ->get();
+                ->where('status', 'active')
+                ->where('batch_id', $request?->batch_id)
+                ->groupBy('class_id')
+                ->orderBy('class_id', 'ASC')
+                ->get();
 
             $classIds = $shift->pluck('class_id')->toArray();
 
             $classes = MasterClass::where('status', 'active')
-            ->whereIn('id', $classIds)
-            ->orderBy('class', 'ASC')
-            ->get()
-            ->keyBy('id');
+                ->whereIn('id', $classIds)
+                ->orderBy('class', 'ASC')
+                ->get()
+                ->keyBy('id');
 
             $data = $shift->map(function ($row) use ($classes) {
-                 $class = $classes[$row->class_id] ?? null;
+                $class = $classes[$row->class_id] ?? null;
                 return [
                     'id' => (string) $class?->id,
                     'name' => $class?->class,
                     'total' => $row->total,
                 ];
-
             });
             return $this->sendResponse($data, "Class list.");
         } catch (\Exception $e) {
@@ -132,7 +132,7 @@ class CommonController extends Controller
                 $to_time = Carbon::parse($row?->to_time)->format('h:i A');
 
                 $temp['id'] = $row?->id . "";
-                $temp['name'] = $from_time . " To ".$to_time. "";
+                $temp['name'] = $from_time . " To " . $to_time . "";
                 return $temp;
             });
             return $this->sendResponse($data, "Shift list.");
@@ -168,7 +168,7 @@ class CommonController extends Controller
             $data = $data->map(function ($row) {
                 // $temp = $row;
                 $temp['id'] = $row?->id . "";
-                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
                 return $temp;
             });
             return $this->sendResponse($data, "Course list.");
@@ -531,4 +531,8 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
+
+
+    // 🔹 Step 2: Verify OTP API
+  
 }
