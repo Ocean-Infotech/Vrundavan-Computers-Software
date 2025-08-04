@@ -59,17 +59,28 @@ class AdmissionController extends Controller
         */
 
         $modules = $this->modules;
+
         $modules['login_user_role'] = Helper::getLoginUserRole();
+
         $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
         $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
         $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
+        $modules['course-register_add'] = Helper::directCan('course-register-create');
+
+        $modules['fees-collection-create'] = Helper::directCan('fees-collection-create');
+        $modules['fees-collection-edit'] = Helper::directCan('fees-collection-edit');
+
+        // $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+
         if (!$modules['permission_list']) {
             if (isset($request) && $request->ajax()) {
                 return $this->sendError('User does not have the right permissions.', [], [], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
+        // return $modules;
         View::share('modules', $modules);
 
         try {
@@ -135,8 +146,11 @@ class AdmissionController extends Controller
                         return $button . $dropdown;
                     })
 
-                    ->addColumn('course_button', function ($row) {
-                        return '<button class="btn btn-primary btn-sm course-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '">Course</button>';
+                    ->addColumn('course_button', function ($row) use ($modules) {
+                        // if ($modules['course-register_add']) {
+                            return '<button class="btn btn-primary btn-sm course-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '">Course</button>';
+                        // }
+                        return "-";
                     })
 
                     ->addColumn('view_button', function ($row) {
