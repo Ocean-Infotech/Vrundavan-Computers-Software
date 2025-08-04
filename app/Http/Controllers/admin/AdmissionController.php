@@ -323,7 +323,10 @@ class AdmissionController extends Controller
                     ->withErrors('Admission created, but API sync failed: ' . $apiResponse->body());
             }
                     */
-            return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+            if (Helper::directCan('course-register-create')) {
+                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+            }
+            return Redirect::route($modules['route'] . '.index')->with('success', $admission->name . ' has been successfully admitted.');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -423,7 +426,7 @@ class AdmissionController extends Controller
                 }
             }
 
-
+            /*
             if (!$admission?->biometric_id && false) {
                 //     $response = $this?->storeBioMetricEmployee($loginUserId, $admission);
                 //     return $response;
@@ -523,26 +526,36 @@ class AdmissionController extends Controller
                         return Redirect::route($modules['route'] . '.index')
                             ->withErrors('Admission created and synced, but device upload failed: ' . $uploadUserResponse->body());
                     }
-                    return Redirect::route('cource-registration.edit', [
-                        'register_id' => $CourceRegistration->id
-                    ])->withSuccess($modules['title'] . ' updated successfully');
+                    if (Helper::directCan('course-register-edit')) {
+                        return Redirect::route('cource-registration.edit', [ 'register_id' => $CourceRegistration->id])->withSuccess($modules['title'] . ' updated successfully');
+                    }
+                    return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' updated successfully');
                 } else {
                     return Redirect::back()
                         ->withErrors('Admission updated, but API sync failed: ' . $apiResponse->body());
                 }
             }
+                */
+
 
 
             $CourceRegistration = CourceRegistration::where('register_id', $admission_id)->first();
             if (!$CourceRegistration) {
                 Session::put('admission_id', $admission_id);
-                return Redirect::route('cource-registration.create')->with('success', $admission->name . ' has been successfully admitted.');
+                if (Helper::directCan('course-register-create')) {
+                    return Redirect::route('cource-registration.create')->with('success', $admission->name . ' has been successfully admitted.');
+                }
+                return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' updated successfully');
+
                 return Redirect::back()->withErrors('Register id not found on course.');
             }
 
-            return Redirect::route('cource-registration.edit', [
-                'register_id' => $CourceRegistration->id
-            ])->withSuccess($modules['title'] . ' updated successfully');
+            if (Helper::directCan('course-register-edit')) {
+                return Redirect::route('cource-registration.edit', [
+                    'register_id' => $CourceRegistration->id
+                ])->withSuccess($modules['title'] . ' updated successfully');
+            }
+            return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
             return $e->getMessage();
             return Redirect::back()->withErrors($e->getMessage())->withInput();
