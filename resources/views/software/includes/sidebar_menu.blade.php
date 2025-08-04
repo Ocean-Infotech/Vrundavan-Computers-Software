@@ -152,7 +152,7 @@
                 </a>
                 <ul class="menu-sub">
 
-                    @directCan('fees-collection-create')
+                    @directCan('fees-collection-list')
                         <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
                             <a href="{{ route('fees-collection.index') }}" class="menu-link">
                                 <div data-i18n="Fees Collection">Fees Collection</div>
