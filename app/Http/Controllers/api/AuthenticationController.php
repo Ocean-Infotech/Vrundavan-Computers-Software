@@ -35,7 +35,6 @@ class AuthenticationController extends Controller
             // return implode(',', Role::whereNotIn('name', ['developer'])->get()->pluck('id')->toArray());
             $validator = Validator::make($request->all(), [
                 'name' => ['required', 'string', 'max:255'], // Ensures name is a string and max 255 characters
-                'user_type' => ['required', 'in:' . implode(',', Role::whereNotIn('name', ['developer'])->get()->pluck('id')->toArray())], // Ensure it's one of the expected values
                 'phone' => ['required', 'digits:10', 'unique:' . ((new User())->getTable()) . ',phone'], // Must be exactly 10 digits and unique in users table
                 'pincode' => ['required', 'digits:6'], // Ensures pincode is exactly 6 digits
                 'add_pincode' => ['nullable', 'in:true,false'],
@@ -95,10 +94,7 @@ class AuthenticationController extends Controller
                 $adminUserDetail->save();
             }
 
-            // Assign role
-            $role = Role::where('id', $request->user_type)->first();
-            $adminUser->assignRole($role?->name);
-
+            
             if ($request?->add_pincode && !$checkPincodeExist) {
                 $newPincode = [];
                 $newPincode['pincode'] = $request->pincode ?? null;

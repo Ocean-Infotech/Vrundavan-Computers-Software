@@ -13,8 +13,6 @@ Route::any('test', function () {
 
 Route::controller(CommonController::class)->group(function () {
 
-    Route::any('get-personal-details', 'get_personal_details')->name('get-personal-details');
-    Route::post('user_type', 'user_type');
     Route::any('get-country', 'get_country');
     Route::any('get-state', 'get_state')->name('get-state');
     Route::any('get-cities', 'get_cities')->name('get-cities');

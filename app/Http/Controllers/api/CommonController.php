@@ -181,7 +181,15 @@ class CommonController extends Controller
     public function get_course(Request $request)
     {
         try {
-            $data = MasterCourse::where('status', 'active')->orderBy('course_name', 'ASC')->get();
+            $data = MasterCourse::query();
+            if ($request?->filter_by_status) {
+                if ($request?->filter_by_status != "all") {
+                    $data = $data->where('status', trim($request?->filter_by_status));
+                }
+            } else {
+                $data = $data->where('status', 'active');
+            }
+            $data = $data->orderBy('course_name', 'ASC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
@@ -307,39 +315,6 @@ class CommonController extends Controller
             return $this->sendError($e->getMessage());
         }
         return $this->sendError("Something want to wrong in register API");
-    }
-    /**
-     * @OA\Post(
-     *     path="/user_type",
-     *     operationId="user_type",
-     *     tags={"Open Source"},
-     *     description="User Type Endpoint",
-     *     @OA\Response(response=200, description="get user type Successfully"),
-     * )
-     */
-    public function user_type(Request $request)
-    {
-        try {
-            /*
-            $roels = Role::query();
-            // $roels = $roels->select('id','name');
-            $roels = $roels->whereNotIn('name', ['developer', 'super-admin']);
-            $roels = $roels->get();
-            */
-
-            $roels = Helper::getApplicationUserRoles();
-            $roels = $roels->map(function ($role) {
-                // $team = $role;
-                $team['id'] = $role?->id . '';
-                $team['name'] = $role?->name . '';
-                return $team;
-            });
-
-            return $this->sendResponse($roels, 'User type.');
-        } catch (\Exception $e) {
-            return $e->getMessage();
-            return $this->sendError($e->getMessage(), [], [], 201);
-        }
     }
 
 
@@ -531,30 +506,4 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
-    public function get_personal_details(Request $request)
-{
-    $user = Auth::user();
-dd($user);
-    if (!$user) {
-        return $this->sendError("Unauthorization", [], [], 401);
-    }
-
-
-
-    try {
-
-
-        $responseData = [
-            'admission_id'      => $user->id,
-            'mobile_no'         => $user->mobile_no,
-            'aadhar_card_no'    => $user->aadhar_card_no,
-            'email_address'     => $user->email_address,
-            'temporary_address' => $user->temporary_address,
-        ];
-
-        return $this->sendResponse($responseData, 'Personal details updated successfully.');
-    } catch (\Exception $e) {
-        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
-    }
-}
 }
