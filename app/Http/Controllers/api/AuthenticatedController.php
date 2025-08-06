@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Admission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AuthenticatedController extends Controller
 {
@@ -79,5 +81,69 @@ class AuthenticatedController extends Controller
             return (object)[$e->getMessage()];
         }
         return (object)[];
+    }
+
+
+    public function student_update_profile(Request $request)
+    {
+        try {
+            $loginUser = Auth::user();
+            if (!$loginUser) {
+                return $this->sendError("Unauthorization", [], [], 401);
+            }
+
+            $validator =  Validator::make($request->all(), [
+                'email_address' => [
+                    'required',
+                    'email',
+                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+                ],
+                'mobile_no' => [
+                    'required',
+                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                    Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUser->id),
+                ],
+                'other_mobile_no' => [
+                    'required',
+                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+                ],
+                'aadhar_card_no' => [
+                    'required',
+                    'regex:/^[2-9]{1}[0-9]{11}$/',
+                    'string',
+                    Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUser->id),
+                ],
+                'temporary_address' => [
+                    'required',
+                    'string',
+                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+                ],
+                'permanent_address' => [
+                    'required',
+                    'string',
+                ],
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+            }
+
+            $responseData = [];
+            $updateParams = $request->all();
+            $updateTeamPerson = Admission::where('id', $loginUser?->id)->first();
+
+            // return $updateParams;
+            $updateTeamPerson->update($updateParams);
+
+            $newRequest = new Request();
+            $newRequest['admission_id'] = $loginUser?->id;
+            $login_profile = (array)self::student_profile_response($newRequest);
+
+            return $this->sendResponse($login_profile, "Update student profile successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something want to wrong.");
     }
 }

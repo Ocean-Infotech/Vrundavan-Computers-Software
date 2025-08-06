@@ -37,6 +37,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
     /** All Student API store in this prefix */
     Route::prefix('student')->group(function () {
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
+        Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
     });
 
     Route::controller(UserController::class)->group(function () {
