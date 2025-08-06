@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\admin\AdmissionController;
+use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
 use App\Http\Controllers\api\UserController;
@@ -30,26 +30,23 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
 });
 
-Route::controller(AuthenticationController::class)->group(function () {
-    Route::post('login', 'login');
-    Route::post('verify-otp', 'verifyOtp');
-
-    // Route::post('register', 'register');
-    // Route::post('profile', 'profile');
-});
+Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
+Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
 
 
-/** */
-Route::middleware('auth:api')->post('/get-personal-details', [CommonController::class, 'get_personal_details']);
+Route::group(['middleware' => ['auth:student-api']], function () {
 
-Route::group(['middleware' => ['auth:api']], function () {
+    /** All Student API store in this prefix */
+    Route::prefix('student')->group(function () {
+        Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
+    });
+
     Route::controller(UserController::class)->group(function () {
         Route::post('get-profile', 'getProfile');
         Route::post('update-profile', 'updateProfile');
         Route::post('withdraw-request', 'withdrawRequest');
         Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
         Route::post('withdraw-history', 'withdrawHistory');
-
     });
 
     Route::controller(CommonController::class)->group(function () {

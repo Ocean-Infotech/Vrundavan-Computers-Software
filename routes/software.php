@@ -66,7 +66,8 @@ Route::resource('permissions', PermissionController::class);
 // routes/web.php or routes/api.php
 
 // Resource routes for Admission
-Route::resource('admission', AdmissionController::class);
+// Route::resource('admission', AdmissionController::class);
+Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
 Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
@@ -84,7 +85,7 @@ Route::get('admission-aadhar-card-no-to-data', [AdmissionController::class, 'aad
 
 Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
 Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
-Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
+Route::get('admission-course', [AdmissionController::class, 'course'])->name('admission.course');
 
 Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
 Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
@@ -149,7 +150,7 @@ Route::resource('documents', DocumentController::class);
 
 // Cource Registration
 
-Route::resource('cource-registration', CourceRegistrationController::class);
+Route::resource('cource-registration', CourceRegistrationController::class)->except(['create', 'edit']);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
