@@ -71,25 +71,25 @@ class AdmissionRequest extends FormRequest
             'mobile_no' => [
                 'required',
                 'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($$id),
+                Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($id),
             ],
 
             'parent_mobile_no' => [
                 'nullable',
                 'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'parent_mobile_no')->ignore($$id),
+                Rule::unique((new Admission())->getTable(), 'parent_mobile_no')->ignore($id),
             ],
 
             'other_mobile_no' => [
                 'nullable',
                 'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($$id),
+                Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($id),
             ],
 
             'whatsapp_no' => [
                 'nullable',
                 'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'whatsapp_no')->ignore($$id),
+                Rule::unique((new Admission())->getTable(), 'whatsapp_no')->ignore($id),
             ],
 
             'cast' => [

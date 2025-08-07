@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\ApiStudentController;
 use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
@@ -38,11 +39,10 @@ Route::group(['middleware' => ['auth:student-api']], function () {
     Route::prefix('student')->group(function () {
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
+        Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::post('get-profile', 'getProfile');
-        Route::post('update-profile', 'updateProfile');
         Route::post('withdraw-request', 'withdrawRequest');
         Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
         Route::post('withdraw-history', 'withdrawHistory');
