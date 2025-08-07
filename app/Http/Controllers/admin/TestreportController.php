@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Test;
 use Illuminate\Http\Request;
@@ -22,24 +23,29 @@ class TestreportController extends Controller
             'folder_path' => 'software.module.test_report',
             'route' => 'test_report',
             'table_name' => (new Test())->getTable(),
-            'permisstion_prefix' => 'Test Report',
+            'permission_prefix' => 'test_report',
         ];
 
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-list', ['only' => ['index','show']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-delete', ['only' => ['destroy']]);
     }
-
-
-
-
-
-
 
     public function index(Request $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         // Columns for datatable
@@ -91,20 +97,20 @@ class TestreportController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
-                $searchValue = $request->search['value'] ?? null;
-                $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
+                    $searchValue = $request->search['value'] ?? null;
+                    $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
 
-                if (!$hasRequiredFilters && empty($searchValue)) {
+                    if (!$hasRequiredFilters && empty($searchValue)) {
                         $query->whereRaw('0=1');
                         return;
                     }
 
-                if (!empty($searchValue)) {
-                    $query->where(function ($q) use ($searchValue) {
-                        $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
-                            ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
-                            ->orWhere('test.marks', 'like', "%{$searchValue}%")
-                            ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
+                    if (!empty($searchValue)) {
+                        $query->where(function ($q) use ($searchValue) {
+                            $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
+                                ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
+                                ->orWhere('test.marks', 'like', "%{$searchValue}%")
+                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
                         });
                     }
 
@@ -123,7 +129,7 @@ class TestreportController extends Controller
                     if ($request->filled('date')) {
                         $query->whereDate('test.date', $request->date);
                     }
-            })
+                })
                 ->editColumn('cr_date', function ($row) {
                     return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';
                 })
@@ -133,7 +139,7 @@ class TestreportController extends Controller
                 ->addColumn('input', function ($row) {
                     $value = htmlspecialchars($row->student_mark ?? '', ENT_QUOTES, 'UTF-8');
                     $max = htmlspecialchars($row->marks ?? '', ENT_QUOTES, 'UTF-8');
-                $registerId = htmlspecialchars($row->register_id ?? '', ENT_QUOTES, 'UTF-8');
+                    $registerId = htmlspecialchars($row->register_id ?? '', ENT_QUOTES, 'UTF-8');
                     return '<input
                         type="text"
                         name="marks' . ($row->student_mark_id ?? $row->id) . '"
@@ -154,12 +160,6 @@ class TestreportController extends Controller
         return view($modules['folder_path'] . '.index');
     }
 
-
-
-
-
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -173,6 +173,16 @@ class TestreportController extends Controller
      */
     public function store(Request $request)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+
         $request->validate([
             'test_id' => 'required|integer|exists:test,id',
             'register_id' => 'required|integer|exists:cource_registration,register_id',

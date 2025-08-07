@@ -53,7 +53,6 @@ class UserController extends Controller
             // $responseData['status'] = $userDetail?->status.'';
             // $responseData['referral_code'] = $userDetail?->referral_code.'';
             // $responseData['registered_at'] = $userDetail?->created_at.'';
-            // $responseData['user_type'] = $userDetail?->roles->first()?->name;
 
             $newRequest = new Request();
             $newRequest['id'] = $loginUser?->id;
@@ -91,8 +90,6 @@ class UserController extends Controller
             $responseData['status'] = $userDetail?->status . '';
             $responseData['referral_code'] = $userDetail?->referral_code . '';
             $responseData['registered_at'] = $userDetail?->created_at . '';
-            $responseData['user_type'] = $userDetail?->roles->first()?->id . "";
-            $responseData['user_type_name'] = $userDetail?->roles->first()?->name;
             $responseData['user_id'] = "";
             $responseData['applied_referral_code'] = "";
             $responseData['gender'] = "";
@@ -185,7 +182,6 @@ class UserController extends Controller
                     'max:255'
                 ], // Ensures name is a string and max 255 characters
                 'upi' => ['required', 'string', 'max:255'], // Ensures name is a string and max 255 characters
-                // 'user_type' => ['required', 'in:' . implode(',', Role::whereNotIn('name', ['developer'])->get()->pluck('id')->toArray())], // Ensure it's one of the expected values
                 'email' => ['required', 'email', 'unique:' . ((new User())->getTable()) . ',email,' . $loginUser?->id], // Must be exactly 10 digits and unique in users table
                 'phone' => ['required', 'digits:10', 'unique:' . ((new User())->getTable()) . ',phone,' . $loginUser?->id], // Must be exactly 10 digits and unique in users table
                 'pincode' => ['required', 'digits:6'], // Ensures pincode is exactly 6 digits

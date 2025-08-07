@@ -1,19 +1,25 @@
 |-------------------------------------------- Local
 
+php artisan migrate:refresh --path=database/migrations/2025_05_15_100531_create_attedance_table.php
 
-|-------------------------------------------- On Development
+
+ALTER TABLE `attedance` CHANGE `biometric_id` `biometric_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL AFTER `admission_id`
+
+ALTER TABLE `attedance` ADD `DeviceKey` TEXT NULL DEFAULT NULL AFTER `leave`, ADD `DeviceName` TEXT NULL DEFAULT NULL AFTER `DeviceKey`, ADD `UserId` TEXT NULL DEFAULT NULL AFTER `DeviceName`, ADD `EmpCode` TEXT NULL DEFAULT NULL AFTER `UserId`, ADD `UserName` VARCHAR(255) NULL DEFAULT NULL AFTER `EmpCode`, ADD `IOTime` DATETIME NULL DEFAULT NULL AFTER `UserName`, ADD `IOMode` TEXT NULL DEFAULT NULL AFTER `IOTime`, ADD `VerifyMode` TEXT NULL DEFAULT NULL AFTER `IOMode`, ADD `WorkCode` TEXT NULL DEFAULT NULL AFTER `VerifyMode`, ADD `ImagePath` TEXT NULL DEFAULT NULL AFTER `WorkCode`;
 
 
-|-------------------------------------------- Live
+
+ALTER TABLE `cource_registration` CHANGE `admission_id` `admission_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
+ALTER TABLE `attedance` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `batch_id` `batch_id` INT(11) NULL;
+
 ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
 ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
-ALTER TABLE `fees_collections` DROP `register_id`;
-ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
-
+|-------------------------------------------- Live
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
-ALTER TABLE `attedance` ADD `batch_id` INT NULL AFTER `course_id`;
+ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
 
-ALTER TABLE `attedance` CHANGE `leave` `leave` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `fees_collections` DROP `register_id`;

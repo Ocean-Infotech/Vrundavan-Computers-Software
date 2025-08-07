@@ -27,7 +27,8 @@
             'page_title' => $page_title,
             'route' => $route,
             // 'show_add_btn' => $modules['addPermission'],
-            'show_add_btn' => true,
+            'show_add_btn' =>
+                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
             'show_filter_btn' => false,
             'show_back_btn' => false,
         ])

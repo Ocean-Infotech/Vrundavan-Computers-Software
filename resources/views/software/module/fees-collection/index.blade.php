@@ -25,7 +25,8 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' => true,
+            'show_add_btn' =>
+                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
             'show_filter_btn' => false,
             'show_export_btns' => false,
             'show_excal_btn' => false,
@@ -43,11 +44,14 @@
                         <!-- Filter Input -->
                         <div class="col-md-4">
                             <label for="search" class="form-label">Filter by Student</label>
-                            <input list="search" id="search_id" name="search" class="form-control search @error('search') is-invalid @enderror" value="{{ old('search') }}" placeholder="Search">
-                            <datalist id="search" class="search_by_admission" data-append="search_by_admission" data-selectedAdmissionId="{{ old('search') }}">
+                            <input list="search" id="search_id" name="search"
+                                class="form-control search @error('search') is-invalid @enderror"
+                                value="{{ old('search') }}" placeholder="Search">
+                            <datalist id="search" class="search_by_admission" data-append="search_by_admission"
+                                data-selectedAdmissionId="{{ old('search') }}">
                             </datalist>
                         </div>
-                        
+
                         <!-- Clear Filter Button -->
                         <div class="col-md-2">
                             <button type="button" title="Clear Filter" id="cilory_filter"
@@ -65,13 +69,14 @@
                     <div class="table-responsive">
                         <table id="yajra-datatables" class="display table table-hover">
                             @if (isset($columns))
-                            <thead>
-                                <tr>
-                                    @foreach ($columns as $item)
-                                        <th class="{{ $item?->className ?? '' }}">{{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
-                                    @endforeach
-                                </tr>
-                            </thead>
+                                <thead>
+                                    <tr>
+                                        @foreach ($columns as $item)
+                                            <th class="{{ $item?->className ?? '' }}">
+                                                {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
                             @endif
                         </table>
                     </div>
@@ -138,7 +143,7 @@
                         page: 'current'
                     }).data();
                     let search_id = $('#search_id').val();
-                   
+
                     if (data.length === 0 && (!search_id)) {
                         $('#yajra-datatables tbody').html(`
                             <tr class="odd">
@@ -158,7 +163,7 @@
         $('input[name="search"]').keyup(function() {
             // $('#feescollectionlist').show();
             dtable.draw();
-            
+
         });
         jQuery(document).on('change', 'select', function(event) {
             event.preventDefault();
@@ -177,4 +182,3 @@
     @include('software.includes.script-restore-record')
     @include('software.includes.script-update-status')
 @endsection
-

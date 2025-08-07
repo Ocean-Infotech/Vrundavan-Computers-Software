@@ -7,10 +7,21 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class Helper
 {
+    static function directCan($permission)
+    {
+        return Auth::check() && Auth::user()->permissions->pluck('name')->contains($permission);
+    }
+
+    static function directCanAny(array $permissions)
+    {
+        return Auth::check() && Auth::user()->permissions->whereIn('name', $permissions)->isNotEmpty();
+    }
+
     static function randomToken()
     {
         return sha1(md5(time()) . time() . rand());
@@ -47,11 +58,25 @@ class Helper
 
     static function getAfterAuthRole()
     {
-        $login_user_role = Auth::user()->getRoleNames()->first();
         $roles = new Role();
-        if ($login_user_role != "developer") {
-            $roles = $roles->whereNotIn("name", ["developer"]);
+
+        $whereNotIn = ["developer"];
+        if (strtolower(self::getLoginUserRole()) == "developer") {
+            $whereNotIn = [];
+        } else if (strtolower(self::getLoginUserRole()) == "super-admin") {
+            $whereNotIn[] = "super-admin";
+        } else {
+            $permissionToiRoles = Permission::where('name', 'system-user-list')->first()?->roles;
+            if (count($permissionToiRoles)) {
+                $whereNotIn = array_merge($whereNotIn, $permissionToiRoles->pluck('name')->toArray());
+                $whereNotIn = array_unique($whereNotIn);
+            }
         }
+
+        if (count($whereNotIn) > 0) {
+            $roles = $roles->whereNotIn(DB::raw('LOWER(name)'),  $whereNotIn);
+        }
+        // dd($roles->get()->toArray(), strtolower(self::getLoginUserRole()));
         return $roles = $roles->get();
     }
 
@@ -72,21 +97,23 @@ class Helper
         return ucfirst($login_user_role);
     }
 
-    static function getRolesBasedOnLoginRole(){
+    static function getRolesBasedOnLoginRole()
+    {
 
         $login_user_role = Auth::user()->getRoleNames()->first();
         $roles = new Role();
         if ($login_user_role == "developer") {
             // $roles = $roles->whereNotIn("name", ["developer"]);
-        }else if ($login_user_role == "super-admin") {
+        } else if ($login_user_role == "super-admin") {
             $roles = $roles->whereNotIn("name", ["developer", $login_user_role]);
-        }else{
+        } else {
             $roles = $roles->whereIn("name", ["other"]);
         }
         return $roles = $roles->get();
     }
 
-    static function getApplicationUserRoles(){
+    static function getApplicationUserRoles()
+    {
         $roles = new Role();
         $roles = $roles->whereIn('name', ["Mechanics", "Other"]);
         return $roles = $roles->get();
@@ -114,6 +141,15 @@ class Helper
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return $randomString;
+    }
+
+    static function generateNumericOTP($length = 4)
+    {
+        $otp = '';
+        for ($i = 0; $i < $length; $i++) {
+            $otp .= random_int(0, 9);
+        }
+        return $otp;
     }
 
     /** Existing image convert to webp */
@@ -205,15 +241,16 @@ class Helper
     }
 
     /** Calculation Request to Point to Rupees */
-    static function calculationPoint2Rupees($available_points){
+    static function calculationPoint2Rupees($available_points)
+    {
         try {
             $pointToRupeesConvert = Setting::where('key', 'point-to-rupees')->first();
             $available_points = (int)$available_points;
             $calculation_of_point_2_rupees = 0;
-            if($pointToRupeesConvert){
+            if ($pointToRupeesConvert) {
                 $point = $pointToRupeesConvert?->value?->point ? (int)$pointToRupeesConvert?->value?->point : 0;
                 $rupees = $pointToRupeesConvert?->value?->rupees ? (int)$pointToRupeesConvert?->value?->rupees : 0;
-                if($point && $rupees && $available_points){
+                if ($point && $rupees && $available_points) {
                     $calculation_of_point_2_rupees = ($available_points * $rupees) /  $point;
                 }
             }

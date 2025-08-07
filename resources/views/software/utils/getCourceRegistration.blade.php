@@ -26,14 +26,17 @@
                         $.each(response.data, function(i, item) {
                             if (courceregistration_id == item.id) {
                                 options += "<option value='" + item.id +
-                                    "' selected >" + item.name + "</option>";
+                                    "' selected >" +
+                                    item.name +" - "+
+                                    item?.course_name + "</option>";
                             } else {
                                 options += "<option value='" + item.id + "'>" +
-                                    item.name + "</option>";
+                                    item.name +" - "+
+                                    item?.course_name + "</option>";
                             }
                         });
                     }
-                    // console.log("getFeesCollection 33",instance.parent());
+                    // console.log("getFeesCollection 33",instance.parent(), instance.attr('data-append'));
                     if (instance.attr('data-append')) {
                         if ($(document).find("." + instance.attr('data-append')).length > 0) {
                             $("." + instance.attr('data-append')).empty();

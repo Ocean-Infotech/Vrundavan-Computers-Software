@@ -7,6 +7,11 @@
     $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
     $route = isset($modules['route']) ? $modules['route'] : null;
     $permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
+    $course_register_add = isset($modules['course-register_add']) && $modules['course-register_add'] ? 'true' : 'false';
+    $fees_collection_create =
+        isset($modules['fees-collection-create']) && $modules['fees-collection-create'] ? 'true' : 'false';
+    $fees_collection_edit =
+        isset($modules['fees-collection-edit']) && $modules['fees-collection-edit'] ? 'true' : 'false';
     $i = 0;
 @endphp
 @section('title', $page_title)
@@ -19,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -156,9 +161,13 @@
                                     <th>Course</th>
                                     <th>DOJ</th>
                                     <th>DOC</th>
-                                    <th>Fees</th>
-                                    <th>Form</th>
-                                    <th>Update</th>
+                                    @if ($fees_collection_create == 'true')
+                                        <th>Fees</th>
+                                    @endif
+                                    {{-- <th>Form</th> --}}
+                                    @if ($fees_collection_edit == 'true')
+                                        <th>Update</th>
+                                    @endif
                                 </tr>
                             </thead>
                             {{-- <tbody id="courseData">
@@ -168,7 +177,7 @@
                                 <th><span id="doc"></span></th>
                                 <th>
 
-                                    <button type="button" class="btn btn-success btn-sm" id="createBtn" data-id="">
+                                    <button type="button" class="btn btn-success btn-sm" id="collectFees" data-id="">
                                         Create
                                     </button>
                                 </th>
@@ -227,6 +236,7 @@
 @section('page_script_file')
     <!-- jQuery (required by DataTables) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <!-- DataTables JS -->
     <script src="{{ asset('admin/assets/cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js') }}"></script>
@@ -234,7 +244,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -256,11 +266,15 @@
                         if (data) {
                             $('#modalID').text(data.id);
                             if (data.date_of_birth) {
+                                /*
                                 let date = new Date(data.date_of_birth);
                                 let day = ('0' + date.getDate()).slice(-2);
                                 let month = ('0' + (date.getMonth() + 1)).slice(-2);
                                 let year = date.getFullYear();
                                 $('#modalDOB').text(`${day} ${month} ${year}`);
+                                */
+
+                                $('#modalDOB').text(moment(data?.date_of_birth).format('DD-MM-YYYY'));
                             } else {
                                 $('#modalDOB').text('-');
                             }
@@ -422,23 +436,38 @@
                             <tr>
                                 <td>${course.id}</td>
                                 <td>${course.course.course_name}</td>
-                                <td>${course.date ?? '-'}</td>
-                                <td>${course.date ?? '-'}</td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-sm createBtn" data-id="${course.id}">Create</button>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
-                                </td>
+                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
+                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>`;
+                                if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
+                                    row += `
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Create</button>
+                                    </td>`;
+                                }
+                                /*
+                                row += `
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
+                                    </td>`;
+                                    */
+                                if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
+                                    row += `
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
-                                </td>
+                                </td>`;
+                                }
+                                row += `
                             </tr>`;
                                 $('#courseData').append(row);
                             });
 
                             $('#course').modal('show');
                         } else {
+                            if ("{{ $course_register_add ?? 'false' }}" == 'true') {
+                                toastr.warning("User does not have the right permissions.");
+                                return;
+                            }
+
                             // No course found, redirect
                             window.location.href =
                                 "{{ url('software/cource-registration/create') }}/" + student.id;
@@ -454,14 +483,6 @@
             });
         });
 
-
-        // $(document).on('click', '.createBtn', function() {
-        //     let courseId = $(this).data('id');
-        //     toastr.success('Create clicked for Course ID: ' + courseId);
-
-        //     window.location.href = '/software/fees-collection/get-details/' + courseId;
-
-        // });
 
 
         // Setup CSRF token for AJAX
@@ -543,7 +564,7 @@
                         $('#yajra-datatables').DataTable().ajax.reload(null, false);
                     },
                     error: function(error) {
-                        console.error("response 470 | Error",error);
+                        console.error("response 470 | Error", error);
                         toastr.error('Error creating Google Drive folder.');
                     },
                     complete: function() {
@@ -553,7 +574,7 @@
             }
         });
 
-        $(document).on('click', '.createBtn', function() {
+        $(document).on('click', '.collectFees', function() {
             let admId = $(this).data('id');
             window.location.href = '/software/fees-collection/get-details/' + admId;
         });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin\master;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Session;
 
 class MasterCourseController extends Controller
 {
+
     use BioMetricTrait;
 
     public $modules = [];
@@ -28,13 +30,13 @@ class MasterCourseController extends Controller
             'folder_path' => 'software.module.master.course',
             'route' => 'course',
             'table_name' => (new MasterCourse())->getTable(),
-            'permisstion_prefix' => 'course',
+            'permission_prefix' => 'course',
         ];
 
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-list', ['only' => ['index','show']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-delete', ['only' => ['destroy']]);
 
         View::share('course_year_type', MasterCourse::course_year_type());
     }
@@ -42,6 +44,17 @@ class MasterCourseController extends Controller
     public function index(Request $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         try {
             $columns = [
@@ -61,10 +74,6 @@ class MasterCourseController extends Controller
                 // dd($request->all());
                 $data = MasterCourse::select('*');
                 $data = $data->withTrashed();
-                // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-                // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -94,14 +103,14 @@ class MasterCourseController extends Controller
                         $status .= $dropdown;
                         return $status;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                    ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
+                            if ($modules['permission_edit']) {
                                 $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                             }
-                            if ($deletePermisstion) {
+                            if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                             }
                         } else {
@@ -127,6 +136,14 @@ class MasterCourseController extends Controller
     public function create()
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
@@ -134,6 +151,14 @@ class MasterCourseController extends Controller
     public function store(MasterCourceRequest $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         $token = Session::get('external_api_token');
@@ -146,6 +171,7 @@ class MasterCourseController extends Controller
             $mastercourse = MasterCourse::create($data);
 
             if ($mastercourse?->biometric_id ==  null) {
+                /*
                 $apiPayload = [
                     'Name' => $mastercourse->course_name,
                 ];
@@ -153,7 +179,7 @@ class MasterCourseController extends Controller
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
                     'Authorization' => 'Bearer ' . $token,
-                ])->post('http://192.168.1.8  8:88/api/Department', $apiPayload);
+                ])->post('http://192.168.1.88:88/api/Department', $apiPayload);
 
                 if ($response->successful()) {
                     $responseData = $response->json();
@@ -167,6 +193,7 @@ class MasterCourseController extends Controller
                     return Redirect::route('software.dashboard')
                         ->withErrors('Biometric API Error: ' . $response->body());
                 }
+                        */
             }
 
             return Redirect::route($modules['route'] . '.index')
@@ -179,9 +206,17 @@ class MasterCourseController extends Controller
 
     public function edit(string $id)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+        View::share('modules', $modules);
         try {
-            $modules = $this->modules;
-            View::share('modules', $modules);
 
             $edit = MasterCourse::findOrFail($id);
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
@@ -193,6 +228,14 @@ class MasterCourseController extends Controller
     public function update(MasterCourceRequest $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -202,32 +245,31 @@ class MasterCourseController extends Controller
             $updateData = MasterCourse::findOrFail($id);
             $updateData->update($validated);
 
-            if ($updateData?->biometric_id != "") {
-                $token = Session::get('external_api_token');
+            // if ($updateData?->biometric_id != "") {
+            //     $token = Session::get('external_api_token');
 
-                $apiResponse = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token
-                ])->post('http://192.168.1.88:88/api/Department', [
-                    "ID" => (int)$updateData->biometric_id,
-                    "Name" => $updateData->course_name
-                ]);
+            //     $apiResponse = Http::withHeaders([
+            //         'Content-Type' => 'application/json',
+            //         'Authorization' => 'Bearer ' . $token
+            //     ])->post('http://192.168.1.88:88/api/Department', [
+            //         "ID" => (int)$updateData->biometric_id,
+            //         "Name" => $updateData->course_name
+            //     ]);
 
-                if ($apiResponse->successful()) {
-                    $responseData = $apiResponse->json();
+            //     if ($apiResponse->successful()) {
+            //         $responseData = $apiResponse->json();
 
-                    if (isset($responseData['Id'])) {
-                        $updateData->update([
-                            'biometric_id' => $responseData['Id']
-                        ]);
-                    } else {
-                        return Redirect::route('software.dashboard')->withErrors('Biometric API did not return a valid ID.');
-                    }
-                } else {
-                    return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
-                }
-            }
-
+            //         if (isset($responseData['Id'])) {
+            //             $updateData->update([
+            //                 'biometric_id' => $responseData['Id']
+            //             ]);
+            //         } else {
+            //             return Redirect::route('software.dashboard')->withErrors('Biometric API did not return a valid ID.');
+            //         }
+            //     } else {
+            //         return Redirect::route('software.dashboard')->withErrors('Biometric API error: ' . $apiResponse->status());
+            //     }
+            // }
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
@@ -277,6 +319,14 @@ class MasterCourseController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_delete']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $isAjax = $request->ajax();
 
         try {

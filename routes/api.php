@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
 use App\Http\Controllers\api\UserController;
@@ -11,13 +12,14 @@ Route::any('test', function () {
 });
 
 Route::controller(CommonController::class)->group(function () {
-    Route::post('user_type', 'user_type');
+
     Route::any('get-country', 'get_country');
     Route::any('get-state', 'get_state')->name('get-state');
     Route::any('get-cities', 'get_cities')->name('get-cities');
     Route::any('check-pincode', 'check_pincode')->name('check-pincode');
 
     Route::any('get-course', 'get_course')->name('get-course');
+    Route::any('get-semester', 'get_semester')->name('get-semester');
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-admission', 'get_admission')->name('get-admission');
     Route::any('get-class', 'get_class')->name('get-class');
@@ -26,14 +28,18 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
 });
 
-Route::controller(AuthenticationController::class)->group(function () {
-    Route::post('register', 'register');
-    Route::post('login', 'login');
-    // Route::post('profile', 'profile');
-});
+Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
+Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
 
-/** */
-Route::group(['middleware' => ['auth:api']], function () {
+
+Route::group(['middleware' => ['auth:student-api']], function () {
+
+    /** All Student API store in this prefix */
+    Route::prefix('student')->group(function () {
+        Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
+        Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
+    });
+
     Route::controller(UserController::class)->group(function () {
         Route::post('get-profile', 'getProfile');
         Route::post('update-profile', 'updateProfile');

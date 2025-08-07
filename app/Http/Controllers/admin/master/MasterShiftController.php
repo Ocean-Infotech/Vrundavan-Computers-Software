@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin\master;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Master\MasterShift;
 use Illuminate\Http\Request;
@@ -23,18 +24,29 @@ class MasterShiftController extends Controller
             'folder_path' => 'software.module.master.shift',
             'route' => 'shift',
             'table_name' => (new MasterShift())->getTable(),
-            'permisstion_prefix' => 'shift',
+            'permission_prefix' => 'shift',
         ];
 
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-list', ['only' => ['index','show']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         try {
             $columns = [
@@ -57,17 +69,17 @@ class MasterShiftController extends Controller
                 $data = $data->with(['batch', 'course', 'class']);
                 // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
                 // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
+                $editPermisstion = $modules['permission_edit'];
+                $deletePermisstion = $modules['permission_delete'];
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
-                        $query->where('batch_id', 'like', "%" . $request->search . "%");
-                        $query->orWhere('from_time', 'like', "%" . $request->search . "%");
-                    }
-                })
+                            $query->where('batch_id', 'like', "%" . $request->search . "%");
+                            $query->orWhere('from_time', 'like', "%" . $request->search . "%");
+                        }
+                    })
 
                     ->editColumn('from_time', function ($row) {
                         return \Carbon\Carbon::parse($row->from_time)->format('h:i A');
@@ -80,21 +92,21 @@ class MasterShiftController extends Controller
                         $dropdown = "";
                         $dropdown .= '<ul class="dropdown-menu" style="">';
 
-                    if ($row->status == "active") {
-                        $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-                        // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                    } elseif ($row->status == "inactive") {
-                        $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-                        // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                    } else {
+                        if ($row->status == "active") {
+                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
+                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+                        } elseif ($row->status == "inactive") {
+                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
+                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
+                        } else {
+                            return $status;
+                        }
+                        $dropdown .= '</ul>';
+                        $status .= $dropdown;
                         return $status;
-                    }
-                    $dropdown .= '</ul>';
-                    $status .= $dropdown;
-                    return $status;
-                })
+                    })
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
                         if (!$row?->deleted_at) {
@@ -113,8 +125,8 @@ class MasterShiftController extends Controller
                             $btn = '-';
                         }
 
-                    return $btn;
-                })
+                        return $btn;
+                    })
                     ->rawColumns(['status', 'action'])
                     ->make(true);
                 return $returnData;
@@ -128,6 +140,13 @@ class MasterShiftController extends Controller
     public function create()
     {
         $modules = $this->modules;
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
@@ -135,6 +154,13 @@ class MasterShiftController extends Controller
     public function store(MasterShiftRequest $request)
     {
         $modules = $this->modules;
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         $validated = $request->validated();
@@ -287,9 +313,16 @@ class MasterShiftController extends Controller
 
     public function edit(string $id)
     {
+        $modules = $this->modules;
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+        View::share('modules', $modules);
         try {
-            $modules = $this->modules;
-            View::share('modules', $modules);
 
             $edit = MasterShift::findOrFail($id);
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
@@ -301,6 +334,13 @@ class MasterShiftController extends Controller
     public function update(MasterShiftRequest $request, string $id)
     {
         $modules = $this->modules;
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         // return $request->all();
         $request['id'] = $id;
 
@@ -326,6 +366,13 @@ class MasterShiftController extends Controller
         $isAjax = ($request->ajax()) ? true : false;
 
         $modules = $this->modules;
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
             'update_status' => ['required', 'in:active,inactive']
@@ -362,6 +409,13 @@ class MasterShiftController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_delete']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $isAjax = $request->ajax();
 
         try {

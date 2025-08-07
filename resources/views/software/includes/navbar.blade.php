@@ -1,8 +1,10 @@
 @php
-$sidebar_active = Route::current()->getName();
-$expand = explode('.', $sidebar_active);
-$sidebar_active = count($expand) > 0 ? $expand[0] : '';
-$loginUser = Auth::user();
+    $sidebar_active = Route::current()->getName();
+    $expand = explode('.', $sidebar_active);
+    $sidebar_active = count($expand) > 0 ? $expand[0] : '';
+    $loginUser = Auth::user();
+    $navBarProfilePhoto = asset('admin/assets/images/favicon/favicon.ico');
+    $navBarProfilePhoto = asset('admin/assets/img/default/profile.png');
 @endphp
 <nav class="layout-navbar container-fuild navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
     id="layout-navbar">
@@ -29,7 +31,7 @@ $loginUser = Auth::user();
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{ \App\Helpers\Helper::get_login_user_profile_img() ?? asset('admin/assets/images/users/user-dummy-img.jpg') }}" alt class="h-auto rounded-circle" />
+                        <img src="{{ $navBarProfilePhoto }}" alt class="h-auto rounded-circle" />
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -38,12 +40,13 @@ $loginUser = Auth::user();
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="{{ \App\Helpers\Helper::get_login_user_profile_img() ?? asset('admin/assets/images/users/user-dummy-img.jpg') }}" alt class="h-auto rounded-circle" />
+                                        <img src="{{ $navBarProfilePhoto }}" alt class="h-auto rounded-circle" />
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
                                     <span class="fw-medium d-block">{{ $loginUser?->name ?? '' }}</span>
-                                    <small class="text-muted">{{ \App\Helpers\Helper::getLoginUserRole() ?? '' }}</small>
+                                    <small
+                                        class="text-muted">{{ \App\Helpers\Helper::getLoginUserRole() ?? '' }}</small>
                                 </div>
                             </div>
                         </a>

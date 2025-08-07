@@ -41,6 +41,7 @@ class PermissionController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
+                (object)[ 'data' => "id", 'name' => 'id' ],
                 (object)[ 'data' => "group", 'name' => 'group' ],
                 (object)[ 'data' => "name", 'name' => 'name' ],
                 (object)[ 'data' => "action", 'name' => 'action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center' ],

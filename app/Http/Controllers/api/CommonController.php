@@ -15,6 +15,7 @@ use App\Models\Master\MasterClass;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,15 +33,25 @@ class CommonController extends Controller
         try {
             $data = DB::table('cource_registration as cr')
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
+                ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
                 ->where('cr.status', 'active')
                 ->orderBy('cr.id', 'DESC')
-                ->select('cr.id', 'a.first_name', 'a.father_name', 'a.last_name')
+                ->select(
+                    'cr.id as course_reg_id',
+                    'a.id as admission_id',
+                    'a.first_name',
+                    'a.father_name',
+                    'a.last_name',
+                    'mc.course_name',
+                )
                 ->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-                $temp['id'] = $row?->id . "";
-                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                $temp['id'] = $row?->course_reg_id . "";
+                // $temp['course_reg_id'] = $row?->course_reg_id . "";
+                $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
+                $temp['course_name'] = $row?->course_name;
                 return $temp;
             });
             return $this->sendResponse($data, "Course list.");
@@ -62,28 +73,27 @@ class CommonController extends Controller
         try {
 
             $shift = MasterShift::select('class_id', DB::raw('COUNT(*) as total'))
-                    ->where('status', 'active')
-                    ->where('batch_id', $request?->batch_id)
-                    ->groupBy('class_id')
-                    ->orderBy('class_id', 'ASC')
-                    ->get();
+                ->where('status', 'active')
+                ->where('batch_id', $request?->batch_id)
+                ->groupBy('class_id')
+                ->orderBy('class_id', 'ASC')
+                ->get();
 
             $classIds = $shift->pluck('class_id')->toArray();
 
             $classes = MasterClass::where('status', 'active')
-            ->whereIn('id', $classIds)
-            ->orderBy('class', 'ASC')
-            ->get()
-            ->keyBy('id');
+                ->whereIn('id', $classIds)
+                ->orderBy('class', 'ASC')
+                ->get()
+                ->keyBy('id');
 
             $data = $shift->map(function ($row) use ($classes) {
-                 $class = $classes[$row->class_id] ?? null;
+                $class = $classes[$row->class_id] ?? null;
                 return [
                     'id' => (string) $class?->id,
                     'name' => $class?->class,
                     'total' => $row->total,
                 ];
-
             });
             return $this->sendResponse($data, "Class list.");
         } catch (\Exception $e) {
@@ -122,7 +132,7 @@ class CommonController extends Controller
                 $to_time = Carbon::parse($row?->to_time)->format('h:i A');
 
                 $temp['id'] = $row?->id . "";
-                $temp['name'] = $from_time . " To ".$to_time. "";
+                $temp['name'] = $from_time . " To " . $to_time . "";
                 return $temp;
             });
             return $this->sendResponse($data, "Shift list.");
@@ -158,7 +168,7 @@ class CommonController extends Controller
             $data = $data->map(function ($row) {
                 // $temp = $row;
                 $temp['id'] = $row?->id . "";
-                $temp['name'] = $row?->first_name . " ".$row?->father_name. " ".$row?->last_name. "";
+                $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
                 return $temp;
             });
             return $this->sendResponse($data, "Course list.");
@@ -171,7 +181,15 @@ class CommonController extends Controller
     public function get_course(Request $request)
     {
         try {
-            $data = MasterCourse::where('status', 'active')->orderBy('course_name', 'ASC')->get();
+            $data = MasterCourse::query();
+            if ($request?->filter_by_status) {
+                if ($request?->filter_by_status != "all") {
+                    $data = $data->where('status', trim($request?->filter_by_status));
+                }
+            } else {
+                $data = $data->where('status', 'active');
+            }
+            $data = $data->orderBy('course_name', 'ASC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
@@ -187,6 +205,85 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    // public function get_semester(Request $request)
+    // {
+    //     try {
+    //         $validator =  Validator::make($request->all(), [
+    //             'course_id' => [
+    //                 'required',
+    //                 Rule::exists((new MasterCourse())->getTable(), 'id')
+    //             ]
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+    //         }
+
+    //         if (!$request?->course_id) {
+    //             return $this->sendError("Course id is required.");
+    //         }
+    //         $MasterCourse = MasterCourse::where('id', $request?->course_id,)->where('status', 'active')->get();
+    //         $totalsemester = $MasterCourse?->semester;
+
+    //         $data = [];
+
+    //         for ($sem = 1; $sem <= $totalsemester; $sem++) {
+    //             $data[] = [
+    //                 'semester' => $sem
+    //             ];
+    //         }
+    //         // $data = $data->map(function ($row) {
+    //         //     // $temp = $row;
+    //         //     $temp['id'] = $row?->id . "";
+    //         //     $temp['semester'] = $row?->semester . "";
+    //         //     return $temp;
+    //         // });
+
+
+    //         return $this->sendResponse($data, "Batch list.");
+    //     } catch (\Exception $e) {
+    //         return $this->sendError($e->getMessage());
+    //     }
+    //     return $this->sendError("Something want to wrong in register API");
+    // }
+
+    public function get_semester(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'course_id' => [
+                    'required',
+                    Rule::exists((new MasterCourse())->getTable(), 'id')
+                ]
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+            }
+
+            $MasterCourse = MasterCourse::where('id', $request->course_id)
+                ->where('status', 'active')
+                ->first(); // Changed from get() to first()
+
+            if (!$MasterCourse) {
+                return $this->sendError("Course not found or inactive.");
+            }
+
+            $totalsemester = $MasterCourse->semester;
+
+            $data = [];
+            for ($sem = 1; $sem <= $totalsemester; $sem++) {
+                $data[] = [
+                    'semester' => $sem
+                ];
+            }
+
+            return $this->sendResponse($data, "Semester list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendError("Something went wrong in register API");
+    }
 
     public function get_batch(Request $request)
     {
@@ -218,39 +315,6 @@ class CommonController extends Controller
             return $this->sendError($e->getMessage());
         }
         return $this->sendError("Something want to wrong in register API");
-    }
-    /**
-     * @OA\Post(
-     *     path="/user_type",
-     *     operationId="user_type",
-     *     tags={"Open Source"},
-     *     description="User Type Endpoint",
-     *     @OA\Response(response=200, description="get user type Successfully"),
-     * )
-     */
-    public function user_type(Request $request)
-    {
-        try {
-            /*
-            $roels = Role::query();
-            // $roels = $roels->select('id','name');
-            $roels = $roels->whereNotIn('name', ['developer', 'super-admin']);
-            $roels = $roels->get();
-            */
-
-            $roels = Helper::getApplicationUserRoles();
-            $roels = $roels->map(function ($role) {
-                // $team = $role;
-                $team['id'] = $role?->id . '';
-                $team['name'] = $role?->name . '';
-                return $team;
-            });
-
-            return $this->sendResponse($roels, 'User type.');
-        } catch (\Exception $e) {
-            return $e->getMessage();
-            return $this->sendError($e->getMessage(), [], [], 201);
-        }
     }
 
 

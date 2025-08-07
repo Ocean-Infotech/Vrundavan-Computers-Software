@@ -24,8 +24,8 @@
     <div class="d-flex justify-content-lg-between px-1">
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
-            'route' => $route,
-            'show_add_btn' => true,
+            'route' => $route,'show_add_btn' =>
+                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
             'show_filter_btn' => false,
             'show_export_btns' => false,
             'show_excal_btn' => false,
@@ -121,7 +121,7 @@
         });
     </script>
 
-    
+
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
     @include('software.includes.script-update-status')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeesCollectionRequest;
 use App\Models\Admission;
@@ -31,13 +32,13 @@ class FeesCollectionController extends Controller
             'folder_path' => 'software.module.fees-collection',
             'route' => 'fees-collection',
             'table_name' => (new FeesCollection())->getTable(),
-            'permisstion_prefix' => 'fees-collection',
+            'permission_prefix' => 'fees-collection',
         ];
 
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permisstion_prefix'].'-delete', ['only' => ['destroy']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-list', ['only' => ['index','show']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-delete', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -45,19 +46,30 @@ class FeesCollectionController extends Controller
     public function index(Request $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_list']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         try {
             $columns = [
                 (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Id'],
-                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Addmission Id'],
+                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission Id'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student  Name'],
                 (object)['data' => "year_semester", 'name' => 'year_semester', 'td_label' => 'Year / Semester'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => "fees", 'name' => 'fees', 'td_label' => 'Course Fees'],
                 (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+                   // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+                // (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             View::share("columns", $columns);
 
@@ -65,21 +77,23 @@ class FeesCollectionController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = FeesCollection::select('*')->where('student_id', $request->search);
+                $data = FeesCollection::select('*')->where('admission_id', $request?->search);
                 $data = $data->withTrashed();
                 $data = $data->with(['course']);
-                // $editPermisstion = (Auth::user()->can($modules["table_name"].'-edit')) ? true : false;
-                // $deletePermisstion = (Auth::user()->can($modules["table_name"].'-delete')) ? true : false;
-                $editPermisstion = true;
-                $deletePermisstion = true;
-
+                // dd("L-75", $data->get());
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search') && $request->search) {
-                            $query->where('student_id', $request->search);
+                            $query->where('admission_id', $request->search);
                             // $query->orWhere('course_fees', 'like',"%".$request->search."%");
                         }
+                    })
+                    ->editColumn('date', function ($row) use ($modules) {
+                        if ($row?->date) {
+                            return Helper::convert_date($row?->date, "Y-m-d", 'd-m-Y');
+                        }
+                        return "-";
                     })
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
@@ -113,16 +127,19 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
-                    ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
+                    ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($editPermisstion) {
+                            if ($modules['permission_edit']) {
                                 $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                             }
-                            if ($deletePermisstion) {
+                            if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                             }
+                            // if ($modules) {
+                            //     $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1"><i class="fa-solid fa-download"></i></i></a>';
+                            // }
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
@@ -240,7 +257,11 @@ class FeesCollectionController extends Controller
                     $unpaid_semesters[] = [
                         'semester' => $sem,
                         // 'pending_fee' => $pending
+<<<<<<< HEAD
                          'pending_fee' => $pending,
+=======
+                        'pending_fee' => $pending,
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                     ];
                 }
             }
@@ -252,7 +273,11 @@ class FeesCollectionController extends Controller
                 'paid_semesters' => $paid_semesters,
                 'unpaid_semesters' => $unpaid_semesters,
                 // 'course_fee' => $semester_fee,
+<<<<<<< HEAD
                  'course_fee' => $semester_fee,
+=======
+                'course_fee' => $semester_fee,
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -295,6 +320,14 @@ class FeesCollectionController extends Controller
     {
 
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules', 'id'));
     }
@@ -308,6 +341,14 @@ class FeesCollectionController extends Controller
     public function create()
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form', compact('modules'));
     }
@@ -315,10 +356,21 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+<<<<<<< HEAD
 
+=======
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         $validated = $request->validated();
@@ -326,12 +378,12 @@ class FeesCollectionController extends Controller
         try {
             $loginUserId = Auth::user()->id;
             $validated['created_by'] = $loginUserId;
-
+            // return $validated;
             $feesCollection = FeesCollection::create($validated);
 
-
-            return redirect()->route('software.fees-collection.print', $feesCollection->id);
+            return Redirect::route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
+            return Redirect::back()->withErrors($e->getMessage());
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
@@ -350,14 +402,23 @@ class FeesCollectionController extends Controller
      */
     public function edit(string $id)
     {
+        $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+        View::share('modules', $modules);
         try {
-            $modules = $this->modules;
-            View::share('modules', $modules);
 
             $edit = FeesCollection::with(['course', 'admission'])->findOrFail($id);
             $admission_id = $edit->admission_id;
             $getfeescollection = FeesCollection::where('admission_id', $admission_id)->get();
-            //return $edit;
+            // dd($edit->toArray(), $getfeescollection->toArray());
+            // return $edit;
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'getfeescollection'));
         } catch (\Exception $e) {
@@ -371,6 +432,14 @@ class FeesCollectionController extends Controller
     public function update(FeesCollectionRequest $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -398,6 +467,10 @@ class FeesCollectionController extends Controller
 
     public function print($id)
     {
+        $modules = $this->modules;
+        $modules['route'] = 'fees-collection';
+        View::share('modules', $modules);
+
         $feesData = FeesCollection::find($id);
 
         if (!$feesData) {
@@ -421,6 +494,10 @@ class FeesCollectionController extends Controller
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
+<<<<<<< HEAD
         return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'modules'));
+=======
+        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
     }
 }

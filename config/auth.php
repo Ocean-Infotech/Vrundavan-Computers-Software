@@ -45,6 +45,10 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+        'student-api' => [
+            'driver' => 'passport',
+            'provider' => 'student',
+        ],
     ],
 
     /*
@@ -68,6 +72,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+        'student' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admission::class,
         ],
 
         // 'users' => [

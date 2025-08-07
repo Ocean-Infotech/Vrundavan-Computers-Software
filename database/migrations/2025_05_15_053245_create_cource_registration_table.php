@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('register_id');
             $table->string('course_id');
-            $table->string('admission_id');
+            $table->string('batch_id');
+            $table->string('class_id');
+            $table->string('shift_id');
+            $table->string('admission_id')->nullable();
             $table->string('fee');
             $table->date('date');
             $table->text('note');

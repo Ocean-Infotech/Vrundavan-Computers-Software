@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('admission_id');
             $table->string('education');
             $table->string('percentage_cgpa');
-            $table->string('seat_no_nrollment_no');
-            $table->string('board_university');
-            $table->string('passing_year');
-            $table->string('school_name_college_name');
+            $table->string('seat_no_nrollment_no')->nullable();
+            $table->string('board_university')->nullable();
+            $table->string('passing_year')->nullable();
+            $table->string('school_name_college_name')->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

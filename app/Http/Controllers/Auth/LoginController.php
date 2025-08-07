@@ -69,49 +69,16 @@ class LoginController extends Controller
     //     if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
     //         $user = Auth::user();
 
-    //         if(in_array(Helper::getLoginUserRole(), Helper::getApplicationUserRoles()->pluck('name')->toArray())){
+    //         if (in_array(Helper::getLoginUserRole(), Helper::getApplicationUserRoles()->pluck('name')->toArray())) {
     //             Auth::logout(); // Logs out the user
     //             return Redirect::back()->withErrors('Your not admin login user.');
     //         }
     //         // dd("Admin 72", $user->roles->toArray(), Helper::getLoginUserRole(), Helper::getApplicationUserRoles()->pluck('name')->toArray());
-    //         if($user->status == "inactive"){
+    //         if ($user->status == "inactive") {
     //             Auth::logout(); // Logs out the user
     //             return Redirect::back()->withErrors(["Conntact to admin. You are Inactive."]);
     //         }
-
-    //         try {
-    //             $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
-    //                 'Id'          => 0,
-    //                 'Username'    => 'biomax',
-    //                 'Password'    => 'biomax',
-    //                 'OldPassword' => ''
-    //             ]);
-
-    //             if ($apiResponse->successful()) {
-    //                 $responseData = $apiResponse->json();
-
-    //                 // dd($apiResponse->json());
-    //                 if (isset($responseData['Token'])) {
-    //                     $token = $responseData['Token'];
-    //                     Session::put('external_api_token', $token);
-
-    //                     return Redirect::route('software.dashboard')
-    //                         ->with('success', 'Login successful! Token: ' . $token);
-    //                 } else {
-    //                     return Redirect::route('software.dashboard')
-    //                         ->with('success', 'Login successful! No token returned from API.');
-    //                 }
-    //             } else {
-    //                 Auth::logout();
-    //                 return Redirect::back()->withErrors(['External API login failed.']);
-    //             }
-    //         } catch (\Exception $e) {
-    //             Auth::logout();
-    //             return Redirect::back()->withErrors(['API connection error: ' . $e->getMessage()]);
-    //         }
-
-
-    //         // return Redirect::route('software.dashboard')->with('success', 'Login successful!');
+    //         return Redirect::route('software.dashboard')->with('success', 'Login successful!');
     //     }
     //     return Redirect::back()->withErrors(["Invalid credentials"]);
     //     // Custom failed response
@@ -147,14 +114,24 @@ class LoginController extends Controller
             //     return Redirect::route('software.dashboard')
             //         ->with('success', 'Login successful! Token loaded from database.');
             // }
+            return Redirect::route('software.dashboard')->with('success', 'Login successful! No token returned.');
 
             try {
+<<<<<<< HEAD
                 // $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
                 //     'Id'          => 0,
                 //     'Username'    => 'biomax',
                 //     'Password'    => 'biomax',
                 //     'OldPassword' => ''
                 // ]);
+=======
+                $apiResponse = Http::post('http://192.168.31.5:98/api/Auth/Login', [
+                    'Id'          => 0,
+                    'Username'    => 'biomax',
+                    'Password'    => 'biomax',
+                    'OldPassword' => ''
+                ]);
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
 
                 // if ($apiResponse->successful()) {
                 //     $responseData = $apiResponse->json();
@@ -186,11 +163,8 @@ class LoginController extends Controller
                 return Redirect::back()->withErrors(['API connection error: ' . $e->getMessage()]);
             }
         }
-
-        // Failed login
         return Redirect::back()->withErrors(["Invalid credentials"]);
     }
-
 
     public function logout(Request $request)
     {

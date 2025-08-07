@@ -22,11 +22,14 @@ use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
+use App\Http\Controllers\admin\StudentsFeesReportController;
+use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
@@ -63,7 +66,8 @@ Route::resource('permissions', PermissionController::class);
 // routes/web.php or routes/api.php
 
 // Resource routes for Admission
-Route::resource('admission', AdmissionController::class);
+// Route::resource('admission', AdmissionController::class);
+Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
 Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
@@ -82,7 +86,7 @@ Route::get('admission-aadhar-card-no-to-data', [AdmissionController::class, 'aad
 
 Route::get('get-admission-details/{id}', [AdmissionController::class, 'getAdmissionDetails'])->name('get-admission-details');
 Route::get('admission/show', [AdmissionController::class, 'show'])->name('admission.show');
-Route::get('admission/course', [AdmissionController::class, 'course'])->name('admission.course');
+Route::get('admission-course', [AdmissionController::class, 'course'])->name('admission.course');
 
 Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
 Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
@@ -108,11 +112,6 @@ Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
 
-/** Test Modules */
-Route::resource('/test', TestController::class);
-Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
-Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
-Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
@@ -122,6 +121,8 @@ Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceControl
 Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::class, 'student_in'])->name('attedance.student-in');
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
+Route::post('/attedance/fetch-logs', [AttedanceController::class, 'fetchLogs'])->name('attedance.fetch-logs');
+
 
 // Route::match(['get', 'post'], 'attedance-rollNoIn', [AttedanceController::class, 'rollNoIn'])->name('attedance.rollNoIn');
 
@@ -150,7 +151,7 @@ Route::resource('documents', DocumentController::class);
 
 // Cource Registration
 
-Route::resource('cource-registration', CourceRegistrationController::class);
+Route::resource('cource-registration', CourceRegistrationController::class)->except(['create', 'edit']);
 Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistrationController::class, 'restore'])->name('cource-registration.restore');
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
@@ -169,16 +170,25 @@ Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionC
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
+<<<<<<< HEAD
 
 
 // routes/web.php or admin.php (as per your project)
+=======
+>>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
 
+
+// fees collection pending
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
-
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
 
 
+// Students Fees Report
+// Route::post('students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::post('/students-fees-report/export-excel', [StudentsFeesReportController::class, 'exportExcel'])->name('students-fees-report.export-excel');
+Route::get('students-fees-report/print', [StudentsFeesReportController::class, 'printView'])->name('students-fees-report.print');
+Route::resource('students-fees-report', StudentsFeesReportController::class);
 
 //syllabus
 
@@ -191,9 +201,22 @@ Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
 
+/** Test Modules */
+Route::resource('/test', TestController::class);
+Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
+Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
+Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
 
 Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks.store');
+
+
+// Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
+
+
+/** System Login User */
+Route::resource('system-user', SystemUserController::class);
+Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class, 'redemptionItemStatuUpdate'])->name('system-user-status');
