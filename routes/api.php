@@ -41,8 +41,6 @@ Route::group(['middleware' => ['auth:student-api']], function () {
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::post('get-profile', 'getProfile');
-        Route::post('update-profile', 'updateProfile');
         Route::post('withdraw-request', 'withdrawRequest');
         Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
         Route::post('withdraw-history', 'withdrawHistory');
