@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
         Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
+        Route::post('fee-details', [ApiStudentController::class, 'fee_details']);
     });
 
     Route::controller(UserController::class)->group(function () {

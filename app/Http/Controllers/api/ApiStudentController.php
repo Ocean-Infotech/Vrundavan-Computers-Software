@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,9 +34,9 @@ class ApiStudentController extends Controller
 
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            }else if($courseRegistered?->status != "active"){
+            } else if ($courseRegistered?->status != "active") {
                 return $this->sendError('Academic detail not active.', [], [], 422);
-            }else{
+            } else {
 
                 $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
 
@@ -50,7 +52,52 @@ class ApiStudentController extends Controller
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
             }
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function fee_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
 
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $feeRecords = FeesCollection::with('course')
+                ->where('student_id', $student->id)
+                ->get();
+
+            if ($feeRecords->isEmpty()) {
+                return $this->sendError('No fee records found.', [], [], 404);
+            }
+
+            $courseFees = $feeRecords->first()->course->course_fees;
+
+            $paidFees = $feeRecords->where('status', true)->sum('fees');
+
+            $pendingFees = $courseFees - $paidFees;
+
+            $feesDetails = $feeRecords->map(function ($fee) {
+                return [
+                    'course'     => $fee->course->course_name,
+                    'semester'   => 'Semester ' . $fee->year_semester,
+                    'receipt_no' => $fee->id,
+                    'amount'     => $fee->fees,
+                    'date'       => $fee->date ? \Carbon\Carbon::parse($fee->date)->format('Y-m-d') : null,
+                    'status'     => 'Paid',
+                ];
+            });
+
+            $data = [
+                'total'   => $courseFees,
+                'paid'    => $paidFees,
+                'pending' => $pendingFees,
+                'details' => $feesDetails,
+            ];
+
+            return $this->sendResponse($data, 'Fee details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

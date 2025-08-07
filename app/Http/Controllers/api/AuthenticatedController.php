@@ -118,7 +118,7 @@ class AuthenticatedController extends Controller
                 'temporary_address' => [
                     'required',
                     'string',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+                    // Rule::unique((new Admission())->getTable(),'temporary_address')->ignore($loginUser->id),
                 ],
                 'permanent_address' => [
                     'required',
