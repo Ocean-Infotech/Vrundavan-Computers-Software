@@ -179,7 +179,7 @@ class CourceRegistrationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($admission_id)
     {
         $modules = $this->modules;
         $modules['login_user_role'] = Helper::getLoginUserRole();
@@ -192,12 +192,15 @@ class CourceRegistrationController extends Controller
         }
         View::share('modules', $modules);
 
+
+        View::share('admission_id', $admission_id);
+
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
         if (Session::get('admission_id')) {
             View::share('admission_id', Session::get('admission_id'));
             // Session::remove('admission_id');
         }
-        // dd(request()->all(), Session::get('admission_id'), $admissions);
+        // dd($modules, request()->all(), Session::get('admission_id'), $admissions,$admission_id);
         return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 

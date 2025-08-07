@@ -60,7 +60,7 @@
 
                                     <input list="registers_id" id="register_id" name="register_id"
                                         class="form-control @error('register_id') is-invalid @enderror"
-                                        value="{{ old('register_id', '' . ($edit->register_id ?? ($student->id ?? ''))) }}"
+                                        value="{{ old('register_id', '' . ($edit->register_id ?? ($student->id ?? ($admission_id ?? '')))) }}"
                                         placeholder="Register No. ">
 
 

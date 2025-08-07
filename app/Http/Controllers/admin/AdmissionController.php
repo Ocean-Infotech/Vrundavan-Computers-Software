@@ -555,9 +555,10 @@ class AdmissionController extends Controller
 
             $CourceRegistration = CourceRegistration::where('register_id', $admission_id)->first();
             if (!$CourceRegistration) {
+
                 Session::put('admission_id', $admission_id);
                 if (Helper::directCan('course-register-create')) {
-                    return Redirect::route('cource-registration.create')->with('success', $admission->name . ' has been successfully admitted.');
+                    return Redirect::route('cource-registration.create', [$admission_id])->with('success', $admission->name . ' has been successfully admitted.');
                 }
                 return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' updated successfully');
 
