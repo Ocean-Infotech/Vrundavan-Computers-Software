@@ -87,6 +87,7 @@ class AuthenticatedController extends Controller
     public function student_update_profile(Request $request)
     {
         try {
+            // dd('hello');
             $loginUser = Auth::user();
             if (!$loginUser) {
                 return $this->sendError("Unauthorization", [], [], 401);

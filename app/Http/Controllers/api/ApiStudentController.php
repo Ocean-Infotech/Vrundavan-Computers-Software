@@ -39,10 +39,6 @@ class ApiStudentController extends Controller
                 $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
 
                 $data = [
-                    // 'first_name'     => $student->first_name ?? '',
-                    // 'father_name'    => $student->father_name ?? '',
-                    // 'last_name'      => $student->last_name ?? '',
-                    // 'full_name'      => trim(($student->first_name ?? '') . ' ' . ($student->father_name ?? '') . ' ' . ($student->last_name ?? '')),
                     'university'     => 'Vrundavan Computers',
                     'department'     => 'C.S. & I.T',
                     'course'         => $course->course_name ?? '',
