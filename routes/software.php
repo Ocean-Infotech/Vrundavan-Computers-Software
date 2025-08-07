@@ -170,12 +170,9 @@ Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionC
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
-<<<<<<< HEAD
 
 
 // routes/web.php or admin.php (as per your project)
-=======
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
 
 
 // fees collection pending

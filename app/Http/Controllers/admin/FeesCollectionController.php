@@ -256,12 +256,7 @@ class FeesCollectionController extends Controller
                 } else {
                     $unpaid_semesters[] = [
                         'semester' => $sem,
-                        // 'pending_fee' => $pending
-<<<<<<< HEAD
-                         'pending_fee' => $pending,
-=======
                         'pending_fee' => $pending,
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                     ];
                 }
             }
@@ -272,12 +267,7 @@ class FeesCollectionController extends Controller
                 'fees_collection' => $feesCollections,
                 'paid_semesters' => $paid_semesters,
                 'unpaid_semesters' => $unpaid_semesters,
-                // 'course_fee' => $semester_fee,
-<<<<<<< HEAD
-                 'course_fee' => $semester_fee,
-=======
                 'course_fee' => $semester_fee,
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
             ]);
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
@@ -356,10 +346,6 @@ class FeesCollectionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-<<<<<<< HEAD
-
-=======
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
     public function store(FeesCollectionRequest $request)
     {
         $modules = $this->modules;
@@ -494,10 +480,6 @@ class FeesCollectionController extends Controller
         // $totalInWords = $this->$totalFee;
         $feesDetails = $feesDetails ?: [];
 
-<<<<<<< HEAD
-        return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee', 'modules'));
-=======
         return view('software.module.fees-collection.print', compact('feesData', 'feesDetails', 'totalFee'));
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
     }
 }

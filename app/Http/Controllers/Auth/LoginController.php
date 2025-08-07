@@ -117,21 +117,12 @@ class LoginController extends Controller
             return Redirect::route('software.dashboard')->with('success', 'Login successful! No token returned.');
 
             try {
-<<<<<<< HEAD
-                // $apiResponse = Http::post('http://192.168.1.88:88/api/Auth/Login', [
-                //     'Id'          => 0,
-                //     'Username'    => 'biomax',
-                //     'Password'    => 'biomax',
-                //     'OldPassword' => ''
-                // ]);
-=======
                 $apiResponse = Http::post('http://192.168.31.5:98/api/Auth/Login', [
                     'Id'          => 0,
                     'Username'    => 'biomax',
                     'Password'    => 'biomax',
                     'OldPassword' => ''
                 ]);
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
 
                 // if ($apiResponse->successful()) {
                 //     $responseData = $apiResponse->json();

@@ -193,16 +193,11 @@ class CourceRegistrationController extends Controller
         View::share('modules', $modules);
 
         $admissions = Admission::whereIn('status', ['created', 'completed'])->get();
-<<<<<<< HEAD
-
-
-=======
         if (Session::get('admission_id')) {
             View::share('admission_id', Session::get('admission_id'));
             // Session::remove('admission_id');
         }
         // dd(request()->all(), Session::get('admission_id'), $admissions);
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
         return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
 
