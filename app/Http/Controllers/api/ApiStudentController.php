@@ -84,7 +84,7 @@ class ApiStudentController extends Controller
                     'course'     => $fee->course->course_name,
                     'semester'   => 'Semester ' . $fee->year_semester,
                     'receipt_no' => $fee->id,
-                    'amount'     => $fee->fees,
+                    'amount'     => (int)$fee->fees,
                     'date'       => $fee->date ? \Carbon\Carbon::parse($fee->date)->format('Y-m-d') : null,
                     'status'     => 'Paid',
                 ];
