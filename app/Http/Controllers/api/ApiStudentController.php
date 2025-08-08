@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
+use App\Models\Attedance;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
@@ -98,6 +99,84 @@ class ApiStudentController extends Controller
             ];
 
             return $this->sendResponse($data, 'Fee details fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function contact_details(Request $request)
+    {
+        try {
+            // dd('hello');
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+            $data = [
+                'branches' => [
+                    [
+                        'name'    => 'Keshod Branch',
+                        'address' => 'Amrut nagar road, Keshod',
+                        'email'   => 'vrundavancomputerkeshod@gmail.com',
+                    ],
+                    [
+                        'name'    => 'Vapi Branch',
+                        'address' => '134, Tirupati Plaza, Daman Rd, Chala, Vapi, Gujarat - 396191',
+                        'email'   => 'vrundavancomputervapi@gmail.com',
+                    ],
+                    [
+                        'name'    => 'BCA College',
+                        'address' => 'PVM Campus, Veraval Road, Keshod',
+                        'email'   => 'pvmbcacollage@gmail.com',
+                    ]
+                ],
+                'contacts' => [
+
+                    'Vrundavan Computer' => [
+                        'mobile'        => '96374 51774',
+                        'phone'         => '02871-231059',
+                        'distance_work' => '93762 21111',
+                    ]
+
+                ]
+            ];
+
+            return $this->sendResponse($data, 'Contact Us Information fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function attendance_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $attendanceRecords = Attedance::where('admission_id', $student->id)
+                ->orderBy('date', 'desc')
+                ->get();
+
+            if ($attendanceRecords->isEmpty()) {
+                return $this->sendError('No attendance records found.', [], [], 404);
+            }
+
+            $data = $attendanceRecords->map(function ($att) {
+                $isPresent = !empty($att->in_time);
+
+                return [
+                    'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('d-M-Y') : null,
+                    'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
+                    'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
+                    'status'      => $isPresent ? 'Present' : 'Absent',
+                    'status_code' => $isPresent ? 'P' : 'A',
+                    // 'image_url'   => $att->ImagePath ? url($att->ImagePath) : null,
+                ];
+            });
+
+            return $this->sendResponse($data, 'Attendance records fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
