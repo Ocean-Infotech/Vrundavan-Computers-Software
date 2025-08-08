@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
+use App\Models\Attedance;
 use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,17 +35,13 @@ class ApiStudentController extends Controller
 
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            }else if($courseRegistered?->status != "active"){
+            } else if ($courseRegistered?->status != "active") {
                 return $this->sendError('Academic detail not active.', [], [], 422);
-            }else{
+            } else {
 
                 $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
 
                 $data = [
-                    // 'first_name'     => $student->first_name ?? '',
-                    // 'father_name'    => $student->father_name ?? '',
-                    // 'last_name'      => $student->last_name ?? '',
-                    // 'full_name'      => trim(($student->first_name ?? '') . ' ' . ($student->father_name ?? '') . ' ' . ($student->last_name ?? '')),
                     'university'     => 'Vrundavan Computers',
                     'department'     => 'C.S. & I.T',
                     'course'         => $course->course_name ?? '',
@@ -54,7 +53,130 @@ class ApiStudentController extends Controller
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
             }
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function fee_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
 
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $feeRecords = FeesCollection::with('course')
+                ->where('student_id', $student->id)
+                ->get();
+
+            if ($feeRecords->isEmpty()) {
+                return $this->sendError('No fee records found.', [], [], 404);
+            }
+
+            $courseFees = $feeRecords->first()->course->course_fees;
+
+            $paidFees = $feeRecords->where('status', true)->sum('fees');
+
+            $pendingFees = $courseFees - $paidFees;
+
+            $feesDetails = $feeRecords->map(function ($fee) {
+                return [
+                    'course'     => $fee->course->course_name,
+                    'semester'   => 'Semester ' . $fee->year_semester,
+                    'receipt_no' => $fee->id,
+                    'amount'     => (int)$fee->fees,
+                    'date'       => $fee->date ? \Carbon\Carbon::parse($fee->date)->format('Y-m-d') : null,
+                    'status'     => 'Paid',
+                ];
+            });
+
+            $data = [
+                'total'   => $courseFees,
+                'paid'    => $paidFees,
+                'pending' => $pendingFees,
+                'details' => $feesDetails,
+            ];
+
+            return $this->sendResponse($data, 'Fee details fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function contact_details(Request $request)
+    {
+        try {
+            // dd('hello');
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+            $data = [
+                'branches' => [
+                    [
+                        'name'    => 'Keshod Branch',
+                        'address' => 'Amrut nagar road, Keshod',
+                        'email'   => 'vrundavancomputerkeshod@gmail.com',
+                    ],
+                    [
+                        'name'    => 'Vapi Branch',
+                        'address' => '134, Tirupati Plaza, Daman Rd, Chala, Vapi, Gujarat - 396191',
+                        'email'   => 'vrundavancomputervapi@gmail.com',
+                    ],
+                    [
+                        'name'    => 'BCA College',
+                        'address' => 'PVM Campus, Veraval Road, Keshod',
+                        'email'   => 'pvmbcacollage@gmail.com',
+                    ]
+                ],
+                'contacts' => [
+
+                    'Vrundavan Computer' => [
+                        'mobile'        => '96374 51774',
+                        'phone'         => '02871-231059',
+                        'distance_work' => '93762 21111',
+                    ]
+
+                ]
+            ];
+
+            return $this->sendResponse($data, 'Contact Us Information fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function attendance_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $attendanceRecords = Attedance::where('admission_id', $student->id)
+                ->orderBy('date', 'desc')
+                ->get();
+
+            if ($attendanceRecords->isEmpty()) {
+                return $this->sendError('No attendance records found.', [], [], 404);
+            }
+
+            $data = $attendanceRecords->map(function ($att) {
+                $isPresent = !empty($att->in_time);
+
+                return [
+                    'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('d-M-Y') : null,
+                    'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
+                    'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
+                    'status'      => $isPresent ? 'Present' : 'Absent',
+                    'status_code' => $isPresent ? 'P' : 'A',
+                    // 'image_url'   => $att->ImagePath ? url($att->ImagePath) : null,
+                ];
+            });
+
+            return $this->sendResponse($data, 'Attendance records fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

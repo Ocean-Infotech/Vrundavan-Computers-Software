@@ -4,6 +4,7 @@ use App\Http\Controllers\api\ApiStudentController;
 use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
+use App\Http\Controllers\Api\StudentRequestController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,11 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
         Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
+        Route::post('fee-details', [ApiStudentController::class, 'fee_details']);
+        Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
+        Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
+        Route::post('request', [StudentRequestController::class, 'store']);
+        Route::post('request-subject-list', [StudentRequestController::class, 'subjects']);
     });
 
     Route::controller(UserController::class)->group(function () {

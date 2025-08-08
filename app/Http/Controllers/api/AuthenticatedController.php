@@ -87,6 +87,7 @@ class AuthenticatedController extends Controller
     public function student_update_profile(Request $request)
     {
         try {
+            // dd('hello');
             $loginUser = Auth::user();
             if (!$loginUser) {
                 return $this->sendError("Unauthorization", [], [], 401);
@@ -117,7 +118,7 @@ class AuthenticatedController extends Controller
                 'temporary_address' => [
                     'required',
                     'string',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+                    // Rule::unique((new Admission())->getTable(),'temporary_address')->ignore($loginUser->id),
                 ],
                 'permanent_address' => [
                     'required',
