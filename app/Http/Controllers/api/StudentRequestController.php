@@ -78,35 +78,5 @@ public function request_form(Request $request)
     }
 
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(StudentRequest $studentRequest)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(StudentRequest $studentRequest)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, StudentRequest $studentRequest)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StudentRequest $studentRequest)
-    {
-        //
-    }
+ 
 }
