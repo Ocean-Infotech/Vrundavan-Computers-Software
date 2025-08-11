@@ -11,26 +11,8 @@ use Illuminate\Validation\Rule;
 
 class StudentRequestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-public function store(Request $request)
+public function request_form(Request $request)
 {
     try {
         $student = Auth::guard('student-api')->user();
@@ -74,7 +56,7 @@ public function store(Request $request)
 }
 
 
-    public function subjects()
+    public function request_subject_list()
     {
         try {
             $student = Auth::guard('student-api')->user();
