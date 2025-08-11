@@ -186,7 +186,7 @@ class AttedanceController extends Controller
                     })
 
 
-                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave'])
+                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave','leve_status'])
                     ->make(true);
                 return $returnData;
             }
