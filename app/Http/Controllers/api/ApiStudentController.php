@@ -46,7 +46,7 @@ class ApiStudentController extends Controller
                     'department'     => 'C.S. & I.T',
                     'course'         => $course->course_name ?? '',
                     'semester'       => $course->semester ?? '',
-                    'gr_no'          => '1234567890',
+                    'gr_no'          => $student->id,
                     'enrollment_no'  => $student->enrolment_no ?? '',
                     'spid'           => $student->spid ?? '',
                 ];
@@ -146,62 +146,61 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-  public function attendance_details(Request $request)
-{
-    try {
-        $student = Auth::guard('student-api')->user();
+    public function attendance_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
 
-        if (!$student) {
-            return $this->sendError("Unauthorized.", [], [], 401);
-        }
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
 
-        $month = $request->month ?? date('m');
-        $year = $request->year ?? date('Y');
+            $month = $request->month ?? date('m');
+            $year = $request->year ?? date('Y');
 
-        $query = Attedance::where('admission_id', $student->id);
+            $query = Attedance::where('admission_id', $student->id);
 
-        if ($request->filled('month')) {
-            $query->whereMonth('date', $month)
-                  ->whereYear('date', $year);
-        }
+            if ($request->filled('month')) {
+                $query->whereMonth('date', $month)
+                    ->whereYear('date', $year);
+            }
 
-        $attendanceRecords = $query->orderBy('date', 'desc')->get();
+            $attendanceRecords = $query->orderBy('date', 'desc')->get();
 
-        if ($attendanceRecords->isEmpty()) {
-            return $this->sendError('No attendance records found.', [], [], 404);
-        }
+            if ($attendanceRecords->isEmpty()) {
+                return $this->sendError('No attendance records found.', [], [], 404);
+            }
 
-        $totalLectures  = $attendanceRecords->count();
-        $presentCount   = $attendanceRecords->whereNotNull('in_time')->count();
-        $absentCount    = $totalLectures - $presentCount;
-        $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
+            $totalLectures  = $attendanceRecords->count();
+            $presentCount   = $attendanceRecords->whereNotNull('in_time')->count();
+            $absentCount    = $totalLectures - $presentCount;
+            $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
 
-        $dataList = $attendanceRecords->map(function ($att) {
-            $isPresent = !empty($att->in_time);
-            return [
-                'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('Y-m-d') : null,
-                'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
-                'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
-                'status'      => $isPresent ? 'Present' : 'Absent',
-                'status_code' => $isPresent ? 'P' : 'A',
+            $dataList = $attendanceRecords->map(function ($att) {
+                $isPresent = !empty($att->in_time);
+                return [
+                    'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('Y-m-d') : null,
+                    'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
+                    'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
+                    'status'      => $isPresent ? 'Present' : 'Absent',
+                    'status_code' => $isPresent ? 'P' : 'A',
+                ];
+            });
+
+            $responseData = [
+                'summary' => [
+                    'month_year' => date('F', mktime(0, 0, 0, $month, 10)) . '-' . $year,
+                    'total_lectures'   => $totalLectures,
+                    'present_lectures' => $presentCount,
+                    'absent_lectures'  => $absentCount,
+                    'average_percent'  => $averagePercent
+                ],
+                'records' => $dataList
             ];
-        });
 
-        $responseData = [
-            'summary' => [
-                'month_year' => date('F', mktime(0, 0, 0, $month, 10)) . '-' . $year,
-                'total_lectures'   => $totalLectures,
-                'present_lectures' => $presentCount,
-                'absent_lectures'  => $absentCount,
-                'average_percent'  => $averagePercent
-            ],
-            'records' => $dataList
-        ];
-
-        return $this->sendResponse($responseData, 'Attendance records fetched successfully.');
-    } catch (\Exception $e) {
-        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+            return $this->sendResponse($responseData, 'Attendance records fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
     }
-}
-
 }

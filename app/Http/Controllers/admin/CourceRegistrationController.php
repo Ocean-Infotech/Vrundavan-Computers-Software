@@ -255,6 +255,7 @@ class CourceRegistrationController extends Controller
             // return $coursereg;
             CourceRegistration::create($coursereg);
 
+            // dd($coursereg,$request->all());
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {

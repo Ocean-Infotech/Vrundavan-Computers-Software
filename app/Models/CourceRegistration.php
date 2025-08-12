@@ -22,6 +22,8 @@ class CourceRegistration extends Model
         'class_id',
         'shift_id',
         'admission_id',
+        'university',
+        'department',
         'fee',
         'date',
         'note',
