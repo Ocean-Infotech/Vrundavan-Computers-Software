@@ -1,10 +1,8 @@
 |-------------------------------------------- Local
-11-08-2025
+12-08-2025
 
-ALTER TABLE `cource_registration`
-ADD COLUMN `university` VARCHAR(255) NOT NULL AFTER `admission_id`,
-ADD COLUMN `department` VARCHAR(255) NOT NULL AFTER `university`;
-ALTER TABLE `requests` CHANGE `subject` `subject_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `cource_registration` CHANGE `university` `university` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `department` `department` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
 
 
 
@@ -26,6 +24,14 @@ ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER 
 ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
 |-------------------------------------------- Live
+
+ALTER TABLE `cource_registration`
+ADD COLUMN `university` VARCHAR(255) NOT NULL AFTER `admission_id`,
+ADD COLUMN `department` VARCHAR(255) NOT NULL AFTER `university`;
+ALTER TABLE `requests` CHANGE `subject` `subject_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+
+
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
 ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
