@@ -30,7 +30,8 @@ class CourceRegistrationRequest extends FormRequest
         $id = $request->route('cource_registration') ?? 0;
         $rules = [
             'register_id' => 'required|exists:admission,id',
-
+            'university' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
             'course_id' => [
                 'required',
                 Rule::unique((new CourceRegistration())->getTable())->where(function ($query) use ($request) {

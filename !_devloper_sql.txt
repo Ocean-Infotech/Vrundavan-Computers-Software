@@ -1,4 +1,12 @@
 |-------------------------------------------- Local
+11-08-2025
+
+ALTER TABLE `cource_registration`
+ADD COLUMN `university` VARCHAR(255) NOT NULL AFTER `admission_id`,
+ADD COLUMN `department` VARCHAR(255) NOT NULL AFTER `university`;
+ALTER TABLE `requests` CHANGE `subject` `subject_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+
 
 php artisan migrate:refresh --path=database/migrations/2025_05_15_100531_create_attedance_table.php
 

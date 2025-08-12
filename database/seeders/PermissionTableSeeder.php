@@ -121,6 +121,12 @@ class PermissionTableSeeder extends Seeder
                 'syllabus-edit',
                 'syllabus-delete',
             ],
+            'subject' => [
+                'subject-list',
+                'subject-create',
+                'subject-edit',
+                'subject-delete',
+            ],
             'system-user' => [
                 'system-user-list',
                 'system-user-create',

@@ -94,7 +94,7 @@ class AuthenticationController extends Controller
                 $adminUserDetail->save();
             }
 
-            
+
             if ($request?->add_pincode && !$checkPincodeExist) {
                 $newPincode = [];
                 $newPincode['pincode'] = $request->pincode ?? null;
@@ -293,4 +293,5 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+  
 }

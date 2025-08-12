@@ -53,6 +53,34 @@
                 <div class="row">
                     <div class="col-md-6 col-sm-12">
                         <div class="row">
+                            {{-- University --}}
+                            <div class="col-md-12 mb-3">
+                                <div class="form-group">
+                                    <label for="university">University <span class="text-danger">*</span></label>
+                                    <input type="text" name="university" id="university"
+                                        class="form-control @error('university') is-invalid @enderror"
+                                        value="{{ old('university', $edit->university ?? '') }}"
+                                        placeholder="Enter University Name">
+                                    @error('university')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Department --}}
+                            <div class="col-md-12 mb-3">
+                                <div class="form-group">
+                                    <label for="department">Department <span class="text-danger">*</span></label>
+                                    <input type="text" name="department" id="department"
+                                        class="form-control @error('department') is-invalid @enderror"
+                                        value="{{ old('department', $edit->department ?? '') }}"
+                                        placeholder="Enter Department Name">
+                                    @error('department')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
                             {{-- Register No --}}
                             <div class="col-md-12 mb-3">
                                 <div class="form-group">
@@ -356,7 +384,7 @@
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                                                                                                                        <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 

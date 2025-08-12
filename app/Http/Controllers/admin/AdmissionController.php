@@ -148,7 +148,7 @@ class AdmissionController extends Controller
 
                     ->addColumn('course_button', function ($row) use ($modules) {
                         // if ($modules['course-register_add']) {
-                            return '<button class="btn btn-primary btn-sm course-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '">Course</button>';
+                        return '<button class="btn btn-primary btn-sm course-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '">Course</button>';
                         // }
                         return "-";
                     })
@@ -224,7 +224,18 @@ class AdmissionController extends Controller
 
             $admission = Admission::create($validated);
             $admission_id = $admission->id;
+            try {
+                $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
+                $parentFolderId = '1Zccw9vC6d4rfBvoLAe3tPWCRNDWE9gk7'; // Main Student Folder ID
 
+                $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
+
+                $admission->update([
+                    'gdrivefolderurl' => $folderData['link']
+                ]);
+            } catch (\Exception $e) {
+                \Log::error("Google Drive folder creation failed: " . $e->getMessage());
+            }
             $education = $request->education;
             if ($education != "") {
                 foreach ($education as $key => $value) {

@@ -143,7 +143,14 @@
             </li>
         @enddirectCanAny
 
-        @directCanAny(['fees-collection-list', 'fees-collection-create', 'fees-collection-edit', 'fees-collection-delete', 'fees-collection-pending', 'fees-collection-report'])
+        @directCanAny([
+            'fees-collection-list',
+            'fees-collection-create',
+            'fees-collection-edit',
+            'fees-collection-delete',
+            'fees-collection-pending',
+            'fees-collection-report'
+        ])
             <li
                 class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -205,29 +212,34 @@
             </li>
         @enddirectCanAny
 
-        @directCanAny(['course-list', 'batch-list', 'class-list', 'shift-list', 'syllabus-list'])
+        @directCanAny(['course-list', 'batch-list', 'class-list', 'shift-list', 'syllabus-list', 'subject-list'])
             <li
-                class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
-                    <div data-i18n="Course Masters ">Course Masters</div>
+                    <div data-i18n="Course Masters">Course Masters</div>
                 </a>
                 <ul class="menu-sub">
 
+                    {{-- Course --}}
                     @directCanAny(['course-list', 'course-create', 'course-edit', 'course-delete'])
                         <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
-                            <a href="{{ route('course.index') }}"class="menu-link">
+                            <a href="{{ route('course.index') }}" class="menu-link">
                                 <div data-i18n="Course Master">Course Master</div>
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    {{-- Batch --}}
                     @directCanAny(['batch-list', 'batch-create', 'batch-edit', 'batch-delete'])
                         <li class="menu-item {{ $sidebar_active == 'batch' ? 'active' : '' }}">
-                            <a href="{{ route('batch.index') }}"class="menu-link">
+                            <a href="{{ route('batch.index') }}" class="menu-link">
                                 <div data-i18n="Batch Master">Batch Master</div>
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    {{-- Class --}}
                     @directCanAny(['class-list', 'class-create', 'class-edit', 'class-delete'])
                         <li class="menu-item {{ $sidebar_active == 'class' ? 'active' : '' }}">
                             <a href="{{ route('class.index') }}" class="menu-link">
@@ -235,23 +247,38 @@
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    {{-- Shift --}}
                     @directCanAny(['shift-list', 'shift-create', 'shift-edit', 'shift-delete'])
                         <li class="menu-item {{ $sidebar_active == 'shift' ? 'active' : '' }}">
-                            <a href="{{ route('shift.index') }}"class="menu-link">
+                            <a href="{{ route('shift.index') }}" class="menu-link">
                                 <div data-i18n="Shift Master">Shift Master</div>
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    {{-- Syllabus --}}
                     @directCanAny(['syllabus-list', 'syllabus-create', 'syllabus-edit', 'syllabus-delete'])
                         <li class="menu-item {{ $sidebar_active == 'syllabus' ? 'active' : '' }}">
-                            <a href="{{ route('syllabus.index') }}"class="menu-link">
+                            <a href="{{ route('syllabus.index') }}" class="menu-link">
                                 <div data-i18n="Syllabus">Syllabus</div>
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    {{-- Subject Master (NEW) --}}
+                    @directCanAny(['subject-list', 'subject-create', 'subject-edit', 'subject-delete'])
+                        <li class="menu-item {{ $sidebar_active == 'subject' ? 'active' : '' }}">
+                            <a href="{{ route('subject.index') }}" class="menu-link">
+                                <div data-i18n="Subject Master">Subject Master</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
                 </ul>
             </li>
         @enddirectCanAny
+
 
         @directCanAny(['biomax-list'])
             <li class="menu-item {{ $sidebar_active == 'Biomax' ? 'active' : '' }}">

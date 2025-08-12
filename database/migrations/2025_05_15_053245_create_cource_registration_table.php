@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('class_id');
             $table->string('shift_id');
             $table->string('admission_id')->nullable();
+            $table->string('university');
+            $table->string('department');
             $table->string('fee');
             $table->date('date');
             $table->text('note');

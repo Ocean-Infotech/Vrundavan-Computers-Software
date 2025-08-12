@@ -4,6 +4,7 @@
 use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
+use App\Http\Controllers\admin\master\MasterSubjectController;
 use App\Http\Controllers\admin\DocumentTypeController;
 use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
@@ -39,6 +40,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'dashboard'])->name('software.dashboard');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard,showUsers');
+// Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
 Route::get('/removeimage/{id}', [DashboardController::class, 'remove_image'])->name('remove_image');
 
 /** User Modules */
@@ -188,6 +191,10 @@ Route::resource('students-fees-report', StudentsFeesReportController::class);
 Route::resource('syllabus', SyllabusController::class);
 Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
 Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');
+
+Route::resource('/subject', MasterSubjectController::class);
+Route::match(['get', 'post'], 'subject/restore/{id}', [MasterSubjectController::class, 'restore'])->name('subject.restore');
+Route::match(['get', 'post'], 'subject-update-status', [MasterSubjectController::class, 'update_status'])->name('subject.status-update');
 
 /** Master Class Modules */
 Route::resource('/class', MasterClassController::class);
