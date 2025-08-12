@@ -55,48 +55,57 @@ class StudentRequestController extends Controller
     //     }
     // }
 
-    public function request_form(Request $request)
-    {
-        try {
-            $student = Auth::guard('student-api')->user();
 
-            if (!$student) {
-                return $this->sendError("Unauthorized.", [], [], 401);
-            }
+public function request_form(Request $request)
+{
+    try {
+        $student = Auth::guard('student-api')->user();
 
-            // Validate input
-            $validator = Validator::make($request->all(), [
+        if (!$student) {
+            return $this->sendError("Unauthorized.", [], [], 401);
+        }
+
+        // Validate input with custom message
+        $validator = Validator::make(
+            $request->all(),
+            [
                 'subject_id' => [
                     'required',
-                    'exists:' . ((new MasterSubject())->getTable()) . ',id'
+                    Rule::exists((new MasterSubject())->getTable(), 'id')
+                        ->where(function ($query) {
+                            $query->where('status', 'active');
+                        }),
                 ],
                 'detail' => ['required', 'string', 'max:1000'],
-            ]);
+            ],
+            [
+                'subject_id.exists' => 'The selected subject id  is inactive.',
+            ]
+        );
 
-            if ($validator->fails()) {
-                // Return first error as main message
-                return $this->sendError(
-                    $validator->errors()->first(),
-                    $validator->errors(),
-                    [],
-                    422
-                );
-            }
-
-            $requestData = new StudentRequest();
-            $requestData->student_id = $student->id;
-            $requestData->subject_id = $request->subject_id;
-            $requestData->detail = $request->detail;
-            $requestData->save();
-
-            unset($requestData['created_at']);
-            unset($requestData['updated_at']);
-
-            return $this->sendResponse($requestData, 'Request submitted successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        if ($validator->fails()) {
+            return $this->sendError(
+                $validator->errors()->first(),
+                $validator->errors(),
+                [],
+                422
+            );
         }
+
+        $requestData = new StudentRequest();
+        $requestData->student_id = $student->id;
+        $requestData->subject_id = $request->subject_id;
+        $requestData->detail = $request->detail;
+        $requestData->save();
+
+        unset($requestData['created_at'], $requestData['updated_at']);
+
+        return $this->sendResponse($requestData, 'Request submitted successfully.');
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
+}
+
 
 
 

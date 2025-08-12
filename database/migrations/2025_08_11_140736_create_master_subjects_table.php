@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('master_subjects', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('status')->default('active')->comment('active, inactive');
             $table->string('created_by')->nullable();;
             $table->string('updated_by')->nullable();;
             $table->string('deleted_by')->nullable();;
-                        $table->timestamps();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

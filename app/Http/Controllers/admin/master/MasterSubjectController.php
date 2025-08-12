@@ -53,7 +53,7 @@ class MasterSubjectController extends Controller
         try {
             $columns = [
                 (object)['data' => "name", 'name' => 'name', 'td_label' => 'Subject Name'],
-                // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
+                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
             View::share("columns", $columns);
@@ -179,7 +179,7 @@ class MasterSubjectController extends Controller
         }
     }
 
-    public function status_update(MasterSubjectRequest $request)
+    public function update_status(Request $request)
     {
         $isAjax = ($request->ajax()) ? true : false;
 
