@@ -17,46 +17,42 @@ use Illuminate\Validation\Rule;
 class ApiStudentController extends Controller
 {
 
-    public function academic_details(Request $request)
-    {
-        try {
+   public function academic_details(Request $request)
+{
+    try {
+        $student = Auth::guard('student-api')->user();
 
-            $student = Auth::guard('student-api')->user();
-
-            if (!$student) {
-                return $this->sendError("Unauthorization.", [], [], 401);
-            }
-
-
-            $courseRegistered = CourceRegistration::where('register_id', $student->id)
-                // ->where('status', 'active')
-                // ->where('course_id', $request->course_id)
-                ->first();
-
-            if (!$courseRegistered) {
-                return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            } else if ($courseRegistered?->status != "active") {
-                return $this->sendError('Academic detail not active.', [], [], 422);
-            } else {
-
-                $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
-
-                $data = [
-                    'university'     => 'Vrundavan Computers',
-                    'department'     => 'C.S. & I.T',
-                    'course'         => $course->course_name ?? '',
-                    'semester'       => $course->semester ?? '',
-                    'gr_no'          => $student->id,
-                    'enrollment_no'  => $student->enrolment_no ?? '',
-                    'spid'           => $student->spid ?? '',
-                ];
-
-                return $this->sendResponse($data, 'Academic details fetched successfully.');
-            }
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        if (!$student) {
+            return $this->sendError("Unauthorization.", [], [], 401);
         }
+
+        $courseRegistered = CourceRegistration::where('register_id', $student->id)
+            ->first();
+
+        if (!$courseRegistered) {
+            return $this->sendError('Your Academic Detail not found.', [], [], 422);
+        } elseif ($courseRegistered?->status != "active") {
+            return $this->sendError('Academic detail not active.', [], [], 422);
+        } else {
+            $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
+
+            $data = [
+                'university'     => $courseRegistered->university ?? '',
+                'department'     => $courseRegistered->department ?? '',
+                'course'         => $course->course_name ?? '',
+                'semester'       => $course->semester ?? '',
+                'gr_no'          => $student->id,
+                'enrollment_no'  => $student->enrolment_no ?? '',
+                'spid'           => $student->spid ?? '',
+            ];
+
+            return $this->sendResponse($data, 'Academic details fetched successfully.');
+        }
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
+}
+
     public function fee_details(Request $request)
     {
         try {

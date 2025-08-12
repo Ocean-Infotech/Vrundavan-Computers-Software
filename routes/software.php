@@ -40,7 +40,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'dashboard'])->name('software.dashboard');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard,showUsers');
-// Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
 Route::get('/removeimage/{id}', [DashboardController::class, 'remove_image'])->name('remove_image');
 

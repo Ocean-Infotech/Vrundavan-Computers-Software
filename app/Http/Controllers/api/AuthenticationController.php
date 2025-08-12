@@ -117,6 +117,15 @@ class AuthenticationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'admission_id' => [
+                    'required',
+                    'integer',
+                    function ($attribute, $value, $fail) {
+                        if (!Admission::where('id', $value)->exists()) {
+                            $fail('This GR No is not registered.');
+                        }
+                    }
+                ],
                 'mobile_no' => [
                     'required',
                     'digits_between:10,15',
@@ -293,5 +302,4 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-  
 }
