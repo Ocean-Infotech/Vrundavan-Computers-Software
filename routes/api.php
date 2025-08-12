@@ -4,7 +4,7 @@ use App\Http\Controllers\api\ApiStudentController;
 use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
-use App\Http\Controllers\Api\StudentRequestController;
+use App\Http\Controllers\api\StudentRequestController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
