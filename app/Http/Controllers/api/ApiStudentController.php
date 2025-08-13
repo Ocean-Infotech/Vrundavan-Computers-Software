@@ -17,41 +17,41 @@ use Illuminate\Validation\Rule;
 class ApiStudentController extends Controller
 {
 
-   public function academic_details(Request $request)
-{
-    try {
-        $student = Auth::guard('student-api')->user();
+    public function academic_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
 
-        if (!$student) {
-            return $this->sendError("Unauthorization.", [], [], 401);
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $courseRegistered = CourceRegistration::where('register_id', $student->id)
+                ->first();
+
+            if (!$courseRegistered) {
+                return $this->sendError('Your Academic Detail not found.', [], [], 422);
+            } elseif ($courseRegistered?->status != "active") {
+                return $this->sendError('Academic detail not active.', [], [], 422);
+            } else {
+                $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
+
+                $data = [
+                    'university'     => $courseRegistered->university ?? '',
+                    'department'     => $courseRegistered->department ?? '',
+                    'course'         => $course->course_name ?? '',
+                    'semester'       => $course->semester ?? '',
+                    'gr_no'          => $student->id,
+                    'enrollment_no'  => $student->enrolment_no ?? '',
+                    'spid'           => $student->spid ?? '',
+                ];
+
+                return $this->sendResponse($data, 'Academic details fetched successfully.');
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
-
-        $courseRegistered = CourceRegistration::where('register_id', $student->id)
-            ->first();
-
-        if (!$courseRegistered) {
-            return $this->sendError('Your Academic Detail not found.', [], [], 422);
-        } elseif ($courseRegistered?->status != "active") {
-            return $this->sendError('Academic detail not active.', [], [], 422);
-        } else {
-            $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
-
-            $data = [
-                'university'     => $courseRegistered->university ?? '',
-                'department'     => $courseRegistered->department ?? '',
-                'course'         => $course->course_name ?? '',
-                'semester'       => $course->semester ?? '',
-                'gr_no'          => $student->id,
-                'enrollment_no'  => $student->enrolment_no ?? '',
-                'spid'           => $student->spid ?? '',
-            ];
-
-            return $this->sendResponse($data, 'Academic details fetched successfully.');
-        }
-    } catch (\Exception $e) {
-        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
-}
 
     public function fee_details(Request $request)
     {
@@ -151,14 +151,19 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorized.", [], [], 401);
             }
 
+            // Default to current month/year if not provided
             $month = $request->month ?? date('m');
-            $year = $request->year ?? date('Y');
+            $year  = $request->year ?? date('Y');
 
             $query = Attedance::where('admission_id', $student->id);
+            $monthYear = null;
 
+            // If month is passed (with or without year), filter and set month_year
             if ($request->filled('month')) {
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
+
+                $monthYear = \Carbon\Carbon::createFromDate($year, $month, 1)->format('F-Y');
             }
 
             $attendanceRecords = $query->orderBy('date', 'desc')->get();
@@ -183,18 +188,45 @@ class ApiStudentController extends Controller
                 ];
             });
 
-            $responseData = [
-                'summary' => [
-                    'month_year' => date('F', mktime(0, 0, 0, $month, 10)) . '-' . $year,
-                    'total_lectures'   => $totalLectures,
-                    'present_lectures' => $presentCount,
-                    'absent_lectures'  => $absentCount,
-                    'average_percent'  => $averagePercent
-                ],
-                'records' => $dataList
+            $summaryData = [
+                'total_lectures'   => $totalLectures,
+                'present_lectures' => $presentCount,
+                'absent_lectures'  => $absentCount,
+                'average_percent'  => $averagePercent
             ];
 
-            return $this->sendResponse($responseData, 'Attendance records fetched successfully.');
+            if ($monthYear) {
+                $summaryData['month_year'] = $monthYear;
+            }
+
+            return $this->sendResponse([
+                'summary' => $summaryData,
+                'records' => $dataList
+            ], 'Attendance records fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function document_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $gdriveUrl = $student->gdrivefolderurl ?? null;
+
+            if (empty($gdriveUrl)) {
+                return $this->sendError("No Google Drive folder found.", [], [], 422);
+            }
+
+            if (!preg_match('/^https?:\/\/drive\.google\.com\/drive\/folders\/[a-zA-Z0-9_\-]+/', $gdriveUrl)) {
+                return $this->sendError("Invalid Google Drive folder URL.", [], [], 422);
+            }
+
+            return $this->sendResponse(['gdrive_url' => $gdriveUrl], 'Google Drive folder link fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
