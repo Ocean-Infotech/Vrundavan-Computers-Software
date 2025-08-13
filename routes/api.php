@@ -4,6 +4,7 @@ use App\Http\Controllers\api\ApiStudentController;
 use App\Http\Controllers\api\AuthenticatedController;
 use App\Http\Controllers\api\AuthenticationController;
 use App\Http\Controllers\api\CommonController;
+use App\Http\Controllers\api\SliderController;
 use App\Http\Controllers\api\StudentRequestController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
@@ -42,10 +43,21 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
         Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
         Route::post('fee-details', [ApiStudentController::class, 'fee_details']);
+        Route::post('document-details', [ApiStudentController::class, 'document_details']);
         Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
+
+
         // Route::post('request', [StudentRequestController::class, 'store']);
         // Route::post('request-subject-list', [StudentRequestController::class, 'subjects']);
+    });
+
+
+    Route::controller(SliderController::class)->group(function () {
+        Route::post('slider-add', [SliderController::class, 'slider_add']);
+        Route::post('slider-list', [SliderController::class, 'slider_list']);
+        Route::post('slider-update', [SliderController::class, 'slider_update']);
+        Route::delete('slider-delete', [SliderController::class, 'slider_destroy']);
     });
 
     Route::controller(StudentRequestController::class)->group(function () {
