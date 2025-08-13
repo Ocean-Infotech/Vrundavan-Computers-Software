@@ -14,7 +14,6 @@ class SliderController extends Controller
     public function slider_add(Request $request)
     {
         try {
-            // Validation
             $validator = Validator::make(
                 $request->all(),
                 [
@@ -33,16 +32,14 @@ class SliderController extends Controller
                 );
             }
 
-            // Store image
             $imagePath = $request->file('image')->store('sliders', 'public');
-            // Create slider record
+
             $slider = Slider::create([
                 'title' => $request->title,
                 'image' => $imagePath,
                 'link'  => $request->link,
             ]);
 
-            // Hide timestamps in the response
             unset($slider['created_at'], $slider['updated_at']);
 
             return $this->sendResponse($slider, 'Slider added successfully.');
@@ -51,18 +48,22 @@ class SliderController extends Controller
         }
     }
 
-
     // List Sliders
     public function slider_list()
     {
-        $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
-            unset($slider->created_by, $slider->updated_by, $slider->deleted_by, $slider->created_at, $slider->updated_at);
+        $sliders = Slider::orderBy('id', 'desc')->get();
 
+        if ($sliders->isEmpty()) {
+            return $this->sendError('No sliders found.', [], [], 404);
+        }
+
+        $sliders = $sliders->map(function ($slider) {
+            unset($slider->created_by, $slider->updated_by, $slider->deleted_by, $slider->created_at, $slider->updated_at);
             $slider->image = url('storage/' . $slider->image);
             return $slider;
         });
 
-        return response()->json(['status' => true, 'data' => $sliders]);
+        return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
     }
 
     // Update Slider
@@ -99,7 +100,6 @@ class SliderController extends Controller
                 );
             }
 
-            // Handle image replacement if provided
             if ($request->hasFile('image')) {
                 if ($slider->image && Storage::disk('public')->exists($slider->image)) {
                     Storage::disk('public')->delete($slider->image);
@@ -119,15 +119,13 @@ class SliderController extends Controller
         }
     }
 
-
-
     // Delete Slider
     public function slider_destroy($id)
     {
         $slider = Slider::find($id);
 
         if (!$slider) {
-            return response()->json(['status' => false, 'message' => 'Slider not found'], 404);
+            return $this->sendError('Slider not found.', [], [], 404);
         }
 
         if ($slider->image && Storage::disk('public')->exists($slider->image)) {
@@ -136,6 +134,6 @@ class SliderController extends Controller
 
         $slider->delete();
 
-        return response()->json(['status' => true, 'message' => 'Slider deleted successfully']);
+        return $this->sendResponse(null, 'Slider deleted successfully.');
     }
 }
