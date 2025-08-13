@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Master\MasterSubject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -9,15 +10,7 @@ class StudentRequest extends Model
 {
     public $table = 'requests';
     use SoftDeletes;
-    public static function getSubjects()
-    {
-        return [
-            'Leave Request',
-            'Change of Address',
-            'Complaint',
-            'Other'
-        ];
-    }
+
     protected $fillable = [
         'subject',
         'detail',
@@ -26,4 +19,8 @@ class StudentRequest extends Model
         'updated_by',
         'deleted_by'
     ];
+     public function subject()
+    {
+        return $this->belongsTo(MasterSubject::class, 'subject_id');
+    }
 }

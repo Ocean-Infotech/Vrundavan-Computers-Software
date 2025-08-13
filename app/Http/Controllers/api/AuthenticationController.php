@@ -122,7 +122,7 @@ class AuthenticationController extends Controller
                     'integer',
                     function ($attribute, $value, $fail) {
                         if (!Admission::where('id', $value)->exists()) {
-                            $fail('This GR No is not registered.');
+                            $fail('This admission_id is not registered.');
                         }
                     }
                 ],
