@@ -92,42 +92,40 @@ class AuthenticatedController extends Controller
             if (!$loginUser) {
                 return $this->sendError("Unauthorization", [], [], 401);
             }
+            $loginUserId = $loginUser->id;
 
-             $rules = [];
-        if ($request->has('email_address')) {
-            $rules['email_address'] = [
-                'email',
-                Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-            ];
-        }
-        if ($request->has('mobile_no')) {
-            $rules['mobile_no'] = [
-                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUser->id),
-            ];
-        }
-        if ($request->has('other_mobile_no')) {
-            $rules['other_mobile_no'] = [
-                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-            ];
-        }
-        if ($request->has('aadhar_card_no')) {
-            $rules['aadhar_card_no'] = [
-                'regex:/^[2-9]{1}[0-9]{11}$/',
-                'string',
-                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUser->id),
-            ];
-        }
-        if ($request->has('temporary_address')) {
-            $rules['temporary_address'] = ['string'];
-        }
-        if ($request->has('permanent_address')) {
-            $rules['permanent_address'] = ['string'];
-        }
-
-        $validator = Validator::make($request->all(), $rules);
-       
+            $validator =  Validator::make($request->all(), [
+                'email_address' => [
+                    'required',
+                    'email',
+                    Rule::unique((new Admission())->getTable())->ignore($loginUserId),
+                ],
+                'mobile_no' => [
+                    'required',
+                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                    Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUserId),
+                ],
+                'other_mobile_no' => [
+                    'required',
+                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                    Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($loginUserId),
+                ],
+                'aadhar_card_no' => [
+                    'required',
+                    'regex:/^[2-9]{1}[0-9]{11}$/',
+                    'string',
+                    Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUserId),
+                ],
+                'temporary_address' => [
+                    'required',
+                    'string',
+                    // Rule::unique((new Admission())->getTable(),'temporary_address')->ignore($loginUser->id),
+                ],
+                'permanent_address' => [
+                    'required',
+                    'string',
+                ],
+            ]);
 
             if ($validator->fails()) {
                 return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
@@ -136,16 +134,9 @@ class AuthenticatedController extends Controller
             $responseData = [];
             $updateParams = $request->all();
             $updateTeamPerson = Admission::where('id', $loginUser?->id)->first();
-        $oldMobile = $updateTeamPerson->mobile_no;
 
             // return $updateParams;
             $updateTeamPerson->update($updateParams);
-
-             if (isset($updateParams['mobile_no']) && $updateParams['mobile_no'] != $oldMobile) {
-            \App\Models\SendOTP::where('model', Admission::class)
-                ->where('model_id', $loginUser->id)
-                ->update(['send_to' => $updateParams['mobile_no']]);
-        }
 
             $newRequest = new Request();
             $newRequest['admission_id'] = $loginUser?->id;

@@ -9,6 +9,7 @@ use App\Models\Attedance;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
+use App\Models\StudentTestMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -268,6 +269,103 @@ class ApiStudentController extends Controller
             }
 
             return $this->sendResponse(['gdrive_url' => $gdriveUrl], 'Google Drive folder link fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function test_subjects(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $subjects = StudentTestMark::where('register_id', $student->id)
+                ->whereHas('test', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->with('test:id,subject_name') // only required fields
+                ->get()
+                ->pluck('test')
+                ->unique('id')
+                ->map(function ($test) {
+                    return [
+                        'id'   => $test->id,
+                        'name' => $test->subject_name,
+                    ];
+                })
+                ->values();
+
+            if ($subjects->isEmpty()) {
+                return $this->sendError("No subjects found.", [], [], 404);
+            }
+
+            return $this->sendResponse($subjects, "Subjects fetched successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function test_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'subject_id' => 'nullable|integer|exists:test,id',
+                'search'     => 'nullable|string|max:255',
+
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors(), [], 422);
+            }
+
+            $query = StudentTestMark::with([
+                'test.course',
+                'test.batch'
+            ])
+                ->where('register_id', $student->id)
+                ->whereHas('test', function ($q) use ($request) {
+                    $q->whereNull('deleted_at');
+
+                    if ($request->filled('subject_id')) {
+                        $q->where('id', $request->subject_id);
+                    }
+                    if ($request->filled('search')) {
+                        $q->where('subject_name', 'like', '%' . $request->search . '%');
+                    }
+                });
+
+            $testRecords = $query->latest()->get();
+
+            if ($testRecords->isEmpty()) {
+                return $this->sendError("No test records found.", [], [], 404);
+            }
+
+            $data = $testRecords->map(function ($record) {
+                $test = $record->test;
+                $percentage = ($test->mark > 0)
+                    ? round(($record->marks / $test->mark) * 100, 2)
+                    : 0;
+
+                return [
+                    'subject'    => $test->subject_name,
+                    'unit'       => $test->unit_name,
+                    'course'     => $test->course->course_name ?? null,
+                    'batch'      => $test->batch->batch_name ?? null,
+                    'date'       => $test->date ? \Carbon\Carbon::parse($test->date)->format('d-m-Y') : null,
+                    'marks'      => "{$record->marks}/{$test->mark}",
+                    'percentage' => $percentage . '%',
+                ];
+            });
+
+            return $this->sendResponse($data, "Test details fetched successfully.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

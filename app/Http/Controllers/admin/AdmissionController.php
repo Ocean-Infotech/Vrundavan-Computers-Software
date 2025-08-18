@@ -231,8 +231,10 @@ class AdmissionController extends Controller
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
 
                 $admission->update([
-                    'gdrivefolderurl' => $folderData['link']
-                ]);
+        'gdrivefolderid'   => $folderData['id'] ?? null,
+        'gdrivefoldername' => $folderData['name'] ?? $folderName,
+        'gdrivefolderurl'  => $folderData['link'] ?? null,
+    ]);
             } catch (\Exception $e) {
                 \Log::error("Google Drive folder creation failed: " . $e->getMessage());
             }
