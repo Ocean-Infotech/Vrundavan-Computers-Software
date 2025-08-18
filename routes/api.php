@@ -46,10 +46,10 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('document-details', [ApiStudentController::class, 'document_details']);
         Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
+         Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
+        Route::post('test-details', [ApiStudentController::class, 'test_details']);
 
 
-        // Route::post('request', [StudentRequestController::class, 'store']);
-        // Route::post('request-subject-list', [StudentRequestController::class, 'subjects']);
     });
 
 
@@ -67,18 +67,11 @@ Route::group(['middleware' => ['auth:student-api']], function () {
 
 
     Route::controller(UserController::class)->group(function () {
-        Route::post('get-profile', 'getProfile');
-        Route::post('update-profile', 'updateProfile');
-        Route::post('withdraw-request', 'withdrawRequest');
-        Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
-        Route::post('withdraw-history', 'withdrawHistory');
+        // Route::post('get-profile', 'getProfile');
     });
 
     Route::controller(CommonController::class)->group(function () {
-        Route::post('sliders', 'sliders');
-        Route::post('verify-qr-scan', 'verifyQrScan');
-        Route::post('scan-history', 'scanHistory');
-        Route::post('my-points', 'myPoints');
+
         Route::post('documents', 'documents');
     });
 });
