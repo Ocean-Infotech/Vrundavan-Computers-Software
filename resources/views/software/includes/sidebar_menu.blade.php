@@ -54,7 +54,19 @@
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
+
+
+
         @directCan('panel-user-managment')
+            @directCanAny(['slider-list', 'slider-create', 'slider-edit', 'slider-delete'])
+                <li class="menu-item {{ $sidebar_active == 'slider' ? 'active' : '' }}">
+                    <a href="{{ route('slider.index') }}" class="menu-link">
+
+                        <i class="menu-icon tf-icons bx bx-image"></i>
+                        <div data-i18n="Slider">Slider</div>
+                    </a>
+                </li>
+            @enddirectCanAny
             <li
                 class="menu-item {{ $sidebar_active == 'users' || $sidebar_active == 'roles' || $sidebar_active == 'permissions' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

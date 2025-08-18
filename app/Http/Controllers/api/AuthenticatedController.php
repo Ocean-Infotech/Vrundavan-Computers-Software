@@ -133,9 +133,16 @@ class AuthenticatedController extends Controller
             $responseData = [];
             $updateParams = $request->all();
             $updateTeamPerson = Admission::where('id', $loginUser?->id)->first();
+        $oldMobile = $updateTeamPerson->mobile_no;
 
             // return $updateParams;
             $updateTeamPerson->update($updateParams);
+
+             if (isset($updateParams['mobile_no']) && $updateParams['mobile_no'] != $oldMobile) {
+            \App\Models\SendOTP::where('model', Admission::class)
+                ->where('model_id', $loginUser->id)
+                ->update(['send_to' => $updateParams['mobile_no']]);
+        }
 
             $newRequest = new Request();
             $newRequest['admission_id'] = $loginUser?->id;

@@ -32,6 +32,7 @@ use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
+use App\Http\Controllers\admin\SliderController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -69,6 +70,13 @@ Route::resource('permissions', PermissionController::class);
 
 // Resource routes for Admission
 // Route::resource('admission', AdmissionController::class);
+
+// Slider Route
+Route::resource('slider', SliderController::class);
+Route::match(['get', 'post'], 'slider/restore/{id}', [SliderController::class, 'restore'])->name('slider.restore');
+Route::match(['get', 'post'], 'slider-update-status', [SliderController::class, 'update_status'])->name('slider.status-update');
+
+
 Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
