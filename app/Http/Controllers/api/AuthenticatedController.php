@@ -93,38 +93,41 @@ class AuthenticatedController extends Controller
                 return $this->sendError("Unauthorization", [], [], 401);
             }
 
-            $validator =  Validator::make($request->all(), [
-                'email_address' => [
-                    'required',
-                    'email',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-                ],
-                'mobile_no' => [
-                    'required',
-                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                    Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUser->id),
-                ],
-                'other_mobile_no' => [
-                    'required',
-                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-                ],
-                'aadhar_card_no' => [
-                    'required',
-                    'regex:/^[2-9]{1}[0-9]{11}$/',
-                    'string',
-                    Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUser->id),
-                ],
-                'temporary_address' => [
-                    'required',
-                    'string',
-                    // Rule::unique((new Admission())->getTable(),'temporary_address')->ignore($loginUser->id),
-                ],
-                'permanent_address' => [
-                    'required',
-                    'string',
-                ],
-            ]);
+             $rules = [];
+        if ($request->has('email_address')) {
+            $rules['email_address'] = [
+                'email',
+                Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+            ];
+        }
+        if ($request->has('mobile_no')) {
+            $rules['mobile_no'] = [
+                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUser->id),
+            ];
+        }
+        if ($request->has('other_mobile_no')) {
+            $rules['other_mobile_no'] = [
+                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
+            ];
+        }
+        if ($request->has('aadhar_card_no')) {
+            $rules['aadhar_card_no'] = [
+                'regex:/^[2-9]{1}[0-9]{11}$/',
+                'string',
+                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUser->id),
+            ];
+        }
+        if ($request->has('temporary_address')) {
+            $rules['temporary_address'] = ['string'];
+        }
+        if ($request->has('permanent_address')) {
+            $rules['permanent_address'] = ['string'];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+       
 
             if ($validator->fails()) {
                 return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
