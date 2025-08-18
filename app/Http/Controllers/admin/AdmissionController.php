@@ -226,7 +226,7 @@ class AdmissionController extends Controller
             $admission_id = $admission->id;
             try {
                 $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
-                $parentFolderId = '1Zccw9vC6d4rfBvoLAe3tPWCRNDWE9gk7'; // Main Student Folder ID
+                $parentFolderId = '1koMqPtZeiGBLuD4I3Dly-3i3DslR978g'; // Main Student Folder ID
 
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
 

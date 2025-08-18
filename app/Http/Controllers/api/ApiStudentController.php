@@ -151,15 +151,35 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorized.", [], [], 401);
             }
 
-            // Default to current month/year if not provided
-            $month = $request->month ?? date('m');
-            $year  = $request->year ?? date('Y');
+            // Validate inputs
+            $validator = Validator::make($request->all(), [
+                'date'  => ['nullable', 'date_format:d-m-Y'], // dd-mm-yyyy
+                'month' => ['nullable', 'integer', 'between:1,12'],
+                'year'  => ['nullable', 'integer', 'digits:4'],
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors(), [], 422);
+            }
 
             $query = Attedance::where('admission_id', $student->id);
             $monthYear = null;
 
-            // If month is passed (with or without year), filter and set month_year
-            if ($request->filled('month')) {
+            // Filter by exact date if provided (format: dd-mm-yyyy)
+            if ($request->filled('date')) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
+                } catch (\Exception $e) {
+                    return $this->sendError('Invalid date provided.', [], [], 422);
+                }
+
+                $query->whereDate('date', $date->format('Y-m-d'));
+                $monthYear = $date->format('d-F-Y');
+            }
+            // Filter by month (and optionally year)
+            elseif ($request->filled('month')) {
+                $month = $request->month;
+                $year  = $request->year ?? date('Y'); // default to current year
                 $query->whereMonth('date', $month)
                     ->whereYear('date', $year);
 
@@ -169,8 +189,27 @@ class ApiStudentController extends Controller
             $attendanceRecords = $query->orderBy('date', 'desc')->get();
 
             if ($attendanceRecords->isEmpty()) {
-                return $this->sendError('No attendance records found.', [], [], 404);
+                $msg = 'No attendance records found.';
+
+                if ($request->filled('date')) {
+                    try {
+                        $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date)
+                            ->format('d F Y');
+                        $msg = "No attendance records found for {$formattedDate}.";
+                    } catch (\Exception $e) {
+                        $msg = "Invalid date format. Please use dd-mm-yyyy.";
+                    }
+                } elseif ($request->filled('month')) {
+                    $month = $request->month;
+                    $year  = $request->year ?? date('Y');
+                    $formattedMonth = \Carbon\Carbon::createFromDate($year, $month, 1)
+                        ->format('F Y');
+                    $msg = "No attendance records found for {$formattedMonth}.";
+                }
+
+                return $this->sendError($msg, [], [], 404);
             }
+
 
             $totalLectures  = $attendanceRecords->count();
             $presentCount   = $attendanceRecords->whereNotNull('in_time')->count();
@@ -207,6 +246,8 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
+
     public function document_details(Request $request)
     {
         try {

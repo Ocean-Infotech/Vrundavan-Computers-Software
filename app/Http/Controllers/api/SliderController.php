@@ -5,9 +5,6 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
-use App\Helpers\Helper;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,63 +15,22 @@ class SliderController extends Controller
     {
         $this->modules = [
             'title' => 'Slider',
-            'folder_path' => 'software.module.slider',
-            'route' => 'slider',
+            'folder_path' => 'software.module.banner',
+            'route' => 'banner',
             'table_name' => (new Slider())->getTable(),
-            'permission_prefix' => 'slider',
+            'permission_prefix' => 'banner',
         ];
     }
-    public function index(Request $request)
+    public function index()
     {
-        $modules = $this->modules;
+        $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
+            unset($slider->created_by, $slider->updated_by, $slider->deleted_by);
+            $slider->image = url('storage/' . $slider->image);
+            return $slider;
+        });
 
-        // Example permissions (adjust as per your project)
-        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
-        $modules['permission_add']  = Helper::directCan($modules['permission_prefix'] . '-create');
-        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
-        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
-
-        if (!$modules['permission_list']) {
-            if ($request->ajax()) {
-                return response()->json(['status' => false, 'message' => 'User does not have the right permissions.'], 403);
-            }
-            abort(403, 'User does not have the right permissions.');
-        }
-
-        View::share('modules', $modules);
-
-        try {
-            $data = Slider::query();
-
-            if ($request->ajax()) {
-                return Datatables::of($data)
-                    ->addIndexColumn()
-
-                    ->editColumn('image', function ($row) {
-                        return '<img src="' . url('storage/' . $row->image) . '" width="100"/>';
-                    })
-
-                    ->addColumn('action', function ($row) use ($modules) {
-                        $btn = '';
-                        if ($modules['permission_edit']) {
-                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                        }
-                        if ($modules['permission_delete']) {
-                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
-                        }
-                        return $btn ?: '-';
-                    })
-
-                    ->rawColumns(['image', 'action'])
-                    ->make(true);
-            }
-
-            return view($modules['folder_path'] . '.index', compact('data'));
-        } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
-        }
+        return response()->json(['status' => true, 'data' => $sliders]);
     }
-
 
     // Add Slider
     public function slider_add(Request $request)
@@ -115,22 +71,31 @@ class SliderController extends Controller
     }
 
     // List Sliders
-    public function slider_list()
-    {
-        $sliders = Slider::orderBy('id', 'desc')->get();
+public function slider_list()
+{
+    $sliders = Slider::where('status', 'active')
+        ->orderBy('id', 'desc')
+        ->get();
 
-        if ($sliders->isEmpty()) {
-            return $this->sendError('No sliders found.', [], [], 404);
-        }
-
-        $sliders = $sliders->map(function ($slider) {
-            unset($slider->created_by, $slider->updated_by, $slider->deleted_by, $slider->created_at, $slider->updated_at);
-            $slider->image = asset('storage/' . $slider->image);
-            return $slider;
-        });
-
-        return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
+    if ($sliders->isEmpty()) {
+        return $this->sendError('No sliders found.', [], [], 404);
     }
+
+    $sliders = $sliders->map(function ($slider) {
+        unset(
+            $slider->created_by,
+            $slider->updated_by,
+            $slider->deleted_by,
+            $slider->created_at,
+            $slider->updated_at
+        );
+        $slider->image = url('storage/' . $slider->image);
+        return $slider;
+    });
+
+    return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
+}
+
 
     // Update Slider
     public function slider_update(Request $request)
