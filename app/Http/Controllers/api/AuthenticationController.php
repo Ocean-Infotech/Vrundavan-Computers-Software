@@ -337,9 +337,16 @@ class AuthenticationController extends Controller
                 $deviceToken->device_details = $request->device_details ?? null;
                 $deviceToken->created_by = $studentId;
                 $deviceToken->save();
+            } else {
+                $deviceToken = $existingToken;
             }
 
-            return $this->sendResponse([], 'Device token stored successfully.');
+            // Return in the same style as verify-otp
+            return response()->json([
+                'status' => true,
+                'message' => 'Device token stored successfully.',
+                'data' => $deviceToken
+            ], 200);
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
