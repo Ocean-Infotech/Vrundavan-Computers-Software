@@ -2,10 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\Admission;
+use App\Models\Notification;
 use App\Models\Setting;
+use App\Models\StudentDeviceToken;
+use App\Services\FirebaseService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -257,6 +262,54 @@ class Helper
             return (int)$calculation_of_point_2_rupees;
         } catch (\Exception $e) {
             return $e->getMessage();
+        }
+    }
+     public static function sendPushNotification(array $data)
+    {
+        try {
+            if (empty($data['title']) || empty($data['body'])) {
+                Log::warning('Push Notification skipped: Title or Body missing.', $data);
+                return;
+            }
+
+            $notification = Notification::create([
+                'student_id' => $data['student_id'] ?? null,
+                'title'      => $data['title'],
+                'body'       => $data['body'],
+                'created_by' => $data['created_by'] ?? null,
+                'created_type'=> $data['created_type'] ?? null,
+            ]);
+
+            $token = null;
+            $user = Admission::where('mobile_no', $data['mobile_no'] ?? null)->first();
+
+            if ($user) {
+                $device = StudentDeviceToken::where('student_id', $user->id)->latest()->first();
+                if ($device && $device->device_token) {
+                    $token = $device->device_token;
+                }
+            }
+
+            if (!$token) {
+                Log::info("No device token found. Notification not sent.", $data);
+                return;
+            }
+
+            $firebase = app(\App\Services\FirebaseService::class);
+            $results = $firebase->sendNotification([$token], $data['title'], $data['body']);
+
+            foreach ($results as $result) {
+                if ($result['token'] === $token) {
+                    $notification->send_status = $result['status'] === 'success' ? 'success' : 'failed';
+                    $notification->save();
+                }
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('Push Notification error: ' . $e->getMessage(), [
+                'data' => $data,
+                'trace'=> $e->getTraceAsString(),
+            ]);
         }
     }
 }

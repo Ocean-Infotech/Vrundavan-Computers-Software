@@ -302,7 +302,7 @@ class ApiStudentController extends Controller
                 return $this->sendError("No subjects found.", [], [], 404);
             }
 
-            return $this->sendResponse($subjects, "Subjects fetched successfully.");
+            return $this->sendResponse($subjects, "Subjects List.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

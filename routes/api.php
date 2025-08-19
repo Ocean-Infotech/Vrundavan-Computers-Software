@@ -33,6 +33,7 @@ Route::controller(CommonController::class)->group(function () {
 
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
 Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
+Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
 
 
 Route::group(['middleware' => ['auth:student-api']], function () {

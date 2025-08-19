@@ -12,6 +12,7 @@ use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterState;
 use App\Models\SendOTP;
+use App\Models\StudentDeviceToken;
 use App\Models\User;
 use App\Models\UserDetail;
 use Carbon\Carbon;
@@ -159,9 +160,11 @@ class AuthenticationController extends Controller
             }
             // dd('hello');
 
-            $adminUser = Admission::where('mobile_no', $request->mobile_no)->first();
+            $adminUser = Admission::where('id', $request->admission_id)
+                ->where('mobile_no', $request->mobile_no)
+                ->first();
             if (!$adminUser) {
-                return $this->sendError('This student not found. pleasce check the admission mobile number.', [], [], 422);
+                return $this->sendError('This student not found. pleasce check the admission id and mobile number.', [], [], 422);
             }
 
             $studenExitsInCourse = CourceRegistration::where('register_id', $adminUser?->id)->where('course_id', $request->course_id)->first();
@@ -223,10 +226,10 @@ class AuthenticationController extends Controller
         }
     }
 
-
     public function studentVerifyOtp(Request $request)
     {
         try {
+            // Validate request
             $validator = Validator::make($request->all(), [
                 'mobile_no' => [
                     'required',
@@ -241,64 +244,103 @@ class AuthenticationController extends Controller
                     'required',
                     'digits:4',
                     function ($attribute, $value, $fail) use ($request) {
-                        $checlOTP = SendOTP::where('send_to', $request?->mobile_no)->where('verified_content', $value)->where('sms_type', 'otp')->where('status', 'send')->first();
-                        if (!$checlOTP) {
+                        $checkOTP = SendOTP::where('send_to', $request->mobile_no)
+                            ->where('verified_content', $value)
+                            ->where('sms_type', 'otp')
+                            ->where('status', 'send')
+                            ->first();
+
+                        if (!$checkOTP) {
                             $fail("OTP not matched.");
-                        } else {
-                            if ($checlOTP?->verified_at) {
-                                $fail("OTP used before. resend and try again.");
-                            }
-                            // Assume $otpRecord is your OTP record (from DB or elsewhere)
-                            $expireTime = Carbon::parse($checlOTP?->expire_time);
-                            if (Carbon::now()->greaterThan($expireTime)) {
-                                // $fail("Your OTP is expire. resend and login.");
-                            }
-                            // dd("L-250", !$checlOTP?->verified_at, $checlOTP?->toArray());
+                        } elseif ($checkOTP->verified_at) {
+                            $fail("OTP used before. Resend and try again.");
+                        } elseif (Carbon::now()->greaterThan(Carbon::parse($checkOTP->expire_time))) {
+                            $fail("Your OTP has expired. Resend and login.");
                         }
                     }
                 ],
+
             ]);
 
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first(), $validator->errors(), [], 422);
             }
 
-            $adminUser = Admission::where('mobile_no', $request->mobile_no)->first();
+            // Get student
+            $student = Admission::where('mobile_no', $request->mobile_no)->first();
 
-            if (!$adminUser) {
+            if (!$student) {
                 return $this->sendError('User not found.', ['mobile_no' => ['User not found.']], [], 404);
             }
 
-            $checlOTP = SendOTP::where('send_to', $request?->mobile_no)->where('sms_type', 'otp')->whereNull('verified_at')->orderBy('id', 'DESC')->first();
+            // Mark OTP as verified
+            $checkOTP = SendOTP::where('send_to', $request->mobile_no)
+                ->where('sms_type', 'otp')
+                ->whereNull('verified_at')
+                ->orderBy('id', 'DESC')
+                ->first();
 
+            $checkOTP->verified_at = Carbon::now();
+            $checkOTP->status = "expire";
+            $checkOTP->save();
 
-            $checlOTP->verified_at = Carbon::now();
-            $checlOTP->status = "expire";
-            // $checlOTP->save();
-
-
-            // Revoke all previous tokens for this user
-            Token::where('user_id', $adminUser->id)
-                // ->where('name', 'StudentToken') // important if using custom guard/model
-                ->where('name', get_class($adminUser)) // important if using custom guard/model
+            // Revoke all previous tokens
+            Token::where('user_id', $student->id)
+                ->where('name', get_class($student))
                 ->update(['revoked' => true]);
 
-            // Generate Passport token
-            $tokenResult = $adminUser->createToken(get_class($adminUser));
+            // Create new Passport token
+            $tokenResult = $student->createToken(get_class($student));
             $token = $tokenResult->accessToken;
             $expiresAt = $tokenResult->token->expires_at;
 
+            // Get student profile
             $getProfileRequest = new Request();
-            $getProfileRequest->admission_id = $adminUser->id;
+            $getProfileRequest->admission_id = $student->id;
             $getProfile = (new AuthenticatedController())->student_profile_response($getProfileRequest);
             $getProfile->token = $token;
             $getProfile->expiresAt = $expiresAt;
 
-            $responseData = $getProfile;
-
-            return $this->sendResponse($responseData, 'OTP verified successfully.');
+            return $this->sendResponse($getProfile, 'OTP verified successfully.');
         } catch (\Exception $e) {
-            return $e;
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function storeDeviceToken(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'student_id' => [
+                    'required',
+                    'integer',
+                    Rule::exists(Admission::class, 'id'),
+                ],
+                'device_token' => ['required', 'string', 'max:255'],
+                'device_details' => ['nullable', 'string'],
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors()->first(), $validator->errors(), 422);
+            }
+
+            $studentId = $request->student_id;
+
+            // Check if token already exists
+            $existingToken = StudentDeviceToken::where('student_id', $studentId)
+                ->where('device_token', $request->device_token)
+                ->first();
+
+            if (!$existingToken) {
+                $deviceToken = new StudentDeviceToken();
+                $deviceToken->student_id = $studentId;
+                $deviceToken->device_token = $request->device_token;
+                $deviceToken->device_details = $request->device_details ?? null;
+                $deviceToken->created_by = $studentId;
+                $deviceToken->save();
+            }
+
+            return $this->sendResponse([], 'Device token stored successfully.');
+        } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }

@@ -224,9 +224,9 @@
             </li>
         @enddirectCanAny
 
-        @directCanAny(['course-list', 'batch-list', 'class-list', 'shift-list', 'syllabus-list', 'subject-list'])
+        @directCanAny(['course-list', 'batch-list', 'class-list', 'shift-list', 'syllabus-list', 'subject-list','notification-setting-list'])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject','notification_setting']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>
@@ -286,6 +286,15 @@
                             </a>
                         </li>
                     @enddirectCanAny
+
+                    @directCanAny(['notification-setting-list','notification-setting-create','notification-setting-edit','notification-setting-delete'])
+                        <li class="menu-item {{ $sidebar_active == 'notification_setting' ? 'active' : '' }}">
+                            <a href="{{ route('notification_setting.index') }}" class="menu-link">
+                                <div data-i18n="Notification Settings">Notification Settings</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
 
                 </ul>
             </li>

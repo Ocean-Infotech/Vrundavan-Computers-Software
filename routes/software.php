@@ -11,7 +11,7 @@ use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
-
+use App\Helpers\Helper;
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
@@ -33,6 +33,7 @@ use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
+use App\Http\Controllers\NotificationSettingController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -222,7 +223,24 @@ Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks
 
 
 // Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
+// Notification Setting
+Route::resource('/notification_setting', NotificationSettingController::class);
+Route::get('get-students-by-course/{course_id}', [NotificationSettingController::class, 'getStudentsByCourse'])
+        ->name('get.students.by.course');
+Route::get('/test-notification', function () {
+    $data = [
+        'mobile_no' => '9876543210',
+        'student_id' => 1,
+        'title' => 'Test Notification',
+        'body' => 'This is a test push notification.',
+        'created_by' => 1,
+        'created_type' => 'admin',    
+    ];
 
+    Helper::sendPushNotification($data);
+
+    return 'Notification sent (check logs for errors).';
+});
 
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);
