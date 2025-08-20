@@ -35,18 +35,65 @@
                 @endisset
 
                 <div class="row">
-                    <div class="col-md-4 col-sm-12">
+
+                    <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
-                            <label class="form-label">Class <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('class') is-invalid @enderror" name="class"
-                                value="{{ isset($edit?->class) ? $edit->class : old('class') }}" placeholder="Enter class">
-                            @error('class')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                            <select id="course" name="course_id"
+                                class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
+                                data-append="search_by_course"
+                                data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
+                                autofocus required>
+                                <option value="">Select Course</option>
+                            </select>
+
+                            @error('course_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
                             @enderror
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Select Batch <span class="text-danger">*</span></label>
+                            <select id="batch" name="batch_id"
+                                class="form-control search_by_batch select2 @error('batch_id') is-invalid @enderror select_filter"
+                                data-append="search_by_batch"
+                                data-selectedBatchId="{{ isset($edit) && $edit?->batch_id ? $edit?->batch_id : old('batch_id') }}"
+                                autofocus>
+                                <option value="">Select Batch</option>
+                            </select>
+
+                            @error('batch_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Select Class <span class="text-danger">*</span></label>
+                            <select id="class " name="class_id"
+                                class="form-control search_by_class select2 @error('class_id') is-invalid @enderror select_filter"
+                                data-append="search_by_class"
+                                data-selectedClassId="{{ isset($edit) && $edit?->class_id ? $edit?->class_id : old('class_id') }}"
+                                autofocus>
+                                <option value="">Select Class</option>
+                            </select>
+
+                            @error('class_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Semester <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('semester') is-invalid @enderror"
@@ -58,18 +105,9 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-12">
-                        <div class="form-group">
-                            <label class="form-label">Batch <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('batch') is-invalid @enderror" name="batch"
-                                value="{{ isset($edit?->batch) ? $edit->batch : old('batch') }}" placeholder="Enter batch">
-                            @error('batch')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
 
-                    <div class="col-md-4 col-sm-12">
+
+                    <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Attachment</label>
                             <input type="file" class="form-control @error('attachment') is-invalid @enderror"
@@ -121,57 +159,8 @@
             overflow-y: auto;
         }
     </style>
-    <script>
-        $(document).ready(function() {
 
-            var studentDropdown = $('#studentDropdown');
-
-            // Course change AJAX
-            $('select[name="course_id"]').on('change', function() {
-                let courseId = $(this).val();
-                studentDropdown.empty().append('<option value="">Loading...</option>');
-
-                if (courseId) {
-                    $.ajax({
-                        url: "{{ url('software/get-students-by-course') }}/" + courseId,
-                        type: "GET",
-                        success: function(data) {
-                            studentDropdown.empty().append(
-                                '<option value="all">Select All</option>');
-                            $.each(data, function(key, student) {
-                                studentDropdown.append('<option value="' + student.id +
-                                    '">' + student.name + '</option>');
-                            });
-                        },
-                        error: function(xhr) {
-                            studentDropdown.empty().append(
-                                '<option value="">Error loading students</option>');
-                        }
-                    });
-                } else {
-                    studentDropdown.empty().append('<option value="">Select Student</option>');
-                }
-            });
-
-            // Select All functionality
-            studentDropdown.on('select2:select', function(e) {
-                if (e.params.data.id === 'all') {
-                    var allIds = [];
-                    studentDropdown.find('option').each(function() {
-                        if ($(this).val() !== 'all') allIds.push($(this).val());
-                    });
-                    studentDropdown.val(allIds).trigger('change.select2'); // Select all
-                }
-            });
-
-            // Deselect “Select All” if any other option is deselected
-            studentDropdown.on('select2:unselect', function(e) {
-                if (e.params.data.id !== 'all') {
-                    studentDropdown.find('option[value="all"]').prop('selected', false);
-                }
-            });
-
-        });
-    </script>
-
+    @include('software.utils.getCourse')
+    @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getClass')
 @endsection

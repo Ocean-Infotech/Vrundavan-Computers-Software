@@ -63,6 +63,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
 
     Route::controller(StudentRequestController::class)->group(function () {
         Route::post('request-form', [StudentRequestController::class, 'request_form']);
+        Route::post('request-list', [StudentRequestController::class, 'request_list']);
         Route::post('request-subject-list', [StudentRequestController::class, 'request_subject_list']);
     });
 

@@ -35,33 +35,7 @@
                 @endisset
 
                 <div class="row">
-                    <div class="col-md-4 col-sm-12">
-                        <div class="form-group">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('title') is-invalid @enderror" name="title"
-                                value="{{ isset($edit?->title) ? $edit->title : old('title') }}" placeholder="Enter title">
-                            @error('title')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 col-sm-12 mt-3">
-                        <div class="form-group">
-                            <label class="form-label">Body <span class="text-danger">*</span></label>
-                            <textarea id="body_editor" name="body" class="form-control @error('body') is-invalid @enderror"
-                                placeholder="Enter message">{{ isset($edit?->body) ? $edit->body : old('body') }}</textarea>
-
-                            @error('body')
-                                <span class="invalid-feedback">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-4 col-sm-12">
+ <div class="col-md-4 col-sm-12">
                         <div class="form-group">
                             <label class="form-label">Course <span class="text-danger">*</span></label>
                             <select class="form-control select2 @error('course_id') is-invalid @enderror" name="course_id">
@@ -99,6 +73,34 @@
                             @enderror
                         </div>
                     </div>
+
+
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('title') is-invalid @enderror" name="title"
+                                value="{{ isset($edit?->title) ? $edit->title : old('title') }}" placeholder="Enter title">
+                            @error('title')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 col-sm-12 mt-3">
+                        <div class="form-group">
+                            <label class="form-label">Body <span class="text-danger">*</span></label>
+                            <textarea id="body_editor" name="body" class="form-control @error('body') is-invalid @enderror"
+                                placeholder="Enter message">{{ isset($edit?->body) ? $edit->body : old('body') }}</textarea>
+
+                            @error('body')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+
 
 
 

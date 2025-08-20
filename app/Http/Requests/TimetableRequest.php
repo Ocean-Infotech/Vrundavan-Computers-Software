@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Master\MasterCourse;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\MasterCourse;
-use App\Models\MasterBatch;
+use App\Models\Master\MasterBatch;
 use App\Models\TimeTable;
 
 class TimeTableRequest extends FormRequest
@@ -18,13 +18,19 @@ class TimeTableRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('timetable') ?? 0;
-
-        return [
-          
-            'batch' => [
+dd($id);
+          return [
+            'course_id' => [
                 'required',
+                'integer',
+                Rule::exists((new MasterCourse())->getTable(), 'id')
             ],
-            'class' => [
+            'batch_id' => [
+                'required',
+                'integer',
+                Rule::exists((new MasterBatch())->getTable(), 'id')
+            ],
+            'class_id' => [
                 'required',
                 'string'
             ],
@@ -35,7 +41,7 @@ class TimeTableRequest extends FormRequest
             'attachment' => [
                 'nullable',
                 'file',
-                'mimes:pdf,jpg,jpeg,png',
+                'mimes:pdf,jpg,jpeg,png,doc,docx',
                 'max:2048'
             ],
         ];

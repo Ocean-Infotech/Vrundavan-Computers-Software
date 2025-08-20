@@ -224,6 +224,8 @@
             </li>
         @enddirectCanAny
 
+
+
         @directCanAny([
             'course-list',
             'batch-list',
@@ -235,7 +237,7 @@
             'timetable-list'
         ])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'notification_setting','timetable']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'notification_setting', 'timetable']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>
@@ -296,19 +298,6 @@
                         </li>
                     @enddirectCanAny
 
-                    @directCanAny([
-                        'notification-setting-list',
-                        'notification-setting-create',
-                        'notification-setting-edit',
-                        'notification-setting-delete'
-                    ])
-                        <li class="menu-item {{ $sidebar_active == 'notification_setting' ? 'active' : '' }}">
-                            <a href="{{ route('notification_setting.index') }}" class="menu-link">
-                                <div data-i18n="Notification Settings">Notification Settings</div>
-                            </a>
-                        </li>
-                    @enddirectCanAny
-
                     @directCanAny(['timetable-list', 'timetable-create', 'timetable-edit', 'timetable-delete'])
                         <li class="menu-item {{ $sidebar_active == 'timetable' ? 'active' : '' }}">
                             <a href="{{ route('timetable.index') }}" class="menu-link">
@@ -322,6 +311,31 @@
                 </ul>
             </li>
         @enddirectCanAny
+
+        <li
+            class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="ti ti-certificate me-2"></i>
+                <div data-i18n="Notification">Notification</div>
+            </a>
+            <ul class="menu-sub">
+
+                @directCanAny([
+                    'notification-setting-list',
+                    'notification-setting-create',
+                    'notification-setting-edit',
+                    'notification-setting-delete'
+                ])
+                    <li class="menu-item {{ $sidebar_active == 'notification_setting' ? 'active' : '' }}">
+                        <a href="{{ route('notification_setting.index') }}" class="menu-link">
+                            <div data-i18n="Notification Settings">Notification Settings</div>
+                        </a>
+                    </li>
+                @enddirectCanAny
+
+
+            </ul>
+        </li>
 
 
         @directCanAny(['biomax-list'])

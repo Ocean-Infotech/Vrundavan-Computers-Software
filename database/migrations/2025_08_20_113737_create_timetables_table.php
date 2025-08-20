@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -13,14 +14,15 @@ return new class extends Migration
     {
         Schema::create('timetables', function (Blueprint $table) {
             $table->id();
-            $table->string('class');
+            $table->string('course_id');
+            $table->string('batch_id');
+            $table->string('class_id');
             $table->string('semester');
-            $table->string('batch');
             $table->string('attachment');
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
-            $table->string('deleted_by')->nullable();
             $table->timestamps();
+            $table->string('deleted_by')->nullable();
         });
     }
 

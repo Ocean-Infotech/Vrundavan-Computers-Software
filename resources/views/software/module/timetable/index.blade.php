@@ -59,21 +59,7 @@
             </div>
         </div>
     </div>
-    <!-- Attachment Modal -->
-<div class="modal fade" id="attachmentModal" tabindex="-1" aria-labelledby="attachmentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="attachmentModalLabel">Attachment</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div id="attachmentContent"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
+    
 @endsection
 
 @section('page_script_file')
@@ -139,7 +125,6 @@
             event.preventDefault();
             dtable.draw();
         });
-        
     </script>
 
     @include('software.includes.script-delete-record')
