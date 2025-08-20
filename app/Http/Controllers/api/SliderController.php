@@ -55,7 +55,6 @@ class SliderController extends Controller
                 );
             }
 
-            // Save to public/uploads/sliders
             $fileName = time() . '_' . $request->file('image')->getClientOriginalName();
             $request->file('image')->move(public_path('uploads/sliders'), $fileName);
             $imagePath = 'uploads/sliders/' . $fileName;
@@ -93,7 +92,7 @@ class SliderController extends Controller
                 $slider->created_at,
                 $slider->updated_at
             );
-            $slider->image = url($slider->image);
+            $slider->image = asset($slider->image);
             return $slider;
         });
 
