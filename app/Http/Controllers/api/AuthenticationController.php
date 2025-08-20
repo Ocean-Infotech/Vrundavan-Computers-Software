@@ -259,7 +259,8 @@ class AuthenticationController extends Controller
                         }
                     }
                 ],
-
+                'device_token' => 'nullable|string',
+                'device_details' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -280,9 +281,11 @@ class AuthenticationController extends Controller
                 ->orderBy('id', 'DESC')
                 ->first();
 
-            $checkOTP->verified_at = Carbon::now();
-            $checkOTP->status = "expire";
-            $checkOTP->save();
+            if ($checkOTP) {
+                $checkOTP->verified_at = Carbon::now();
+                $checkOTP->status = "expire";
+                $checkOTP->save();
+            }
 
             // Revoke all previous tokens
             Token::where('user_id', $student->id)
@@ -294,59 +297,29 @@ class AuthenticationController extends Controller
             $token = $tokenResult->accessToken;
             $expiresAt = $tokenResult->token->expires_at;
 
+
+            if ($request->filled('device_token') || $request->filled('device_details')) {
+                StudentDeviceToken::updateOrCreate(
+                    [
+                        'student_id'   => $student->id,
+                        'device_token' => $request->device_token,
+                    ],
+                    [
+                        'device_details' => $request->device_details,
+                    ]
+                );
+            }
+
             // Get student profile
             $getProfileRequest = new Request();
             $getProfileRequest->admission_id = $student->id;
             $getProfile = (new AuthenticatedController())->student_profile_response($getProfileRequest);
             $getProfile->token = $token;
             $getProfile->expiresAt = $expiresAt;
+            $getProfile->device_token = $request->device_token ?? null;
+            $getProfile->device_details = $request->device_details ?? null;
 
             return $this->sendResponse($getProfile, 'OTP verified successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
-        }
-    }
-    public function storeDeviceToken(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'student_id' => [
-                    'required',
-                    'integer',
-                    Rule::exists(Admission::class, 'id'),
-                ],
-                'device_token' => ['required', 'string'],
-                'device_details' => ['required', 'string'],
-            ]);
-
-            if ($validator->fails()) {
-                return $this->sendError('Validation Error.', $validator->errors()->first(), $validator->errors(), 422);
-            }
-
-            $studentId = $request->student_id;
-
-            // Check if token already exists
-            $existingToken = StudentDeviceToken::where('student_id', $studentId)
-                ->where('device_token', $request->device_token)
-                ->first();
-
-            if (!$existingToken) {
-                $deviceToken = new StudentDeviceToken();
-                $deviceToken->student_id = $studentId;
-                $deviceToken->device_token = $request->device_token;
-                $deviceToken->device_details = $request->device_details ?? null;
-                $deviceToken->created_by = $studentId;
-                $deviceToken->save();
-            } else {
-                $deviceToken = $existingToken;
-            }
-
-            // Return in the same style as verify-otp
-            return response()->json([
-                'status' => true,
-                'message' => 'Device token stored successfully.',
-                'data' => $deviceToken
-            ], 200);
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
