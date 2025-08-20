@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 
 class SliderController extends Controller
 {
@@ -21,11 +20,13 @@ class SliderController extends Controller
             'permission_prefix' => 'banner',
         ];
     }
+
+    // All Sliders (Admin use)
     public function index()
     {
         $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
             unset($slider->created_by, $slider->updated_by, $slider->deleted_by);
-            $slider->image = url('storage/' . $slider->image);
+            $slider->image = url($slider->image); // public/uploads/sliders/... url
             return $slider;
         });
 
@@ -54,10 +55,10 @@ class SliderController extends Controller
                 );
             }
 
-            // Save to public/sliders
+            // Save to public/uploads/sliders
             $fileName = time() . '_' . $request->file('image')->getClientOriginalName();
-            $request->file('image')->move(public_path('sliders'), $fileName);
-            $imagePath = 'sliders/' . $fileName;
+            $request->file('image')->move(public_path('uploads/sliders'), $fileName);
+            $imagePath = 'uploads/sliders/' . $fileName;
 
             $slider = Slider::create([
                 'title' => $request->title,
@@ -72,7 +73,8 @@ class SliderController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    // List Sliders
+
+    // List Active Sliders
     public function slider_list()
     {
         $sliders = Slider::where('status', 'active')
@@ -97,8 +99,6 @@ class SliderController extends Controller
 
         return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
     }
-
-
 
     // Update Slider
     public function slider_update(Request $request)
@@ -141,8 +141,8 @@ class SliderController extends Controller
                 }
 
                 $fileName = time() . '_' . $request->file('image')->getClientOriginalName();
-                $request->file('image')->move(public_path('sliders'), $fileName);
-                $slider->image = 'sliders/' . $fileName;
+                $request->file('image')->move(public_path('uploads/sliders'), $fileName);
+                $slider->image = 'uploads/sliders/' . $fileName;
             }
 
             $slider->title = $request->title;
@@ -166,8 +166,8 @@ class SliderController extends Controller
             return $this->sendError('Slider not found.', [], [], 404);
         }
 
-        if ($slider->image && Storage::disk('public')->exists($slider->image)) {
-            Storage::disk('public')->delete($slider->image);
+        if ($slider->image && file_exists(public_path($slider->image))) {
+            unlink(public_path($slider->image));
         }
 
         $slider->delete();
