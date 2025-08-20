@@ -25,8 +25,7 @@ class SliderController extends Controller
     {
         $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
             unset($slider->created_by, $slider->updated_by, $slider->deleted_by);
-            $slider->image = url($slider->image);
-
+            $slider->image = url('storage/' . $slider->image);
             return $slider;
         });
 
@@ -167,10 +166,9 @@ class SliderController extends Controller
             return $this->sendError('Slider not found.', [], [], 404);
         }
 
-      if ($slider->image && file_exists(public_path($slider->image))) {
-    unlink(public_path($slider->image));
-}
-
+        if ($slider->image && Storage::disk('public')->exists($slider->image)) {
+            Storage::disk('public')->delete($slider->image);
+        }
 
         $slider->delete();
 
