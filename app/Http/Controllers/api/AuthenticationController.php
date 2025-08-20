@@ -316,7 +316,7 @@ class AuthenticationController extends Controller
                     Rule::exists(Admission::class, 'id'),
                 ],
                 'device_token' => ['required', 'string'],
-                'device_details' => ['nullable', 'string'],
+                'device_details' => ['required', 'string'],
             ]);
 
             if ($validator->fails()) {
