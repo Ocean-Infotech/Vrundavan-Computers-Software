@@ -306,6 +306,7 @@ class AuthenticationController extends Controller
                     ],
                     [
                         'device_details' => $request->device_details,
+                         'created_by'     => $student->id, 
                     ]
                 );
             }
