@@ -22,22 +22,20 @@ class NotificationSettingRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-  public function rules()
-{
-    $id = $this->route('notification_setting') ?? 0; // route param name table par depend kare
-// dd($id);
-    return [
-        'title' => [
-            'required',
-            'string',
-            'max:255',
-            Rule::unique((new NotificationSetting())->getTable(), 'title')->ignore($id),
-        ],
-        'body' => 'required|string',
-        'course_id' => 'required|string',
-       'student_id' => 'required|array',
-        'student_id.*' => 'integer|exists:admission,id',
-    ];
-}
-
+    public function rules()
+    {
+        $id = $this->route('notification_setting') ?? 0; // route param name table par depend kare
+        // dd($id);
+        return [
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'body' => 'required|string',
+            'course_id' => 'required|string',
+            'student_id' => 'required|array',
+            'student_id.*' => 'integer|exists:admission,id',
+        ];
+    }
 }

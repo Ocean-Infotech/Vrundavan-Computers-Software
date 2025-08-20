@@ -34,6 +34,7 @@ use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\TimetableController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -226,21 +227,10 @@ Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks
 // Notification Setting
 Route::resource('/notification_setting', NotificationSettingController::class);
 Route::get('get-students-by-course/{course_id}', [NotificationSettingController::class, 'getStudentsByCourse'])
-        ->name('get.students.by.course');
-Route::get('/test-notification', function () {
-    $data = [
-        'mobile_no' => '9876543210',
-        'student_id' => 1,
-        'title' => 'Test Notification',
-        'body' => 'This is a test push notification.',
-        'created_by' => 1,
-        'created_type' => 'admin',    
-    ];
+->name('get.students.by.course');
 
-    Helper::sendPushNotification($data);
-
-    return 'Notification sent (check logs for errors).';
-});
+// Timetable
+Route::resource('/timetable', TimetableController::class);
 
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);
