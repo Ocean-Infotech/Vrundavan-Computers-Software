@@ -28,7 +28,8 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-            $courseRegistered = CourceRegistration::where('register_id', $student->id)->first();
+            $courseRegistered = CourceRegistration::where('register_id', $student->id)
+                ->first();
 
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
@@ -37,8 +38,9 @@ class ApiStudentController extends Controller
             } else {
                 $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
 
-                // Fetch timetable attachment (only by course_id)
+                // Fetch timetable attachment (by course_id and batch_id both)
                 $timetable = Timetable::where('course_id', $courseRegistered->course_id)
+                    ->where('batch_id', $courseRegistered->batch_id)
                     ->first();
 
                 $data = [
@@ -49,9 +51,7 @@ class ApiStudentController extends Controller
                     'gr_no'          => $student->id,
                     'enrollment_no'  => $student->enrolment_no ?? '',
                     'spid'           => $student->spid ?? '',
-                    'attachment'     => $timetable?->attachment
-                        ? asset($timetable->attachment)
-                        : '',
+                    'attachment'     => $timetable?->attachment ? asset($timetable->attachment) : '',
                 ];
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
@@ -60,7 +60,6 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-
 
 
     public function fee_details(Request $request)

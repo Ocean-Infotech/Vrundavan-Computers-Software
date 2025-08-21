@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Master\MasterBatch;
+use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ class Timetable extends Model
 
     public $table = 'timetables';
 
-       protected $fillable = [
+    protected $fillable = [
         'course_id',
         'batch_id',
         'class_id',
@@ -34,5 +35,9 @@ class Timetable extends Model
     public function course()
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
+    }
+    public function class()
+    {
+        return $this->belongsTo(MasterClass::class, 'class_id');
     }
 }
