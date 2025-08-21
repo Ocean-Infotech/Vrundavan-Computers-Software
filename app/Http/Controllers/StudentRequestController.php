@@ -46,12 +46,10 @@ class StudentRequestController extends Controller
         View::share('modules', $modules);
 
         $columns = [
-            (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student ID'], // Added student_id
-
+            (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Name'],
             (object)['data' => "subject", 'name' => 'subject.name', 'td_label' => 'Subject'],
             (object)['data' => "detail", 'name' => 'detail', 'td_label' => 'Detail'],
-            (object)['data' => "created_at", 'name' => 'created_at', 'td_label' => 'Created At'], // new column
-
+            (object)['data' => "created_at", 'name' => 'created_at', 'td_label' => 'Created At'],
         ];
 
         View::share("columns", $columns);
@@ -78,9 +76,9 @@ class StudentRequestController extends Controller
                         }
                         return '-';
                     })
-                 ->addColumn('created_at', function ($row) {
-    return $row->created_at ? $row->created_at->format('d-m-Y H:i') : '-';
-})
+                    ->addColumn('created_at', function ($row) {
+                        return $row->created_at ? $row->created_at->format('d-m-Y H:i') : '-';
+                    })
 
 
 
