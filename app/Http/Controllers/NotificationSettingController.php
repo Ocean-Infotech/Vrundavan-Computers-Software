@@ -130,6 +130,14 @@ class NotificationSettingController extends Controller
             $validated['student_id'] = implode(',', $studentIds);
             $validated['created_by'] = Auth::user()->id;
             NotificationSetting::create($validated);
+            foreach ($studentIds as $sid) {
+                Helper::sendPushNotification([
+                    'student_id' => $sid,
+                    'title'      => $validated['title'],
+                    'body'       => $validated['body'],
+                    'created_by' => Auth::id(),
+                ]);
+            }
 
             return Redirect::route($this->modules['route'] . '.index')
                 ->withSuccess($this->modules['title'] . ' created successfully');

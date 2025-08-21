@@ -236,6 +236,15 @@ Route::resource('/timetable', TimetableController::class);
 // Student request
 Route::resource('/student-requests', StudentRequestController::class);
 
+Route::get('/test-notification', function () {
+    return Helper::sendPushNotification([
+        'student_id' => 384, // example student
+        'title'      => 'Test Notification',
+        'body'       => 'Hello, this is a test message.',
+        'created_by' => 384,
+    ]);
+});
+
 
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);

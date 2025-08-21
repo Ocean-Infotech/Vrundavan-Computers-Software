@@ -277,7 +277,6 @@ class Helper
                 'title'      => $data['title'],
                 'body'       => $data['body'],
                 'created_by' => $data['created_by'] ?? null,
-                'created_type' => $data['created_type'] ?? null,
             ]);
 
             $token = null;
