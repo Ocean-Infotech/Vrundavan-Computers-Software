@@ -15,7 +15,7 @@ class FirebaseService
     public function __construct()
     {
         $factory = (new Factory)
-            ->withServiceAccount(storage_path('firebase/vrundavan-73054-firebase-adminsdk-fbsvc-e93c6171c6.json'));
+            ->withServiceAccount(storage_path('firebase/vrundavan-project-firebase-adminsdk-fbsvc-3d0e6a4ebb.json'));
 
         $this->messaging = $factory->createMessaging(); // Corrected
     }
