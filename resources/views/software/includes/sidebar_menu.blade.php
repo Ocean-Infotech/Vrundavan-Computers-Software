@@ -234,10 +234,11 @@
             'syllabus-list',
             'subject-list',
             'notification-setting-list',
-            'timetable-list'
+            'timetable-list',
+            'student-requests-list'
         ])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'notification_setting', 'timetable']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'notification_setting', 'timetable','student-requests']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>
@@ -298,6 +299,21 @@
                         </li>
                     @enddirectCanAny
 
+                    {{-- Student Requests --}}
+                    @directCanAny([
+                        'student-requests-list',
+                        'student-requests-create',
+                        'student-requests-edit',
+                        'student-requests-delete'
+                    ])
+                        <li class="menu-item {{ $sidebar_active == 'student-requests' ? 'active' : '' }}">
+                            <a href="{{ route('student-requests.index') }}" class="menu-link">
+                                <div data-i18n="Student Requests">Student Requests</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
+
                     @directCanAny(['timetable-list', 'timetable-create', 'timetable-edit', 'timetable-delete'])
                         <li class="menu-item {{ $sidebar_active == 'timetable' ? 'active' : '' }}">
                             <a href="{{ route('timetable.index') }}" class="menu-link">
@@ -312,8 +328,7 @@
             </li>
         @enddirectCanAny
 
-        <li
-            class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
                 <div data-i18n="Notification">Notification</div>

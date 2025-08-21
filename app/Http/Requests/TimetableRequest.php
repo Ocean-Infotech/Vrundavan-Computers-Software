@@ -18,7 +18,7 @@ class TimeTableRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('timetable') ?? 0;
-dd($id);
+// dd($id);
           return [
             'course_id' => [
                 'required',

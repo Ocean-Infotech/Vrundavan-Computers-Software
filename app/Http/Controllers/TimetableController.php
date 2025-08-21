@@ -50,7 +50,6 @@ class TimetableController extends Controller
 
     // Define columns for DataTable
     $columns = [
-        (object)['data' => "id", 'name' => 'id', 'td_label' => 'ID'],
         (object)['data' => "course_name", 'name' => 'course.course_name', 'td_label' => 'Course'],
         (object)['data' => "batch_name", 'name' => 'batch.batch_name', 'td_label' => 'Batch'],
         (object)['data' => "class_id", 'name' => 'class_id', 'td_label' => 'Class'],
@@ -70,7 +69,7 @@ class TimetableController extends Controller
 
     try {
         if ($request->ajax()) {
-            $data = Timetable::with(['course', 'batch']); // Eager load relations
+            $data = Timetable::with(['course', 'batch']);
 
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -168,21 +167,24 @@ class TimetableController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(string $id)
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         try {
+            // dd($id);
             $edit = Timetable::findOrFail($id);
-            return view($modules['folder_path'] . '.form', compact('edit'));
+            // dd($edit);
+            View::share('edit', $edit);
+
+            return view($modules['folder_path'] . '.form');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
+
 
 
     /**

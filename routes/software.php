@@ -35,6 +35,7 @@ use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\StudentRequestController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -42,7 +43,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'dashboard'])->name('software.dashboard');
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard,showUsers');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard.showUsers');
 
 Route::get('/removeimage/{id}', [DashboardController::class, 'remove_image'])->name('remove_image');
 
@@ -231,6 +232,10 @@ Route::get('get-students-by-course/{course_id}', [NotificationSettingController:
 
 // Timetable
 Route::resource('/timetable', TimetableController::class);
+
+// Student request
+Route::resource('/student-requests', StudentRequestController::class);
+
 
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);

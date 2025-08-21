@@ -19,8 +19,12 @@ class StudentRequest extends Model
         'updated_by',
         'deleted_by'
     ];
-     public function subject()
+    public function subject()
     {
         return $this->belongsTo(MasterSubject::class, 'subject_id');
+    }
+    public function student()
+    {
+        return $this->belongsTo(Admission::class, 'student_id', 'id');
     }
 }
