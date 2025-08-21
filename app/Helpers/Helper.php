@@ -264,7 +264,7 @@ class Helper
             return $e->getMessage();
         }
     }
-     public static function sendPushNotification(array $data)
+    public static function sendPushNotification(array $data)
     {
         try {
             if (empty($data['title']) || empty($data['body'])) {
@@ -277,7 +277,7 @@ class Helper
                 'title'      => $data['title'],
                 'body'       => $data['body'],
                 'created_by' => $data['created_by'] ?? null,
-                'created_type'=> $data['created_type'] ?? null,
+                'created_type' => $data['created_type'] ?? null,
             ]);
 
             $token = null;
@@ -304,11 +304,10 @@ class Helper
                     $notification->save();
                 }
             }
-
         } catch (\Throwable $e) {
             Log::error('Push Notification error: ' . $e->getMessage(), [
                 'data' => $data,
-                'trace'=> $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }

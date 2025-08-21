@@ -10,17 +10,21 @@ use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\Controller;
 use App\Models\NotificationSetting;
 use App\Models\Master\MasterCourse;
+use App\Models\Admission;
+use App\Models\CourceRegistration;
+use App\Models\StudentDeviceToken;
+use App\Models\Notification;
+use App\Services\FirebaseService;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class NotificationSettingController extends Controller
 {
-    /**
-     * Module setup
-     */
     public $modules = [];
+
     public function __construct()
     {
         $this->modules = [
@@ -44,7 +48,6 @@ class NotificationSettingController extends Controller
         $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
 
-        // Permission check
         if (!$modules['permission_list']) {
             if ($request->ajax()) {
                 return response()->json(['error' => 'User does not have the right permissions.'], 403);
@@ -54,34 +57,29 @@ class NotificationSettingController extends Controller
 
         View::share('modules', $modules);
 
-        // Define columns for DataTable
         $columns = [
             (object)['data' => "title", 'name' => 'title', 'td_label' => 'Title'],
             (object)['data' => "body", 'name' => 'body', 'td_label' => 'Message'],
             (object)['data' => "course_id", 'name' => 'course_id', 'td_label' => 'Course'],
             (object)['data' => "student_name", 'td_label' => 'Student'],
-
             (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
         ];
         View::share("columns", $columns);
 
         try {
             if ($request->ajax()) {
-                $data = NotificationSetting::with('course:id,course_name'); // eager load course
+                $data = NotificationSetting::with('course:id,course_name');
 
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
                             $query->where('title', 'like', "%" . $request->search . "%")
-                                ->orWhere('body', 'like', "%" . $request->search . "%");
+                                  ->orWhere('body', 'like', "%" . $request->search . "%");
                         }
                     })
                     ->addColumn('student_name', fn($row) => $row->student_names)
-
-                    ->editColumn('course_id', function ($row) {
-                        return $row->course?->course_name ?? '-';
-                    })
+                    ->editColumn('course_id', fn($row) => $row->course?->course_name ?? '-')
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if ($modules['permission_edit']) {
@@ -102,16 +100,15 @@ class NotificationSettingController extends Controller
         }
     }
 
-
     public function create()
     {
         $modules = $this->modules;
         View::share('modules', $modules);
 
         $courses = MasterCourse::pluck('course_name', 'id');
-
         $students = [];
         $selectedStudents = [];
+
         View::share('courses', $courses);
         View::share('students', $students);
         View::share('selectedStudents', $selectedStudents);
@@ -119,28 +116,64 @@ class NotificationSettingController extends Controller
         return view($modules['folder_path'] . '.form');
     }
 
-
-
+    /**
+     * Store notification + send firebase push
+     */
     public function store(NotificationSettingRequest $request)
     {
         $validated = $request->validated();
-        try {
 
+        try {
             $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
             $validated['student_id'] = implode(',', $studentIds);
             $validated['created_by'] = Auth::user()->id;
-            NotificationSetting::create($validated);
+
+            // 1. Save in notification_settings
+            $notificationSetting = NotificationSetting::create($validated);
+
+            // 2. Get student list (from request or course)
+            $studentIds = $studentIds;
+            if (empty($studentIds) && $notificationSetting->course_id) {
+                $studentIds = CourceRegistration::where('course_id', $notificationSetting->course_id)
+                    ->pluck('admission_id')
+                    ->toArray();
+            }
+
+            // 3. Send push to each student
+            $firebase = app(FirebaseService::class);
+
+            foreach ($studentIds as $sid) {
+                $device = StudentDeviceToken::where('student_id', $sid)->latest()->first();
+
+                if (!$device || !$device->device_token) {
+                    Log::info("No device token found for student_id=" . $sid);
+                    continue;
+                }
+
+                $results = $firebase->sendNotification(
+                    [$device->device_token],
+                    $notificationSetting->title,
+                    $notificationSetting->body
+                );
+
+                // 4. Save in notifications history
+                foreach ($results as $result) {
+                    Notification::create([
+                        'student_id' => $sid,
+                        'title'      => $notificationSetting->title,
+                        'body'       => $notificationSetting->body,
+                        'send_status'=> $result['status'],
+                    ]);
+                }
+            }
 
             return Redirect::route($this->modules['route'] . '.index')
-                ->withSuccess($this->modules['title'] . ' created successfully');
+                ->withSuccess($this->modules['title'] . ' created and sent successfully');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $modules = $this->modules;
@@ -149,14 +182,11 @@ class NotificationSettingController extends Controller
         try {
             $edit = NotificationSetting::findOrFail($id);
             $courses = MasterCourse::pluck('course_name', 'id');
-
-            // student ids array (already saved in db)
             $selectedStudents = $edit->student_id ? explode(',', $edit->student_id) : [];
 
-            // students list only for selected course
             $students = [];
             if ($edit->course_id) {
-                $students = \App\Models\CourceRegistration::with('admission:id,first_name,last_name')
+                $students = CourceRegistration::with('admission:id,first_name,last_name')
                     ->where('course_id', $edit->course_id)
                     ->get()
                     ->map(function ($reg) {
@@ -169,6 +199,7 @@ class NotificationSettingController extends Controller
                     ->values()
                     ->toArray();
             }
+
             View::share('edit', $edit);
             View::share('courses', $courses);
             View::share('students', $students);
@@ -180,10 +211,6 @@ class NotificationSettingController extends Controller
         }
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(NotificationSettingRequest $request, string $id)
     {
         $validated = $request->validated();
@@ -196,7 +223,7 @@ class NotificationSettingController extends Controller
             $validated['updated_by'] = Auth::user()->id;
 
             $notificationSetting->update($validated);
-            // dd($request->all(),$validated);
+
             return Redirect::route($this->modules['route'] . '.index')
                 ->withSuccess($this->modules['title'] . ' updated successfully');
         } catch (\Exception $e) {
@@ -204,9 +231,6 @@ class NotificationSettingController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         try {
@@ -218,12 +242,12 @@ class NotificationSettingController extends Controller
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
-    } // NotificationSettingController.php
+    }
 
     public function getStudentsByCourse($course_id)
     {
         try {
-            $students = \App\Models\CourceRegistration::with('student', 'admission:id,first_name,last_name')
+            $students = CourceRegistration::with('student', 'admission:id,first_name,last_name')
                 ->where('course_id', $course_id)
                 ->get()
                 ->map(function ($reg) {
