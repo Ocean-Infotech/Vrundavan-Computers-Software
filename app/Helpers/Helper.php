@@ -267,47 +267,32 @@ class Helper
     public static function sendPushNotification(array $data)
     {
         try {
-            if (empty($data['title']) || empty($data['body'])) {
-                Log::warning('Push Notification skipped: Title or Body missing.', $data);
+            // Step 1: Fetch device token from student_device_tokens
+            $student_id = $data['student_id'];
+            $device = StudentDeviceToken::where('student_id', $student_id)->latest()->first();
+            if (!$device || !$device->device_token) {
+                Log::info("No device token found for student ID: {$student_id}");
                 return;
             }
+            $token = $device->device_token;
 
-            $notification = Notification::create([
-                'student_id' => $data['student_id'] ?? null,
-                'title'      => $data['title'],
-                'body'       => $data['body'],
-                'created_by' => $data['created_by'] ?? null,
-            ]);
-
-            $token = null;
-            $user = Admission::where('mobile_no', $data['mobile_no'] ?? null)->first();
-
-            if ($user) {
-                $device = StudentDeviceToken::where('student_id', $user->id)->latest()->first();
-                if ($device && $device->device_token) {
-                    $token = $device->device_token;
-                }
-            }
-
-            if (!$token) {
-                Log::info("No device token found. Notification not sent.", $data);
-                return;
-            }
-
-            $firebase = app(\App\Services\FirebaseService::class);
+            // Step 2: Send notification via Firebase
+            $firebase = app(FirebaseService::class);
             $results = $firebase->sendNotification([$token], $data['title'], $data['body']);
 
+            // Optional: Update notification status
             foreach ($results as $result) {
-                if ($result['token'] === $token) {
-                    $notification->send_status = $result['status'] === 'success' ? 'success' : 'failed';
-                    $notification->save();
-                }
+                $status = $result['status'] === 'success' ? 'success' : 'failed';
+                Notification::create([
+                    'student_id' => $student_id,
+                    'title'      => $data['title'],
+                    'body'       => $data['body'],
+                    'send_status' => $status,
+                    'created_by' => $data['created_by'] ?? null,
+                ]);
             }
         } catch (\Throwable $e) {
-            Log::error('Push Notification error: ' . $e->getMessage(), [
-                'data' => $data,
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('Push Notification error: ' . $e->getMessage(), ['data' => $data]);
         }
     }
 }

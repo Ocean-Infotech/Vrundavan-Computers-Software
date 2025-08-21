@@ -169,41 +169,17 @@
         const firebaseConfig = @json($firebaseConfig);
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
-
-        function requestFCMToken() {
-            navigator.serviceWorker.register("/firebase-messaging-sw.js")
-                .then((registration) => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then(function(registration) {
                     messaging.useServiceWorker(registration);
-                    return messaging.requestPermission();
-                })
-                .then(() => messaging.getToken({
-                    vapidKey: firebaseConfig.vapidKey
-                }))
-                .then((token) => {
-                    console.log('Web FCM Token:', token);
-                    // Send this token along with OTP verification request
-                    return token;
-                })
-                .catch(err => console.error('FCM error:', err));
+                    console.log('Service Worker registered and messaging linked.');
+                }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                });
         }
-
-        // Call this before sending OTP verify request
-        requestFCMToken().then(fcmToken => {
-            fetch('/api/student-verify-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    mobile_no: studentMobile,
-                    otp: studentOTP,
-                    device_token: fcmToken,
-                    device_details: navigator.userAgent
-                })
-            });
-        });
     </script>
+
 
 
 
