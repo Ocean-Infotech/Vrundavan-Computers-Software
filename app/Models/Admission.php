@@ -74,4 +74,5 @@ class Admission extends Authenticatable
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
+    
 }

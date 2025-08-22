@@ -78,8 +78,8 @@ class TestController extends Controller
                         }
                     })
                     ->editColumn('date', function ($row) {
-        return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
-    })
+                        return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
+                    })
                     ->editColumn('status', function ($row) use ($modules) {
                         $status = '';
                         $dropdown = "";

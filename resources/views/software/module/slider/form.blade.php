@@ -62,9 +62,13 @@
                             <input type="file" name="image" class="form-control @error('image') is-invalid @enderror">
 
                             @if (isset($edit?->image))
-                                <img src="{{ asset('storage/' . $edit->image) }}" alt="Slider Image" width="100"
-                                    class="mt-2">
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <a href="{{ asset($edit->image) }}" target="_blank" class="btn btn-primary btn-sm">
+                                        View Image
+                                    </a>
+                                </div>
                             @endif
+
 
                             @error('image')
                                 <span class="invalid-feedback">

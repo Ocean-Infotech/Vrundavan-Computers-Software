@@ -140,14 +140,14 @@ class TimetableController extends Controller
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $destinationPath = public_path('upload/timetable');
+                $destinationPath = public_path('uploads/timetable');
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
                 }
 
                 $file->move($destinationPath, $filename);
-                $validated['attachment'] = 'upload/timetable/' . $filename;
+                $validated['attachment'] = 'uploads/timetable/' . $filename;
             }
 
             $validated['created_by'] = Auth::id();
@@ -204,7 +204,7 @@ class TimetableController extends Controller
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $destinationPath = public_path('upload/timetable');
+                $destinationPath = public_path('uploads/timetable');
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -217,7 +217,7 @@ class TimetableController extends Controller
 
                 // Move new file
                 $file->move($destinationPath, $filename);
-                $validated['attachment'] = 'upload/timetable/' . $filename;
+                $validated['attachment'] = 'uploads/timetable/' . $filename;
             }
 
             $validated['updated_by'] = Auth::id();

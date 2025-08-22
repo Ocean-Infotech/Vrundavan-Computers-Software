@@ -212,9 +212,15 @@ class AdmissionController extends Controller
         }
 
         View::share('modules', $modules);
-
         $validated = $request->validated();
 
+        $validated['first_name']  = strtoupper($validated['first_name']);
+        $validated['last_name']   = strtoupper($validated['last_name']);
+        $validated['father_name'] = strtoupper($validated['father_name']);
+        $validated['mother_name'] = strtoupper($validated['mother_name']);
+
+
+        // dd($request->all(), $validated);
         $token = Session::get('external_api_token');
 
         try {
@@ -231,10 +237,10 @@ class AdmissionController extends Controller
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
 
                 $admission->update([
-        'gdrivefolderid'   => $folderData['id'] ?? null,
-        'gdrivefoldername' => $folderData['name'] ?? $folderName,
-        'gdrivefolderurl'  => $folderData['link'] ?? null,
-    ]);
+                    'gdrivefolderid'   => $folderData['id'] ?? null,
+                    'gdrivefoldername' => $folderData['name'] ?? $folderName,
+                    'gdrivefolderurl'  => $folderData['link'] ?? null,
+                ]);
             } catch (\Exception $e) {
                 \Log::error("Google Drive folder creation failed: " . $e->getMessage());
             }

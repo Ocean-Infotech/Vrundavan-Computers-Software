@@ -62,25 +62,25 @@ class SliderController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->editColumn('image', function ($row) {
-                    return '<img src="' . asset('storage/' . $row->image) . '" alt="' . e($row->title) . '" width="80">';
+                    return '<img src="' . asset($row->image) . '" alt="' . e($row->title) . '" width="80">';
                 })
                 ->editColumn('link', function ($row) {
                     return $row->link ? '<a href="' . e($row->link) . '" target="_blank">' . e($row->link) . '</a>' : '';
                 })
                 ->editColumn('status', function ($row) use ($modules) {
-                        if ($row->status === "active") {
-                            return '<button class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>
+                    if ($row->status === "active") {
+                        return '<button class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>
                                 <ul class="dropdown-menu">
                                     <li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="inactive">Inactive</a></li>
                                 </ul>';
-                        } elseif ($row->status === "inactive") {
-                            return '<button class="btn btn-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>
+                    } elseif ($row->status === "inactive") {
+                        return '<button class="btn btn-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>
                                 <ul class="dropdown-menu">
                                     <li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="active">Active</a></li>
                                 </ul>';
-                        }
-                        return '';
-                    })
+                    }
+                    return '';
+                })
                 ->addColumn('action', function ($row) use ($modules) {
                     $btn = '';
                     if (!$row->deleted_at) {
@@ -95,7 +95,7 @@ class SliderController extends Controller
                     }
                     return $btn ?: '-';
                 })
-                ->rawColumns(['action', 'image', 'link','status'])
+                ->rawColumns(['action', 'image', 'link', 'status'])
                 ->make(true);
         }
 
@@ -125,13 +125,17 @@ class SliderController extends Controller
         }
 
         try {
-            $imagePath = $request->file('image')->store('sliders', 'public');
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/sliders'), $imageName);
+
             Slider::create([
                 'title' => $request->title,
-                'image' => $imagePath,
+                'image' => 'uploads/sliders/' . $imageName,
                 'link'  => $request->link,
                 'created_by' => Auth::user()->id,
             ]);
+
 
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' created successfully.');
         } catch (\Exception $e) {
@@ -164,11 +168,18 @@ class SliderController extends Controller
             $slider = Slider::findOrFail($id);
 
             if ($request->hasFile('image')) {
-                if ($slider->image && Storage::disk('public')->exists($slider->image)) {
-                    Storage::disk('public')->delete($slider->image);
+                // delete old file if exists
+                if ($slider->image && file_exists(public_path($slider->image))) {
+                    unlink(public_path($slider->image));
                 }
-                $slider->image = $request->file('image')->store('sliders', 'public');
+
+                $image = $request->file('image');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->move(public_path('uploads/sliders'), $imageName);
+
+                $slider->image = 'uploads/sliders/' . $imageName;
             }
+
 
             $slider->title = $request->title;
             $slider->link = $request->link;
@@ -180,52 +191,52 @@ class SliderController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
-public function update_status(Request $request)
-{
-    $isAjax = $request->ajax();
+    public function update_status(Request $request)
+    {
+        $isAjax = $request->ajax();
 
-    $modules = $this->modules;
+        $modules = $this->modules;
 
-    $validator = Validator::make($request->all(), [
-        'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-        'update_status' => ['required', 'in:active,inactive']
-    ]);
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
+            'update_status' => ['required', 'in:active,inactive']
+        ]);
 
-    if ($validator->fails() && $isAjax) {
-        return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
-    }
+        if ($validator->fails() && $isAjax) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+        }
 
-    try {
-        $slider = Slider::withTrashed()->findOrFail($request->id);
+        try {
+            $slider = Slider::withTrashed()->findOrFail($request->id);
 
-        if ($slider) {
-            $slider->status = $request->update_status;
-            $slider->save();
+            if ($slider) {
+                $slider->status = $request->update_status;
+                $slider->save();
+
+                if ($isAjax) {
+                    return $this->sendResponse($slider, $modules['title'] . ' status updated successfully.');
+                }
+
+                return Redirect::route($modules['route'] . '.index')
+                    ->withSuccess($modules['title'] . ' status updated successfully.');
+            }
 
             if ($isAjax) {
-                return $this->sendResponse($slider, $modules['title'] . ' status updated successfully.');
+                return $this->sendError('Something went wrong. Please try again later.');
+            }
+
+            return Redirect::back()
+                ->withErrors('Something went wrong. Please try again later.')
+                ->withInput();
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
             }
 
             return Redirect::route($modules['route'] . '.index')
-                ->withSuccess($modules['title'] . ' status updated successfully.');
+                ->withErrors($e->getMessage());
         }
-
-        if ($isAjax) {
-            return $this->sendError('Something went wrong. Please try again later.');
-        }
-
-        return Redirect::back()
-            ->withErrors('Something went wrong. Please try again later.')
-            ->withInput();
-    } catch (\Exception $e) {
-        if ($isAjax) {
-            return $this->sendError($e->getMessage(), $e->getMessage(), [], 401);
-        }
-
-        return Redirect::route($modules['route'] . '.index')
-            ->withErrors($e->getMessage());
     }
-}
 
     public function destroy(Request $request, string $id)
     {
