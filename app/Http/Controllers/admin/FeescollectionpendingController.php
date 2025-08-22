@@ -150,7 +150,7 @@ class FeescollectionpendingController extends Controller
                         })->implode('<br> ');
                     })
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
-                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
+                        $total_fee = (float)($allRegistrations[$row->register_id] ?? collect())->sum('fee');
                         return '₹' . number_format($total_fee, 2);
                     })
                     ->addColumn('paid_fee', function ($row) use ($feesCollection) {
@@ -158,8 +158,8 @@ class FeescollectionpendingController extends Controller
                         return '₹' . number_format($paid_fee, 2);
                     })
                     ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
-                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
-                        $paid_fee = $feesCollection[$row->register_id] ?? 0;
+                        $total_fee = (float)($allRegistrations[$row->register_id] ?? collect())->sum('fee');
+                        $paid_fee = (float)$feesCollection[$row->register_id] ?? 0;
                         $pending = $total_fee - $paid_fee;
                         return '₹' . number_format($pending, 2);
                     })
