@@ -137,32 +137,34 @@ class FeescollectionpendingController extends Controller
                     ->addColumn('contact_no', function ($row) {
                         return $row->admission->mobile_no ?? '-';
                     })
-                    ->editColumn('course_name', function ($row) use ($allRegistrations) {
-                        $registrations = $allRegistrations[$row->register_id] ?? collect();
-                        return $registrations->map(function ($item) {
-                            return $item->course->course_name . ' (' . number_format($item->fee, 2) . ')';
-                        })->implode('<br> ');
-                    })
-                    ->editColumn('date', function ($row) use ($allRegistrations) {
-                        $registrations = $allRegistrations[$row->register_id] ?? collect();
-                        return $registrations->map(function ($item) {
-                            return Carbon::parse($item->date)->format('d-m-Y');
-                        })->implode('<br> ');
-                    })
-                    ->addColumn('total_fee', function ($row) use ($allRegistrations) {
-                        $total_fee = (float)($allRegistrations[$row->register_id] ?? collect())->sum('fee');
-                        return '₹' . number_format($total_fee, 2);
-                    })
+                   ->editColumn('course_name', function ($row) use ($allRegistrations) {
+    $registrations = $allRegistrations->get($row->register_id, collect());
+    return $registrations->map(function ($item) {
+        return $item->course->course_name . ' (' . number_format((float) $item->fee, 2) . ')';
+    })->implode('<br> ');
+})
+
+->editColumn('date', function ($row) use ($allRegistrations) {
+    $registrations = $allRegistrations->get($row->register_id, collect());
+    return $registrations->map(function ($item) {
+        return Carbon::parse($item->date)->format('d-m-Y');
+    })->implode('<br> ');
+})
+                   ->addColumn('total_fee', function ($row) use ($allRegistrations) {
+    $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
+    return '₹' . number_format($total_fee, 2);
+})
                     ->addColumn('paid_fee', function ($row) use ($feesCollection) {
                         $paid_fee = $feesCollection[$row->register_id] ?? 0;
                         return '₹' . number_format($paid_fee, 2);
                     })
-                    ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
-                        $total_fee = (float)($allRegistrations[$row->register_id] ?? collect())->sum('fee');
-                        $paid_fee = (float)$feesCollection[$row->register_id] ?? 0;
-                        $pending = $total_fee - $paid_fee;
-                        return '₹' . number_format($pending, 2);
-                    })
+
+->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
+    $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
+    $paid_fee = (float) ($feesCollection[$row->register_id] ?? 0);
+    $pending = $total_fee - $paid_fee;
+    return '₹' . number_format($pending, 2);
+})
                     ->rawColumns(['total_fee', 'course_name', 'date'])
                     ->make(true);
             }
