@@ -12,7 +12,7 @@ class GoogleDriveHelper
     {
         $client = new Google_Client();
         // JSON file path
-        $client->setAuthConfig(storage_path('google/service-account.json'));
+        $client->setAuthConfig(storage_path('google/vrundavan-computer-469909-c5332d639c01.json'));
         $client->addScope(Google_Service_Drive::DRIVE);
         return $client;
     }
