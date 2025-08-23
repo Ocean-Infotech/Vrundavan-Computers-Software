@@ -65,6 +65,7 @@ class FeescollectionpendingController extends Controller
             $semesters = range(1, 8); // or fetch from DB if dynamic
 
 
+            // dd('hello');
             if ($request->ajax()) {
 
                 // dd($request->all());
@@ -114,7 +115,7 @@ class FeescollectionpendingController extends Controller
                 }
 
 
-                $data = $dataQuery->get();
+$data = $dataQuery->take(1)->get();
 
                 $allRegistrations = CourceRegistration::with('course')
                     ->whereIn('register_id', $data->pluck('register_id'))

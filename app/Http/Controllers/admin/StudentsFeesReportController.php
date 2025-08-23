@@ -50,6 +50,8 @@ class StudentsFeesReportController extends Controller
             (object)['data' => 'total_fee', 'name' => 'total_fee', 'td_label' => 'Total Fees'],
             (object)['data' => 'paid_fee', 'name' => 'paid_fee', 'td_label' => 'Paid Fees'],
             (object)['data' => 'pending_fee', 'name' => 'pending_fee', 'td_label' => 'Pending Fees'],
+            (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action'],
+
         ];
         View::share("columns", $columns);
 
@@ -91,7 +93,9 @@ class StudentsFeesReportController extends Controller
                 $paid = $semesterPaid[$sem] ?? 0;
                 $pending = $semester_fee - $paid;
 
+
                 $data[] = [
+                    'id' => $feesCollections->where('year_semester', $sem)->first()->id ?? null,
                     'year_semester' => "Semester $sem",
                     'total_fee' => $semester_fee,
                     'paid_fee' => $paid,
@@ -110,6 +114,25 @@ class StudentsFeesReportController extends Controller
                 ->editColumn('pending_fee', function ($row) {
                     return '₹' . number_format($row['pending_fee'], 2);
                 })
+                ->addColumn('action', function ($row) use ($modules, $student_id) {
+                    if ($row['pending_fee'] == 0) {
+                        // extract only number from "Semester 1"
+                        $semesterNumber = preg_replace('/\D/', '', $row['year_semester']);
+
+                        $url = route($modules['route'] . '.print', [
+                            'student_id' => $student_id,
+                            'semester'   => $semesterNumber,
+                        ]);
+
+                        return '<a href="' . $url . '" class="btn btn-sm btn-primary" target="_blank">Print</a>';
+                    }
+                    return '-';
+                })
+
+
+                ->rawColumns(['action'])
+
+
                 ->make(true);
         }
         return view($modules['folder_path'] . '.index');
@@ -162,86 +185,6 @@ class StudentsFeesReportController extends Controller
     {
         //
     }
-    /**
-     * Export Excel view for the report.
-     */
-    // public function exportExcel(Request $request)
-    // {
-    //     try {
-    //         $student_id = $request->search_id;
-    //         $course_id = $request->course_id;
-
-    //         $courseRegistration = CourceRegistration::where('register_id', $student_id)
-    //             ->where('course_id', $course_id)
-    //             ->with('course')
-    //             ->first();
-
-    //         $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
-    //             ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
-    //             : 0;
-
-    //         $feesCollections = FeesCollection::where('admission_id', $student_id)
-    //             ->where('course_id', $course_id)
-    //             ->get();
-
-    //         $semesterPaid = [];
-    //         foreach ($feesCollections as $fee) {
-    //             $sem = $fee->year_semester;
-    //             $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
-    //         }
-
-    //         $data = [];
-    //         $total_semesters = $courseRegistration->course->semester;
-
-    //         for ($sem = 1; $sem <= $total_semesters; $sem++) {
-    //             $paid = $semesterPaid[$sem] ?? 0;
-    //             $pending = $semester_fee - $paid;
-
-    //             $data[] = [
-    //                 'semester' => "Semester $sem",
-    //                 'total_fee' => number_format($semester_fee, 2),
-    //                 'paid_fee' => number_format($paid, 2),
-    //                 'pending_fee' => number_format(max($pending, 0), 2),
-    //             ];
-    //         }
-
-    //         $spreadsheet = new Spreadsheet();
-    //         $sheet = $spreadsheet->getActiveSheet();
-
-    //         $sheet->setCellValue('A1', 'Semester');
-    //         $sheet->setCellValue('B1', 'Total Fee');
-    //         $sheet->setCellValue('C1', 'Paid Fee');
-    //         $sheet->setCellValue('D1', 'Pending Fee');
-
-    //         $row = 2;
-
-    //         foreach ($data as $item) {
-    //             $semester = $item['semester'];
-    //             $semesterFee = $item['total_fee'];
-    //             $paidFee = $item['paid_fee'];
-    //             $pendingFee = $item['pending_fee'];
-
-    //             $sheet->setCellValue('A' . $row, $semester);
-    //             $sheet->setCellValue('B' . $row, $semesterFee);
-    //             $sheet->setCellValue('C' . $row, $paidFee);
-    //             $sheet->setCellValue('D' . $row, $pendingFee);
-
-    //             $row++;
-    //         }
-
-    //         $writer = new Xlsx($spreadsheet);
-    //         // $fileName = 'Student_Fees_Report_Filtered.xlsx';
-    //         $fileName = 'Student_Fees_Report_' . now()->format('Ymd_His') . '.xlsx';
-
-    //         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    //         header("Content-Disposition: attachment; filename=\"$fileName\"");
-    //         $writer->save("php://output");
-    //         exit;
-    //     } catch (\Exception $e) {
-    //         Log::error('Export Excel Error', ['message' => $e->getMessage(), 'trace' => $e->getTrace()]);
-    //         return back()->withErrors('An error occurred while exporting the file.');
-    //     }
-    // }
 
     public function exportExcel(Request $request)
     {
@@ -289,7 +232,7 @@ class StudentsFeesReportController extends Controller
 
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-            
+
 
             $sheet->setCellValue('A1', 'Semester');
             $sheet->setCellValue('B1', 'Total Fee');
@@ -332,53 +275,60 @@ class StudentsFeesReportController extends Controller
 
     public function printView(Request $request)
     {
-        $student_id = $request->search_id;
-        $course_id = $request->course_id;
+        $studentId = $request->student_id;
+        $semester  = $request->semester;
 
-        // Get course and fee data
-        $courseRegistration = CourceRegistration::where('register_id', $student_id)
-            ->where('course_id', $course_id)
-            ->with(['course'])
+        // Course registration + course
+        $courseRegistration = CourceRegistration::where('register_id', $studentId)
+            ->with('course')
             ->first();
 
         if (!$courseRegistration || !$courseRegistration->course) {
-            return DataTables::of([])->make(true);
+            abort(404, 'Course not found');
         }
-        // dd("ln-376", "course - ", $courseRegistration->course->course_fees, "samaster - ",$courseRegistration->course->semester);
+
+        // Per semester fee (total fees ÷ semester)
         $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
             ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
             : 0;
 
-        // dd($semester_fee);
-        // Get fees paid per semester
-        $feesCollections = FeesCollection::where('admission_id', $student_id)
-            ->where('course_id', $course_id)
-            ->get();
+        // Paid fees for this semester
+        $paidFee = FeesCollection::where('admission_id', $studentId)
+            ->where('course_id', $courseRegistration->course_id)
+            ->where('year_semester', $semester)
+            ->sum('fees');
 
-        $semesterPaid = [];
-        foreach ($feesCollections as $fee) {
-            $sem = $fee->year_semester;
-            $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+        $pendingFee = max($semester_fee - $paidFee, 0);
+
+        // For header info we need one record
+        $feesData = FeesCollection::with(['admission', 'course'])
+            ->where('admission_id', $studentId)
+            ->where('year_semester', $semester)
+            ->first();
+
+        if (!$feesData) {
+            abort(404, 'Receipt not found');
         }
 
-        // Create flat array per semester
-        $data = [];
-        $total_semesters = $courseRegistration->course->semester;
+        $feesDetails = [
+            ['name' => 'Admission Fee', 'amount' => 500],
+            ['name' => 'Tuition Fee', 'amount' => 12500],
+            ['name' => 'Library Fee', 'amount' => 500],
+            ['name' => 'Enrollment Fee', 'amount' => 150],
+            ['name' => 'University Development Fee', 'amount' => 200],
+            ['name' => 'University Sports Fee', 'amount' => 150],
+            ['name' => 'College Development Fee', 'amount' => 500],
+            ['name' => 'Late Fee', 'amount' => 0],  // default 0
+            ['name' => 'Other Fee', 'amount' => 500],
+            // ['name' => 'Total Fees',   'amount' => $semester_fee],
+        ];
 
-        for ($sem = 1; $sem <= $total_semesters; $sem++) {
-            $paid = $semesterPaid[$sem] ?? 0;
-            $pending = $semester_fee - $paid;
-
-            $data[] = [
-                'year_semester' => "Semester $sem",
-                'total_fee' => $semester_fee,
-                'paid_fee' => $paid,
-                'pending_fee' => max($pending, 0),
-            ];
-        }
-
-        // dd($data);    
-
-        return view('software.module.students-fees-report.print', compact('data'));
+        return view('software.module.students-fees-report.print', compact(
+            'feesData',
+            'feesDetails',
+            'semester_fee',
+            'paidFee',
+            'pendingFee'
+        ))->with('modules', $this->modules);
     }
 }
