@@ -203,7 +203,7 @@
                 <table class="info-table">
                     <tr>
                         <td>Receipt No.</td>
-                        <td>{{ $feesData->receipt_no ?? '____________' }}</td>
+                        <td>{{ $receipt->receipt_no}}</td>
                     </tr>
                     <tr>
                         <td>Student Name</td>
