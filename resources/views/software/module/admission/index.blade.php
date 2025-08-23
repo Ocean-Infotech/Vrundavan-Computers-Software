@@ -24,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -170,25 +170,7 @@
                                     @endif
                                 </tr>
                             </thead>
-                            {{-- <tbody id="courseData">
-                                <th><span id="id"></span></th>
-                                <th><span id="course_id"></span></th>
-                                <th><span id="date"></span></th>
-                                <th><span id="doc"></span></th>
-                                <th>
 
-                                    <button type="button" class="btn btn-success btn-sm" id="collectFees" data-id="">
-                                        Create
-                                    </button>
-                                </th>
-                                <th>
-                                    <button type="button" class="btn btn-primary btn-sm" id="formBtn">Form</button>
-                                </th>
-                                <th>
-                                    <button type="button" class="btn btn-warning btn-sm" id="updateBtn"
-                                        data-register_id="" data-course_id="">Update</button>
-                                </th>
-                            </tbody> --}}
                             <tbody id="courseData">
                                 <!-- Rows will be appended dynamically here -->
                             </tbody>
@@ -244,7 +226,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -313,97 +295,7 @@
             });
         });
 
-        // Show course details modal
-        // $(document).on('click', '.course-btn', function() {
-        //     let id = $(this).data('id');
 
-        //     $.ajax({
-        //         url: "{{ route($route . '.show') }}",
-        //         type: "GET",
-        //         data: {
-        //             id: id
-        //         },
-        //         success: function(response) {
-        //             console.log(response);
-        //             if (response.success) {
-        //                 let course = response.course;
-        //                 let data = response.student;
-        //                 let master = response.masterCours;
-        //                 if (course) {
-        //                     $('#modalName').text(data.first_name + ' ' + data.father_name  + ' ' + data.last_name  );
-        //                     $('#id').text(course.id);
-        //                     $('#course_id').text(course.course.course_name);
-        //                     $('#date').text(course.date);
-        //                     $('#doc').text(course.date);
-        //                     $('#fee').text(course.fee);
-
-        //                     $('#createBtn').attr('data-id', course.id);
-
-        //                     $('#updateBtn').attr('data-register_id', course.register_id);
-        //                     $('#updateBtn').attr('data-course_id', course.course_id);
-        //                     $('#course').modal('show');
-        //                 } else {
-        //                     toastr.error('Course data not found');
-        //                 }
-        //             } else {
-        //                 toastr.error(response.message || 'Student not found');
-        //             }
-        //         },
-        //         error: function(err) {
-        //             console.error(err);
-        //             toastr.error('Error fetching course info');
-        //         }
-        //     });
-        // });
-        // $(document).on('click', '.course-btn', function() {
-        //     let id = $(this).data('id');
-
-        //     $.ajax({
-        //         url: "{{ route($route . '.show') }}",
-        //         type: "GET",
-        //         data: {
-        //             id: id
-        //         },
-        //         dataType: "json",
-        //         success: function(response) {
-        //             console.log(response);
-
-        //             if (response.success) {
-        //                 let course = response.course;
-        //                 let data = response.student;
-
-        //                 if (course) {
-        //                     // Course exists: Show in modal
-        //                     $('#modalName').text(
-        //                         `${data.first_name} ${data.father_name} ${data.last_name}`);
-        //                     $('#id').text(course.id);
-        //                     $('#course_id').text(course.course.course_name);
-        //                     $('#date').text(course.date);
-        //                     $('#doc').text(course.date);
-        //                     $('#fee').text(course.fee);
-
-        //                     $('#createBtn').attr('data-id', course.id);
-        //                     $('#updateBtn').attr('data-register_id', course.register_id);
-        //                     $('#updateBtn').attr('data-course_id', course.course_id);
-
-        //                     $('#course').modal('show');
-
-        //                 } else {
-        //                     // Course not exists: Directly redirect
-        //                     window.location.href =
-        //                         "{{ url('software/cource-registration/create') }}/" + data.id;
-        //                 }
-
-        //             } else {
-        //                 toastr.error(response.message || 'Student not found');
-        //             }
-        //         },
-        //         error: function(err) {
-        //             console.error(err);
-        //             toastr.error('Error fetching course info');
-        //         }
-        //     });
-        // });
 
         $(document).on('click', '.course-btn', function() {
             let id = $(this).data('id');
@@ -446,9 +338,9 @@
                                 }
                                 /*
                                 row += `
-                                    <td>
-                                        <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
-                                    </td>`;
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
+                            </td>`;
                                     */
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
                                     row += `
@@ -491,7 +383,32 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+        $(document).on("click", ".create_google_drive_folder", function() {
+            let studentId = $(this).data("id");
 
+            $.ajax({
+                url: "{{ route('admission.create-folder') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+ 
+                data: {
+                    id: studentId
+                }, // only data, CSRF auto headers ma gayo che
+                success: function(response) {
+                    if (response.success) {
+                        alert("Folder created successfully!");
+                        $('#datatable').DataTable().ajax.reload();
+                    } else {
+                        alert("Failed: " + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert("Something went wrong: " + xhr.responseJSON.message);
+                }
+            });
+        });
         var dtable = null;
         $(document).ready(function() {
             dtable = $('#yajra-datatables').DataTable({
@@ -533,46 +450,50 @@
         });
 
         // Handle Google Drive folder open/create button click
-        $(document).on('click', '.open_google_drive_folder', function() {
-            var id = $(this).data('id');
-            var folderName = $(this).data('foldername');
-            var folderUrl = $(this).data('folderurl');
-            var button = $(this);
+        // $(document).on('click', '.open_google_drive_folder', function() {
+        //     var id = $(this).data('id');
+        //     var folderName = $(this).data('foldername');
+        //     var folderUrl = $(this).data('folderurl');
+        //     var button = $(this);
 
-            if (folderUrl) {
-                window.open(folderUrl, '_blank');
-            } else {
-                $('#yajra-datatables_processing').css('font-weight', 'bold').show();
+        //     if (folderUrl) {
+        //         window.open(folderUrl, '_blank');
+        //     } else {
+        //         $('#yajra-datatables_processing').css('font-weight', 'bold').show();
 
-                $.ajax({
-                    url: "{{ route($route . '.create-google-drive-folder') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id,
-                        foldername: folderName,
-                    },
-                    success: function(response) {
-                        console.log("response 459 | success", response);
-                        if (response.folder_url) {
-                            button.attr('data-folderurl', response.folder_url);
-                            toastr.success('Google Drive folder created successfully.');
-                            window.open(response.folder_url, '_blank');
-                        } else {
-                            toastr.success('Google Drive folder created successfully.');
-                        }
-                        $('#yajra-datatables').DataTable().ajax.reload(null, false);
-                    },
-                    error: function(error) {
-                        console.error("response 470 | Error", error);
-                        toastr.error('Error creating Google Drive folder.');
-                    },
-                    complete: function() {
-                        $('#yajra-datatables_processing').hide();
-                    }
-                });
-            }
-        });
+        //         $.ajax({
+        //             url: "{{ route($route . '.create-google-drive-folder') }}",
+        //             type: 'POST',
+        //             data: {
+        //                 _token: '{{ csrf_token() }}',
+        //                 id: id,
+        //                 foldername: folderName,
+        //             },
+        //             success: function(response) {
+        //                 console.log("response 459 | success", response);
+        //                 if (response.folder_url) {
+        //                     button.attr('data-folderurl', response.folder_url);
+        //                     toastr.success('Google Drive folder created successfully.');
+        //                     window.open(response.folder_url, '_blank');
+        //                 } else {
+        //                     toastr.success('Google Drive folder created successfully.');
+        //                 }
+        //                 $('#yajra-datatables').DataTable().ajax.reload(null, false);
+        //             },
+        //             error: function(error) {
+        //                 console.error("response 470 | Error", error);
+        //                 toastr.error('Error creating Google Drive folder.');
+        //             },
+        //             complete: function() {
+        //                 $('#yajra-datatables_processing').hide();
+        //             }
+        //         });
+        //     }
+        // });
+        // Create folder button click
+
+
+
 
         $(document).on('click', '.collectFees', function() {
             let admId = $(this).data('id');

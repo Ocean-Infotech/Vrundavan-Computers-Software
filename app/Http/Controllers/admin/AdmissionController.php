@@ -125,10 +125,32 @@ class AdmissionController extends Controller
                         return trim("{$first} {$father} {$last}");
                     })
 
-                    ->editColumn('gdrivefolderurl', function ($row) {
-                        $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-                        return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
-                    })
+                    // ->editColumn('gdrivefolderurl', function ($row) {
+                    //     $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+                    //     return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
+                    // })
+
+->editColumn('gdrivefolderurl', function ($row) {
+    // Check if folder already exists
+    if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
+        $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+        return '<a href="' . $row->gdrivefolderurl . '"
+                    data-id="' . $row->id . '"
+                    data-foldername="' . $folderName . '"
+                    data-folderurl="' . $row->gdrivefolderurl . '"
+                    class="btn btn-warning btn-sm open_google_drive_folder">
+                    <i class="bx bx-copy-alt"></i> Open Documents
+                </a>';
+    } else {
+        // Folder not created yet → show Create button
+        return '<a href="javascript:void(0)"
+                    data-id="' . $row->id . '"
+                    class="btn btn-primary btn-sm create_google_drive_folder">
+                    <i class="fa fa-folder-plus"></i> Create Folder
+                </a>';
+    }
+})
+
 
                     ->editColumn('status', function ($row) use ($modules) {
                         $dropdown = '<ul class="dropdown-menu">';
@@ -232,7 +254,7 @@ class AdmissionController extends Controller
             $admission_id = $admission->id;
             try {
                 $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
-                $parentFolderId = '1koMqPtZeiGBLuD4I3Dly-3i3DslR978g'; // Main Student Folder ID
+                $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
 
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
 
@@ -717,81 +739,52 @@ class AdmissionController extends Controller
     //  =================== Main Folder Ni ander Multipal Folder create krva  no code niche no che vrundavan computer line -462 thi start thay che ==============================
     public function createFolder(Request $request)
     {
-        $modules = $this->modules;
-        $validator = Validator::make($request->all(), [
-            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'foldername' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors(), 'Validation Error', 422);
-        }
-
-        $recordId = $request->input('id');
-        $subFolderName = $request->input('foldername');
-
-        $client = new Google_Client();
-        $client->setClientId(config('filesystems.disks.google.clientId'));
-        $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
-        $client->refreshToken(config('filesystems.disks.google.refreshToken'));
-
-        $service = new Drive($client);
-
-        $mainFolderName = 'Vrundavan-Computer';
-        $mainFolderId = $this->getOrCreateFolder($service, $mainFolderName);
-
-
-        $fileMetadata = new DriveFile([
-            'name' => $subFolderName,
-            'mimeType' => 'application/vnd.google-apps.folder',
-            'parents' => [$mainFolderId],
-        ]);
+        $admission = Admission::findOrFail($request->id);
 
         try {
-            $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id, name',
+            $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
+            $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
+
+            $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
+
+            $admission->update([
+                'gdrivefolderid'   => $folderData['id'] ?? null,
+                'gdrivefoldername' => $folderData['name'] ?? $folderName,
+                'gdrivefolderurl'  => $folderData['link'] ?? null,
             ]);
 
-            $folderId = $folder->id;
-            $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
-
-            $createfolder = Admission::withTrashed()->findOrFail($recordId);
-            $createfolder->gdrivefolderurl = $folderUrl;
-            $createfolder->gdrivefolderid = $folderId;
-            $createfolder->gdrivefoldername = $folder->name;
-            $createfolder->save();
-
-            return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
+            return response()->json(['success' => true, 'message' => 'Folder created successfully']);
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            \Log::error("Google Drive folder creation failed: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    private function getOrCreateFolder(Drive $service, string $folderName): string
-    {
-        $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
-        $results = $service->files->listFiles([
-            'q' => $query,
-            'fields' => 'files(id, name)',
-        ]);
+    // private function getOrCreateFolder(Drive $service, string $folderName): string
+    // {
+    //     $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
+    //     $results = $service->files->listFiles([
+    //         'q' => $query,
+    //         'fields' => 'files(id, name)',
+    //     ]);
 
-        $files = $results->getFiles();
+    //     $files = $results->getFiles();
 
-        if (empty($files)) {
-            $fileMetadata = new DriveFile([
-                'name' => $folderName,
-                'mimeType' => 'application/vnd.google-apps.folder',
-            ]);
+    //     if (empty($files)) {
+    //         $fileMetadata = new DriveFile([
+    //             'name' => $folderName,
+    //             'mimeType' => 'application/vnd.google-apps.folder',
+    //         ]);
 
-            $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id',
-            ]);
+    //         $folder = $service->files->create($fileMetadata, [
+    //             'fields' => 'id',
+    //         ]);
 
-            return $folder->id;
-        } else {
-            return $files[0]->id;
-        }
-    }
+    //         return $folder->id;
+    //     } else {
+    //         return $files[0]->id;
+    //     }
+    // }
 
     // ========================= line no - 545 lagin che Folder crate thay che ane te folder  ni ander multipal Folder create thay code End ==============================
 

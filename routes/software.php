@@ -88,6 +88,10 @@ Route::post('admission-update-status', [AdmissionController::class, 'status_upda
 Route::post('admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
 Route::post('admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
 Route::post('admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+// routes/web.php
+Route::post('admission/create-folder', [App\Http\Controllers\admin\AdmissionController::class, 'createFolder'])
+    ->name('admission.create-folder');
+
 
 // AJAX routes for Aadhaar
 Route::get('admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
