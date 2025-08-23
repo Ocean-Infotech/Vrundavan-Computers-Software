@@ -115,7 +115,7 @@ class FeescollectionpendingController extends Controller
                 }
 
 
-$data = $dataQuery->take(1)->get();
+                $data = $dataQuery->get();
 
                 $allRegistrations = CourceRegistration::with('course')
                     ->whereIn('register_id', $data->pluck('register_id'))
