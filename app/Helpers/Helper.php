@@ -7,7 +7,10 @@ use App\Models\Notification;
 use App\Models\Setting;
 use App\Models\StudentDeviceToken;
 use App\Services\FirebaseService;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Str;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -264,35 +267,34 @@ class Helper
             return $e->getMessage();
         }
     }
-    public static function sendPushNotification(array $data)
+      public static function sendPushNotification($student_id, $title, $body)
     {
         try {
-            // Step 1: Fetch device token from student_device_tokens
-            $student_id = $data['student_id'];
-            $device = StudentDeviceToken::where('student_id', $student_id)->latest()->first();
-            if (!$device || !$device->device_token) {
-                Log::info("No device token found for student ID: {$student_id}");
-                return;
+            $factory = (new Factory)->withServiceAccount(config('services.firebase.credentials'));
+            $messaging = $factory->createMessaging();
+
+            // tokens fetch karo
+            $tokens = StudentDeviceToken::where('student_id', $student_id)
+                ->pluck('device_token')
+                ->toArray();
+
+            if (empty($tokens)) {
+                return false;
             }
-            $token = $device->device_token;
 
-            // Step 2: Send notification via Firebase
-            $firebase = app(FirebaseService::class);
-            $results = $firebase->sendNotification([$token], $data['title'], $data['body']);
-
-            // Optional: Update notification status
-            foreach ($results as $result) {
-                $status = $result['status'] === 'success' ? 'success' : 'failed';
-                Notification::create([
-                    'student_id' => $student_id,
-                    'title'      => $data['title'],
-                    'body'       => $data['body'],
-                    'send_status' => $status,
-                    'created_by' => $data['created_by'] ?? null,
+            $message = CloudMessage::new()
+                ->withNotification(FirebaseNotification::create($title, $body))
+                ->withData([
+                    'student_id' => (string)$student_id,
                 ]);
-            }
-        } catch (\Throwable $e) {
-            Log::error('Push Notification error: ' . $e->getMessage(), ['data' => $data]);
+
+            $messaging->sendMulticast($message, $tokens);
+
+            return true;
+        } catch (\Exception $e) {
+            \Log::error("Firebase Error: " . $e->getMessage());
+            return false;
         }
     }
+
 }

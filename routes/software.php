@@ -241,12 +241,15 @@ Route::resource('/timetable', TimetableController::class);
 Route::resource('/student-requests', StudentRequestController::class);
 
 Route::get('/test-notification', function () {
-    return Helper::sendPushNotification([
-        'student_id' => 384, // example student
-        'title'      => 'Test Notification',
-        'body'       => 'Hello, this is a test message.',
-        'created_by' => 384,
-    ]);
+    // Example student_id (tokens aa student_id mate save hoy to)
+    $studentId = 386;
+
+    $title = "Test Notification";
+    $body  = "Hello from Laravel Firebase Integration 🎉";
+
+    $result = Helper::sendPushNotification($studentId, $title, $body);
+
+    return $result ? "Notification sent successfully!" : "No tokens found or failed to send.";
 });
 
 

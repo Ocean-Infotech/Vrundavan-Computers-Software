@@ -18,7 +18,7 @@ class NotificationSetting extends Model
         'body',
         'course_id',
         'student_id',
-        'create_by',
+        'created_by',
         'updated_by',
     ];
     public function student()
