@@ -59,7 +59,8 @@ class MasterSubjectController extends Controller
             View::share("columns", $columns);
 
             if ($request->ajax()) {
-                $data = MasterSubject::select('*')->withTrashed();
+               $data = MasterSubject::withTrashed()
+            ->orderBy('id', 'desc'); 
                 // dd('hello');
 
                 return Datatables::of($data)
