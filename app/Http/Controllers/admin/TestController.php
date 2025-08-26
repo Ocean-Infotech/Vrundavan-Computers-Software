@@ -65,9 +65,10 @@ class TestController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = Test::select('*');
-                $data = $data->withTrashed();
-                $data = $data->with(['course', 'batch']);
+                $data = Test::select('*')
+            ->withTrashed()
+            ->with(['course', 'batch'])
+            ->orderBy('id', 'desc'); 
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()

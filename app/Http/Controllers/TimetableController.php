@@ -53,7 +53,7 @@ class TimetableController extends Controller
             (object)['data' => "course_name", 'name' => 'course_id', 'td_label' => 'Course'],
             (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch'],
             (object)['data' => "class", 'name' => 'class', 'td_label' => 'Class'],
-            (object)['data' => "semester", 'name' => 'semester', 'td_label' => 'Semester'],
+            // (object)['data' => "semester", 'name' => 'semester', 'td_label' => 'Semester'],
             (object)['data' => "attachment", 'name' => 'attachment', 'td_label' => 'Attachment'],
             (object)[
                 'data' => "action",
@@ -71,7 +71,7 @@ class TimetableController extends Controller
         try {
             if ($request->ajax()) {
                 $data = Timetable::with(['course', 'batch', 'class']);
-             
+
 
                 return Datatables::of($data)
                     // ->addIndexColumn()
@@ -140,7 +140,7 @@ class TimetableController extends Controller
         $validated = $request->validated();
 
         try {
-            // Handle file upload
+
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -161,6 +161,7 @@ class TimetableController extends Controller
             return Redirect::route($this->modules['route'] . '.index')
                 ->withSuccess($this->modules['title'] . ' created successfully');
         } catch (\Exception $e) {
+            return $e->getMessage();
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }

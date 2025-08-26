@@ -43,7 +43,7 @@
                                 class="form-control search_by_course select2 @error('course_id') is-invalid @enderror"
                                 data-append="search_by_course"
                                 data-selectedCourseId="{{ isset($edit) && $edit?->course_id ? $edit?->course_id : old('course_id') }}"
-                                autofocus required>
+                                autofocus>
                                 <option value="">Select Course</option>
                             </select>
 
@@ -93,7 +93,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-12 mb-3">
+                    {{-- <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Semester <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('semester') is-invalid @enderror"
@@ -103,7 +103,7 @@
                                 <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
 
 
 

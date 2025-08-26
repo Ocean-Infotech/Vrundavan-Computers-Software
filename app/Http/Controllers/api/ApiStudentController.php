@@ -41,13 +41,14 @@ class ApiStudentController extends Controller
                 // Fetch timetable attachment (by course_id and batch_id both)
                 $timetable = Timetable::where('course_id', $courseRegistered->course_id)
                     ->where('batch_id', $courseRegistered->batch_id)
+                    ->where('class_id', $courseRegistered->class_id)
                     ->first();
 
                 $data = [
                     'university'     => $courseRegistered->university ?? '',
                     'department'     => $courseRegistered->department ?? '',
                     'course'         => $course->course_name ?? '',
-                    'semester'       => $course->semester ?? '',
+                    // 'semester'       => $course->semester ?? '',
                     'gr_no'          => $student->id,
                     'enrollment_no'  => $student->enrolment_no ?? '',
                     'spid'           => $student->spid ?? '',
@@ -151,66 +152,136 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-  public function attendance_details(Request $request)
-{
-    try {
-        $student = Auth::guard('student-api')->user();
+    public function attendance_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
 
-        if (!$student) {
-            return $this->sendError("Unauthorized.", [], [], 401);
-        }
-
-        // Validate inputs
-        $validator = Validator::make($request->all(), [
-            'date'  => ['nullable', 'date_format:d-m-Y'], // dd-mm-yyyy
-            'month' => ['nullable', 'integer', 'between:1,12'],
-            'year'  => ['nullable', 'integer', 'digits:4'],
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), [], 422);
-        }
-
-        $query = Attedance::where('admission_id', $student->id);
-
-        /**
-         * -------------------------------
-         * 1) DATE WISE ATTENDANCE
-         * -------------------------------
-         */
-        if ($request->filled('date')) {
-            try {
-                $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
-            } catch (\Exception $e) {
-                return $this->sendError('Invalid date provided.', [], [], 422);
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
             }
 
-            $query->whereDate('date', $date->format('Y-m-d'));
+            // Validate inputs
+            $validator = Validator::make($request->all(), [
+                'date'  => ['nullable', 'date_format:d-m-Y'], // dd-mm-yyyy
+                'month' => ['nullable', 'integer', 'between:1,12'],
+                'year'  => ['nullable', 'integer', 'digits:4'],
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors(), [], 422);
+            }
+
+            $query = Attedance::where('admission_id', $student->id);
+
+
+            if ($request->filled('date')) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
+                } catch (\Exception $e) {
+                    return $this->sendError('Invalid date provided.', [], [], 422);
+                }
+
+                $query->whereDate('date', $date->format('Y-m-d'));
+                $attendanceRecords = $query->orderBy('date', 'desc')->get();
+
+                if ($attendanceRecords->isEmpty()) {
+                    return $this->sendError(
+                        "No attendance records found for " . $date->format('d-F-Y'),
+                        [],
+                        [],
+                        404
+                    );
+                }
+
+                $dataList = $attendanceRecords->map(function ($att) {
+                    $isPresent = !empty($att->in_time);
+                    return [
+                        'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('Y-m-d') : null,
+                        'day'         => \Carbon\Carbon::parse($att->date)->format('l'),
+                        'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
+                        'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
+                        'status'      => $isPresent ? 'Present' : 'Absent',
+                        'status_code' => $isPresent ? 'P' : 'A',
+                    ];
+                });
+
+                $totalLectures  = $attendanceRecords->count();
+                $presentCount   = $attendanceRecords->whereNotNull('in_time')->count();
+                $absentCount    = $totalLectures - $presentCount;
+                $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
+
+                $summaryData = [
+                    'total_lectures'   => $totalLectures,
+                    'present_lectures' => $presentCount,
+                    'absent_lectures'  => $absentCount,
+                    'average_percent'  => $averagePercent,
+                    'date'             => $date->format('d-F-Y')
+                ];
+
+                return $this->sendResponse([
+                    'summary' => $summaryData,
+                    'records' => $dataList
+                ], 'Attendance records fetched successfully.');
+            }
+
+
+            $month = $request->month ?? date('n');
+            $year  = $request->year ?? date('Y');
+
+            $query->whereMonth('date', $month)->whereYear('date', $year);
             $attendanceRecords = $query->orderBy('date', 'desc')->get();
 
-            if ($attendanceRecords->isEmpty()) {
-                return $this->sendError(
-                    "No attendance records found for " . $date->format('d-F-Y'),
-                    [],
-                    [],
-                    404
-                );
+            $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
+
+            if ($month == date('n') && $year == date('Y')) {
+                $endOfMonth = \Carbon\Carbon::today()->endOfDay(); // include today
+            } else {
+                $endOfMonth = $startOfMonth->copy()->endOfMonth();
             }
 
-            $dataList = $attendanceRecords->map(function ($att) {
-                $isPresent = !empty($att->in_time);
-                return [
-                    'date'        => $att->date ? \Carbon\Carbon::parse($att->date)->format('Y-m-d') : null,
-                    'day'         => \Carbon\Carbon::parse($att->date)->format('l'),
-                    'in_time'     => $att->in_time ? date('h:i A', strtotime($att->in_time)) : null,
-                    'out_time'    => $att->out_time ? date('h:i A', strtotime($att->out_time)) : null,
+
+            // Generate all working dates
+            $allDates = [];
+            $currentDate = $startOfMonth->copy();
+            while ($currentDate <= $endOfMonth) {
+                if ($currentDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
+                    $allDates[] = $currentDate->format('Y-m-d');
+                }
+                $currentDate->addDay();
+            }
+
+            // Reverse for DESC order
+            $allDates = array_reverse($allDates);
+
+            $totalLectures = count($allDates);
+
+            // Map DB records by date
+            $recordsByDate = $attendanceRecords->keyBy(function ($att) {
+                return \Carbon\Carbon::parse($att->date)->format('Y-m-d');
+            });
+
+            $presentCount = 0;
+            $dataList = [];
+
+            foreach ($allDates as $date) {
+                $record = $recordsByDate->get($date);
+                $isPresent = $record && !empty($record->in_time);
+
+                if ($isPresent) {
+                    $presentCount++;
+                }
+
+                $dataList[] = [
+                    'date'        => $date,
+                    'day'         => \Carbon\Carbon::parse($date)->format('l'),
+                    'in_time'     => $record && $record->in_time ? date('h:i A', strtotime($record->in_time)) : null,
+                    'out_time'    => $record && $record->out_time ? date('h:i A', strtotime($record->out_time)) : null,
                     'status'      => $isPresent ? 'Present' : 'Absent',
                     'status_code' => $isPresent ? 'P' : 'A',
                 ];
-            });
+            }
 
-            $totalLectures  = $attendanceRecords->count();
-            $presentCount   = $attendanceRecords->whereNotNull('in_time')->count();
             $absentCount    = $totalLectures - $presentCount;
             $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
 
@@ -219,98 +290,17 @@ class ApiStudentController extends Controller
                 'present_lectures' => $presentCount,
                 'absent_lectures'  => $absentCount,
                 'average_percent'  => $averagePercent,
-                'date'             => $date->format('d-F-Y')
+                'month_year'       => $startOfMonth->format('F-Y')
             ];
 
             return $this->sendResponse([
                 'summary' => $summaryData,
                 'records' => $dataList
             ], 'Attendance records fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
-
-        /**
-         * -------------------------------
-         * 2) MONTH WISE ATTENDANCE
-         * -------------------------------
-         */
-        $month = $request->month ?? date('n');
-        $year  = $request->year ?? date('Y');
-
-        $query->whereMonth('date', $month)->whereYear('date', $year);
-        $attendanceRecords = $query->orderBy('date', 'desc')->get();
-
-        $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
-
-        // ✅ If current month, only till today
-    // ✅ If current month -> only till today (including today)
-if ($month == date('n') && $year == date('Y')) {
-    $endOfMonth = \Carbon\Carbon::today()->endOfDay(); // include today
-} else {
-    $endOfMonth = $startOfMonth->copy()->endOfMonth();
-}
-
-
-        // Generate all working dates
-        $allDates = [];
-        $currentDate = $startOfMonth->copy();
-        while ($currentDate <= $endOfMonth) {
-            if ($currentDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
-                $allDates[] = $currentDate->format('Y-m-d');
-            }
-            $currentDate->addDay();
-        }
-
-        // Reverse for DESC order
-        $allDates = array_reverse($allDates);
-
-        $totalLectures = count($allDates);
-
-        // Map DB records by date
-        $recordsByDate = $attendanceRecords->keyBy(function ($att) {
-            return \Carbon\Carbon::parse($att->date)->format('Y-m-d');
-        });
-
-        $presentCount = 0;
-        $dataList = [];
-
-        foreach ($allDates as $date) {
-            $record = $recordsByDate->get($date);
-            $isPresent = $record && !empty($record->in_time);
-
-            if ($isPresent) {
-                $presentCount++;
-            }
-
-            $dataList[] = [
-                'date'        => $date,
-                'day'         => \Carbon\Carbon::parse($date)->format('l'),
-                'in_time'     => $record && $record->in_time ? date('h:i A', strtotime($record->in_time)) : null,
-                'out_time'    => $record && $record->out_time ? date('h:i A', strtotime($record->out_time)) : null,
-                'status'      => $isPresent ? 'Present' : 'Absent',
-                'status_code' => $isPresent ? 'P' : 'A',
-            ];
-        }
-
-        $absentCount    = $totalLectures - $presentCount;
-        $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
-
-        $summaryData = [
-            'total_lectures'   => $totalLectures,
-            'present_lectures' => $presentCount,
-            'absent_lectures'  => $absentCount,
-            'average_percent'  => $averagePercent,
-            'month_year'       => $startOfMonth->format('F-Y')
-        ];
-
-        return $this->sendResponse([
-            'summary' => $summaryData,
-            'records' => $dataList
-        ], 'Attendance records fetched successfully.');
-
-    } catch (\Exception $e) {
-        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
-}
 
 
     public function document_details(Request $request)

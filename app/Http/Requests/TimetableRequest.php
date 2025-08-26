@@ -32,25 +32,32 @@ class TimeTableRequest extends FormRequest
             ],
             'class_id' => [
                 'required',
-                'string'
-            ],
-            'semester' => [
-                'required',
                 'string',
-                Rule::unique((new TimeTable())->getTable())
+                 Rule::unique((new TimeTable())->getTable())
                     ->where(function ($query) {
                         return $query->where('course_id', $this->course_id)
-                            ->where('batch_id', $this->batch_id)
-                            ->where('class_id', $this->class_id);
+                            ->where('batch_id', $this->batch_id);
                     })
-                    ->ignore($id) 
+                    ->ignore($id)
             ],
-            'attachment' => [
-                'nullable',
-                'file',
-                'mimes:pdf,jpg,jpeg,png,doc,docx',
-                'max:2048'
+             'attachment' => [
+                'required',
+                // 'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120'
             ],
+            // 'semester' => [
+            //     'required',
+            //     'string',
+            //     Rule::unique((new TimeTable())->getTable())
+            //         ->where(function ($query) {
+            //             return $query->where('course_id', $this->course_id)
+            //                 ->where('batch_id', $this->batch_id)
+            //                 ->where('class_id', $this->class_id);
+            //         })
+            //         ->ignore($id)
+            // ],
+
         ];
     }
 }
