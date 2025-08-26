@@ -240,14 +240,7 @@ Route::resource('/timetable', TimetableController::class);
 // Student request
 Route::resource('/student-requests', StudentRequestController::class);
 
-Route::get('/test-notification/{studentId}', function ($studentId) {
-    $title = "Test Notification";
-    $body = "This is a test push notification from Laravel.";
 
-    Helper::sendPushNotification($studentId, $title, $body);
-
-    return "Notification sent to student ID: " . $studentId;
-});
 
 
 /** System Login User */

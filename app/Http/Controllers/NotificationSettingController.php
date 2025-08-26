@@ -110,27 +110,30 @@ class NotificationSettingController extends Controller
         return view($modules['folder_path'] . '.form');
     }
 
-    public function store(NotificationSettingRequest $request)
-    {
-        $validated = $request->validated();
-        try {
-            $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
-            $validated['student_id'] = implode(',', $studentIds);
-            $validated['created_by'] = Auth::user()->id;
+public function store(NotificationSettingRequest $request)
+{
+    $validated = $request->validated();
 
-            $notification = NotificationSetting::create($validated);
+    try {
+        $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
+        $validated['student_id'] = implode(',', $studentIds);
+        $validated['created_by'] = Auth::user()->id;
 
-            // 🔔 Send Firebase push notification to all selected students
-            foreach ($studentIds as $sid) {
-                Helper::sendPushNotification($sid, $validated['title'], $validated['body']);
-            }
+        // 🔴 dd() REMOVE કરો
+        $notification = NotificationSetting::create($validated);
 
-            return Redirect::route($this->modules['route'] . '.index')
-                ->withSuccess($this->modules['title'] . ' created successfully');
-        } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        // 🔔 Send Firebase push notification to all selected students
+        foreach ($studentIds as $sid) {
+            \App\Helpers\Helper::sendPushNotification($sid, $validated['title'], $validated['body']);
         }
+
+        return Redirect::route($this->modules['route'] . '.index')
+            ->withSuccess($this->modules['title'] . ' created successfully');
+    } catch (\Exception $e) {
+        return Redirect::route('dashboard')->withErrors($e->getMessage());
     }
+}
+
 
     public function edit(string $id)
     {

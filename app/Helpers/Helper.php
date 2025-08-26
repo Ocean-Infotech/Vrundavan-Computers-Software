@@ -10,7 +10,7 @@ use App\Services\FirebaseService;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Str;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use Kreait\Firebase\Messaging\Notification as FcmNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -267,32 +267,20 @@ class Helper
             return $e->getMessage();
         }
     }
-       public static function sendPushNotification($studentId, $title, $body)
+   public static function sendPushNotification($studentId, $title, $body)
     {
-        try {
-            // get all device tokens for student
-            $tokens = StudentDeviceToken::where('student_id', $studentId)
-                ->pluck('device_token')
-                ->toArray();
+        $factory = (new Factory)->withServiceAccount(config('services.firebase.credentials'));
+        $messaging = $factory->createMessaging();
 
-            if (empty($tokens)) {
-                return false;
-            }
+        $tokens = StudentDeviceToken::where('student_id', $studentId)->pluck('device_token')->toArray();
 
-            $messaging = app(Messaging::class);
-
+        if (count($tokens) > 0) {
             foreach ($tokens as $token) {
                 $message = CloudMessage::withTarget('token', $token)
-                    ->withNotification(Notification::create($title, $body));
+                    ->withNotification(FcmNotification::create($title, $body));
 
                 $messaging->send($message);
             }
-
-            return true;
-        } catch (\Exception $e) {
-            \Log::error('FCM Error: ' . $e->getMessage());
-            return false;
         }
     }
-
 }
