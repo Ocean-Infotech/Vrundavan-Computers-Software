@@ -267,14 +267,11 @@ class Helper
             return $e->getMessage();
         }
     }
-      public static function sendPushNotification($student_id, $title, $body)
+       public static function sendPushNotification($studentId, $title, $body)
     {
         try {
-            $factory = (new Factory)->withServiceAccount(config('services.firebase.credentials'));
-            $messaging = $factory->createMessaging();
-
-            // tokens fetch karo
-            $tokens = StudentDeviceToken::where('student_id', $student_id)
+            // get all device tokens for student
+            $tokens = StudentDeviceToken::where('student_id', $studentId)
                 ->pluck('device_token')
                 ->toArray();
 
@@ -282,17 +279,18 @@ class Helper
                 return false;
             }
 
-            $message = CloudMessage::new()
-                ->withNotification(FirebaseNotification::create($title, $body))
-                ->withData([
-                    'student_id' => (string)$student_id,
-                ]);
+            $messaging = app(Messaging::class);
 
-            $messaging->sendMulticast($message, $tokens);
+            foreach ($tokens as $token) {
+                $message = CloudMessage::withTarget('token', $token)
+                    ->withNotification(Notification::create($title, $body));
+
+                $messaging->send($message);
+            }
 
             return true;
         } catch (\Exception $e) {
-            \Log::error("Firebase Error: " . $e->getMessage());
+            \Log::error('FCM Error: ' . $e->getMessage());
             return false;
         }
     }

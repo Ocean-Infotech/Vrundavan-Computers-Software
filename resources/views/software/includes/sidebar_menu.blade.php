@@ -238,7 +238,7 @@
             'student-requests-list'
         ])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'notification_setting', 'timetable','student-requests']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable','student-requests']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>
@@ -330,7 +330,7 @@
 
         <li class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="ti ti-certificate me-2"></i>
+                <i class="ti ti-bell me-2"></i>
                 <div data-i18n="Notification">Notification</div>
             </a>
             <ul class="menu-sub">
@@ -347,7 +347,6 @@
                         </a>
                     </li>
                 @enddirectCanAny
-
 
             </ul>
         </li>

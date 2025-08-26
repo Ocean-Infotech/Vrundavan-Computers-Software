@@ -118,8 +118,7 @@ class NotificationSettingController extends Controller
             $validated['student_id'] = implode(',', $studentIds);
             $validated['created_by'] = Auth::user()->id;
 
-            dd($request->all(),$validated);
-            NotificationSetting::create($validated);
+            $notification = NotificationSetting::create($validated);
 
             // 🔔 Send Firebase push notification to all selected students
             foreach ($studentIds as $sid) {
