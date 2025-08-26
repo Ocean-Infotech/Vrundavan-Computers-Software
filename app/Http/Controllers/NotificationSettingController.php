@@ -75,6 +75,7 @@ class NotificationSettingController extends Controller
                     ->addColumn('student_name', fn($row) => $row->student_names)
                     ->editColumn('course_id', fn($row) => $row->course?->course_name ?? '-')
                     ->addColumn('action', function ($row) use ($modules) {
+                       
                         $btn = '';
                         if ($modules['permission_edit']) {
                             $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';

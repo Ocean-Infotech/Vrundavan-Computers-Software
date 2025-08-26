@@ -18,8 +18,8 @@ class TimeTableRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('timetable') ?? 0;
-// dd($id);
-          return [
+        // dd($id);
+        return [
             'course_id' => [
                 'required',
                 'integer',
@@ -36,7 +36,14 @@ class TimeTableRequest extends FormRequest
             ],
             'semester' => [
                 'required',
-                'string'
+                'string',
+                Rule::unique((new TimeTable())->getTable())
+                    ->where(function ($query) {
+                        return $query->where('course_id', $this->course_id)
+                            ->where('batch_id', $this->batch_id)
+                            ->where('class_id', $this->class_id);
+                    })
+                    ->ignore($id) 
             ],
             'attachment' => [
                 'nullable',

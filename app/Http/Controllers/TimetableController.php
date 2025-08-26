@@ -50,8 +50,8 @@ class TimetableController extends Controller
 
         // Define columns for DataTable
         $columns = [
-            (object)['data' => "course_name", 'name' => 'course.course_name', 'td_label' => 'Course'],
-            (object)['data' => "batch_name", 'name' => 'batch.batch_name', 'td_label' => 'Batch'],
+            (object)['data' => "course_name", 'name' => 'course_id', 'td_label' => 'Course'],
+            (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch'],
             (object)['data' => "class", 'name' => 'class', 'td_label' => 'Class'],
             (object)['data' => "semester", 'name' => 'semester', 'td_label' => 'Semester'],
             (object)['data' => "attachment", 'name' => 'attachment', 'td_label' => 'Attachment'],
@@ -67,12 +67,14 @@ class TimetableController extends Controller
 
         View::share("columns", $columns);
 
+
         try {
             if ($request->ajax()) {
                 $data = Timetable::with(['course', 'batch', 'class']);
+             
 
                 return Datatables::of($data)
-                    ->addIndexColumn()
+                    // ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search') && $request->search['value'] != '') {
                             $search = $request->search['value'];
@@ -101,6 +103,7 @@ class TimetableController extends Controller
                         return '<a href="' . $fileUrl . '" target="_blank" class="text-primary">View Attachment</a>';
                     })
                     ->addColumn('action', function ($row) use ($modules) {
+
                         $btn = '';
                         if ($modules['permission_edit']) {
                             $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
@@ -114,6 +117,7 @@ class TimetableController extends Controller
                     ->make(true);
             }
 
+            // return Timetable::with(['course', 'batch', 'class'])->get();
             return view($modules['folder_path'] . '.index');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
@@ -179,7 +183,6 @@ class TimetableController extends Controller
         try {
             // dd($id);
             $edit = Timetable::findOrFail($id);
-            // dd($edit);
             View::share('edit', $edit);
 
             return view($modules['folder_path'] . '.form');

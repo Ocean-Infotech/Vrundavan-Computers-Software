@@ -28,13 +28,13 @@ class Timetable extends Model
     // Relation to batch
     public function batch()
     {
-        return $this->belongsTo(MasterBatch::class, 'batch_id');
+        return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
     }
 
     // Relation to course
     public function course()
     {
-        return $this->belongsTo(MasterCourse::class, 'course_id');
+        return $this->belongsTo(MasterCourse::class, 'course_id', 'id');
     }
     public function class()
     {
