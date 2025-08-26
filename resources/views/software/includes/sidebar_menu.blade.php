@@ -302,9 +302,6 @@
                     {{-- Student Requests --}}
                     @directCanAny([
                         'student-requests-list',
-                        'student-requests-create',
-                        'student-requests-edit',
-                        'student-requests-delete'
                     ])
                         <li class="menu-item {{ $sidebar_active == 'student-requests' ? 'active' : '' }}">
                             <a href="{{ route('student-requests.index') }}" class="menu-link">

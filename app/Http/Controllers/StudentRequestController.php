@@ -56,7 +56,8 @@ class StudentRequestController extends Controller
 
         try {
             if ($request->ajax()) {
-                $data = StudentRequest::with('subject');
+       $data = StudentRequest::with('subject')
+        ->orderBy('requests.id', 'desc');
 
                 return Datatables::of($data)
                     ->addIndexColumn()
