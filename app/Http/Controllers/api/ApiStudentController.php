@@ -9,6 +9,7 @@ use App\Models\Attedance;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
+use App\Models\NotificationSetting;
 use App\Models\StudentTestMark;
 use App\Models\Timetable;
 use Illuminate\Http\Request;
@@ -420,6 +421,50 @@ class ApiStudentController extends Controller
             });
 
             return $this->sendResponse($data, "Test details fetched successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function notifications_list(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $notifications = NotificationSetting::query()
+                ->where(function ($q) use ($student) {
+                    $q->where('student_id', $student->id)
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', $student->course_id ?? 0);
+                })
+                ->latest()
+                ->get();
+
+            if ($notifications->isEmpty()) {
+                return $this->sendError("No notifications found.", [], [], 404);
+            }
+
+            $data = $notifications->map(function ($row) {
+                $cleanBody = $row->body;
+                $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+                $cleanBody = str_ireplace('<p>', '', $cleanBody);
+                $cleanBody = strip_tags($cleanBody);
+                $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+                $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+                $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+                $cleanBody = trim($cleanBody);
+
+                return [
+                    'id'    => $row->id,
+                    'title' => $row->title,
+                    'body'  => $cleanBody,
+                ];
+            });
+
+            return $this->sendResponse($data, "Notifications fetched successfully.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

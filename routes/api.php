@@ -47,8 +47,9 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('document-details', [ApiStudentController::class, 'document_details']);
         Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
-         Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
+        Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
         Route::post('test-details', [ApiStudentController::class, 'test_details']);
+        Route::post('notifications-list', [ApiStudentController::class, 'notifications_list']);
 
 
     });
