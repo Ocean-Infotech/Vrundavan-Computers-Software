@@ -34,10 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    'credentials' => storage_path('app/firebase/vrundavan-project-firebase-adminsdk-fbsvc-9d6816bcd3.json'),
 
     'firebase' => [
-        'credentials' => storage_path('app/firebase/vrundavan-project-firebase-adminsdk-fbsvc-9d6816bcd3.json'),
+        'credentials' => storage_path('app/firebase/firebase_credentials.json'),
     ],
 
 

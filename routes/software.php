@@ -34,6 +34,7 @@ use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\StudentRequestController;
 use Illuminate\Support\Facades\Storage;
@@ -246,3 +247,7 @@ Route::resource('/student-requests', StudentRequestController::class);
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);
 Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class, 'redemptionItemStatuUpdate'])->name('system-user-status');
+
+
+Route::post('/push-test', [PushController::class, 'sendStatic']);
+
