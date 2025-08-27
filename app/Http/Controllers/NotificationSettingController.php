@@ -67,7 +67,7 @@ class NotificationSettingController extends Controller
         try {
             if ($request->ajax()) {
                 $data = NotificationSetting::with('course:id,course_name');
-
+                $data = $data->orderBy('id', 'desc');
                 return DataTables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
@@ -78,6 +78,10 @@ class NotificationSettingController extends Controller
                     })
                     ->addColumn('student_name', fn($row) => $row->student_names)
                     ->editColumn('course_id', fn($row) => $row->course?->course_name ?? '-')
+                     ->editColumn('body', function ($row) {
+
+                        return $row->body ?? '-';
+                    })
                     ->addColumn('action', function ($row) use ($modules) {
 
                         $btn = '';
@@ -89,7 +93,7 @@ class NotificationSettingController extends Controller
                         }
                         return $btn ?: '-';
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action','body'])
                     ->make(true);
             }
 
@@ -147,9 +151,14 @@ class NotificationSettingController extends Controller
                         ],
                     ]);
 
-                    $cleanBody = strip_tags($validated['body']);
-                    $cleanBody = html_entity_decode($cleanBody);
-                    $cleanBody = trim(preg_replace('/\s+/', ' ', $cleanBody));
+                    $cleanBody = $validated['body'];
+                    $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+                    $cleanBody = str_ireplace('<p>', '', $cleanBody);
+                    $cleanBody = strip_tags($cleanBody);
+                    $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+                    $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+                    $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+                    $cleanBody = trim($cleanBody);
 
                     $message = CloudMessage::withTarget('token', $token)
                         ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
