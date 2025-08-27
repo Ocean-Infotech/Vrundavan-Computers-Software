@@ -15,7 +15,7 @@ class PushController extends Controller
     public function sendStatic(Request $request, Messaging $messaging)
     {
         // 1) Put your Android device token here (or pass via request)
-        $token = $request->input('token', 'PASTE_DEVICE_FCM_TOKEN_HERE');
+        $token = $request->input('token', 'd6kU7zFmRQGW_DTOaqAB0q:APA91bGgXdXW4tFoaWbllDIXEBejDDshpyffv3Ay6AuQTeWbO0e11lBDE2g6IDhHcJ_Bx72UETq2qSheGEJSK0skwxmV1qcKMIa4nIyjQe1uHHHuLmS4mrI');
 
         // 2) Basic title/body (can pass via request as well)
         $title = $request->input('title', 'Hello from Laravel');
