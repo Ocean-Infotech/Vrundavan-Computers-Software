@@ -12,10 +12,15 @@ use Kreait\Firebase\Messaging\AndroidConfig;
 
 class PushController extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+        //dd("hiiiii");
+    }
     public function sendStatic(Request $request, Messaging $messaging)
     {
         // 1) Put your Android device token here (or pass via request)
-        $token = $request->input('token', 'd6kU7zFmRQGW_DTOaqAB0q:APA91bGgXdXW4tFoaWbllDIXEBejDDshpyffv3Ay6AuQTeWbO0e11lBDE2g6IDhHcJ_Bx72UETq2qSheGEJSK0skwxmV1qcKMIa4nIyjQe1uHHHuLmS4mrI');
+        $token = $request->input('token', 'eHJzNP_mSh6tBF_aEy_HpR:APA91bGrowL4l7UVnvvlUIWUs60g5BjexmBpiWkkxyxQZhhfImEwEyFlhmbYzaAD_WYtj1QnG3IyjUbcbs7CD3Ey9W1ViX1nbf3Hko_ElAv3RJgKCXIRZIw');
 
         // 2) Basic title/body (can pass via request as well)
         $title = $request->input('title', 'Hello from Laravel');
@@ -47,8 +52,10 @@ class PushController extends Controller
             ->withAndroidConfig($androidConfig)
             ->withData($data);
 
+
         try {
-            $messaging->send($message);
+            $response = $messaging->send($message);
+            dd($response);
             return response()->json(['ok' => true, 'sent_to' => $token]);
         } catch (MessagingException|FirebaseException $e) {
             return response()->json([

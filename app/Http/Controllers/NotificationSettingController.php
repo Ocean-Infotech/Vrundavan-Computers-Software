@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\NotificationSettingRequest;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
+use Kreait\Firebase\Messaging\AndroidConfig;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FCMNotification;
+use App\Models\StudentDeviceToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\Controller;
@@ -75,10 +79,10 @@ class NotificationSettingController extends Controller
                     ->addColumn('student_name', fn($row) => $row->student_names)
                     ->editColumn('course_id', fn($row) => $row->course?->course_name ?? '-')
                     ->addColumn('action', function ($row) use ($modules) {
-                       
+
                         $btn = '';
                         if ($modules['permission_edit']) {
-                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                            // $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                         }
                         if ($modules['permission_delete']) {
                             $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
@@ -111,29 +115,62 @@ class NotificationSettingController extends Controller
         return view($modules['folder_path'] . '.form');
     }
 
-public function store(NotificationSettingRequest $request)
-{
-    $validated = $request->validated();
+    public function store(NotificationSettingRequest $request)
+    {
+        $validated = $request->validated();
 
-    try {
-        $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
-        $validated['student_id'] = implode(',', $studentIds);
-        $validated['created_by'] = Auth::user()->id;
+        try {
+            $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
+            $validated['student_id'] = implode(',', $studentIds);
+            $validated['created_by'] = Auth::user()->id;
 
-        // 🔴 dd() REMOVE કરો
-        $notification = NotificationSetting::create($validated);
 
-        // 🔔 Send Firebase push notification to all selected students
-        foreach ($studentIds as $sid) {
-            \App\Helpers\Helper::sendPushNotification($sid, $validated['title'], $validated['body']);
+            $notification = NotificationSetting::create($validated);
+
+            $cleanBody = strip_tags($validated['body']);
+
+            foreach ($studentIds as $sid) {
+
+                $token = StudentDeviceToken::where('student_id', $sid)->value('device_token');
+
+                if (!empty($token)) {
+                    $androidConfig = AndroidConfig::fromArray([
+                        'ttl' => '3600s',
+                        'priority' => 'high',
+                        'notification' => [
+                            'channel_id'   => 'default',
+                            'sound'        => 'default',
+                            'click_action' => 'OPEN_MAIN_ACTIVITY',
+                        ],
+                        'fcm_options' => [
+                            'analytics_label' => 'student_notification',
+                        ],
+                    ]);
+
+                    $cleanBody = strip_tags($validated['body']);
+                    $cleanBody = html_entity_decode($cleanBody);
+                    $cleanBody = trim(preg_replace('/\s+/', ' ', $cleanBody));
+
+                    $message = CloudMessage::withTarget('token', $token)
+                        ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
+                        ->withAndroidConfig($androidConfig)
+                        ->withData([
+                            'student_id' => (string) $sid,
+                            'title'      => $validated['title'],
+                            'body'       => $cleanBody,
+                        ]);
+
+                    app('firebase.messaging')->send($message);
+                }
+            }
+
+            return Redirect::route($this->modules['route'] . '.index')
+                ->withSuccess($this->modules['title'] . ' created successfully');
+
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
-
-        return Redirect::route($this->modules['route'] . '.index')
-            ->withSuccess($this->modules['title'] . ' created successfully');
-    } catch (\Exception $e) {
-        return Redirect::route('dashboard')->withErrors($e->getMessage());
     }
-}
 
 
     public function edit(string $id)
@@ -187,7 +224,6 @@ public function store(NotificationSettingRequest $request)
 
             $notificationSetting->update($validated);
 
-            // (optional) 🔔 If you also want to send notification on update
             foreach ($studentIds as $sid) {
                 Helper::sendPushNotification($sid, $validated['title'], $validated['body']);
             }
