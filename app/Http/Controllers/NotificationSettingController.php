@@ -73,12 +73,12 @@ class NotificationSettingController extends Controller
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
                             $query->where('title', 'like', "%" . $request->search . "%")
-                                  ->orWhere('body', 'like', "%" . $request->search . "%");
+                                ->orWhere('body', 'like', "%" . $request->search . "%");
                         }
                     })
                     ->addColumn('student_name', fn($row) => $row->student_names)
                     ->editColumn('course_id', fn($row) => $row->course?->course_name ?? '-')
-                     ->editColumn('body', function ($row) {
+                    ->editColumn('body', function ($row) {
 
                         return $row->body ?? '-';
                     })
@@ -93,7 +93,7 @@ class NotificationSettingController extends Controller
                         }
                         return $btn ?: '-';
                     })
-                    ->rawColumns(['action','body'])
+                    ->rawColumns(['action', 'body'])
                     ->make(true);
             }
 
@@ -135,7 +135,10 @@ class NotificationSettingController extends Controller
 
             foreach ($studentIds as $sid) {
 
-                $token = StudentDeviceToken::where('student_id', $sid)->value('device_token');
+                $token = StudentDeviceToken::where('student_id', $sid)
+                    ->orderBy('id', 'desc')
+                    ->value('device_token');
+
 
                 if (!empty($token)) {
                     $androidConfig = AndroidConfig::fromArray([
@@ -175,7 +178,6 @@ class NotificationSettingController extends Controller
 
             return Redirect::route($this->modules['route'] . '.index')
                 ->withSuccess($this->modules['title'] . ' created successfully');
-
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
