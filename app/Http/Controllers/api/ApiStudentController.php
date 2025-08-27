@@ -461,6 +461,7 @@ class ApiStudentController extends Controller
                     'id'    => $row->id,
                     'title' => $row->title,
                     'body'  => $cleanBody,
+                    'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
             });
 
