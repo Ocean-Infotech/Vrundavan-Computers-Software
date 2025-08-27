@@ -125,20 +125,28 @@ class NotificationSettingController extends Controller
 
         try {
             $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
-            $validated['student_id'] = implode(',', $studentIds);
             $validated['created_by'] = Auth::user()->id;
 
-
-            $notification = NotificationSetting::create($validated);
-
-            $cleanBody = strip_tags($validated['body']);
-
             foreach ($studentIds as $sid) {
+                // Create a separate NotificationSetting record for each student
+                $notificationData = $validated;
+                $notificationData['student_id'] = $sid;
+                $notification = NotificationSetting::create($notificationData);
 
+                // Prepare notification body
+                $cleanBody = $validated['body'];
+                $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+                $cleanBody = str_ireplace('<p>', '', $cleanBody);
+                $cleanBody = strip_tags($cleanBody);
+                $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+                $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+                $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+                $cleanBody = trim($cleanBody);
+
+                // Get the student's device token
                 $token = StudentDeviceToken::where('student_id', $sid)
                     ->orderBy('id', 'desc')
                     ->value('device_token');
-
 
                 if (!empty($token)) {
                     $androidConfig = AndroidConfig::fromArray([
@@ -153,15 +161,6 @@ class NotificationSettingController extends Controller
                             'analytics_label' => 'student_notification',
                         ],
                     ]);
-
-                    $cleanBody = $validated['body'];
-                    $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
-                    $cleanBody = str_ireplace('<p>', '', $cleanBody);
-                    $cleanBody = strip_tags($cleanBody);
-                    $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
-                    $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
-                    $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
-                    $cleanBody = trim($cleanBody);
 
                     $message = CloudMessage::withTarget('token', $token)
                         ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
@@ -182,6 +181,7 @@ class NotificationSettingController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
+
 
 
     public function edit(string $id)

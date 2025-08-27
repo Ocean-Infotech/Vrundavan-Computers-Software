@@ -440,6 +440,7 @@ class ApiStudentController extends Controller
                         ->orWhereNull('student_id')
                         ->orWhere('course_id', $student->course_id ?? 0);
                 })
+                ->where('is_read', 0)
                 ->latest()
                 ->get();
 
@@ -461,6 +462,7 @@ class ApiStudentController extends Controller
                     'id'    => $row->id,
                     'title' => $row->title,
                     'body'  => $cleanBody,
+                    'is_read' => (bool) $row->is_read,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
             });
@@ -470,4 +472,48 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    public function notifications_mark_read(Request $request)
+{
+    try {
+        $student = Auth::guard('student-api')->user();
+        if (!$student) {
+            return $this->sendError("Unauthorized.", [], [], 401);
+        }
+
+        // Get notification IDs from request (optional - if not provided, mark all as read)
+        $notificationIds = $request->input('notification_ids', []);
+
+        if (!empty($notificationIds)) {
+            // Mark specific notifications as read
+            $updated = NotificationSetting::whereIn('id', $notificationIds)
+                ->where(function ($q) use ($student) {
+                    $q->where('student_id', (string) $student->id)  // Cast to string
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0')); // Cast to string
+                })
+                ->update(['is_read' => 1]);
+
+            if ($updated == 0) {
+                return $this->sendError("No notifications found to mark as read.", [], [], 404);
+            }
+
+            return $this->sendResponse([], "{$updated} notification(s) marked as read successfully.");
+
+        } else {
+            // Mark all notifications as read for this student
+            $updated = NotificationSetting::where(function ($q) use ($student) {
+                    $q->where('student_id', (string) $student->id)  // Cast to string
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0')); // Cast to string
+                })
+                ->where('is_read', 0) // Only update unread notifications
+                ->update(['is_read' => 1]);
+
+            return $this->sendResponse([], "All notifications marked as read successfully. ({$updated} notifications updated)");
+        }
+
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+    }
+}
 }
