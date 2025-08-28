@@ -91,7 +91,7 @@ class TimetableController extends Controller
                     ->addColumn('course_name', function ($row) {
                         return $row->course ? $row->course->course_name : '-';
                     })
-                     ->addColumn('class', function ($row) {
+                    ->addColumn('class', function ($row) {
                         return $row->class_id ? $row->class->class : '-';
                     })
                     ->addColumn('batch_name', function ($row) {
@@ -241,6 +241,20 @@ class TimetableController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $timetable = Timetable::findOrFail($id);
+
+            // Attachment file હોય તો delete કરો
+            if (!empty($timetable->attachment) && file_exists(public_path($timetable->attachment))) {
+                unlink(public_path($timetable->attachment));
+            }
+
+            $timetable->delete();
+
+            return Redirect::route($this->modules['route'] . '.index')
+                ->withSuccess($this->modules['title'] . ' deleted successfully');
+        } catch (\Exception $e) {
+            return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
     }
 }
