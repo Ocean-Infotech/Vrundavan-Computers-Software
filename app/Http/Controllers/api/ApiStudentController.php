@@ -467,53 +467,73 @@ class ApiStudentController extends Controller
                 ];
             });
 
-            return $this->sendResponse($data, "Notifications fetched successfully.");
+            return $this->sendResponse($data, "Notifications List.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
     public function notifications_mark_read(Request $request)
-{
-    try {
-        $student = Auth::guard('student-api')->user();
-        if (!$student) {
-            return $this->sendError("Unauthorized.", [], [], 401);
-        }
-
-        // Get notification IDs from request (optional - if not provided, mark all as read)
-        $notificationIds = $request->input('notification_ids', []);
-
-        if (!empty($notificationIds)) {
-            // Mark specific notifications as read
-            $updated = NotificationSetting::whereIn('id', $notificationIds)
-                ->where(function ($q) use ($student) {
-                    $q->where('student_id', (string) $student->id)  // Cast to string
-                        ->orWhereNull('student_id')
-                        ->orWhere('course_id', (string) ($student->course_id ?? '0')); // Cast to string
-                })
-                ->update(['is_read' => 1]);
-
-            if ($updated == 0) {
-                return $this->sendError("No notifications found to mark as read.", [], [], 404);
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
             }
 
-            return $this->sendResponse([], "{$updated} notification(s) marked as read successfully.");
+            $notificationIds = $request->input('notification_ids', []);
 
-        } else {
-            // Mark all notifications as read for this student
-            $updated = NotificationSetting::where(function ($q) use ($student) {
-                    $q->where('student_id', (string) $student->id)  // Cast to string
+            if (!empty($notificationIds)) {
+                $updated = NotificationSetting::whereIn('id', $notificationIds)
+                    ->where(function ($q) use ($student) {
+                        $q->where('student_id', (string) $student->id)
+                            ->orWhereNull('student_id')
+                            ->orWhere('course_id', (string) ($student->course_id ?? '0'));
+                    })
+                    ->update(['is_read' => 1]);
+
+                if ($updated == 0) {
+                    return $this->sendError("No notifications found to mark as read.", [], [], 404);
+                }
+            } else {
+                $updated = NotificationSetting::where(function ($q) use ($student) {
+                    $q->where('student_id', (string) $student->id)
                         ->orWhereNull('student_id')
-                        ->orWhere('course_id', (string) ($student->course_id ?? '0')); // Cast to string
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0'));
                 })
-                ->where('is_read', 0) // Only update unread notifications
-                ->update(['is_read' => 1]);
+                    ->where('is_read', 0)
+                    ->update(['is_read' => 1]);
+            }
 
-            return $this->sendResponse([], "All notifications marked as read successfully. ({$updated} notifications updated)");
+            $readNotifications = NotificationSetting::query()
+                ->where('is_read', 1)
+                ->where(function ($q) use ($student) {
+                    $q->where('student_id', (string) $student->id)
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0'));
+                })
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->makeHidden(['created_by', 'updated_by', 'deleted_by', 'created_at', 'updated_at']);
+
+            foreach ($readNotifications as $row) {
+                $cleanBody = $row->body;
+                $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+                $cleanBody = str_ireplace('<p>', '', $cleanBody);
+                $cleanBody = strip_tags($cleanBody);
+                $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+                $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+                $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+                $cleanBody = trim($cleanBody);
+
+                $row->body = $cleanBody;
+            }
+
+            return $this->sendResponse(
+                $readNotifications,
+                "Notifications marked as read successfully. (" . ($updated ?? 0) . " updated)"
+            );
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
-
-    } catch (\Exception $e) {
-        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
-}
 }
