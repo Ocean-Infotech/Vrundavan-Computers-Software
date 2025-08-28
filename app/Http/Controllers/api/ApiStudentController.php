@@ -175,55 +175,63 @@ class ApiStudentController extends Controller
 
             $query = Attedance::where('admission_id', $student->id);
 
-            // Specific date case
-            if ($request->filled('date')) {
-                try {
-                    $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
-                } catch (\Exception $e) {
-                    return $this->sendError('Invalid date provided.', [], [], 422);
-                }
 
-                $attendanceRecord = $query->whereDate('date', $date->format('Y-m-d'))->first();
-                $isPresent = $attendanceRecord && !empty($attendanceRecord->in_time);
+          if ($request->filled('date')) {
+    try {
+        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
+    } catch (\Exception $e) {
+        return $this->sendError('Invalid date provided.', [], [], 422);
+    }
 
-                $dataList = [[
-                    'date'        => $date->format('Y-m-d'),
-                    'day'         => $date->format('l'),
-                    'in_time'     => $attendanceRecord?->in_time ? date('h:i A', strtotime($attendanceRecord->in_time)) : null,
-                    'out_time'    => $attendanceRecord?->out_time ? date('h:i A', strtotime($attendanceRecord->out_time)) : null,
-                    'status'      => $isPresent ? 'Present' : 'Absent',
-                    'status_code' => $isPresent ? 'P' : 'A',
-                ]];
+    $attendanceRecord = Attedance::where('admission_id', $student->id)
+                        ->whereDate('date', $date->format('Y-m-d'))
+                        ->first();
 
-                $summaryData = [
-                    'total_lectures'   => 1,
-                    'present_lectures' => $isPresent ? 1 : 0,
-                    'absent_lectures'  => $isPresent ? 0 : 1,
-                    'average_percent'  => $isPresent ? 100 : 0,
-                    'date'             => $date->format('d-F-Y')
-                ];
+    $isPresent = $attendanceRecord && !empty($attendanceRecord->in_time);
 
-                return $this->sendResponse([
-                    'summary' => $summaryData,
-                    'records' => $dataList
-                ], 'Attendance records fetched successfully.');
-            }
+    $dataList = [
+        [
+            'date'        => $date->format('Y-m-d'),
+            'day'         => $date->format('l'),
+            'in_time'     => $isPresent ? date('h:i A', strtotime($attendanceRecord->in_time)) : null,
+            'out_time'    => $isPresent ? date('h:i A', strtotime($attendanceRecord->out_time)) : null,
+            'status'      => $isPresent ? 'Present' : 'Absent',
+            'status_code' => $isPresent ? 'P' : 'A',
+        ]
+    ];
 
-            // Month-Year case
+    $summaryData = [
+        'total_lectures'   => 1,
+        'present_lectures' => $isPresent ? 1 : 0,
+        'absent_lectures'  => $isPresent ? 0 : 1,
+        'average_percent'  => $isPresent ? 100 : 0,
+        'date'             => $date->format('d-F-Y')
+    ];
+
+    return $this->sendResponse([
+        'summary' => $summaryData,
+        'records' => $dataList
+    ], 'Attendance records fetched successfully.');
+}
+
+
+
             $month = $request->month ?? date('n');
             $year  = $request->year ?? date('Y');
 
             $query->whereMonth('date', $month)->whereYear('date', $year);
-            $attendanceRecords = $query->orderBy('date', 'desc')->get()->keyBy(function ($att) {
-                return \Carbon\Carbon::parse($att->date)->format('Y-m-d');
-            });
+            $attendanceRecords = $query->orderBy('date', 'desc')->get();
 
             $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
-            $endOfMonth = ($month == date('n') && $year == date('Y'))
-                ? \Carbon\Carbon::today()->endOfDay()
-                : $startOfMonth->copy()->endOfMonth();
 
-            // Generate all working dates (exclude Sundays)
+            if ($month == date('n') && $year == date('Y')) {
+                $endOfMonth = \Carbon\Carbon::today()->endOfDay(); // include today
+            } else {
+                $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            }
+
+
+            // Generate all working dates
             $allDates = [];
             $currentDate = $startOfMonth->copy();
             while ($currentDate <= $endOfMonth) {
@@ -233,13 +241,21 @@ class ApiStudentController extends Controller
                 $currentDate->addDay();
             }
 
-            $allDates = array_reverse($allDates); // DESC order
+            // Reverse for DESC order
+            $allDates = array_reverse($allDates);
+
             $totalLectures = count($allDates);
+
+            // Map DB records by date
+            $recordsByDate = $attendanceRecords->keyBy(function ($att) {
+                return \Carbon\Carbon::parse($att->date)->format('Y-m-d');
+            });
+
             $presentCount = 0;
             $dataList = [];
 
             foreach ($allDates as $date) {
-                $record = $attendanceRecords->get($date);
+                $record = $recordsByDate->get($date);
                 $isPresent = $record && !empty($record->in_time);
 
                 if ($isPresent) {
@@ -249,14 +265,14 @@ class ApiStudentController extends Controller
                 $dataList[] = [
                     'date'        => $date,
                     'day'         => \Carbon\Carbon::parse($date)->format('l'),
-                    'in_time'     => $record?->in_time ? date('h:i A', strtotime($record->in_time)) : null,
-                    'out_time'    => $record?->out_time ? date('h:i A', strtotime($record->out_time)) : null,
+                    'in_time'     => $record && $record->in_time ? date('h:i A', strtotime($record->in_time)) : null,
+                    'out_time'    => $record && $record->out_time ? date('h:i A', strtotime($record->out_time)) : null,
                     'status'      => $isPresent ? 'Present' : 'Absent',
                     'status_code' => $isPresent ? 'P' : 'A',
                 ];
             }
 
-            $absentCount = $totalLectures - $presentCount;
+            $absentCount    = $totalLectures - $presentCount;
             $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
 
             $summaryData = [
@@ -502,8 +518,7 @@ class ApiStudentController extends Controller
 
             return $this->sendResponse(
                 $readNotifications,
-                "Notifications marked as read successfully."
-            );
+                "Notifications marked as read successfully.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
