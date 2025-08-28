@@ -155,7 +155,7 @@ class NotificationSettingController extends Controller
                         'notification' => [
                             'channel_id'   => 'default',
                             'sound'        => 'default',
-                            'click_action' => 'OPEN_MAIN_ACTIVITY',
+                            'click_action' => 'OPEN_NOTIFICATION',
                         ],
                         'fcm_options' => [
                             'analytics_label' => 'student_notification',
