@@ -529,8 +529,7 @@ class ApiStudentController extends Controller
 
             return $this->sendResponse(
                 $readNotifications,
-                "Notifications marked as read successfully. (" . ($updated ?? 0) . " updated)"
-            );
+                "Notifications marked as read successfully.");
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
