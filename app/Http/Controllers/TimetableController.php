@@ -244,7 +244,6 @@ class TimetableController extends Controller
         try {
             $timetable = Timetable::findOrFail($id);
 
-            // Attachment file હોય તો delete કરો
             if (!empty($timetable->attachment) && file_exists(public_path($timetable->attachment))) {
                 unlink(public_path($timetable->attachment));
             }
