@@ -440,7 +440,6 @@ class ApiStudentController extends Controller
                         ->orWhereNull('student_id')
                         ->orWhere('course_id', $student->course_id ?? 0);
                 })
-                ->where('is_read', 0)
                 ->latest()
                 ->get();
 
