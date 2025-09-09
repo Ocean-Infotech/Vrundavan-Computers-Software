@@ -167,7 +167,8 @@
                                     {{-- <th>Form</th> --}}
                                     @if ($fees_collection_edit == 'true')
                                         <th>Update</th>
-                                    @endif
+                                        @endif
+                                        <th>Status</th>
                                 </tr>
                             </thead>
 
@@ -333,7 +334,7 @@
                                 if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
                                     row += `
                                     <td>
-                                        <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Create</button>
+                                        <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
                                     </td>`;
                                 }
                                 /*
@@ -392,7 +393,7 @@
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
- 
+
                 data: {
                     id: studentId
                 }, // only data, CSRF auto headers ma gayo che

@@ -231,6 +231,7 @@ class AuthenticationController extends Controller
     public function studentVerifyOtp(Request $request)
     {
         try {
+            
             // Validate request
             $validator = Validator::make($request->all(), [
                 'mobile_no' => [

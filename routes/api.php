@@ -42,9 +42,8 @@ Route::post("student/logout", [AuthenticationController::class, 'studentLogout']
 //     Route::post("logout", [AuthenticationController::class, 'studentLogout']);
 // });
 
-Route::group(['middleware' => ['auth:student-api']], function () {
+Route::group(['middleware' => ['auth:student-api', 'check.revoked']], function () {
 
-    /** Logout Api **/
     /** All Student API store in this prefix */
     Route::prefix('student')->group(function () {
 
