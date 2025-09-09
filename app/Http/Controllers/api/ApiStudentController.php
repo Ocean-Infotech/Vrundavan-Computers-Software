@@ -176,43 +176,43 @@ class ApiStudentController extends Controller
             $query = Attedance::where('admission_id', $student->id);
 
 
-          if ($request->filled('date')) {
-    try {
-        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
-    } catch (\Exception $e) {
-        return $this->sendError('Invalid date provided.', [], [], 422);
-    }
+            if ($request->filled('date')) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
+                } catch (\Exception $e) {
+                    return $this->sendError('Invalid date provided.', [], [], 422);
+                }
 
-    $attendanceRecord = Attedance::where('admission_id', $student->id)
-                        ->whereDate('date', $date->format('Y-m-d'))
-                        ->first();
+                $attendanceRecord = Attedance::where('admission_id', $student->id)
+                    ->whereDate('date', $date->format('Y-m-d'))
+                    ->first();
 
-    $isPresent = $attendanceRecord && !empty($attendanceRecord->in_time);
+                $isPresent = $attendanceRecord && !empty($attendanceRecord->in_time);
 
-    $dataList = [
-        [
-            'date'        => $date->format('Y-m-d'),
-            'day'         => $date->format('l'),
-            'in_time'     => $isPresent ? date('h:i A', strtotime($attendanceRecord->in_time)) : null,
-            'out_time'    => $isPresent ? date('h:i A', strtotime($attendanceRecord->out_time)) : null,
-            'status'      => $isPresent ? 'Present' : 'Absent',
-            'status_code' => $isPresent ? 'P' : 'A',
-        ]
-    ];
+                $dataList = [
+                    [
+                        'date'        => $date->format('Y-m-d'),
+                        'day'         => $date->format('l'),
+                        'in_time'     => $isPresent ? date('h:i A', strtotime($attendanceRecord->in_time)) : null,
+                        'out_time'    => $isPresent ? date('h:i A', strtotime($attendanceRecord->out_time)) : null,
+                        'status'      => $isPresent ? 'Present' : 'Absent',
+                        'status_code' => $isPresent ? 'P' : 'A',
+                    ]
+                ];
 
-    $summaryData = [
-        'total_lectures'   => 1,
-        'present_lectures' => $isPresent ? 1 : 0,
-        'absent_lectures'  => $isPresent ? 0 : 1,
-        'average_percent'  => $isPresent ? 100 : 0,
-        'date'             => $date->format('d-F-Y')
-    ];
+                $summaryData = [
+                    'total_lectures'   => 1,
+                    'present_lectures' => $isPresent ? 1 : 0,
+                    'absent_lectures'  => $isPresent ? 0 : 1,
+                    'average_percent'  => $isPresent ? 100 : 0,
+                    'date'             => $date->format('d-F-Y')
+                ];
 
-    return $this->sendResponse([
-        'summary' => $summaryData,
-        'records' => $dataList
-    ], 'Attendance records fetched successfully.');
-}
+                return $this->sendResponse([
+                    'summary' => $summaryData,
+                    'records' => $dataList
+                ], 'Attendance records fetched successfully.');
+            }
 
 
 
@@ -518,7 +518,8 @@ class ApiStudentController extends Controller
 
             return $this->sendResponse(
                 $readNotifications,
-                "Notifications marked as read successfully.");
+                "Notifications marked as read successfully."
+            );
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

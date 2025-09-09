@@ -27,7 +27,8 @@ use Spatie\Permission\Models\Role;
 
 class AuthenticationController extends Controller
 {
-    public function __construct(Request $request) {}
+    public function __construct(Request $request) {
+    }
 
     public function register(Request $request)
     {
@@ -56,6 +57,7 @@ class AuthenticationController extends Controller
                 'password' => ['required', 'string', 'min:4'], // Min 4 characters and requires password_confirmation field
                 // , 'confirmed'
                 'referral_code' => ['nullable', 'string', 'exists:' . (new User())->getTable() . ',referral_code'], // Optional, but if given, must be a string max 10 chars
+
             ], [
                 'city_id.required' => 'The city field is required.',
                 'state_id.required' => 'The state field is required.',
@@ -306,7 +308,7 @@ class AuthenticationController extends Controller
                     ],
                     [
                         'device_details' => $request->device_details,
-                         'created_by'     => $student->id, 
+                        'created_by'     => $student->id,
                     ]
                 );
             }
@@ -321,6 +323,30 @@ class AuthenticationController extends Controller
             $getProfile->device_details = $request->device_details ?? null;
 
             return $this->sendResponse($getProfile, 'OTP verified successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+    public function studentLogout(Request $request)
+    {
+        try {
+            $student = $request->user('student-api');
+
+            if (!$student) {
+                return $this->sendError('User not authenticated.', [], [], 401);
+            }
+
+            $request->user('student-api')->token()->revoke();
+
+            // Optional: remove device token
+            if ($request->filled('device_token')) {
+                StudentDeviceToken::where('student_id', $student->id)
+                    ->where('device_token', $request->device_token)
+                    ->delete();
+            }
+
+            // Return success response
+            return $this->sendResponse([], 'Logged out successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
