@@ -34,7 +34,7 @@ Route::controller(CommonController::class)->group(function () {
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
 Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
 Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
-Route::post("student/logout", [AuthenticationController::class, 'studentLogout']);
+// Route::post("student/logout", [AuthenticationController::class, 'studentLogout']);
 
 // Route::middleware('auth:student-api')->post('student/logout', [AuthenticationController::class, 'studentLogout']);
 
