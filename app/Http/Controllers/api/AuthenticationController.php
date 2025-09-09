@@ -231,7 +231,7 @@ class AuthenticationController extends Controller
     public function studentVerifyOtp(Request $request)
     {
         try {
-            
+
             // Validate request
             $validator = Validator::make($request->all(), [
                 'mobile_no' => [
@@ -328,28 +328,5 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    public function studentLogout(Request $request)
-    {
-        try {
-            $student = $request->user('student-api');
-
-            if (!$student) {
-                return $this->sendError('User not authenticated.', [], [], 401);
-            }
-
-            $request->user('student-api')->token()->revoke();
-
-            // Optional: remove device token
-            if ($request->filled('device_token')) {
-                StudentDeviceToken::where('student_id', $student->id)
-                    ->where('device_token', $request->device_token)
-                    ->delete();
-            }
-
-            // Return success response
-            return $this->sendResponse([], 'Logged out successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
-        }
-    }
+    
 }

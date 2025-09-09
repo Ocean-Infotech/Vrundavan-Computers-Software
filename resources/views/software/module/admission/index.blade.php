@@ -162,9 +162,9 @@
                                     <th>DOJ</th>
                                     <th>DOC</th>
                                     @if ($fees_collection_create == 'true')
-                                        <th>Fees</th>
+                                    <th>Fees</th>
                                     @endif
-                                    {{-- <th>Form</th> --}}
+                                    <th>Form</th>
                                     @if ($fees_collection_edit == 'true')
                                         <th>Update</th>
                                         @endif
@@ -337,20 +337,27 @@
                                         <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
                                     </td>`;
                                 }
-                                /*
+
                                 row += `
                             <td>
                                 <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
                             </td>`;
-                                    */
+
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
                                     row += `
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
                                 </td>`;
                                 }
-                                row += `
+                                row += `<td>
+            ${course.status == 'Completed'
+                ? '<span class="badge bg-success">Completed</span>'
+                : course.status == 'Cancel'
+                    ? '<span class="badge bg-danger">Cancel</span>'
+                    : '<span class="badge bg-primary">Running</span>'}
+        </td>
                             </tr>`;
+
                                 $('#courseData').append(row);
                             });
 
@@ -561,6 +568,35 @@
                 });
             });
         });
+        // Update Status on Change
+$(document).on("change", ".updateStatus", function () {
+    let registerId = $(this).data("register_id");
+    let courseId = $(this).data("course_id");
+    let status = $(this).val();
+
+    $.ajax({
+        url: "{{ route($route . '.course-status-update') }}", // 👈 New route
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            register_id: registerId,
+            course_id: courseId,
+            status: status
+        },
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message || "Status updated successfully.");
+            } else {
+                toastr.error(response.message || "Failed to update status.");
+            }
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText);
+            toastr.error("Error updating status.");
+        }
+    });
+});
+
     </script>
 
 

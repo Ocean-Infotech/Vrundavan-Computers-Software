@@ -34,19 +34,12 @@ Route::controller(CommonController::class)->group(function () {
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
 Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
 Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
-// Route::post("student/logout", [AuthenticationController::class, 'studentLogout']);
 
-// Route::middleware('auth:student-api')->post('student/logout', [AuthenticationController::class, 'studentLogout']);
 
-// Route::prefix('student')->group(function () {
-//     Route::post("logout", [AuthenticationController::class, 'studentLogout']);
-// });
-
-Route::group(['middleware' => ['auth:student-api', 'check.revoked']], function () {
+Route::group(['middleware' => ['auth:student-api']], function () {
 
     /** All Student API store in this prefix */
     Route::prefix('student')->group(function () {
-
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
         Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
