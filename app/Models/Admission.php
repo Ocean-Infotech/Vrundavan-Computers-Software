@@ -74,5 +74,8 @@ class Admission extends Authenticatable
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
-    
+    public function educationDetails()
+    {
+        return $this->hasMany(EducationDetails::class, 'admission_id');
+    }
 }

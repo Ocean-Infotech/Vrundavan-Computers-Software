@@ -90,8 +90,8 @@ class AdmissionController extends Controller
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
                 (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
                 (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' => 'w-5 text-center'],
-                (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
-                (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+                // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
+                (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Update', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             if (!$modules['permission_edit'] && !$modules['permission_delete']) {
                 $columns = array_filter($columns, function ($col) {
@@ -130,43 +130,43 @@ class AdmissionController extends Controller
                     //     return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
                     // })
 
-->editColumn('gdrivefolderurl', function ($row) {
-    // Check if folder already exists
-    if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
-        $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-        return '<a href="' . $row->gdrivefolderurl . '"
+                    ->editColumn('gdrivefolderurl', function ($row) {
+                        // Check if folder already exists
+                        if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
+                            $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+                            return '<a href="' . $row->gdrivefolderurl . '"
                     data-id="' . $row->id . '"
                     data-foldername="' . $folderName . '"
                     data-folderurl="' . $row->gdrivefolderurl . '"
                     class="btn btn-warning btn-sm open_google_drive_folder">
                     <i class="bx bx-copy-alt"></i> Open Documents
                 </a>';
-    } else {
-        // Folder not created yet → show Create button
-        return '<a href="javascript:void(0)"
+                        } else {
+                            // Folder not created yet → show Create button
+                            return '<a href="javascript:void(0)"
                     data-id="' . $row->id . '"
                     class="btn btn-primary btn-sm create_google_drive_folder">
                     <i class="fa fa-folder-plus"></i> Create Folder
                 </a>';
-    }
-})
-
-
-                    ->editColumn('status', function ($row) use ($modules) {
-                        $dropdown = '<ul class="dropdown-menu">';
-                        $button = '';
-
-                        if ($row->status == "created") {
-                            $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
-                        } elseif ($row->status == "rejected") {
-                            $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
                         }
-
-                        $dropdown .= '</ul>';
-                        return $button . $dropdown;
                     })
+
+
+                    // ->editColumn('status', function ($row) use ($modules) {
+                    //     $dropdown = '<ul class="dropdown-menu">';
+                    //     $button = '';
+
+                    //     if ($row->status == "created") {
+                    //         $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                    //         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
+                    //     } elseif ($row->status == "rejected") {
+                    //         $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                    //         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
+                    //     }
+
+                    //     $dropdown .= '</ul>';
+                    //     return $button . $dropdown;
+                    // })
 
                     ->addColumn('course_button', function ($row) use ($modules) {
                         // if ($modules['course-register_add']) {
@@ -183,8 +183,9 @@ class AdmissionController extends Controller
                         $btn = '';
                         if (!$row->deleted_at) {
                             if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-primary btn-sm mx-1">Update</a>';
                             }
+
                             if ($deletePermisstion) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                             }
@@ -690,7 +691,7 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'update_status' => ['required', 'in:created,rejected,completed,cancelled']
+            'update_status' => ['required', 'in:running,completed,cancel']
         ]);
 
         if ($validator->fails() && $isAjax) {
@@ -932,5 +933,53 @@ class AdmissionController extends Controller
         } else {
             return response()->json(['message' => 'Record not found.'], 404);
         }
+    }
+
+    public function updateCourseStatus(Request $request)
+    {
+        $request->validate([
+            'register_id' => 'required|integer',
+            'course_id'   => 'required|integer',
+            'status'      => 'required|in:Running,Complete,Cancel',
+        ]);
+
+        $course = CourceRegistration::where('register_id', $request->register_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+
+        if (!$course) {
+            return $this->sendError('Course not found.');
+        }
+
+        $course->status = $request->status;
+        $course->save();
+
+        return $this->sendResponse($course, 'Status updated successfully.');
+    }
+    public function view($register_id, $course_id)
+    {
+        $modules = $this->modules;
+        $admission = Admission::findOrFail($register_id);
+
+        $course = CourceRegistration::where('register_id', $register_id)
+            ->where('course_id', $course_id)
+            ->with('course')
+            ->firstOrFail();
+
+        $mother_letters = str_split(strtoupper($admission->mother_name));
+
+        $full_name = strtoupper($admission->first_name . ' ' . $admission->last_name . ' ' . $admission->father_name);
+        $full_name_letters = str_split($full_name);
+
+        $permanent_address_letters = str_split(strtoupper($admission->permanent_address ?? ''));
+
+
+        View::share('modules', $modules);
+        View::share('mother_letters', $mother_letters);
+        View::share('full_name_letters', $full_name_letters);
+        View::share('permanent_address_letters', $permanent_address_letters);
+
+        // dd($course);
+        return view($modules['folder_path'] . '.view', compact('admission', 'course'));
     }
 }

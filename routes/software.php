@@ -85,7 +85,9 @@ Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
 Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
-Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+// Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+Route::post('admission/update-course-status', [AdmissionController::class, 'updateCourseStatus'])->name('admission.update-course-status');
+Route::get('admission/view/{register_id}/{course_id}', [AdmissionController::class, 'view'])->name('admission.view');
 Route::post('admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
 Route::post('admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
 Route::post('admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');

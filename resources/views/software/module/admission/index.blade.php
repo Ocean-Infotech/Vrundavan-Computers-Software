@@ -24,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                                                            <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -69,7 +69,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modal -->
     <!-- Course/View Modal -->
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -153,7 +152,7 @@
                             <p><strong>Name:</strong> <span class="text-uppercase" id="modalName"></span></p>
                         </div>
                     </div>
-                    <div class="table-responsive">
+                    <div class="">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
@@ -162,13 +161,13 @@
                                     <th>DOJ</th>
                                     <th>DOC</th>
                                     @if ($fees_collection_create == 'true')
-                                    <th>Fees</th>
+                                        <th>Fees</th>
                                     @endif
                                     <th>Form</th>
                                     @if ($fees_collection_edit == 'true')
                                         <th>Update</th>
-                                        @endif
-                                        <th>Status</th>
+                                    @endif
+                                    <th>Status</th>
                                 </tr>
                             </thead>
 
@@ -227,7 +226,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                            <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -339,9 +338,16 @@
                                 }
 
                                 row += `
-                            <td>
-                                <button type="button" class="btn btn-primary btn-sm formBtn">Form</button>
-                            </td>`;
+<td>
+    <button type="button"
+        class="btn btn-primary btn-sm formBtn"
+        data-register_id="${course.register_id}"
+        data-course_id="${course.course_id}">
+        Form
+    </button>
+</td>`;
+
+
 
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
                                     row += `
@@ -349,14 +355,46 @@
                                     <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
                                 </td>`;
                                 }
-                                row += `<td>
-            ${course.status == 'Completed'
-                ? '<span class="badge bg-success">Completed</span>'
-                : course.status == 'Cancel'
-                    ? '<span class="badge bg-danger">Cancel</span>'
-                    : '<span class="badge bg-primary">Running</span>'}
-        </td>
-                            </tr>`;
+                                let statusOptions = ['Running', 'Complete', 'Cancel'];
+                                let currentStatus = course.status ?? '';
+
+                                // button color set karo
+                                let statusClass =
+                                    currentStatus === 'Running' ? 'btn-primary' :
+                                    currentStatus === 'Complete' ? 'btn-success' :
+                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+
+                                let statusDropdown = `
+<div class="btn-group">
+    <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        ${currentStatus || 'Select Status'}
+    </button>
+    <ul class="dropdown-menu">`;
+
+                                statusOptions.forEach(function(option) {
+                                    if (option !== currentStatus) {
+                                        statusDropdown += `
+        <li>
+            <a href="javascript:void(0)"
+               class="dropdown-item update-status"
+               data-register_id="${course.register_id}"
+               data-course_id="${course.course_id}"
+               data-update_status="${option}">
+                ${option}
+            </a>
+        </li>`;
+                                    }
+                                });
+
+                                statusDropdown += `</ul></div>`;
+
+                                row += `
+<td>
+    ${statusDropdown}
+</td>`;
+
+
 
                                 $('#courseData').append(row);
                             });
@@ -568,40 +606,63 @@
                 });
             });
         });
-        // Update Status on Change
-$(document).on("change", ".updateStatus", function () {
-    let registerId = $(this).data("register_id");
-    let courseId = $(this).data("course_id");
-    let status = $(this).val();
+        // Status button dropdown click event
+        $(document).on('click', '.update-status', function() {
+            let register_id = $(this).data('register_id');
+            let course_id = $(this).data('course_id');
+            let newStatus = $(this).data('update_status');
 
-    $.ajax({
-        url: "{{ route($route . '.course-status-update') }}", // 👈 New route
-        type: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            register_id: registerId,
-            course_id: courseId,
-            status: status
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message || "Status updated successfully.");
-            } else {
-                toastr.error(response.message || "Failed to update status.");
-            }
-        },
-        error: function (xhr) {
-            console.error(xhr.responseText);
-            toastr.error("Error updating status.");
-        }
-    });
-});
+            $.ajax({
+                url: "{{ route('admission.update-course-status') }}",
+                type: "POST",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    register_id: register_id,
+                    course_id: course_id,
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.status) { // <-- 🔹 Correct key
+                        toastr.success(response.message || 'Status updated successfully');
 
+                        // 🔹 Update button text & color instantly
+                        let btnGroup = $(
+                                `.update-status[data-register_id="${register_id}"][data-course_id="${course_id}"]`
+                            )
+                            .closest('.btn-group');
+
+                        let btn = btnGroup.find('button');
+                        btn.text(newStatus);
+
+                        // remove old colors and set new one
+                        btn.removeClass('btn-primary btn-success btn-danger btn-secondary');
+                        if (newStatus === 'Running') btn.addClass('btn-primary');
+                        else if (newStatus === 'Complete') btn.addClass('btn-success');
+                        else if (newStatus === 'Cancel') btn.addClass('btn-danger');
+                        else btn.addClass('btn-secondary');
+                    } else {
+                        toastr.error(response.message || 'Failed to update status');
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                    toastr.error('Error updating status');
+                }
+            });
+        });
+        // Form button click → open new view
+        $(document).on('click', '.formBtn', function() {
+            let register_id = $(this).data('register_id');
+            let course_id = $(this).data('course_id');
+
+            // redirect to view page
+            window.location.href = "/software/admission/view/" + register_id + "/" + course_id;
+        });
     </script>
 
 
 
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
-    @include('software.includes.script-update-status')
+    {{-- @include('software.includes.script-update-status') --}}
 @endsection
