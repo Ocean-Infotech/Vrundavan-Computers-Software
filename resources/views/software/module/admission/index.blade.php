@@ -24,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                                                            <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -226,7 +226,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                            <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -355,13 +355,12 @@
                                     <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
                                 </td>`;
                                 }
-                                let statusOptions = ['Running', 'Complete', 'Cancel'];
+                                let statusOptions = ['Running', 'Completed', 'Cancel'];
                                 let currentStatus = course.status ?? '';
 
-                                // button color set karo
                                 let statusClass =
                                     currentStatus === 'Running' ? 'btn-primary' :
-                                    currentStatus === 'Complete' ? 'btn-success' :
+                                    currentStatus === 'Completed' ? 'btn-success' :
                                     currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
 
                                 let statusDropdown = `
@@ -373,7 +372,8 @@
     <ul class="dropdown-menu">`;
 
                                 statusOptions.forEach(function(option) {
-                                    if (option !== currentStatus) {
+                                    if (option !==
+                                        currentStatus) { // 🔹 baki na status j show thase
                                         statusDropdown += `
         <li>
             <a href="javascript:void(0)"
@@ -388,6 +388,8 @@
                                 });
 
                                 statusDropdown += `</ul></div>`;
+
+
 
                                 row += `
 <td>
@@ -607,56 +609,129 @@
             });
         });
         // Status button dropdown click event
-        $(document).on('click', '.update-status', function() {
-            let register_id = $(this).data('register_id');
-            let course_id = $(this).data('course_id');
-            let newStatus = $(this).data('update_status');
+      // Status button dropdown click event
+$(document).on('click', '.update-status', function() {
+    let register_id = $(this).data('register_id');
+    let course_id = $(this).data('course_id');
+    let newStatus = $(this).data('update_status');
 
-            $.ajax({
-                url: "{{ route('admission.update-course-status') }}",
-                type: "POST",
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    register_id: register_id,
-                    course_id: course_id,
-                    status: newStatus
-                },
-                success: function(response) {
-                    if (response.status) { // <-- 🔹 Correct key
-                        toastr.success(response.message || 'Status updated successfully');
+    $.ajax({
+        url: "{{ route('admission.update-course-status') }}",
+        type: "POST",
+        data: {
+            _token: '{{ csrf_token() }}',
+            register_id: register_id,
+            course_id: course_id,
+            status: newStatus
+        },
+        success: function(response) {
+            if (response.status) {
+                toastr.success(response.message || 'Status updated successfully');
 
-                        // 🔹 Update button text & color instantly
-                        let btnGroup = $(
-                                `.update-status[data-register_id="${register_id}"][data-course_id="${course_id}"]`
-                            )
-                            .closest('.btn-group');
+                // 🔹 Re-fetch courses for this student and refresh modal
+                $.ajax({
+                    url: "{{ route($route . '.show') }}",
+                    type: "GET",
+                    data: { id: register_id },
+                    dataType: "json",
+                    success: function(resp) {
+                        if (resp.success && resp.courses.length > 0) {
+                            let courses = resp.courses;
+                            let student = resp.student;
 
-                        let btn = btnGroup.find('button');
-                        btn.text(newStatus);
+                            // Clear previous rows
+                            $('#courseData').empty();
 
-                        // remove old colors and set new one
-                        btn.removeClass('btn-primary btn-success btn-danger btn-secondary');
-                        if (newStatus === 'Running') btn.addClass('btn-primary');
-                        else if (newStatus === 'Complete') btn.addClass('btn-success');
-                        else if (newStatus === 'Cancel') btn.addClass('btn-danger');
-                        else btn.addClass('btn-secondary');
-                    } else {
-                        toastr.error(response.message || 'Failed to update status');
+                            courses.forEach(function(course) {
+                                let row = `
+                                    <tr>
+                                        <td>${course.id}</td>
+                                        <td>${course.course.course_name}</td>
+                                        <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
+                                        <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>`;
+
+                                if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
+                                    row += `
+                                        <td>
+                                            <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
+                                        </td>`;
+                                }
+
+                                row += `
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm formBtn"
+                                            data-register_id="${course.register_id}"
+                                            data-course_id="${course.course_id}">
+                                            Form
+                                        </button>
+                                    </td>`;
+
+                                if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
+                                    row += `
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
+                                        </td>`;
+                                }
+
+                                let statusOptions = ['Running', 'Completed', 'Cancel'];
+                                let currentStatus = course.status ?? '';
+                                let statusClass =
+                                    currentStatus === 'Running' ? 'btn-primary' :
+                                    currentStatus === 'Completed' ? 'btn-success' :
+                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+
+                                let statusDropdown = `<div class="btn-group">
+                                    <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        ${currentStatus || 'Select Status'}
+                                    </button>
+                                    <ul class="dropdown-menu">`;
+
+                                statusOptions.forEach(function(option) {
+                                    if (option !== currentStatus) {
+                                        statusDropdown += `
+                                        <li>
+                                            <a href="javascript:void(0)"
+                                                class="dropdown-item update-status"
+                                                data-register_id="${course.register_id}"
+                                                data-course_id="${course.course_id}"
+                                                data-update_status="${option}">
+                                                ${option}
+                                            </a>
+                                        </li>`;
+                                    }
+                                });
+
+                                statusDropdown += `</ul></div>`;
+                                row += `<td>${statusDropdown}</td>`;
+
+                                $('#courseData').append(row);
+                            });
+                        }
+                    },
+                    error: function(err) {
+                        console.error(err);
+                        toastr.error('Error refreshing course modal');
                     }
-                },
-                error: function(xhr) {
-                    console.error(xhr);
-                    toastr.error('Error updating status');
-                }
-            });
-        });
+                });
+            } else {
+                toastr.error(response.message || 'Failed to update status');
+            }
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            toastr.error('Error updating status');
+        }
+    });
+});
+
         // Form button click → open new view
         $(document).on('click', '.formBtn', function() {
             let register_id = $(this).data('register_id');
             let course_id = $(this).data('course_id');
 
             // redirect to view page
-            window.location.href = "/software/admission/view/" + register_id + "/" + course_id;
+            window.open("/software/admission/view/" + register_id + "/" + course_id, "_blank");
         });
     </script>
 

@@ -348,14 +348,14 @@
                 window.onafterprint = function() {
                     setTimeout(function() {
                         // Redirect back to the index page
-                        window.location.href = "{{ route($modules['route'] . '.index') }}";
+                        // window.location.href = "{{ route($modules['route'] . '.index') }}";
                     }, 100);
                 };
 
                 // Fallback for browsers that don't support onafterprint
                 setTimeout(function() {
                     if (!window.matchMedia('print').matches) {
-                        window.location.href = "{{ route($modules['route'] . '.index') }}";
+                        // window.location.href = "{{ route($modules['route'] . '.index') }}";
                     }
                 }, 2000);
             }, 500);

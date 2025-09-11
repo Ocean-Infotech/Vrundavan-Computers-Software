@@ -1,6 +1,7 @@
 <!-- Menu -->
 @php
     $sidebar_active = Route::current()->getName();
+    // dd($sidebar_active);
     $expand = explode('.', $sidebar_active);
     $sidebar_active = count($expand) > 0 ? $expand[0] : '';
     $loginUser = Auth::user();
@@ -164,17 +165,25 @@
             'fees-collection-report'
         ])
             <li
-                class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
+                class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list'|| $sidebar_active == 'fees-collection-create' ||$sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-receipt me-2"></i>
                     <div data-i18n="Fees Collection">Fees Collection</div>
                 </a>
                 <ul class="menu-sub">
 
+                    @directCan('fees-collection-create')
+                        <li class="menu-item {{ $sidebar_active == 'fees-collection-create' ? 'active' : '' }}">
+                            <a href="{{ route('fees-collection.create') }}" class="menu-link">
+                                <div data-i18n="Fees Collection">Fees Collection</div>
+                            </a>
+                        </li>
+                    @enddirectCan
+
                     @directCan('fees-collection-list')
                         <li class="menu-item {{ $sidebar_active == 'fees-collection' ? 'active' : '' }}">
                             <a href="{{ route('fees-collection.index') }}" class="menu-link">
-                                <div data-i18n="Fees Collection">Fees Collection</div>
+                                <div data-i18n="Fees Collection Report">Fees Collection Report</div>
                             </a>
                         </li>
                     @enddirectCan
@@ -235,10 +244,11 @@
             'subject-list',
             'notification-setting-list',
             'timetable-list',
-            'student-requests-list'
+            'student-requests-list',
+            'fees-list'
         ])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable','student-requests']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable','student-requests','fees']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>
@@ -315,6 +325,13 @@
                         <li class="menu-item {{ $sidebar_active == 'timetable' ? 'active' : '' }}">
                             <a href="{{ route('timetable.index') }}" class="menu-link">
                                 <div data-i18n="Timetable">Timetable</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+                    @directCanAny(['fees-list', 'fees-create', 'fees-edit', 'fees-delete'])
+                        <li class="menu-item {{ $sidebar_active == 'fees' ? 'active' : '' }}">
+                            <a href="{{ route('fees.index') }}" class="menu-link">
+                                <div data-i18n="Fee Details">Fee Details</div>
                             </a>
                         </li>
                     @enddirectCanAny

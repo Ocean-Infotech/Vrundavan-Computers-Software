@@ -91,6 +91,7 @@ class AdmissionController extends Controller
                 (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
                 (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' => 'w-5 text-center'],
                 // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
+                (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],
                 (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Update', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             if (!$modules['permission_edit'] && !$modules['permission_delete']) {
@@ -174,6 +175,14 @@ class AdmissionController extends Controller
                         // }
                         return "-";
                     })
+                    ->addColumn('book_button', function ($row) {
+                        return '<button class="btn btn-info btn-sm book-btn"
+                data-id="' . $row->id . '"
+                data-name="' . $row->first_name . '">
+                Book
+            </button>';
+                    })
+
 
                     ->addColumn('view_button', function ($row) {
                         return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
@@ -196,7 +205,7 @@ class AdmissionController extends Controller
                         return $btn ?: '-';
                     })
 
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button'])
                     ->make(true);
             }
 
@@ -940,7 +949,7 @@ class AdmissionController extends Controller
         $request->validate([
             'register_id' => 'required|integer',
             'course_id'   => 'required|integer',
-            'status'      => 'required|in:Running,Complete,Cancel',
+            'status'      => 'required|in:Running,Completed,Cancel',
         ]);
 
         $course = CourceRegistration::where('register_id', $request->register_id)

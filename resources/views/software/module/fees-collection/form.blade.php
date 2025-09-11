@@ -57,14 +57,16 @@
                         <div class="col-md-4 mb-2">
                             <div class="form-group">
 
-                                <input list="search" id="search_id" name="search"
-                                    class="form-control @error('search') is-invalid @enderror"
-                                    value="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}" placeholder="Search">
+                          <input list="search" id="search_id" name="search"
+    class="form-control @error('search') is-invalid @enderror"
+    value="{{ old('search', $admission_id ?? $edit->admission_id ?? ($student_id ?? '')) }}"
+    placeholder="Search">
 
-                                <datalist id="search" class="search_by_courceregistration"
-                                    data-append="search_by_courceregistration"
-                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}">
-                                </datalist>
+<datalist id="search" class="search_by_courceregistration"
+    data-append="search_by_courceregistration"
+    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($student_id ?? '')) }}">
+</datalist>
+
                                 @error('search')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror

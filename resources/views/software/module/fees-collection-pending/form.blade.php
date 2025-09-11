@@ -70,6 +70,7 @@
                     @method('PUT')
                 @endisset
                 <div class="row">
+
                     <div class="col-md-4 mb-2">
                         <div class="form-group">
                             <label for="search">Search <span class="text-danger">*</span></label>

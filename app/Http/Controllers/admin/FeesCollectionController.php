@@ -68,7 +68,7 @@ class FeesCollectionController extends Controller
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => "fees", 'name' => 'fees', 'td_label' => 'Course Fees'],
                 (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode'],
-                   // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+                // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
                 // (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             View::share("columns", $columns);
@@ -330,20 +330,24 @@ class FeesCollectionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $modules = $this->modules;
         $modules['login_user_role'] = Helper::getLoginUserRole();
         $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+
         if (!$modules['permission_add']) {
-            if (isset($request) && $request->ajax()) {
-                return $this->sendError('User does not have the right permissions.', [], [], 403);
-            }
             abort(403, 'User does not have the right permissions.');
         }
+
         View::share('modules', $modules);
-        return view($modules['folder_path'] . '.form', compact('modules'));
+
+        $student_id = $request->student_id;
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'student_id'));
     }
+
+
 
     /**
      * Store a newly created resource in storage.

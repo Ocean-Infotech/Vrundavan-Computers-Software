@@ -8,6 +8,7 @@ use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\FeesReceipt;
 use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterFeeDetail;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Carbon;
@@ -274,85 +275,76 @@ class StudentsFeesReportController extends Controller
         }
     }
 
-  public function printView(Request $request)
-{
-    $studentId = $request->student_id;
-    $semester  = $request->semester;
+    public function printView(Request $request)
+    {
+        $studentId = $request->student_id;
+        $semester  = $request->semester;
 
-    // Course registration + course
-    $courseRegistration = CourceRegistration::where('register_id', $studentId)
-        ->with('course')
-        ->first();
+        // Course registration + course
+        $courseRegistration = CourceRegistration::where('register_id', $studentId)
+            ->with('course')
+            ->first();
 
-    if (!$courseRegistration || !$courseRegistration->course) {
-        abort(404, 'Course not found');
-    }
-
-    // Per semester fee
-    $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
-        ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
-        : 0;
-
-    // Paid fees for this semester
-    $paidFee = FeesCollection::where('admission_id', $studentId)
-        ->where('course_id', $courseRegistration->course_id)
-        ->where('year_semester', $semester)
-        ->sum('fees');
-
-    $pendingFee = max($semester_fee - $paidFee, 0);
-
-    // --- Fetch or Create Receipt ---
-    $receipt = FeesReceipt::where('student_id', $studentId)
-                ->where('semester', $semester)
-                ->first();
-
-    if (!$receipt) {
-        $lastReceipt = FeesReceipt::orderBy('id', 'desc')->first();
-        $nextNumber = 1;
-        if ($lastReceipt && preg_match('/PVM-(\d+)/', $lastReceipt->receipt_no, $matches)) {
-            $nextNumber = (int)$matches[1] + 1;
+        if (!$courseRegistration || !$courseRegistration->course) {
+            abort(404, 'Course not found');
         }
 
-        $receiptNo = 'PVM-' . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
+        // Per semester fee
+        $semester_fee = ($courseRegistration->course->course_fees && $courseRegistration->course->semester)
+            ? $courseRegistration->course->course_fees / $courseRegistration->course->semester
+            : 0;
 
-        $receipt = FeesReceipt::create([
-            'student_id' => $studentId,
-            'semester' => $semester,
-            'receipt_no' => $receiptNo,
-        ]);
+        // Paid fees for this semester
+        $paidFee = FeesCollection::where('admission_id', $studentId)
+            ->where('course_id', $courseRegistration->course_id)
+            ->where('year_semester', $semester)
+            ->sum('fees');
+
+        $pendingFee = max($semester_fee - $paidFee, 0);
+
+        // --- Fetch or Create Receipt ---
+        $receipt = FeesReceipt::where('student_id', $studentId)
+            ->where('semester', $semester)
+            ->first();
+
+        if (!$receipt) {
+            $lastReceipt = FeesReceipt::orderBy('id', 'desc')->first();
+            $nextNumber = 1;
+            if ($lastReceipt && preg_match('/PVM-(\d+)/', $lastReceipt->receipt_no, $matches)) {
+                $nextNumber = (int)$matches[1] + 1;
+            }
+
+            $receiptNo = 'PVM-' . str_pad($nextNumber, 2, '0', STR_PAD_LEFT);
+
+            $receipt = FeesReceipt::create([
+                'student_id' => $studentId,
+                'semester' => $semester,
+                'receipt_no' => $receiptNo,
+            ]);
+        }
+
+            $feesDetails = MasterFeeDetail::select('fee_name as name', 'amount')->get()->toArray();
+
+
+        // Get one fees record for student info
+        $feesData = FeesCollection::with(['admission', 'course'])
+            ->where('admission_id', $studentId)
+            ->where('year_semester', $semester)
+            ->first();
+
+        if (!$feesData) {
+            abort(404, 'No fees paid yet for this semester');
+        }
+
+
+
+        return view('software.module.students-fees-report.print', compact(
+            'feesData',
+            'feesDetails',
+            'semester_fee',
+            'paidFee',
+            'pendingFee',
+            'receipt'  // <-- Pass receipt here
+        ))->with('modules', $this->modules);
     }
-
-    // Get one fees record for student info
-    $feesData = FeesCollection::with(['admission', 'course'])
-        ->where('admission_id', $studentId)
-        ->where('year_semester', $semester)
-        ->first();
-
-    if (!$feesData) {
-        abort(404, 'No fees paid yet for this semester');
-    }
-
-    // Your fee breakup
-    $feesDetails = [
-        ['name' => 'Admission Fee', 'amount' => 500],
-        ['name' => 'Tuition Fee', 'amount' => 12500],
-        ['name' => 'Library Fee', 'amount' => 500],
-        ['name' => 'Enrollment Fee', 'amount' => 150],
-        ['name' => 'University Development Fee', 'amount' => 200],
-        ['name' => 'University Sports Fee', 'amount' => 150],
-        ['name' => 'College Development Fee', 'amount' => 500],
-        ['name' => 'Late Fee', 'amount' => 0],
-        ['name' => 'Other Fee', 'amount' => 500],
-    ];
-
-    return view('software.module.students-fees-report.print', compact(
-        'feesData',
-        'feesDetails',
-        'semester_fee',
-        'paidFee',
-        'pendingFee',
-        'receipt'  // <-- Pass receipt here
-    ))->with('modules', $this->modules);
-}
-
 }
