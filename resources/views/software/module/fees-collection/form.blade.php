@@ -57,15 +57,15 @@
                         <div class="col-md-4 mb-2">
                             <div class="form-group">
 
-                          <input list="search" id="search_id" name="search"
-    class="form-control @error('search') is-invalid @enderror"
-    value="{{ old('search', $admission_id ?? $edit->admission_id ?? ($student_id ?? '')) }}"
-    placeholder="Search">
+                                <input list="search" id="search_id" name="search"
+                                    class="form-control @error('search') is-invalid @enderror"
+                                    value="{{ old('search', $admission_id ?? ($edit->admission_id ?? ($student_id ?? ''))) }}"
+                                    placeholder="Search">
 
-<datalist id="search" class="search_by_courceregistration"
-    data-append="search_by_courceregistration"
-    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($student_id ?? '')) }}">
-</datalist>
+                                <datalist id="search" class="search_by_courceregistration"
+                                    data-append="search_by_courceregistration"
+                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($student_id ?? '')) }}">
+                                </datalist>
 
                                 @error('search')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -131,19 +131,20 @@
                                 <label for="year_semester">Year / Semester <span class="text-danger">*</span></label>
                                 <select name="year_semester" id="year_semester"
                                     class="form-control required select2 @error('year_semester') is-invalid @enderror"
-                                    data-semester="{{ isset($edit?->year_semester) ? $edit?->year_semester : old('year_semester') }}"
+                                    data-semester="{{ old('year_semester', $selectedSemester ?? '') }}"
                                     placeholder="Semester">
                                     <option value="">Select Semester</option>
                                     @if (isset($edit))
                                         @for ($semester = 1; $semester <= $edit->course->semester; $semester++)
                                             <option value="{{ $semester }}"
-                                                {{ (int) old('year_semester', $edit->year_semester ?? '') === $semester ? 'selected' : '' }}
+                                                {{ (int) old('year_semester', $selectedSemester ?? ($edit->year_semester ?? '')) === $semester ? 'selected' : '' }}
                                                 {{ in_array($semester, $paid_semesters ?? []) ? 'disabled' : '' }}>
                                                 {{ $semester }}
                                             </option>
                                         @endfor
                                     @endif
                                 </select>
+
 
                                 @error('year_semester')
                                     <span class="invalid-feedback">{{ $message }}</span>

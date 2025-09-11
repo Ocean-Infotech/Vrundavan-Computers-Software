@@ -343,8 +343,11 @@ class FeesCollectionController extends Controller
         View::share('modules', $modules);
 
         $student_id = $request->student_id;
+        $selectedSemester = $request->semester;
+        // dd($selectedSemester);
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'student_id'));
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'student_id','selectedSemester'));
     }
 
 
