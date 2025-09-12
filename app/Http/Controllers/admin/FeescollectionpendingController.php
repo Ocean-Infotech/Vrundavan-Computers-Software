@@ -71,7 +71,7 @@ class FeescollectionpendingController extends Controller
 
                 // dd($request->all());
                 $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-                    ->where('status', 'active')
+                    // ->where('status', 'active')
                     ->groupBy('register_id');
 
                 $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -233,7 +233,7 @@ class FeescollectionpendingController extends Controller
     {
         try {
             $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-                ->where('status', 'active')
+                // ->where('status', 'active')
                 ->groupBy('register_id');
 
             $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -341,7 +341,7 @@ class FeescollectionpendingController extends Controller
     public function printView(Request $request)
     {
         $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-            ->where('status', 'active')
+            // ->where('status', 'active')
             ->groupBy('register_id');
 
         $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -391,59 +391,56 @@ class FeescollectionpendingController extends Controller
 
         return view('software.module.fees-collection-pending.print', compact('data', 'allRegistrations', 'feesCollection'));
     }
-   public function viewFee($id)
-{
-    try {
-        // Student fetch
-        $student = Admission::findOrFail($id);
+    public function viewFee($id)
+    {
+        try {
+            // Student fetch
+            $student = Admission::findOrFail($id);
 
-        // Active course registration with course details
-        $courseReg = CourceRegistration::where('register_id', $id)
-            ->where('status', 'active')
-            ->with('course')
-            ->firstOrFail();
+            // Active course registration with course details
+            $courseReg = CourceRegistration::where('register_id', $id)
+                // ->where('status', 'active')
+                ->with('course')
+                ->firstOrFail();
 
-        if (!$courseReg || !$courseReg->course) {
-            return back()->withErrors('Course not found for this student.');
+            if (!$courseReg || !$courseReg->course) {
+                return back()->withErrors('Course not found for this student.');
+            }
+
+            // Semester wise fee calculation
+            $totalSemesters = $courseReg->course->semester ?? 0;
+            $semesterFee    = ($courseReg->course->course_fees && $totalSemesters > 0)
+                ? $courseReg->course->course_fees / $totalSemesters
+                : 0;
+
+            // Get fees paid grouped by semester
+            $feesCollections = FeesCollection::where('admission_id', $id)
+                ->where('course_id', $courseReg->course_id)
+                ->get();
+
+            $semesterPaid = [];
+            foreach ($feesCollections as $fee) {
+                $sem = $fee->year_semester;
+                $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+            }
+
+            // Prepare final data
+            $feesData = [];
+            for ($sem = 1; $sem <= $totalSemesters; $sem++) {
+                $paid    = $semesterPaid[$sem] ?? 0;
+                $pending = max($semesterFee - $paid, 0);
+
+                $feesData[] = [
+                    'semester'    => "Semester $sem",
+                    'total_fee'   => $semesterFee,
+                    'paid_fee'    => $paid,
+                    'pending_fee' => $pending,
+                ];
+            }
+
+            return view('software.module.fees-collection-pending.view-fee', compact('student', 'courseReg', 'feesData'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
         }
-
-        // Semester wise fee calculation
-        $totalSemesters = $courseReg->course->semester ?? 0;
-        $semesterFee    = ($courseReg->course->course_fees && $totalSemesters > 0)
-            ? $courseReg->course->course_fees / $totalSemesters
-            : 0;
-
-        // Get fees paid grouped by semester
-        $feesCollections = FeesCollection::where('admission_id', $id)
-            ->where('course_id', $courseReg->course_id)
-            ->get();
-
-        $semesterPaid = [];
-        foreach ($feesCollections as $fee) {
-            $sem = $fee->year_semester;
-            $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
-        }
-
-        // Prepare final data
-        $feesData = [];
-        for ($sem = 1; $sem <= $totalSemesters; $sem++) {
-            $paid    = $semesterPaid[$sem] ?? 0;
-            $pending = max($semesterFee - $paid, 0);
-
-            $feesData[] = [
-                'semester'    => "Semester $sem",
-                'total_fee'   => $semesterFee,
-                'paid_fee'    => $paid,
-                'pending_fee' => $pending,
-            ];
-        }
-
-        return view('software.module.fees-collection-pending.view-fee', compact('student', 'courseReg', 'feesData'));
-
-    } catch (\Exception $e) {
-        return back()->withErrors($e->getMessage());
     }
-}
-
-
 }

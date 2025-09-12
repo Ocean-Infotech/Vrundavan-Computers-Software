@@ -196,13 +196,13 @@
                         </li>
                     @enddirectCan
 
-                    @directCan('fees-collection-report')
+                    {{-- @directCan('fees-collection-report')
                         <li class="menu-item {{ $sidebar_active == 'students-fees-report' ? 'active' : '' }}">
                             <a href="{{ route('students-fees-report.index') }}" class="menu-link">
                                 <div data-i18n="Students Fees Report">Students Fees Report</div>
                             </a>
                         </li>
-                    @enddirectCan
+                    @enddirectCan --}}
                 </ul>
             </li>
         @enddirectCanAny
