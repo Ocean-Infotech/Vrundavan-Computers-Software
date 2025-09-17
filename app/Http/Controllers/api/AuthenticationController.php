@@ -27,8 +27,7 @@ use Spatie\Permission\Models\Role;
 
 class AuthenticationController extends Controller
 {
-    public function __construct(Request $request) {
-    }
+    public function __construct(Request $request) {}
 
     public function register(Request $request)
     {
@@ -296,7 +295,7 @@ class AuthenticationController extends Controller
                 ->update(['revoked' => true]);
 
             // Create new Passport token
-            $tokenResult = $student->createToken(get_class($student));
+$tokenResult = $student->createToken('student-api');
             $token = $tokenResult->accessToken;
             $expiresAt = $tokenResult->token->expires_at;
 
@@ -328,5 +327,25 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    
+    public function studentLogout(Request $request)
+    {
+        try {
+            // Get logged-in student (from token)
+            $student = auth()->user();
+
+            if (!$student) {
+                return $this->sendError('User not authenticated.', [], [], 401);
+            }
+
+            // Revoke current token only
+            $request->user()->token()->revoke();
+
+            // Or if you want to delete all device tokens also
+            StudentDeviceToken::where('student_id', $student->id)->delete();
+
+            return $this->sendResponse([], 'Logged out successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
 }
