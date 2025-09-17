@@ -31,10 +31,10 @@ class ApiStudentController extends Controller
 
             $courseRegistered = CourceRegistration::where('register_id', $student->id)
                 ->first();
-
+// dd($courseRegistered);
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            } elseif ($courseRegistered?->status != "active") {
+            } elseif ($courseRegistered?->status != "Running") {
                 return $this->sendError('Academic detail not active.', [], [], 422);
             } else {
                 $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
