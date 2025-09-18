@@ -95,11 +95,11 @@ class AuthenticatedController extends Controller
             $loginUserId = $loginUser->id;
 
             $validator =  Validator::make($request->all(), [
-                'email_address' => [
-                    'required',
-                    'email',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUserId),
-                ],
+                // 'email_address' => [
+                //     'required',
+                //     'email',
+                //     Rule::unique((new Admission())->getTable())->ignore($loginUserId),
+                // ],
                 'mobile_no' => [
                     'required',
                     'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
