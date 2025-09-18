@@ -115,6 +115,117 @@ class AuthenticationController extends Controller
         }
     }
 
+    // public function studentSendOtp(Request $request)
+    // {
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'admission_id' => [
+    //                 'required',
+    //                 'integer',
+    //                 function ($attribute, $value, $fail) {
+    //                     if (!Admission::where('id', $value)->exists()) {
+    //                         $fail('This admission_id is not registered.');
+    //                     }
+    //                 }
+    //             ],
+    //             'mobile_no' => [
+    //                 'required',
+    //                 'digits_between:10,15',
+    //                 function ($attribute, $value, $fail) {
+    //                     if (!Admission::where('mobile_no', $value)->exists()) {
+    //                         $fail('This phone number is not registered.');
+    //                     }
+    //                 }
+    //             ],
+    //             'course_id' => [
+    //                 'required',
+    //                 'integer',
+    //                 function ($attribute, $value, $fail) use ($request) {
+    //                     $adminUser = Admission::where('mobile_no', $request->mobile_no)->first();
+    //                     if (!$adminUser) {
+    //                         return;
+    //                     }
+
+    //                     $exists = CourceRegistration::where('register_id', $adminUser->id)
+    //                         ->where('course_id', $value)
+    //                         ->exists();
+
+    //                     if (!$exists) {
+    //                         $fail("You are not registered for the selected course.");
+    //                     }
+    //                 }
+    //             ],
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return $this->sendError($validator->errors()->first(), $validator->errors(), [], 422);
+    //         }
+    //         // dd('hello');
+
+    //         $adminUser = Admission::where('id', $request->admission_id)
+    //             ->where('mobile_no', $request->mobile_no)
+    //             ->first();
+    //         if (!$adminUser) {
+    //             return $this->sendError('This student not found. pleasce check the admission id and mobile number.', [], [], 422);
+    //         }
+
+    //         $studenExitsInCourse = CourceRegistration::where('register_id', $adminUser?->id)->where('course_id', $request->course_id)->first();
+    //         if (!$studenExitsInCourse) {
+    //             return $this->sendError('Student not register in this course', [], [], 0);
+    //         }
+
+    //         $message = "OTP has been sent successfully.";
+
+    //         resend_otp:
+    //         $checkSendedOtp = SendOTP::where("model", Admission::class)->where("model_id", $adminUser?->id)->where('sms_type', 'otp')->whereNull('verified_at')->where('status', 'send')->orderBy('id', 'DESC')->first();
+
+    //         $otp = Helper::generateNumericOTP();
+
+    //         if (!$checkSendedOtp) {
+    //             $insertArray = [];
+    //             $insertArray['model'] = Admission::class;
+    //             $insertArray['model_id'] = $adminUser?->id;
+    //             $insertArray['send_to'] = $adminUser?->mobile_no;
+    //             $insertArray['verified_content'] = $otp;
+    //             $insertArray['expire_time'] = Carbon::now()->addMinutes(10);
+    //             $insertArray['sms_type'] = 'otp';
+    //             $insertArray['sms'] = 'Your One time OTP is ' . $otp;
+    //             $insertArray['created_from'] = 'AuthenticationController => login';
+
+    //             $checkSendedOtp = SendOTP::create($insertArray);
+    //             // dd("L-185", $checkSendedOtp, $insertArray);
+    //         }
+
+    //         if ($checkSendedOtp?->expire_time) {
+    //             // Assume $otpRecord is your OTP record (from DB or elsewhere)
+    //             $expireTime = Carbon::parse($checkSendedOtp->expire_time);
+
+    //             // Compare with current time
+    //             if (Carbon::now()->greaterThan($expireTime)) {
+    //                 $message = "OTP has expired. send new OTP pleasce check.";
+    //                 $checkSendedOtp->status = 'expire';
+    //                 $checkSendedOtp->save();
+    //                 goto resend_otp;
+    //                 // return response()->json(['message' => 'OTP has expired'], 400);
+    //             }
+    //         }
+    //         $otp = $checkSendedOtp?->verified_content;
+
+    //         // dd("L-203", $checkSendedOtp->toArray(), $otp);
+
+    //         $responseData = [
+    //             'admission_id'     => $adminUser->id,
+    //             'mobile_no'   => $adminUser->mobile_no,
+    //             'course_id'   => $request->course_id,
+    //             'course_name' => $studenExitsInCourse?->course?->course_name,
+    //             'otp'         => $otp,
+    //         ];
+
+    //         $message = $message . ' OTP: ' . $otp;
+    //         return $this->sendResponse($responseData, $message);
+    //     } catch (\Exception $e) {
+    //         return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+    //     }
+    // }
     public function studentSendOtp(Request $request)
     {
         try {
@@ -137,46 +248,31 @@ class AuthenticationController extends Controller
                         }
                     }
                 ],
-                'course_id' => [
-                    'required',
-                    'integer',
-                    function ($attribute, $value, $fail) use ($request) {
-                        $adminUser = Admission::where('mobile_no', $request->mobile_no)->first();
-                        if (!$adminUser) {
-                            return;
-                        }
-
-                        $exists = CourceRegistration::where('register_id', $adminUser->id)
-                            ->where('course_id', $value)
-                            ->exists();
-
-                        if (!$exists) {
-                            $fail("You are not registered for the selected course.");
-                        }
-                    }
-                ],
             ]);
+
             if ($validator->fails()) {
                 return $this->sendError($validator->errors()->first(), $validator->errors(), [], 422);
             }
-            // dd('hello');
 
+            // Check admission id + mobile no match thay che ke nai
             $adminUser = Admission::where('id', $request->admission_id)
                 ->where('mobile_no', $request->mobile_no)
                 ->first();
-            if (!$adminUser) {
-                return $this->sendError('This student not found. pleasce check the admission id and mobile number.', [], [], 422);
-            }
 
-            $studenExitsInCourse = CourceRegistration::where('register_id', $adminUser?->id)->where('course_id', $request->course_id)->first();
-            if (!$studenExitsInCourse) {
-                return $this->sendError('Student not register in this course', [], [], 0);
+            if (!$adminUser) {
+                return $this->sendError('This student not found. Please check the admission id and mobile number.', [], [], 422);
             }
 
             $message = "OTP has been sent successfully.";
 
             resend_otp:
-            $checkSendedOtp = SendOTP::where("model", Admission::class)->where("model_id", $adminUser?->id)->where('sms_type', 'otp')->whereNull('verified_at')->where('status', 'send')->orderBy('id', 'DESC')->first();
+            $checkSendedOtp = SendOTP::where("model", Admission::class)
+                ->where("model_id", $adminUser?->id)
+                ->where('sms_type', 'otp')
+                ->whereNull('verified_at')
+                ->where('status', 'send')
+                ->orderBy('id', 'DESC')
+                ->first();
 
             $otp = Helper::generateNumericOTP();
 
@@ -192,32 +288,25 @@ class AuthenticationController extends Controller
                 $insertArray['created_from'] = 'AuthenticationController => login';
 
                 $checkSendedOtp = SendOTP::create($insertArray);
-                // dd("L-185", $checkSendedOtp, $insertArray);
             }
 
             if ($checkSendedOtp?->expire_time) {
-                // Assume $otpRecord is your OTP record (from DB or elsewhere)
                 $expireTime = Carbon::parse($checkSendedOtp->expire_time);
 
-                // Compare with current time
                 if (Carbon::now()->greaterThan($expireTime)) {
-                    $message = "OTP has expired. send new OTP pleasce check.";
+                    $message = "OTP has expired. Sending new OTP, please check.";
                     $checkSendedOtp->status = 'expire';
                     $checkSendedOtp->save();
                     goto resend_otp;
-                    // return response()->json(['message' => 'OTP has expired'], 400);
                 }
             }
+
             $otp = $checkSendedOtp?->verified_content;
 
-            // dd("L-203", $checkSendedOtp->toArray(), $otp);
-
             $responseData = [
-                'admission_id'     => $adminUser->id,
-                'mobile_no'   => $adminUser->mobile_no,
-                'course_id'   => $request->course_id,
-                'course_name' => $studenExitsInCourse?->course?->course_name,
-                'otp'         => $otp,
+                'admission_id' => $adminUser->id,
+                'mobile_no'    => $adminUser->mobile_no,
+                'otp'          => $otp,
             ];
 
             $message = $message . ' OTP: ' . $otp;
@@ -226,6 +315,7 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
 
     public function studentVerifyOtp(Request $request)
     {
@@ -295,7 +385,7 @@ class AuthenticationController extends Controller
                 ->update(['revoked' => true]);
 
             // Create new Passport token
-$tokenResult = $student->createToken('student-api');
+            $tokenResult = $student->createToken('student-api');
             $token = $tokenResult->accessToken;
             $expiresAt = $tokenResult->token->expires_at;
 
