@@ -550,9 +550,10 @@
 
 
 
-      $(document).on('click', '.collectFees', function() {
+ $(document).on('click', '.collectFees', function() {
     let admId = $(this).data('id');
-    window.open('/software/fees-collection/get-details/' + admId, '_blank');
+    let url = '/software/fees-collection/get-details/' + admId;
+    window.open(url, '_blank'); // 🔹 Opens in new tab
 });
 
         $(document).on('click', '.updateBtn', function() {

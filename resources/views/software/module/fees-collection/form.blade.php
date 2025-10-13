@@ -59,7 +59,7 @@
 
                                 <input list="search" id="search_id" name="search"
                                     class="form-control @error('search') is-invalid @enderror"
-                                    value="{{ old('search', $admission_id ?? ($edit->admission_id ?? ($student_id ?? ''))) }}"
+                                    value="{{ $id ?? old('search', $admission_id ?? ($edit->admission_id ?? ($student_id ?? ''))) }}"
                                     placeholder="Search">
 
                                 <datalist id="search" class="search_by_courceregistration"
@@ -571,7 +571,7 @@
                             $('#year_semester').trigger("change");
                         } else {
                             $('#FeesCollectionDetails').hide();
-                            showMessage("No data found for the given ID", "error");
+                            // showMessage("No data found for the given ID", "error");
                         }
                     },
                     error: function() {
