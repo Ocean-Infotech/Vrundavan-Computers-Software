@@ -245,6 +245,24 @@ class AdmissionController extends Controller
 
         View::share('modules', $modules);
         $validated = $request->validated();
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
+
+            $firstName = $request->input('first_name');
+            $profileName = $request->input('last_name'); // or another field if needed
+            $folderName = $firstName . '_' . $profileName;
+
+            $destinationPath = public_path('uploads/profile_pics/' . $folderName);
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move($destinationPath, $filename);
+
+            $validated['profile_pic'] = 'uploads/profile_pics/' . $folderName . '/' . $filename;
+        }
 
         $validated['first_name']  = strtoupper($validated['first_name']);
         $validated['last_name']   = strtoupper($validated['last_name']);
@@ -260,7 +278,9 @@ class AdmissionController extends Controller
             $loginUserId = Auth::user()->id;
             $validated['created_by'] = $loginUserId;
 
+
             $admission = Admission::create($validated);
+
             $admission_id = $admission->id;
             try {
                 $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
@@ -431,6 +451,7 @@ class AdmissionController extends Controller
         View::share('modules', $modules);
         try {
 
+
             $edit = Admission::findOrFail($id);
 
             $education = EducationDetails::where('admission_id', $id)->get();
@@ -438,8 +459,7 @@ class AdmissionController extends Controller
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
-        } catch (\Exception $e) {
+
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -464,7 +484,24 @@ class AdmissionController extends Controller
 
             $admission = Admission::where('id', $id)->firstOrFail();
             $admission_id = $admission->id;
+            if ($request->hasFile('profile_pic')) {
+                $file = $request->file('profile_pic');
 
+                $firstName = $request->input('first_name');
+                $profileName = $request->input('last_name'); 
+                $folderName = $firstName . '_' . $profileName;
+
+                $destinationPath = public_path('uploads/profile_pics/' . $folderName);
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($destinationPath, $filename);
+
+                $validated['profile_pic'] = 'uploads/profile_pics/' . $folderName . '/' . $filename;
+            }
 
             $admission->update($validated);
 
@@ -961,6 +998,7 @@ class AdmissionController extends Controller
         }
 
         $course->status = $request->status;
+        $course->updated_at = now();
         $course->save();
 
         return $this->sendResponse($course, 'Status updated successfully.');

@@ -58,24 +58,49 @@
                     <input type="hidden" name="admission_id" id="admission_hidden">
 
                     <div class="collapse show" id="aadharSection">
-                        <div class="col-md-12 col-sm-12 mb-3">
-                            <div class="form-group">
-                                <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
-                                <input id="aadhar_card_no" type="text"
-                                    class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
-                                    minlength="14" maxlength="14" name="aadhar_card_no"
-                                    value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                                    autocomplete="aadhar_card_no" autofocus
-                                    placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)" autocapitalize="off">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
+                                    <input id="aadhar_card_no" type="text"
+                                        class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
+                                        minlength="14" maxlength="14" name="aadhar_card_no"
+                                        value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
+                                        autocomplete="aadhar_card_no" autofocus
+                                        placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)" autocapitalize="off">
 
-                                @error('aadhar_card_no')
-                                    <span class="invalid-feedback">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                    @error('aadhar_card_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
+                           <div class="col-md-6 col-sm-12 mb-3">
+    <div class="form-group">
+        <label class="form-label">Profile Picture</label>
+        <input type="file" class="form-control @error('profile_pic') is-invalid @enderror"
+            name="profile_pic" accept="image/*">
+        @error('profile_pic')
+            <span class="invalid-feedback">
+                <strong>{{ $message }}</strong>
+            </span>
+        @enderror
+
+        {{-- Show existing image if editing --}}
+        @isset($edit?->profile_pic)
+            <div class="mt-2">
+                <img src="{{ asset($edit->profile_pic) }}"
+                    alt="Profile Picture"
+                    style="height:100px; width:100px; object-fit:cover; border-radius:50%;">
+            </div>
+        @endisset
+    </div>
+</div>
+
                         </div>
                     </div>
+
                     <hr>
 
                     <div class="text-left">
@@ -201,7 +226,8 @@
                             {{-- Category --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <small class="fw-medium d-block @error('category') is-invalid @enderror">Category <span class="text-danger">*</span></small>
+                                    <small class="fw-medium d-block @error('category') is-invalid @enderror">Category <span
+                                            class="text-danger">*</span></small>
                                     @foreach (['SC', 'ST', 'OBC', 'EWS', 'General'] as $cat)
                                         <div class="form-check form-check-inline mt-1">
                                             <input type="radio" name="category" class="form-check-input"
@@ -695,7 +721,7 @@
                                     alertTitle = 'Course Already Registered';
                                 } else if (data.message.includes(
                                         'Admission form complete but course registration not done yet'
-                                        )) {
+                                    )) {
                                     alertTitle = 'Course Registration Pending';
                                 }
 
@@ -739,7 +765,7 @@
                                 $('#permanent_address').val(data.user.permanent_address ||
                                     '');
                                 $('#parent_mobile_no').val(data.user.parent_mobile_no ||
-                                '');
+                                    '');
                                 $('#other_mobile_no').val(data.user.other_mobile_no || '');
                                 $('#whatsapp_no').val(data.user.whatsapp_no || '');
                                 $('#cast').val(data.user.cast || '');

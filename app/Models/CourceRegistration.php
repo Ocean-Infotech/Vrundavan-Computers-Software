@@ -78,11 +78,11 @@ class CourceRegistration extends Model
         return $this->belongsTo(FeesCollection::class, 'year_semester'); // adjust name/key as needed
     }
     public function student()
-{
-    return $this->belongsTo(Admission::class, 'admission_id', 'id');
-}public function registrations()
-{
-    return $this->hasMany(CourceRegistration::class, 'admission_id', 'id');
-}
-
+    {
+        return $this->belongsTo(Admission::class, 'admission_id', 'id');
+    }
+    public function registrations()
+    {
+        return $this->hasMany(CourceRegistration::class, 'admission_id', 'id');
+    }
 }

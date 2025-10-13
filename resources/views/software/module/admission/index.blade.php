@@ -24,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                                                                                        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -79,6 +79,11 @@
                             class="text-lowercase"></span>)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <div class="text-center my-3">
+                    <img id="profilePic" src="" alt="Student Image" class="rounded-circle border border-2"
+                        style="width: 120px; height: 120px; object-fit: cover;">
+                </div>
+
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -231,7 +236,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -251,6 +256,14 @@
                     if (response.success) {
                         let data = response.student;
                         if (data) {
+                            // Profile picture handling
+                        let profileUrl = data.profile_pic
+                            ? `/${data.profile_pic}`
+                            : '';
+
+                        $('#profilePic').attr('src', profileUrl);
+
+
                             $('#modalID').text(data.id);
                             if (data.date_of_birth) {
                                 /*
@@ -303,6 +316,7 @@
 
 
 
+        // Update the course modal display logic
         $(document).on('click', '.course-btn', function() {
             let id = $(this).data('id');
 
@@ -330,12 +344,22 @@
 
                             // Loop and append course rows
                             courses.forEach(function(course) {
+                                // Format DOJ from created_at
+                                let doj = course.created_at ? moment(course.created_at).format(
+                                    'DD-MM-YYYY') : '-';
+
+                                // Format DOC - show updated_at only if status is 'Completed'
+                                let doc = (course.status === 'Completed' && course.updated_at) ?
+                                    moment(course.updated_at).format('DD-MM-YYYY') :
+                                    '-';
+
                                 let row = `
                             <tr>
                                 <td>${course.id}</td>
                                 <td>${course.course.course_name}</td>
-                                <td>${'-'}</td>
-                                <td>${'-'}</td>`;
+                                <td>${doj}</td>
+                                <td>${doc}</td>`;
+
                                 if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
                                     row += `
                                     <td>
@@ -344,16 +368,14 @@
                                 }
 
                                 row += `
-<td>
-    <button type="button"
-        class="btn btn-primary btn-sm formBtn"
-        data-register_id="${course.register_id}"
-        data-course_id="${course.course_id}">
-        Form
-    </button>
-</td>`;
-
-
+                                <td>
+                                    <button type="button"
+                                        class="btn btn-primary btn-sm formBtn"
+                                        data-register_id="${course.register_id}"
+                                        data-course_id="${course.course_id}">
+                                        Form
+                                    </button>
+                                </td>`;
 
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
                                     row += `
@@ -361,6 +383,7 @@
                                     <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
                                 </td>`;
                                 }
+
                                 let statusOptions = ['Running', 'Completed', 'Cancel'];
                                 let currentStatus = course.status ?? '';
 
@@ -378,9 +401,7 @@
     <ul class="dropdown-menu">`;
 
                                 statusOptions.forEach(function(option) {
-                                    if (option !==
-                                        currentStatus
-                                    ) { // 🔹 baki na status j show thase
+                                    if (option !== currentStatus) {
                                         statusDropdown += `
         <li>
             <a href="javascript:void(0)"
@@ -396,14 +417,10 @@
 
                                 statusDropdown += `</ul></div>`;
 
-
-
                                 row += `
 <td>
     ${statusDropdown}
 </td>`;
-
-
 
                                 $('#courseData').append(row);
                             });
@@ -429,7 +446,6 @@
                 }
             });
         });
-
 
 
         // Setup CSRF token for AJAX
@@ -550,11 +566,11 @@
 
 
 
- $(document).on('click', '.collectFees', function() {
-    let admId = $(this).data('id');
-    let url = '/software/fees-collection/get-details/' + admId;
-    window.open(url, '_blank'); // 🔹 Opens in new tab
-});
+        $(document).on('click', '.collectFees', function() {
+            let admId = $(this).data('id');
+            let url = '/software/fees-collection/get-details/' + admId;
+            window.open(url, '_blank'); // 🔹 Opens in new tab
+        });
 
         $(document).on('click', '.updateBtn', function() {
             $('#course').modal('hide');
@@ -637,7 +653,7 @@
                     if (response.status) {
                         toastr.success(response.message || 'Status updated successfully');
 
-                        // 🔹 Re-fetch courses for this student and refresh modal
+                        // Re-fetch courses for this student and refresh modal
                         $.ajax({
                             url: "{{ route($route . '.show') }}",
                             type: "GET",
@@ -648,18 +664,29 @@
                             success: function(resp) {
                                 if (resp.success && resp.courses.length > 0) {
                                     let courses = resp.courses;
-                                    let student = resp.student;
 
                                     // Clear previous rows
                                     $('#courseData').empty();
 
                                     courses.forEach(function(course) {
+                                        // Format DOJ from created_at
+                                        let doj = course.created_at ? moment(course
+                                                .created_at).format('DD-MM-YYYY') :
+                                            '-';
+
+                                        // Format DOC - show updated_at only if status is 'Completed'
+                                        let doc = (course.status === 'Completed' &&
+                                                course.updated_at) ?
+                                            moment(course.updated_at).format(
+                                                'DD-MM-YYYY') :
+                                            '-';
+
                                         let row = `
                                     <tr>
                                         <td>${course.id}</td>
                                         <td>${course.course.course_name}</td>
-                                        <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
-                                        <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>`;
+                                        <td>${doj}</td>
+                                        <td>${doc}</td>`;
 
                                         if ("{{ $fees_collection_create ?? 'false' }}" ==
                                             "true") {
