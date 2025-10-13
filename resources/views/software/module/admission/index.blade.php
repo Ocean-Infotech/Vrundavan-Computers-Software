@@ -23,8 +23,7 @@
     <link rel="stylesheet"
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
-    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                                                                                        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">                                                                                                                                        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -236,7 +235,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                            <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -257,11 +256,10 @@
                         let data = response.student;
                         if (data) {
                             // Profile picture handling
-                        let profileUrl = data.profile_pic
-                            ? `/${data.profile_pic}`
-                            : '';
-
-                        $('#profilePic').attr('src', profileUrl);
+                            let profileUrl = data.profile_pic ?
+                                "{{ asset('') }}" + data.profile_pic :
+                                '';
+                            $('#profilePic').attr('src', profileUrl);
 
 
                             $('#modalID').text(data.id);
