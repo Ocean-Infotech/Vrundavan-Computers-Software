@@ -232,7 +232,7 @@ class FeesCollectionController extends Controller
                 : 0;
             //dd($semester_fee);
             // Get fees collection entries
-            $feesCollections = FeesCollection::where('admission_id', $id)->get();
+            $feesCollections = FeesCollection::where('admission_id', $id)->orderBy('id', 'desc')->get();
 
             // Track total fees paid per semester
             $semesterPaid = [];

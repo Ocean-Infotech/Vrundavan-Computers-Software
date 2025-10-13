@@ -263,6 +263,8 @@
                         <tbody>
                             @if (isset($edit))
                                 @foreach ($getfeescollection as $row)
+
+
                                     <tr>
                                         <td>{{ $row->id }}</td>
                                         <th>{{ $row->year_semester }}</th>
@@ -453,18 +455,19 @@
 
 
             window.currentStudentDetails = null;
+                $('#FeesCollectionDetails').hide();
+
 
             function searchData() {
                 var search_id = $('#search_id').val()?.trim();
                 console.log("L-461", search_id);
 
-                if (search_id === '') {
-                    $('#search_id').addClass('is-invalid');
-                    showMessage("Search is required", "warning");
-                    return;
-                } else {
-                    $("#search_id").removeClass("is-invalid");
-                }
+                // if (search_id === '') {
+                //     $('#search_id').addClass('is-invalid');
+                //     showMessage("Search is required", "warning");
+                //     return;
+                // }
+                // $("#search_id").removeClass("is-invalid");
 
                 $.ajax({
                     type: 'POST',
