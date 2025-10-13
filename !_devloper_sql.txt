@@ -1,13 +1,12 @@
 |-------------------------------------------- Local
+
+
+|-------------------------------------------- Live
 12-10-2025
-ALTER TABLE `cource_registration` CHANGE `status` `status` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Running' COMMENT 'active, inactive';
 ALTER TABLE `cource_registration` CHANGE `status` `status` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Running';
 ALTER TABLE `admission`
 ADD COLUMN `profile_pic` VARCHAR(255) NULL AFTER `other_mobile_no`;
 
-
-
-|-------------------------------------------- Live
 12-08-2025
 
 ALTER TABLE `cource_registration` CHANGE `university` `university` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `department` `department` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
