@@ -24,7 +24,7 @@
         href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css') }}">
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-                                                                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
+                                                                                                                                                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css"> -->
 
 @endsection
 
@@ -82,29 +82,34 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th colspan="2"><b>Aadhaar Card No:</b> <span id="modalAadhar" class="text-lowercase"></span>
+                            <th colspan="3"><b>Aadhaar Card No:</b> <span id="modalAadhar" class="text-lowercase"></span>
                             </th>
                         </tr>
                         <tr>
-                            <th><b>Full Name </b> <span id="fullname" class="text-upercase"></span></th>
-                            <th><b>Mother Name </b> <span id="MotherName" class="text-upercase"></span></th>
+                            <th><b>Full Name:</b> <span id="fullname" class="text-uppercase"></span></th>
+                            <th><b>Father Name:</b> <span id="FatherName" class="text-uppercase"></span></th>
+                            {{-- <th><b>Mother Name:</b> <span id="MotherName" class="text-uppercase"></span></th> --}}
+                        </tr>
+
+                        <tr>
+                            <th colspan="2"><b>Mother Name:</b> <span id="MotherName" class="text-upercase"></span></th>
                         </tr>
                         <tr>
                             <th><b>Date of Birth:</b> <span id="modalDOB" class="text-lowercase"></span></th>
-                            <th><b>Gender :</b> <span id="modalGender" class="text-lowercase"></span></th>
+                            <th><b>Gender:</b> <span id="modalGender" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
                             <th><b>Cast:</b> <span id="modalcast" class="text-lowercase"></span></th>
                             <th><b>Category:</b> <span id="modalCategory" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th colspan="2"><b>Father Occupation :</b> <span id="modalfatheroccupation"
+                            <th colspan="2"><b>Father Occupation:</b> <span id="modalfatheroccupation"
                                     class="text-lowercase"></span></th>
                         </tr>
                         <tr>
-                            <th><b>Temporary Address :</b> <span id="modaltemporaryAddress" class="text-lowercase"></span>
+                            <th><b>Temporary Address:</b> <span id="modaltemporaryAddress" class="text-lowercase"></span>
                             </th>
-                            <th><b>Permanent Address :</b> <span id="modalPermAddress" class="text-lowercase"></span></th>
+                            <th><b>Permanent Address:</b> <span id="modalPermAddress" class="text-lowercase"></span></th>
                         </tr>
                         <tr>
                             <th><b>Mobile No:</b> <span id="modalSelfMobile" class="text-lowercase"></span></th>
@@ -226,7 +231,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -261,8 +266,9 @@
                                 $('#modalDOB').text('-');
                             }
                             $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#fullname').text((data.first_name + ' ' + data.father_name + ' ' + data
-                                .last_name).toUpperCase() ?? '-');
+                            $('#fullname').text((data.last_name + ' ' + data.first_name + ' ' + data
+                                .father_name).toUpperCase() ?? '-');
+                            $('#FatherName').text(data.father_name ?? '-');
                             $('#MotherName').text(data.mother_name ?? '-');
                             $('#modalGender').text(data.gender ?? '-');
                             $('#modalcast').text(data.cast ?? '-');
@@ -328,8 +334,8 @@
                             <tr>
                                 <td>${course.id}</td>
                                 <td>${course.course.course_name}</td>
-                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
-                                <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>`;
+                                <td>${'-'}</td>
+                                <td>${'-'}</td>`;
                                 if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
                                     row += `
                                     <td>
@@ -373,7 +379,8 @@
 
                                 statusOptions.forEach(function(option) {
                                     if (option !==
-                                        currentStatus) { // 🔹 baki na status j show thase
+                                        currentStatus
+                                    ) { // 🔹 baki na status j show thase
                                         statusDropdown += `
         <li>
             <a href="javascript:void(0)"
@@ -543,10 +550,11 @@
 
 
 
-        $(document).on('click', '.collectFees', function() {
-            let admId = $(this).data('id');
-            window.location.href = '/software/fees-collection/get-details/' + admId;
-        });
+      $(document).on('click', '.collectFees', function() {
+    let admId = $(this).data('id');
+    window.open('/software/fees-collection/get-details/' + admId, '_blank');
+});
+
         $(document).on('click', '.updateBtn', function() {
             $('#course').modal('hide');
             $('#updateModal').modal('show');
@@ -609,55 +617,58 @@
             });
         });
         // Status button dropdown click event
-      // Status button dropdown click event
-$(document).on('click', '.update-status', function() {
-    let register_id = $(this).data('register_id');
-    let course_id = $(this).data('course_id');
-    let newStatus = $(this).data('update_status');
+        // Status button dropdown click event
+        $(document).on('click', '.update-status', function() {
+            let register_id = $(this).data('register_id');
+            let course_id = $(this).data('course_id');
+            let newStatus = $(this).data('update_status');
 
-    $.ajax({
-        url: "{{ route('admission.update-course-status') }}",
-        type: "POST",
-        data: {
-            _token: '{{ csrf_token() }}',
-            register_id: register_id,
-            course_id: course_id,
-            status: newStatus
-        },
-        success: function(response) {
-            if (response.status) {
-                toastr.success(response.message || 'Status updated successfully');
+            $.ajax({
+                url: "{{ route('admission.update-course-status') }}",
+                type: "POST",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    register_id: register_id,
+                    course_id: course_id,
+                    status: newStatus
+                },
+                success: function(response) {
+                    if (response.status) {
+                        toastr.success(response.message || 'Status updated successfully');
 
-                // 🔹 Re-fetch courses for this student and refresh modal
-                $.ajax({
-                    url: "{{ route($route . '.show') }}",
-                    type: "GET",
-                    data: { id: register_id },
-                    dataType: "json",
-                    success: function(resp) {
-                        if (resp.success && resp.courses.length > 0) {
-                            let courses = resp.courses;
-                            let student = resp.student;
+                        // 🔹 Re-fetch courses for this student and refresh modal
+                        $.ajax({
+                            url: "{{ route($route . '.show') }}",
+                            type: "GET",
+                            data: {
+                                id: register_id
+                            },
+                            dataType: "json",
+                            success: function(resp) {
+                                if (resp.success && resp.courses.length > 0) {
+                                    let courses = resp.courses;
+                                    let student = resp.student;
 
-                            // Clear previous rows
-                            $('#courseData').empty();
+                                    // Clear previous rows
+                                    $('#courseData').empty();
 
-                            courses.forEach(function(course) {
-                                let row = `
+                                    courses.forEach(function(course) {
+                                        let row = `
                                     <tr>
                                         <td>${course.id}</td>
                                         <td>${course.course.course_name}</td>
                                         <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>
                                         <td>${moment(course.date).format('DD-MM-YYYY') ?? '-'}</td>`;
 
-                                if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
-                                    row += `
+                                        if ("{{ $fees_collection_create ?? 'false' }}" ==
+                                            "true") {
+                                            row += `
                                         <td>
                                             <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
                                         </td>`;
-                                }
+                                        }
 
-                                row += `
+                                        row += `
                                     <td>
                                         <button type="button" class="btn btn-primary btn-sm formBtn"
                                             data-register_id="${course.register_id}"
@@ -666,30 +677,36 @@ $(document).on('click', '.update-status', function() {
                                         </button>
                                     </td>`;
 
-                                if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
-                                    row += `
+                                        if ("{{ $fees_collection_edit ?? 'false' }}" ==
+                                            "true") {
+                                            row += `
                                         <td>
                                             <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
                                         </td>`;
-                                }
+                                        }
 
-                                let statusOptions = ['Running', 'Completed', 'Cancel'];
-                                let currentStatus = course.status ?? '';
-                                let statusClass =
-                                    currentStatus === 'Running' ? 'btn-primary' :
-                                    currentStatus === 'Completed' ? 'btn-success' :
-                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+                                        let statusOptions = ['Running', 'Completed',
+                                            'Cancel'
+                                        ];
+                                        let currentStatus = course.status ?? '';
+                                        let statusClass =
+                                            currentStatus === 'Running' ?
+                                            'btn-primary' :
+                                            currentStatus === 'Completed' ?
+                                            'btn-success' :
+                                            currentStatus === 'Cancel' ?
+                                            'btn-danger' : 'btn-secondary';
 
-                                let statusDropdown = `<div class="btn-group">
+                                        let statusDropdown = `<div class="btn-group">
                                     <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                         ${currentStatus || 'Select Status'}
                                     </button>
                                     <ul class="dropdown-menu">`;
 
-                                statusOptions.forEach(function(option) {
-                                    if (option !== currentStatus) {
-                                        statusDropdown += `
+                                        statusOptions.forEach(function(option) {
+                                            if (option !== currentStatus) {
+                                                statusDropdown += `
                                         <li>
                                             <a href="javascript:void(0)"
                                                 class="dropdown-item update-status"
@@ -699,31 +716,31 @@ $(document).on('click', '.update-status', function() {
                                                 ${option}
                                             </a>
                                         </li>`;
-                                    }
-                                });
+                                            }
+                                        });
 
-                                statusDropdown += `</ul></div>`;
-                                row += `<td>${statusDropdown}</td>`;
+                                        statusDropdown += `</ul></div>`;
+                                        row += `<td>${statusDropdown}</td>`;
 
-                                $('#courseData').append(row);
-                            });
-                        }
-                    },
-                    error: function(err) {
-                        console.error(err);
-                        toastr.error('Error refreshing course modal');
+                                        $('#courseData').append(row);
+                                    });
+                                }
+                            },
+                            error: function(err) {
+                                console.error(err);
+                                toastr.error('Error refreshing course modal');
+                            }
+                        });
+                    } else {
+                        toastr.error(response.message || 'Failed to update status');
                     }
-                });
-            } else {
-                toastr.error(response.message || 'Failed to update status');
-            }
-        },
-        error: function(xhr) {
-            console.error(xhr);
-            toastr.error('Error updating status');
-        }
-    });
-});
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                    toastr.error('Error updating status');
+                }
+            });
+        });
 
         // Form button click → open new view
         $(document).on('click', '.formBtn', function() {

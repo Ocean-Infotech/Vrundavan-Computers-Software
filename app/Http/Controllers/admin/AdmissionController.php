@@ -389,9 +389,9 @@ class AdmissionController extends Controller
             }
                     */
             if (Helper::directCan('course-register-create')) {
-                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->first_name . ' has been successfully admitted.');
             }
-            return Redirect::route($modules['route'] . '.index')->with('success', $admission->name . ' has been successfully admitted.');
+            return Redirect::route($modules['route'] . '.index')->with('success', $admission->first_name . ' has been successfully admitted.');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -609,7 +609,7 @@ class AdmissionController extends Controller
 
                 Session::put('admission_id', $admission_id);
                 if (Helper::directCan('course-register-create')) {
-                    return Redirect::route('cource-registration.create', [$admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+                    return Redirect::route('cource-registration.create', [$admission_id])->with('success', $admission->first_name . ' has been successfully admitted.');
                 }
                 return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' updated successfully');
 

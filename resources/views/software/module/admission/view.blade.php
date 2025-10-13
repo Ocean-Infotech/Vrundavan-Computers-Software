@@ -5,231 +5,248 @@
     <meta charset="UTF-8">
     <title>PVM BCA College Admission Form</title>
     <style>
-        /* ======= Form CSS ======= */
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        /* ======= Black & White Form CSS ======= */
+     .container {
+                        max-width: 900px;
+                        margin: 0 auto;
+                    }
 
-        .card {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+                    .card {
+                        max-width: 900px;
+                        margin: 0 auto;
+                    }
 
-        .admission-form {
-            border: 2px solid maroon;
-            padding: 10px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-            color: #660000;
-            width: 100%;
-            box-sizing: border-box;
-        }
+                    .admission-form {
+                        border: 2px solid #155bd5;
+                        /* Deep Blue border */
+                        padding: 15px;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        position: relative;
+                        background: #fdfdfd;
+                        color: #333;
+                        width: 100%;
+                        box-sizing: border-box;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    }
 
-        hr {
-            margin: 0;
-            border: 0;
-            border-top: 1px solid #000;
-        }
+                    hr {
+                        margin: 10px 0;
+                        border: 0;
+                        border-top: 2px dashed #155bd5;
+                    }
 
-        .admission-form h2 {
-            color: maroon;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 4px;
-        }
+                    .admission-form h2 {
+                        color: #155bd5;
+                        /* Deep Blue */
+                        font-weight: bold;
+                        text-align: center;
+                        margin-bottom: 4px;
+                        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+                    }
 
-        .admission-form h4 {
-            font-style: italic;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 14px;
-        }
+                    .admission-form h4 {
+                        font-style: italic;
+                        text-align: center;
+                        margin-top: 0;
+                        margin-bottom: 14px;
+                        color: #155bd5;
+                        /* Deep Blue */
+                    }
 
-        .admission-header {
-            font-weight: 600;
-            font-size: 16px;
-            color: maroon;
-            margin-bottom: 4px;
-            padding-left: 2px;
-        }
+                    .admission-header {
+                        font-weight: 600;
+                        font-size: 16px;
+                        color: #155bd5;
+                        margin-bottom: 6px;
+                        padding-left: 2px;
+                    }
 
-        .admission-details-table {
-            width: 100%;
-            font-size: 14px;
-            border-collapse: collapse;
-            margin-bottom: 6px;
-            color: #660000;
-        }
+                    .admission-details-table {
+                        width: 100%;
+                        font-size: 14px;
+                        border-collapse: collapse;
+                        margin-bottom: 8px;
+                        color: #155bd5;
+                    }
 
-        .admission-details-table td {
-            padding: 2px 6px;
-            vertical-align: middle;
-            white-space: nowrap;
-            height: 30px;
-        }
+                    .admission-details-table td {
+                        padding: 4px 8px;
+                        vertical-align: middle;
+                        white-space: nowrap;
+                        height: 32px;
+                    }
 
-        .admission-details-table td strong {
-            font-weight: 600;
-        }
+                    .admission-details-table td strong {
+                        font-weight: 600;
+                        color: #155bd5;
+                    }
 
-        .photo-box {
-            border: 2px solid black;
-            width: 120px;
-            height: 150px;
-            overflow: hidden;
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            margin: 0;
-        }
+                    .photo-box {
+                        border: 2px solid #155bd5;
+                        width: 120px;
+                        height: 150px;
+                        overflow: hidden;
+                        position: absolute;
+                        top: 30px;
+                        right: 30px;
+                        margin: 0;
+                        border-radius: 6px;
+                    }
 
-        .photo-box img {
-            width: 100%;
-            height: auto;
-        }
+                    .photo-box img {
+                        width: 100%;
+                        height: auto;
+                    }
 
-        .form-section {
-            margin-bottom: 25px;
-        }
+                    .form-section {
+                        margin-bottom: 25px;
+                    }
 
-        .form-section table {
-            width: 100%;
-            font-size: 16px;
-            border-collapse: collapse;
-            color: #660000;
-        }
+                    .form-section table {
+                        width: 100%;
+                        font-size: 16px;
+                        border-collapse: collapse;
+                        color: #155bd5;
+                    }
 
-        .form-section td {
-            padding: 6px;
-            vertical-align: top;
-        }
+                    .form-section td {
+                        padding: 6px;
+                        vertical-align: top;
+                    }
 
-        .signature-box {
-            text-align: center;
-            margin-top: 40px;
-            color: #660000;
-        }
+                    .signature-box {
+                        text-align: center;
+                        margin-top: 40px;
+                        color: #155bd5;
+                    }
 
-        .signature-box div {
-            display: inline-block;
-            width: 30%;
-            border-top: 1px solid #000;
-            padding-top: 5px;
-        }
+                    .signature-box div {
+                        display: inline-block;
+                        width: 30%;
+                        border-top: 2px solid #155bd5;
+                        padding-top: 5px;
+                        font-weight: 600;
+                    }
 
-        .letter-boxes {
-            display: flex;
-            gap: 2px;
-            margin-top: 6px;
-        }
+                    .letter-boxes,
+                    .multi-boxes {
+                        display: flex;
+                        gap: 3px;
+                        margin-top: 4px;
+                        flex-wrap: wrap;
+                    }
 
-        .letter-box,
-        .single-box {
-            width: 30px;
-            height: 36px;
-            border: 1px solid #800000;
-            text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-            text-transform: uppercase;
-            line-height: 36px;
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none;
-        }
+                    .letter-box,
+                    .single-box {
+                        width: 30px;
+                        height: 36px;
+                        border: 1px solid #155bd5;
+                        text-align: center;
+                        font-weight: bold;
+                        font-size: 18px;
+                        text-transform: uppercase;
+                        line-height: 36px;
+                        font-family: 'Courier New', Courier, monospace;
+                        color: #155bd5;
+                        background-color: #E8F0FE;
+                        /* Light Blue background */
+                    }
 
-        .multi-boxes {
-            display: flex;
-            gap: 3px;
-            margin-top: 4px;
-            flex-wrap: wrap;
-        }
+                    .info-section {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        color: #155bd5;
+                        font-weight: 600;
+                        font-size: 14px;
+                        line-height: 1.4;
+                        margin-bottom: 12px;
+                    }
 
-        .info-section {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #660000;
-            font-weight: 600;
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 12px;
-        }
+                    .info-section label {
+                        display: inline-block;
+                        margin-right: 4px;
+                        color: #155bd5;
+                    }
 
-        .info-section label {
-            display: inline-block;
-            margin-right: 4px;
-        }
+                    .info-section .underline-input {
+                        border-bottom: 2px solid #155bd5;
+                        padding: 0 6px;
+                        font-weight: 600;
+                        font-family: monospace;
+                        font-size: 16px;
+                        width: 140px;
+                        display: inline-block;
+                        vertical-align: middle;
+                        background-color: #F0F6FF;
+                        color: #155bd5;
+                    }
 
-        .info-section .underline-input {
-            border-bottom: 1px solid #660000;
-            padding: 0 6px;
-            font-weight: 600;
-            font-family: monospace;
-            font-size: 16px;
-            width: 140px;
-            display: inline-block;
-            vertical-align: middle;
-            color: #000;
-            user-select: none;
-        }
+                    .info-section .small-underline-input {
+                        width: 90px;
+                    }
 
-        .info-section .small-underline-input {
-            width: 90px;
-        }
+                    .info-section .checkbox-label {
+                        cursor: pointer;
+                        margin-right: 18px;
+                        font-weight: 600;
+                        vertical-align: middle;
+                        color: #155bd5;
+                    }
 
-        .info-section .checkbox-label {
-            cursor: pointer;
-            margin-right: 18px;
-            font-weight: 600;
-            vertical-align: middle;
-        }
+                    .education-table {
+                        width: 100%;
+                        margin-top: 12px;
+                        border-collapse: collapse;
+                        color: #155bd5;
+                        font-size: 15px;
+                    }
 
-        .education-table {
-            width: 100%;
-            margin-top: 12px;
-            border-collapse: collapse;
-            color: #660000;
-            font-size: 15px;
-        }
+                    .education-table thead tr {
+                        background-color: #155bd5;
+                        color: #fff;
+                        font-weight: 700;
+                        text-align: center;
+                    }
 
-        .education-table thead tr {
-            background-color: #f8e6e6;
-            font-weight: 700;
-            text-align: center;
-        }
+                    .education-table th,
+                    .education-table td {
+                        border: 1px solid #155bd5;
+                        padding: 8px 10px;
+                    }
 
-        .education-table th,
-        .education-table td {
-            border: 1px solid #800000;
-            padding: 8px 10px;
-        }
+                    .education-table tbody tr:nth-child(even) {
+                        background-color: #E8F0FE;
+                    }
 
-        .education-table tbody tr td {
-            text-align: center;
-        }
+                    .education-table tbody tr td {
+                        text-align: center;
+                    }
 
-        .education-table tbody tr td:nth-child(2),
-        .education-table tbody tr td:nth-child(4),
-        .education-table tbody tr td:nth-child(6) {
-            text-align: left;
-            padding-left: 12px;
-        }
+                    .education-table tbody tr td:nth-child(2),
+                    .education-table tbody tr td:nth-child(4),
+                    .education-table tbody tr td:nth-child(6) {
+                        text-align: left;
+                        padding-left: 12px;
+                    }
 
-        .footer-college-info {
-            text-align: center;
-            color: maroon;
-            font-size: 25px;
-            padding-top: 6px;
-            font-weight: bold;
-        }
+                    .footer-college-info {
+                        text-align: center;
+                        color: #155bd5;
+                        font-size: 22px;
+                        padding-top: 8px;
+                        font-weight: bold;
+                    }
 
-        @page {
-            margin: 0.5;
-        }
+                    @page {
+                        margin: 0.5;
+                    }
 
-        body {
-            margin: 0.5;
-            padding: 0.5;
-        }
+                    body {
+                        margin: 0.5;
+                        padding: 0.5;
+                        background: #fff;
+                        color: #155bd5;
+                    }
     </style>
 </head>
 
@@ -251,6 +268,7 @@
                         <td><strong>GR No. :</strong> {{ $admission->id }}</td>
 
                         <td><strong>Adm. Date :</strong>
+
                             {{ \Carbon\Carbon::parse($admission->created_at)->format('d/m/Y') }}</td>
                         <td><strong>Course :</strong> {{ $course->course->course_name ?? '-' }}</td>
 
@@ -384,7 +402,7 @@
 
                 {{-- Educational Details --}}
                 <div class="form-section">
-                    <strong style="color: maroon; font-size: 18px;">Educational Details:</strong>
+                    <strong style="color: black; font-size: 18px;">Educational Details:</strong>
                     <table class="education-table" cellpadding="6" cellspacing="0" border="1">
                         <thead>
                             <tr>
@@ -414,6 +432,7 @@
                         </tbody>
                     </table>
                 </div>
+
 
 
                 <div class="signature-box">

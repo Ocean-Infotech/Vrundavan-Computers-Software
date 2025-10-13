@@ -93,12 +93,12 @@
                             {{-- First Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> First Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label"> Surname <span class="text-danger">*</span> </label>
                                     <input id="first_name" type="text"
                                         class="form-control text-uppercase @error('first_name') is-invalid @enderror"
                                         name="first_name" autocapitalize="off"
                                         value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
-                                        placeholder="Enter First Name">
+                                        placeholder="Enter Surname">
                                     @error('first_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -108,12 +108,12 @@
                             {{-- Last Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label"> Name <span class="text-danger">*</span> </label>
                                     <input id="last_name" type="text"
                                         class="form-control text-uppercase @error('last_name') is-invalid @enderror "
                                         name="last_name" autocapitalize="off"
                                         value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
-                                        placeholder="Enter Last Name">
+                                        placeholder="Enter Name">
                                     @error('last_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror

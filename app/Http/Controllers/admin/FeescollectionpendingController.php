@@ -51,7 +51,7 @@ class FeescollectionpendingController extends Controller
                 (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'contact_no', 'name' => 'contact_no', 'td_label' => 'Contact No'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => 'date', 'name' => 'date', 'td_label' => 'DOJ'],
+                (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status'],
                 (object)['data' => 'total_fee', 'name' => 'total_fee', 'td_label' => 'Total Fees'],
                 (object)['data' => 'paid_fee', 'name' => 'paid_fee', 'td_label' => 'Paid Fees'],
                 (object)['data' => 'pending_fee', 'name' => 'pending_fee', 'td_label' => 'Pending Fees'],
@@ -151,12 +151,7 @@ class FeescollectionpendingController extends Controller
                         })->implode('<br> ');
                     })
 
-                    ->editColumn('date', function ($row) use ($allRegistrations) {
-                        $registrations = $allRegistrations->get($row->register_id, collect());
-                        return $registrations->map(function ($item) {
-                            return Carbon::parse($item->date)->format('d-m-Y');
-                        })->implode('<br> ');
-                    })
+                    
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
                         $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
                         return '₹' . number_format($total_fee, 2);
@@ -165,6 +160,7 @@ class FeescollectionpendingController extends Controller
                         $paid_fee = $feesCollection[$row->register_id] ?? 0;
                         return '₹' . number_format($paid_fee, 2);
                     })
+
 
                     ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
                         $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');

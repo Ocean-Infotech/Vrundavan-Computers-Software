@@ -34,8 +34,8 @@ class CommonController extends Controller
             $data = DB::table('cource_registration as cr')
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
-                ->where('cr.status', 'active')
-                ->orderBy('cr.id', 'DESC')
+                // ->where('cr.status', 'active')
+                ->orderBy('cr.id', 'ASC')
                 ->select(
                     'cr.id as course_reg_id',
                     'a.id as admission_id',

@@ -1,4 +1,10 @@
 |-------------------------------------------- Local
+12-10-2025
+ALTER TABLE `cource_registration` CHANGE `status` `status` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Running' COMMENT 'active, inactive';
+
+
+
+|-------------------------------------------- Live
 12-08-2025
 
 ALTER TABLE `cource_registration` CHANGE `university` `university` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `department` `department` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
@@ -22,8 +28,6 @@ ALTER TABLE `attedance` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SE
 ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
 ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
-
-|-------------------------------------------- Live
 
 ALTER TABLE `cource_registration`
 ADD COLUMN `university` VARCHAR(255) NOT NULL AFTER `admission_id`,
