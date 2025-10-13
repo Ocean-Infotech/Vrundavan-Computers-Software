@@ -174,7 +174,7 @@ Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistr
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
 Route::get('/cource-registration/create/{admission_id?}', [CourceRegistrationController::class, 'create'])->name('cource-registration.create');
-Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::class, 'edit'])->name('cource-registration.edit');
+Route::get('/cource-registration/{register_id}/edit/', [CourceRegistrationController::class, 'edit'])->name('cource-registration.edit');
 
 
 
