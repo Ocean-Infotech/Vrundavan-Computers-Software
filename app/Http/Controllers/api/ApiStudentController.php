@@ -155,7 +155,7 @@ class ApiStudentController extends Controller
 
                     'Vrundavan Computer' => [
                         'College mobile'        => '96874 51774',
-                        // 'Phone'         => '02871-231059',
+                        'Phone'         => '02871-231059',
                         'Distance' => '93752 21111',
                     ]
 
