@@ -20,59 +20,61 @@ use Illuminate\Validation\Rule;
 class ApiStudentController extends Controller
 {
 
-    public function academic_details(Request $request)
-    {
-        try {
-            $student = Auth::guard('student-api')->user();
+   public function academic_details(Request $request)
+{
+    try {
+        $student = Auth::guard('student-api')->user();
 
-            if (!$student) {
-                return $this->sendError("Unauthorization.", [], [], 401);
-            }
+        if (!$student) {
+            return $this->sendError("Unauthorization.", [], [], 401);
+        }
 
-            $courseRegistered = CourceRegistration::where('register_id', $student->id)
-                ->with(['batch', 'course', 'class', 'shift', 'admission'])
+        $courseRegistered = CourceRegistration::where('register_id', $student->id)
+            ->with(['batch', 'course', 'class', 'shift', 'admission'])
+            ->first();
+
+        if (!$courseRegistered) {
+            return $this->sendError('Your Academic Detail not found.', [], [], 422);
+        } elseif ($courseRegistered?->status != "Running") {
+            return $this->sendError('Academic detail not active.', [], [], 422);
+        } else {
+
+            // Fetch timetable attachment
+            $timetable = Timetable::where('course_id', $courseRegistered->course_id)
+                ->where('batch_id', $courseRegistered->batch_id)
+                ->where('class_id', $courseRegistered->class_id)
                 ->first();
 
-            if (!$courseRegistered) {
-                return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            } elseif ($courseRegistered?->status != "Running") {
-                return $this->sendError('Academic detail not active.', [], [], 422);
-            } else {
-
-                // Fetch timetable attachment
-                $timetable = Timetable::where('course_id', $courseRegistered->course_id)
-                    ->where('batch_id', $courseRegistered->batch_id)
-                    ->where('class_id', $courseRegistered->class_id)
-                    ->first();
-
-                // Format shift timing
-                $shiftTiming = '';
-                if ($courseRegistered->shift?->from_time && $courseRegistered->shift?->to_time) {
-                    $from = \Carbon\Carbon::parse($courseRegistered->shift->from_time)->format('h:i A');
-                    $to   = \Carbon\Carbon::parse($courseRegistered->shift->to_time)->format('h:i A');
-                    $shiftTiming = $from . ' To ' . $to;
-                }
-
-                $data = [
-                    'university'     => $courseRegistered->university ?? '',
-                    'department'     => $courseRegistered->department ?? '',
-                    'course'         => $courseRegistered->course?->course_name ?? '',
-                    'batch'          => $courseRegistered->batch?->batch_name ?? '',
-                    'class'          => $courseRegistered->class?->class ?? '',
-                    'shift'          => $shiftTiming,
-                    'gr_no'          => $student->id,
-                    'enrollment_no'  => $student->enrolment_no ?? '',
-                    'spid'           => $student->spid ?? '',
-                    'udise'          => $student->udise,
-                    'attachment'     => $timetable?->attachment ? asset($timetable->attachment) : '',
-                ];
-
-                return $this->sendResponse($data, 'Academic details fetched successfully.');
+            // Format shift timing
+            $shiftTiming = '';
+            if ($courseRegistered->shift?->from_time && $courseRegistered->shift?->to_time) {
+                $from = \Carbon\Carbon::parse($courseRegistered->shift->from_time)->format('h:i A');
+                $to   = \Carbon\Carbon::parse($courseRegistered->shift->to_time)->format('h:i A');
+                $shiftTiming = $from . ' To ' . $to;
             }
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+
+            $data = [
+                'university'        => $courseRegistered->university ?? '',
+                'department'        => $courseRegistered->department ?? '',
+                'course'            => $courseRegistered->course?->course_name ?? '',
+                'batch'             => $courseRegistered->batch?->batch_name ?? '',
+                'class'             => $courseRegistered->class?->class ?? '',
+                'shift'             => $shiftTiming,
+                'gr_no'             => $student->id,
+                'enrollment_no'     => $student->enrolment_no ?? '',
+                'spid'              => $student->spid ?? '',
+                'udise'             => $student->udise,
+                'apaar_id_abc_id'   => $student->apaar_id_abc_id,
+                'attachment'        => $timetable?->attachment ? asset($timetable->attachment) : '',
+            ];
+
+            return $this->sendResponse($data, 'Academic details fetched successfully.');
         }
+    } catch (\Exception $e) {
+        return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
     }
+}
+
 
 
 
