@@ -30,29 +30,40 @@ class ApiStudentController extends Controller
             }
 
             $courseRegistered = CourceRegistration::where('register_id', $student->id)
+                ->with(['batch', 'course', 'class', 'shift', 'admission'])
                 ->first();
-// dd($courseRegistered);
+
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
             } elseif ($courseRegistered?->status != "Running") {
                 return $this->sendError('Academic detail not active.', [], [], 422);
             } else {
-                $course = MasterCourse::where('id', $courseRegistered->course_id)->first();
 
-                // Fetch timetable attachment (by course_id and batch_id both)
+                // Fetch timetable attachment
                 $timetable = Timetable::where('course_id', $courseRegistered->course_id)
                     ->where('batch_id', $courseRegistered->batch_id)
                     ->where('class_id', $courseRegistered->class_id)
                     ->first();
 
+                // Format shift timing
+                $shiftTiming = '';
+                if ($courseRegistered->shift?->from_time && $courseRegistered->shift?->to_time) {
+                    $from = \Carbon\Carbon::parse($courseRegistered->shift->from_time)->format('h:i A');
+                    $to   = \Carbon\Carbon::parse($courseRegistered->shift->to_time)->format('h:i A');
+                    $shiftTiming = $from . ' To ' . $to;
+                }
+
                 $data = [
                     'university'     => $courseRegistered->university ?? '',
                     'department'     => $courseRegistered->department ?? '',
-                    'course'         => $course->course_name ?? '',
-                    // 'semester'       => $course->semester ?? '',
+                    'course'         => $courseRegistered->course?->course_name ?? '',
+                    'batch'          => $courseRegistered->batch?->batch_name ?? '',
+                    'class'          => $courseRegistered->class?->class ?? '',
+                    'shift'          => $shiftTiming,
                     'gr_no'          => $student->id,
                     'enrollment_no'  => $student->enrolment_no ?? '',
                     'spid'           => $student->spid ?? '',
+                    'udise'          => $student->udise,
                     'attachment'     => $timetable?->attachment ? asset($timetable->attachment) : '',
                 ];
 
@@ -62,6 +73,7 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
 
 
     public function fee_details(Request $request)
@@ -134,15 +146,15 @@ class ApiStudentController extends Controller
                     [
                         'name'    => 'BCA College',
                         'address' => 'PVM Campus, Veraval Road, Keshod',
-                        'email'   => 'pvmbcacollage@gmail.com',
+                        'email'   => 'pvmbcacollege@gmail.com',
                     ]
                 ],
                 'contacts' => [
 
                     'Vrundavan Computer' => [
-                        'mobile'        => '96374 51774',
-                        'phone'         => '02871-231059',
-                        'distance_work' => '93762 21111',
+                        'College mobile'        => '96874 51774',
+                        // 'Phone'         => '02871-231059',
+                        'Distance' => '93752 21111',
                     ]
 
                 ]

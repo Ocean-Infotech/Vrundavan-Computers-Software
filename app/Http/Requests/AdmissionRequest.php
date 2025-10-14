@@ -89,7 +89,7 @@ class AdmissionRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg,gif',
-                'max:2048',             
+                'max:2048',
             ],
 
             'whatsapp_no' => [
@@ -126,6 +126,9 @@ class AdmissionRequest extends FormRequest
                 'nullable'
             ],
             'apaar_id_abc_id' => [
+                'nullable'
+            ],
+            'udise' => [
                 'nullable'
             ],
             'gdrivefolderurl' => [

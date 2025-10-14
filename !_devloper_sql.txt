@@ -6,6 +6,8 @@
 ALTER TABLE `cource_registration` CHANGE `status` `status` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Running';
 ALTER TABLE `admission`
 ADD COLUMN `profile_pic` VARCHAR(255) NULL AFTER `other_mobile_no`;
+ALTER TABLE `admission`
+ADD COLUMN `udise` VARCHAR(50) AFTER `apaar_id_abc_id`;
 
 12-08-2025
 

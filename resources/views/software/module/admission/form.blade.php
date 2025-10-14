@@ -76,27 +76,26 @@
                                     @enderror
                                 </div>
                             </div>
-                           <div class="col-md-6 col-sm-12 mb-3">
-    <div class="form-group">
-        <label class="form-label">Profile Picture</label>
-        <input type="file" class="form-control @error('profile_pic') is-invalid @enderror"
-            name="profile_pic" accept="image/*">
-        @error('profile_pic')
-            <span class="invalid-feedback">
-                <strong>{{ $message }}</strong>
-            </span>
-        @enderror
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">Profile Picture</label>
+                                    <input type="file" class="form-control @error('profile_pic') is-invalid @enderror"
+                                        name="profile_pic" accept="image/*">
+                                    @error('profile_pic')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
 
-        {{-- Show existing image if editing --}}
-        @isset($edit?->profile_pic)
-            <div class="mt-2">
-                <img src="{{ asset($edit->profile_pic) }}"
-                    alt="Profile Picture"
-                    style="height:100px; width:100px; object-fit:cover; border-radius:50%;">
-            </div>
-        @endisset
-    </div>
-</div>
+                                    {{-- Show existing image if editing --}}
+                                    @isset($edit?->profile_pic)
+                                        <div class="mt-2">
+                                            <img src="{{ asset($edit->profile_pic) }}" alt="Profile Picture"
+                                                style="height:100px; width:100px; object-fit:cover; border-radius:50%;">
+                                        </div>
+                                    @endisset
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -435,7 +434,7 @@
 
                     <div class="collapse show mt-2" id="Academy">
                         <div class="row">
-                            <div class="col-md-12 col-sm-12  mb-3">
+                            <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
                                     <label class="form-label"> APAAR ID/ABC ID </label>
                                     <input id="apaar_id_abc_id" type="text"
@@ -451,6 +450,22 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">UDISE</label>
+                                    <input id="udise" type="text"
+                                        class="form-control @error('udise') is-invalid @enderror" autocapitalize="off"
+                                        name="udise" value="{{ isset($edit?->udise) ? $edit?->udise : old('udise') }}"
+                                        placeholder="Enter UDISE">
+
+                                    @error('udise')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
                                     <label class="form-label"> Enrollment No.</label>

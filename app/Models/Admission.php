@@ -42,6 +42,7 @@
             'enrolment_no',
             'spid',
             'apaar_id_abc_id',
+            'udise',
             'gdrivefolderurl',
             'gdrivefolderid',
             'gdrivefoldername',
