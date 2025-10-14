@@ -3,451 +3,375 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>PVM BCA College Admission Form</title>
+    <title>Shree Patel Vidhya Mandir Science College - Keshod Admission Form</title>
     <style>
-        /* ======= Black & White Form CSS ======= */
-     .container {
-                        max-width: 900px;
-                        margin: 0 auto;
-                    }
+        /* ====== Force A4 Print Size ====== */
+        @page {
+            size: A4 portrait;
+            margin: 15mm 20mm;
+            /* top-bottom / left-right */
+        }
 
-                    .card {
-                        max-width: 900px;
-                        margin: 0 auto;
-                    }
+        html,
+        body {
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
+            background: #f5f8fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
 
-                    .admission-form {
-                        border: 2px solid #155bd5;
-                        /* Deep Blue border */
-                        padding: 15px;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        position: relative;
-                        background: #fdfdfd;
-                        color: #333;
-                        width: 100%;
-                        box-sizing: border-box;
-                        border-radius: 10px;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                    }
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
 
-                    hr {
-                        margin: 10px 0;
-                        border: 0;
-                        border-top: 2px dashed #155bd5;
-                    }
+        .container {
+            width: 100%;
+            max-width: 750px;
+            /* keep inside A4 margins */
+            margin: 0 auto;
+            background: #fff;
+            border: 3px solid #004aad;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px 35px;
+        }
 
-                    .admission-form h2 {
-                        color: #155bd5;
-                        /* Deep Blue */
-                        font-weight: bold;
-                        text-align: center;
-                        margin-bottom: 4px;
-                        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-                    }
+        h2 {
+            text-align: center;
+            color: #004aad;
+            font-weight: 800;
+            margin: 0;
+        }
 
-                    .admission-form h4 {
-                        font-style: italic;
-                        text-align: center;
-                        margin-top: 0;
-                        margin-bottom: 14px;
-                        color: #155bd5;
-                        /* Deep Blue */
-                    }
+        h4 {
+            text-align: center;
+            color: #f57c00;
+            font-style: italic;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
 
-                    .admission-header {
-                        font-weight: 600;
-                        font-size: 16px;
-                        color: #155bd5;
-                        margin-bottom: 6px;
-                        padding-left: 2px;
-                    }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
 
-                    .admission-details-table {
-                        width: 100%;
-                        font-size: 14px;
-                        border-collapse: collapse;
-                        margin-bottom: 8px;
-                        color: #155bd5;
-                    }
+        .photo-box {
+            border: 2px solid #004aad;
+            width: 120px;
+            height: 150px;
+            border-radius: 8px;
+            background: #f0f6ff;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            line-height: 150px;
+        }
 
-                    .admission-details-table td {
-                        padding: 4px 8px;
-                        vertical-align: middle;
-                        white-space: nowrap;
-                        height: 32px;
-                    }
+        hr {
+            border: none;
+            border-top: 2px dashed #1e88e5;
+            margin: 5px 0;
+        }
 
-                    .admission-details-table td strong {
-                        font-weight: 600;
-                        color: #155bd5;
-                    }
+        .admission-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 6px;
+        }
 
-                    .photo-box {
-                        border: 2px solid #155bd5;
-                        width: 120px;
-                        height: 150px;
-                        overflow: hidden;
-                        position: absolute;
-                        top: 30px;
-                        right: 30px;
-                        margin: 0;
-                        border-radius: 6px;
-                    }
+        .admission-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
 
-                    .photo-box img {
-                        width: 100%;
-                        height: auto;
-                    }
+        .admission-details-table td {
+            padding: 6px 10px;
+        }
 
-                    .form-section {
-                        margin-bottom: 25px;
-                    }
+        .admission-details-table td strong {
+            color: #004aad;
+        }
 
-                    .form-section table {
-                        width: 100%;
-                        font-size: 16px;
-                        border-collapse: collapse;
-                        color: #155bd5;
-                    }
+        .info-section {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
 
-                    .form-section td {
-                        padding: 6px;
-                        vertical-align: top;
-                    }
+        .info-section label {
+            display: inline-block;
+            width: 155px;
+            font-weight: 600;
+            color: #1e88e5;
+        }
 
-                    .signature-box {
-                        text-align: center;
-                        margin-top: 40px;
-                        color: #155bd5;
-                    }
+        .underline-input {
+            display: inline-block;
+            border-bottom: 1px solid #90caf9;
+            min-width: 200px;
+            padding: 2px 6px;
+            color: #000;
+            white-space: nowrap;
+        }
 
-                    .signature-box div {
-                        display: inline-block;
-                        width: 30%;
-                        border-top: 2px solid #155bd5;
-                        padding-top: 5px;
-                        font-weight: 600;
-                    }
+        .checkbox-label {
+            font-weight: 600;
+            margin-right: 12px;
+            color: #2e7d32;
+        }
 
-                    .letter-boxes,
-                    .multi-boxes {
-                        display: flex;
-                        gap: 3px;
-                        margin-top: 4px;
-                        flex-wrap: wrap;
-                    }
+        .checkbox-label input {
+            accent-color: #004aad;
+            margin-right: 4px;
+        }
 
-                    .letter-box,
-                    .single-box {
-                        width: 30px;
-                        height: 36px;
-                        border: 1px solid #155bd5;
-                        text-align: center;
-                        font-weight: bold;
-                        font-size: 18px;
-                        text-transform: uppercase;
-                        line-height: 36px;
-                        font-family: 'Courier New', Courier, monospace;
-                        color: #155bd5;
-                        background-color: #E8F0FE;
-                        /* Light Blue background */
-                    }
+        .education-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 15px;
+        }
 
-                    .info-section {
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        color: #155bd5;
-                        font-weight: 600;
-                        font-size: 14px;
-                        line-height: 1.4;
-                        margin-bottom: 12px;
-                    }
+        .education-table th {
+            background: #004aad;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            padding: 6px;
+            border: 1px solid #1565c0;
+        }
 
-                    .info-section label {
-                        display: inline-block;
-                        margin-right: 4px;
-                        color: #155bd5;
-                    }
+        .education-table td {
+            border: 1px solid #90caf9;
+            text-align: center;
+            padding: 6px;
+        }
 
-                    .info-section .underline-input {
-                        border-bottom: 2px solid #155bd5;
-                        padding: 0 6px;
-                        font-weight: 600;
-                        font-family: monospace;
-                        font-size: 16px;
-                        width: 140px;
-                        display: inline-block;
-                        vertical-align: middle;
-                        background-color: #F0F6FF;
-                        color: #155bd5;
-                    }
+        .education-table tbody tr:nth-child(even) {
+            background-color: #f4f8ff;
+        }
 
-                    .info-section .small-underline-input {
-                        width: 90px;
-                    }
+        .signature-box {
+            text-align: center;
+            margin-top: 35px;
+        }
 
-                    .info-section .checkbox-label {
-                        cursor: pointer;
-                        margin-right: 18px;
-                        font-weight: 600;
-                        vertical-align: middle;
-                        color: #155bd5;
-                    }
+        .signature-box div {
+            display: inline-block;
+            width: 30%;
+            border-top: 2px solid #004aad;
+            padding-top: 6px;
+            font-weight: 600;
+            color: #004aad;
+        }
 
-                    .education-table {
-                        width: 100%;
-                        margin-top: 12px;
-                        border-collapse: collapse;
-                        color: #155bd5;
-                        font-size: 15px;
-                    }
+        .footer-college-info {
+            text-align: center;
+            background: #004aad;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 0;
+            border-top: 3px solid #f57c00;
+            margin-top: 25px;
+            border-radius: 0 0 8px 8px;
+        }
 
-                    .education-table thead tr {
-                        background-color: #155bd5;
-                        color: #fff;
-                        font-weight: 700;
-                        text-align: center;
-                    }
+        /* ======= Print View ======= */
+        @media print {
 
-                    .education-table th,
-                    .education-table td {
-                        border: 1px solid #155bd5;
-                        padding: 8px 10px;
-                    }
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+                background: #fff;
+            }
 
-                    .education-table tbody tr:nth-child(even) {
-                        background-color: #E8F0FE;
-                    }
+            .container {
+                box-shadow: none;
+                border: 1px solid #000;
+                border-radius: 0;
+                margin: 0;
+                padding: 15mm;
+            }
 
-                    .education-table tbody tr td {
-                        text-align: center;
-                    }
+            .photo-box {
+                border: 1px solid #000;
+                background: none;
+            }
 
-                    .education-table tbody tr td:nth-child(2),
-                    .education-table tbody tr td:nth-child(4),
-                    .education-table tbody tr td:nth-child(6) {
-                        text-align: left;
-                        padding-left: 12px;
-                    }
+            .education-table th {
+                background: #004aad;
+                color: #fff;
+                font-weight: bold;
+                text-align: center;
+                padding: 6px;
+                border: 1px solid #1565c0;
+            }
 
-                    .footer-college-info {
-                        text-align: center;
-                        color: #155bd5;
-                        font-size: 22px;
-                        padding-top: 8px;
-                        font-weight: bold;
-                    }
+            .footer-college-info {
+                text-align: center;
+                background: #004aad;
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 10px 0;
+                border-top: 3px solid #f57c00;
+                margin-top: 25px;
+                border-radius: 0 0 8px 8px;
+            }
+            
 
-                    @page {
-                        margin: 0.5;
-                    }
 
-                    body {
-                        margin: 0.5;
-                        padding: 0.5;
-                        background: #fff;
-                        color: #155bd5;
-                    }
+        }
     </style>
+
+
 </head>
 
 <body>
-
-    <div class="container mt-3">
-        <div class="card">
-            <div class="card-body admission-form">
-
-                <h2>PVM BCA College</h2>
+    <div class="container">
+        <div class="header-section">
+            <div>
+                <h2>Shree Patel Vidhya Mandir Science College</h2>
                 <h4>Admission Form</h4>
-
-                {{-- Admission Details Header --}}
-                <div class="admission-header">Admission Details :</div>
-
-                {{-- Admission Details with photo --}}
-                <table class="admission-details-table">
-                    <tr>
-                        <td><strong>GR No. :</strong> {{ $admission->id }}</td>
-
-                        <td><strong>Adm. Date :</strong>
-
-                            {{ \Carbon\Carbon::parse($admission->created_at)->format('d/m/Y') }}</td>
-                        <td><strong>Course :</strong> {{ $course->course->course_name ?? '-' }}</td>
-
-                        <td rowspan="2" style="width: 130px; padding-left: 12px; vertical-align: middle;">
-                            <div class="photo-box">
-                                {{-- <img src=""> --}}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Fees :</strong> ₹{{ number_format($course->course->course_fees, 0) }}</td>
-
-
-                        <td><strong>Course Duration :</strong> {{ $course->course->course_year ?? '-' }} Years</td>
-
-                        <td></td>
-                    </tr>
-                </table>
-
-                <hr>
-
-                {{-- Student Full Name --}}
-                <div class="">
-                    <div class="full-name-label">
-                        <strong> Student's Full Name : (In Capital Letters) as per SSC Marksheet </strong>
-                    </div>
-                    <div class="letter-boxes">
-
-                        @foreach ($full_name_letters as $letter)
-                            <div class="letter-box">{{ $letter === ' ' ? '' : $letter }}</div>
-                        @endforeach
-                    </div>
-
-                </div>
-
-                {{-- Mother's Name --}}
-                <div class="">
-                    <div><strong>Mother's Name :</strong></div>
-                    <div class="multi-boxes" style="max-width: 300px;">
-                        @foreach ($mother_letters as $letter)
-                            <div class="single-box">{{ $letter }}</div>
-                        @endforeach
-                        @for ($i = count($mother_letters); $i < 16; $i++)
-                        @endfor
-                    </div>
-                </div>
-
-                {{-- Permanent Address --}}
-                <div class="">
-                    <div><strong>Permanent Address :</strong></div>
-                    <div class="form-section multi-boxes" style="max-width: 900px;">
-                        @foreach ($permanent_address_letters as $letter)
-                            <div class="single-box">{{ $letter === ' ' ? '' : $letter }}</div>
-                        @endforeach
-                    </div>
-                </div>
-
-
-                {{-- Contact & Personal Info --}}
-                <div class="form-section info-section">
-                    <div>
-                        <label>Contact No. (Self):</label>
-                        <span class="underline-input">{{ $admission->mobile_no ?? '' }}</span>
-
-                        <label>(Father):</label>
-                        <span class="underline-input"
-                            style="height: 23px">{{ $admission->parent_mobile_no ?? '' }}</span>
-
-                        <label>(Home):</label>
-                        <span class="underline-input"
-                            style="height: 23px">{{ $admission->other_mobile_no ?? '' }}</span>
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <label>E-mail ID :</label>
-                        <span class="underline-input" style="width: 260px;height: 23px">
-                            {{ $admission->email_address ?? '' }}
-                        </span>
-                    </div>
-
-                    <div style="margin-top: 6px;">
-                        <label>ABC ID :</label>
-                        <span class="underline-input"
-                            style="height: 23px">{{ $admission->apaar_id_abc_id ?? '' }}</span>
-                        <label style="margin-left: 20px;">Single Girl Child?</label>
-                        <label class="checkbox-label"><input type="checkbox" checked>Yes</label>
-                        <label class="checkbox-label"><input type="checkbox">No</label>
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <label>Date Of Birth :</label>
-                        <span
-                            class="underline-input">{{ \Carbon\Carbon::parse($admission->date_of_birth)->format('d/m/Y') ?? '' }}</span>
-                        <label style="margin-left: 20px;">Aadhaar No. :</label>
-                        <span class="underline-input"
-                            style="height: 23px">{{ $admission->aadhar_card_no ?? '' }}</span>
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <label>Sex:</label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" {{ $admission->gender === 'Male' ? 'checked' : '' }}> Male
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" {{ $admission->gender === 'Female' ? 'checked' : '' }}> Female
-                        </label>
-                        <label style="margin-left: 20px;">Status:</label>
-                        <label class="checkbox-label"><input type="checkbox">Married</label>
-                        <label class="checkbox-label"><input type="checkbox" checked>Unmarried</label>
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <label>Nationality :</label>
-                        <span class="underline-input small-underline-input">INDIAN</span>
-                        <label style="margin-left: 20px;">Caste :</label>
-                        <label class="checkbox-label"> <input type="checkbox"
-                                {{ $admission->category === 'OPEN' ? 'checked' : '' }}> OPEN</label>
-                        <label class="checkbox-label"> <input type="checkbox"
-                                {{ $admission->category === 'OBC' ? 'checked' : '' }}> OBC</label>
-                        <label class="checkbox-label"> <input type="checkbox"
-                                {{ $admission->category === 'SC' ? 'checked' : '' }}> SC</label>
-                        <label class="checkbox-label"> <input type="checkbox"
-                                {{ $admission->category === 'ST' ? 'checked' : '' }}> ST</label>
-                        <label class="checkbox-label"> <input type="checkbox"
-                                {{ $admission->category === 'EWS' ? 'checked' : '' }}> EWS</label>
-
-                    </div>
-                    <div style="margin-top: 6px;">
-                        <label>Sub cast :</label>
-                        <span class="underline-input small-underline-input" style="height: 23px"></span>
-                        <label style="margin-left: 20px;">Religion :</label>
-                        <span class="underline-input small-underline-input">HINDU</span>
-                    </div>
-                </div>
-
-                {{-- Educational Details --}}
-                <div class="form-section">
-                    <strong style="color: black; font-size: 18px;">Educational Details:</strong>
-                    <table class="education-table" cellpadding="6" cellspacing="0" border="1">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Exam</th>
-                                <th>Year &amp; Month of Passing</th>
-                                <th>Board/University</th>
-                                <th>Result with %</th>
-                                <th>Remark / Seat No.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($admission->educationDetails as $index => $edu)
-                                <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $edu->education }}</td>
-                                    <td>{{ $edu->passing_year ?? '-' }}</td>
-                                    <td>{{ $edu->board_university ?? '-' }}</td>
-                                    <td>{{ $edu->percentage_cgpa ?? '-' }}</td>
-                                    <td>{{ $edu->seat_no_nrollment_no ?? '-' }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" style="text-align:center;">No records found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-
-
-                <div class="signature-box">
-                    <div>Applicant's Signature</div>
-                    <div>Parent's Signature</div>
-                    <div>Principal</div>
-                </div>
-                <div class="footer-college-info">
-                    PVM BCA College, Veraval Road, KESHOD. Mo. 96874 51774
-                </div>
-
             </div>
+            <div class="photo-box"></div>
+        </div>
+
+        <div class="admission-header">Admission Details:</div>
+        <table class="admission-details-table">
+            <tr>
+                <td style="width: 141px;"><strong>GR No. :</strong> {{ $admission->id }}</td>
+                <td style="width: 195px;"><strong>Adm. Date :</strong> {{ '-' }}</td>
+                <td><strong>Course :</strong> {{ $course->course->course_name ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Fees :</strong> ₹{{ number_format($course->course->course_fees, 0) }}</td>
+                <td><strong>Course Duration :</strong> {{ $course->course->course_year ?? '-' }} Years</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <div class="info-section">
+            <label>Student's Full Name :</label>
+            <span class="underline-input">
+                {{ strtoupper($admission->first_name ?? '') }}
+                {{ strtoupper($admission->last_name ?? '') }}
+                {{ strtoupper($admission->father_name ?? '') }}
+            </span>
+        </div>
+
+        <div class="info-section">
+            <label>Mother's Name :</label>
+            <span class="underline-input">{{ $admission->mother_name ?? '' }}</span>
+        </div>
+
+        <div class="info-section">
+            <label>Permanent Address :</label>
+            <span class="underline-input">{{ $admission->permanent_address ?? '' }}</span>
+        </div>
+
+        <div class="info-section">
+            <label>Contact No. (Self):</label>
+            <span class="underline-input">{{ $admission->mobile_no ?? '' }}</span>
+            <label style="margin-left: 15px;">(Father):</label>
+            <span class="underline-input">{{ $admission->parent_mobile_no ?? '' }}</span>
+        </div>
+
+        <div class="info-section">
+            <label>Email:</label>
+            <span class="underline-input">{{ $admission->email_address ?? '' }}</span>
+        </div>
+
+        <div class="info-section">
+            <label>Date of Birth:</label>
+            <span
+                class="underline-input">{{ \Carbon\Carbon::parse($admission->date_of_birth)->format('d/m/Y') ?? '' }}</span>
+            <label style="margin-left: 15px;">Aadhaar No.:</label>
+            <span class="underline-input">{{ $admission->aadhar_card_no ?? '' }}</span>
+        </div>
+
+        <div class="info-section">
+            <label>Gender:</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->gender === 'Male' ? 'checked' : '' }}>Male</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->gender === 'Female' ? 'checked' : '' }}>Female</label>
+        </div>
+
+        <div class="info-section">
+            <label>Caste:</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'OPEN' ? 'checked' : '' }}>OPEN</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'OBC' ? 'checked' : '' }}>OBC</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'SC' ? 'checked' : '' }}>SC</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'ST' ? 'checked' : '' }}>ST</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'EWS' ? 'checked' : '' }}>EWS</label>
+            <label class="checkbox-label"><input type="checkbox"
+                    {{ $admission->category === 'General' ? 'checked' : '' }}>General</label>
+        </div>
+
+        <div class="form-section">
+            <strong style="font-size: 18px; color: #1565c0;">Educational Details:</strong>
+            <table class="education-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Exam</th>
+                        <th>Year & Month of Passing</th>
+                        <th>Board/University</th>
+                        <th>Result with %</th>
+                        <th>Remark / Seat No.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($admission->educationDetails as $index => $edu)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $edu->education }}</td>
+                            <td>{{ $edu->passing_year ?? '-' }}</td>
+                            <td>{{ $edu->board_university ?? '-' }}</td>
+                            <td>{{ $edu->percentage_cgpa ?? '-' }}</td>
+                            <td>{{ $edu->seat_no_nrollment_no ?? '-' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">No records found</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="signature-box">
+            <div>Applicant's Signature</div>
+            <div>Parent's Signature</div>
+            <div>Principal</div>
+        </div>
+
+        <div class="footer-college-info">
+            Shree Patel Vidhya Mandir Science College - Keshod | Mo. 96874 51774
         </div>
     </div>
-
 </body>
 
 </html>
