@@ -60,7 +60,7 @@ class MasterSubjectController extends Controller
 
             if ($request->ajax()) {
                $data = MasterSubject::withTrashed()
-            ->orderBy('id', 'desc'); 
+            ->orderBy('id', 'desc');
                 // dd('hello');
 
                 return Datatables::of($data)
@@ -218,9 +218,16 @@ class MasterSubjectController extends Controller
     }
 
 
-    public function destroy(MasterSubjectRequest $request, string $id)
+      public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$modules['permission_delete']) {
+            if (isset($request) && $request->ajax()) {
+                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
         $isAjax = $request->ajax();
 
         try {
@@ -262,4 +269,5 @@ class MasterSubjectController extends Controller
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+
 }

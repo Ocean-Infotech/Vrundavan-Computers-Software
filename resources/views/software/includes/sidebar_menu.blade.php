@@ -297,7 +297,7 @@
                     @directCanAny(['subject-list', 'subject-create', 'subject-edit', 'subject-delete'])
                         <li class="menu-item {{ $sidebar_active == 'subject' ? 'active' : '' }}">
                             <a href="{{ route('subject.index') }}" class="menu-link">
-                                <div data-i18n="Subject Master">Subject Master</div>
+                                <div data-i18n="Request Subject">Request Subject</div>
                             </a>
                         </li>
                     @enddirectCanAny
@@ -308,7 +308,7 @@
                     ])
                         <li class="menu-item {{ $sidebar_active == 'student-requests' ? 'active' : '' }}">
                             <a href="{{ route('student-requests.index') }}" class="menu-link">
-                                <div data-i18n="Student Requests">Student Requests</div>
+                                <div data-i18n="Student Requests List">Student Requests List</div>
                             </a>
                         </li>
                     @enddirectCanAny
