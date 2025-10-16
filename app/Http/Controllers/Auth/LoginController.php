@@ -114,7 +114,7 @@ class LoginController extends Controller
             //     return Redirect::route('software.dashboard')
             //         ->with('success', 'Login successful! Token loaded from database.');
             // }
-            return Redirect::route('software.dashboard')->with('success', 'Login successful! No token returned.');
+            return Redirect::route('software.dashboard')->with('success', 'Login successful!');
 
             try {
                 $apiResponse = Http::post('http://192.168.31.5:98/api/Auth/Login', [
