@@ -157,26 +157,149 @@
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Name:</strong> <span class="text-uppercase" id="modalName"></span></p>
+                        <div id="courseDetailsHeader" class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-7">
+                                        <div class="container">
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>GR No:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalGRNo">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Name:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalFullName">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Course:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalCourse">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Class:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalClass">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>University:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalUniversity">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>Enrollment No:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalEnrollNo">-</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>UDISE/ABC ID:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalUdiseABC">-</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <p class="mb-1"><strong>DOJ:</strong></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p class="mb-1" id="modalDOJ">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Department:</strong></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1" id="modalDepartment2">-</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Shift:</strong></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1" id="modalShift">-</p>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>SPID:</strong></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1" id="modalSPID2">-</p>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>DOC:</strong></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1" id="modalDOC">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                     <div class="">
-                        <table class="table table-bordered table-hover">
+                        <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Addm ID</th>
+                                    {{-- <th>Addm ID</th>
                                     <th>Course</th>
                                     <th>DOJ</th>
-                                    <th>DOC</th>
+                                    <th>DOC</th> --}}
                                     @if ($fees_collection_create == 'true')
-                                        <th>Fees</th>
+                                        {{-- <th>Fees</th> --}}
                                     @endif
-                                    <th>Form</th>
+                                    {{-- <th>Form</th> --}}
                                     @if ($fees_collection_edit == 'true')
-                                        <th>Update</th>
+                                        {{-- <th>Update</th> --}}
                                     @endif
-                                    <th>Status</th>
+                                    {{-- <th>Status</th> --}}
                                 </tr>
                             </thead>
 
@@ -235,7 +358,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                            <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -326,114 +449,143 @@
                 },
                 dataType: "json",
                 success: function(response) {
-                    console.log(response);
-
                     if (response.success) {
                         let courses = response.courses;
                         let student = response.student;
+                        console.log(student);
 
                         if (courses.length > 0) {
-                            // Set student name
+
+                            // ===== Populate Header =====
+                            $('#modalGRNo').text(student.id ?? '-');
+                            $('#modalFullName').text(
+                                `${student.last_name} ${student.first_name} ${student.father_name}`
+                                .toUpperCase());
+
+                            let courseNames = courses.map(c =>
+                                `${c.course.course_name}`
+                            ).join(', ');
+                            $('#modalCourse').text(courseNames);
+
+                            $('#modalClass').text(courses[0]?.class?.class ?? '-');
+
+                            // Shift (from_time - to_time)
+                            let shiftTime = courses[0]?.shift ?
+                                `${courses[0].shift.from_time} - ${courses[0].shift.to_time}` :
+                                '-';
+                            $('#modalShift').text(shiftTime);
+
+                            $('#modalUniversity').text(courses[0]?.university ?? '-');
+                            $('#modalDepartment2').text(courses[0]?.department ?? '-');
+
+                            $('#modalEnrollNo').text(student.enrolment_no ?? '-');
+                            $('#modalSPID2').text(student.spid ?? '-');
+                            $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
+
+                            // Using first course for DOJ/DOC
+                            let firstCourse = courses[0];
+                            let doj = firstCourse.created_at ? moment(firstCourse.created_at).format(
+                                'DD-MM-YYYY') : '-';
+                            let doc = (firstCourse.status === 'Completed' && firstCourse.updated_at) ?
+                                moment(firstCourse.updated_at).format('DD-MM-YYYY') : '-';
+                            $('#modalDOJ').text(doj);
+                            $('#modalDOC').text(doc);
+
+                            // ===== Set student name for table =====
                             $('#modalName').text(
                                 `${student.first_name} ${student.father_name} ${student.last_name}`);
 
                             // Clear previous table rows
                             $('#courseData').empty();
 
-                            // Loop and append course rows
+                            // ===== Append course rows =====
+                            $('#courseData').empty(); // Clear previous data
+
                             courses.forEach(function(course) {
-                                // Format DOJ from created_at
                                 let doj = course.created_at ? moment(course.created_at).format(
                                     'DD-MM-YYYY') : '-';
-
-                                // Format DOC - show updated_at only if status is 'Completed'
                                 let doc = (course.status === 'Completed' && course.updated_at) ?
-                                    moment(course.updated_at).format('DD-MM-YYYY') :
-                                    '-';
+                                    moment(course.updated_at).format('DD-MM-YYYY') : '-';
 
-                                let row = `
-                            <tr>
-                                <td>${course.id}</td>
-                                <td>${course.course.course_name}</td>
-                                <td>${doj}</td>
-                                <td>${doc}</td>`;
+                                let row = `<div class="row mb-3">`;
 
+                                // ===== Fees Button =====
                                 if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
-                                    row += `
-                                    <td>
-                                        <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
-                                    </td>`;
+                                    row += `<div class="col-md-3 mb-2">
+                    <button type="button" class="btn btn-success w-100 collectFees" data-id="${course.id}">
+                        Fees
+                    </button>
+                </div>`;
                                 }
 
-                                row += `
-                                <td>
-                                    <button type="button"
-                                        class="btn btn-primary btn-sm formBtn"
-                                        data-register_id="${course.register_id}"
-                                        data-course_id="${course.course_id}">
-                                        Form
-                                    </button>
-                                </td>`;
+                                // ===== Form Button =====
+                                row += `<div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-primary w-100 formBtn"
+                    data-register_id="${course.register_id}"
+                    data-course_id="${course.course_id}">
+                    Form
+                </button>
+            </div>`;
 
+                                // ===== Update Button =====
                                 if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
-                                    row += `
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
-                                </td>`;
+                                    row += `<div class="col-md-3 mb-2">
+                    <button type="button" class="btn btn-warning w-100 updateBtn"
+                        data-register_id="${course.register_id}"
+                        data-course_id="${course.course_id}">
+                        Update
+                    </button>
+                </div>`;
                                 }
 
+                                // ===== Status Dropdown =====
                                 let statusOptions = ['Running', 'Completed', 'Cancel'];
                                 let currentStatus = course.status ?? '';
-
-                                let statusClass =
-                                    currentStatus === 'Running' ? 'btn-primary' :
+                                let statusClass = currentStatus === 'Running' ? 'btn-primary' :
                                     currentStatus === 'Completed' ? 'btn-success' :
-                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+                                    currentStatus === 'Cancel' ? 'btn-danger' :
+                                    'btn-secondary';
 
-                                let statusDropdown = `
-<div class="btn-group">
-    <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle"
-        data-bs-toggle="dropdown" aria-expanded="false">
-        ${currentStatus || 'Select Status'}
-    </button>
-    <ul class="dropdown-menu">`;
+                                let statusDropdown = `<div class="btn-group w-100">
+        <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100"
+            data-bs-toggle="dropdown" aria-expanded="false" style="height: 37px";>
+            ${currentStatus || 'Select Status'}
+        </button>
+        <ul class="dropdown-menu w-100">`;
 
                                 statusOptions.forEach(function(option) {
                                     if (option !== currentStatus) {
-                                        statusDropdown += `
-        <li>
-            <a href="javascript:void(0)"
-               class="dropdown-item update-status"
-               data-register_id="${course.register_id}"
-               data-course_id="${course.course_id}"
-               data-update_status="${option}">
-                ${option}
-            </a>
-        </li>`;
+                                        statusDropdown += `<li>
+                <a href="javascript:void(0)" class="dropdown-item update-status"
+                    data-register_id="${course.register_id}"
+                    data-course_id="${course.course_id}"
+                    data-update_status="${option}">
+                    ${option}
+                </a>
+            </li>`;
                                     }
                                 });
 
                                 statusDropdown += `</ul></div>`;
 
-                                row += `
-<td>
-    ${statusDropdown}
-</td>`;
+                                row += `<div class="col-md-3 mb-2">${statusDropdown}</div>`;
+                                row += `</div>`; // close row
 
                                 $('#courseData').append(row);
                             });
 
                             $('#course').modal('show');
+
                         } else {
                             if ("{{ $course_register_add ?? 'false' }}" == 'true') {
                                 toastr.warning("User does not have the right permissions.");
                                 return;
                             }
-
                             // No course found, redirect
                             window.location.href =
                                 "{{ url('software/cource-registration/create') }}/" + student.id;
                         }
+
                     } else {
                         toastr.error(response.message || 'Student not found');
                     }
@@ -444,6 +596,7 @@
                 }
             });
         });
+
 
 
         // Setup CSRF token for AJAX
@@ -663,54 +816,59 @@
                                 if (resp.success && resp.courses.length > 0) {
                                     let courses = resp.courses;
 
-                                    // Clear previous rows
+                                    // Clear previous data
                                     $('#courseData').empty();
 
                                     courses.forEach(function(course) {
-                                        // Format DOJ from created_at
+                                        // Format DOJ & DOC
                                         let doj = course.created_at ? moment(course
                                                 .created_at).format('DD-MM-YYYY') :
                                             '-';
-
-                                        // Format DOC - show updated_at only if status is 'Completed'
                                         let doc = (course.status === 'Completed' &&
                                                 course.updated_at) ?
                                             moment(course.updated_at).format(
                                                 'DD-MM-YYYY') :
                                             '-';
 
-                                        let row = `
-                                    <tr>
-                                        <td>${course.id}</td>
-                                        <td>${course.course.course_name}</td>
-                                        <td>${doj}</td>
-                                        <td>${doc}</td>`;
+                                        // Start row
+                                        let row =
+                                            `<div class="row mb-3 align-items-center">`;
 
+                                        // ===== Fees Button =====
                                         if ("{{ $fees_collection_create ?? 'false' }}" ==
                                             "true") {
                                             row += `
-                                        <td>
-                                            <button type="button" class="btn btn-success btn-sm collectFees" data-id="${course.id}">Fees</button>
-                                        </td>`;
+                    <div class="col-md-3 mb-2">
+                        <button type="button" class="btn btn-success w-100 collectFees" data-id="${course.id}">
+                            Fees
+                        </button>
+                    </div>`;
                                         }
 
+                                        // ===== Form Button =====
                                         row += `
-                                    <td>
-                                        <button type="button" class="btn btn-primary btn-sm formBtn"
-                                            data-register_id="${course.register_id}"
-                                            data-course_id="${course.course_id}">
-                                            Form
-                                        </button>
-                                    </td>`;
+                <div class="col-md-3 mb-2">
+                    <button type="button" class="btn btn-primary w-100 formBtn"
+                        data-register_id="${course.register_id}"
+                        data-course_id="${course.course_id}">
+                        Form
+                    </button>
+                </div>`;
 
+                                        // ===== Update Button =====
                                         if ("{{ $fees_collection_edit ?? 'false' }}" ==
                                             "true") {
                                             row += `
-                                        <td>
-                                            <button type="button" class="btn btn-warning btn-sm updateBtn" data-register_id="${course.register_id}" data-course_id="${course.course_id}">Update</button>
-                                        </td>`;
+                    <div class="col-md-3 mb-2">
+                        <button type="button" class="btn btn-warning w-100 updateBtn"
+                            data-register_id="${course.register_id}"
+                            data-course_id="${course.course_id}">
+                            Update
+                        </button>
+                    </div>`;
                                         }
 
+                                        // ===== Status Dropdown =====
                                         let statusOptions = ['Running', 'Completed',
                                             'Cancel'
                                         ];
@@ -723,33 +881,38 @@
                                             currentStatus === 'Cancel' ?
                                             'btn-danger' : 'btn-secondary';
 
-                                        let statusDropdown = `<div class="btn-group">
-                                    <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        ${currentStatus || 'Select Status'}
-                                    </button>
-                                    <ul class="dropdown-menu">`;
+                                        let statusDropdown = `<div class="btn-group w-100">
+                <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100" style="height: 37px";
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    ${currentStatus || 'Select Status'}
+                </button>
+                <ul class="dropdown-menu w-100">`;
 
                                         statusOptions.forEach(function(option) {
                                             if (option !== currentStatus) {
                                                 statusDropdown += `
-                                        <li>
-                                            <a href="javascript:void(0)"
-                                                class="dropdown-item update-status"
-                                                data-register_id="${course.register_id}"
-                                                data-course_id="${course.course_id}"
-                                                data-update_status="${option}">
-                                                ${option}
-                                            </a>
-                                        </li>`;
+                        <li>
+                            <a href="javascript:void(0)" class="dropdown-item update-status"
+                                data-register_id="${course.register_id}"
+                                data-course_id="${course.course_id}"
+                                data-update_status="${option}">
+                                ${option}
+                            </a>
+                        </li>`;
                                             }
                                         });
 
                                         statusDropdown += `</ul></div>`;
-                                        row += `<td>${statusDropdown}</td>`;
 
+                                        row +=
+                                            `<div class="col-md-3 mb-2">${statusDropdown}</div>`;
+                                        row += `</div>`; // close row
+
+                                        // Append the constructed row to container
                                         $('#courseData').append(row);
                                     });
+                                } else {
+                                    toastr.warning('No courses found for this student.');
                                 }
                             },
                             error: function(err) {

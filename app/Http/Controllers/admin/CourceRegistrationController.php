@@ -10,6 +10,7 @@ use App\Models\Admission;
 use App\Models\CourceRegistration;
 use App\Http\Requests\CourceRegistrationRequest;
 use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterDepartment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -241,7 +242,11 @@ class CourceRegistrationController extends Controller
 
         try {
             $coursereg = $request->validated();
-
+   if (!empty($coursereg['department'])) {
+            $departmentName = MasterDepartment::where('id', $coursereg['department'])
+                ->value('name');
+            $coursereg['department'] = $departmentName ?? null;
+        }
             // Format the date if provided
             if (!empty($coursereg['date'])) {
                 $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
@@ -279,22 +284,32 @@ class CourceRegistrationController extends Controller
         $modules = $this->modules;
         $modules['login_user_role'] = Helper::getLoginUserRole();
         $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+
         if (!$modules['permission_edit']) {
-            if (isset($request) && $request->ajax()) {
+            if (request()->ajax()) {
                 return $this->sendError('User does not have the right permissions.', [], [], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
-        View::share('modules', $modules);
-        try {
 
+        View::share('modules', $modules);
+
+        try {
             $admissions = Admission::all();
             $edit = CourceRegistration::findOrFail($id);
-            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'admissions'));
+
+            // Pass universities from model
+            $universities = CourceRegistration::$universities;
+
+            return view(
+                $modules['folder_path'] . '.form',
+                compact('modules', 'edit', 'admissions', 'universities')
+            );
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -319,6 +334,7 @@ class CourceRegistrationController extends Controller
         try {
             $validated['updated_by'] = Auth::user()->id;
             // return $validated;
+            // dd($request->all(),$validated);
             $updateData = CourceRegistration::findOrFail($id);
             if ($updateData) {
                 unset($validated['id']);

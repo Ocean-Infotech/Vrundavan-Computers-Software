@@ -421,7 +421,7 @@ class AdmissionController extends Controller
     {
         $student = Admission::withTrashed()->find($request->id);
 
-        $studentCourses = CourceRegistration::with(['course'])
+        $studentCourses = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
             ->withTrashed()
             ->where('register_id', $request->id)
             ->get();
@@ -476,7 +476,7 @@ class AdmissionController extends Controller
             abort(403, 'User does not have the right permissions.');
         }
         $validated = $request->validated();
-
+// dd($validated,$request->all());
         $token = Session::get('external_api_token');
         try {
             $loginUserId = Auth::user()->id;
@@ -488,7 +488,7 @@ class AdmissionController extends Controller
                 $file = $request->file('profile_pic');
 
                 $firstName = $request->input('first_name');
-                $profileName = $request->input('last_name'); 
+                $profileName = $request->input('last_name');
                 $folderName = $firstName . '_' . $profileName;
 
                 $destinationPath = public_path('uploads/profile_pics/' . $folderName);

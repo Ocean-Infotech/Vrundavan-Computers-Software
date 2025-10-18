@@ -26,6 +26,7 @@ use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\MasterClassController;
+use App\Http\Controllers\admin\master\MasterDepartmentController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
@@ -130,6 +131,10 @@ Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
 
+/** Master Department Modules */
+Route::resource('/department', MasterDepartmentController::class);
+Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
+Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
 
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);

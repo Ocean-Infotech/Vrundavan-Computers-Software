@@ -118,7 +118,7 @@ class FeescollectionpendingController extends Controller
 
                 $data = $dataQuery->get();
 
-                $allRegistrations = CourceRegistration::with('course')
+                $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
                     ->whereIn('register_id', $data->pluck('register_id'))
                     ->get()
                     ->groupBy('register_id');
@@ -151,7 +151,7 @@ class FeescollectionpendingController extends Controller
                         })->implode('<br> ');
                     })
 
-                    
+
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
                         $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
                         return '₹' . number_format($total_fee, 2);
@@ -267,7 +267,7 @@ class FeescollectionpendingController extends Controller
 
             $data = $dataQuery->get();
 
-            $allRegistrations = CourceRegistration::with('course')
+            $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
                 ->whereIn('register_id', $data->pluck('register_id'))
                 ->get()
                 ->groupBy('register_id');
@@ -375,7 +375,7 @@ class FeescollectionpendingController extends Controller
 
         $data = $dataQuery->get();
 
-        $allRegistrations = CourceRegistration::with('course')
+        $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
             ->whereIn('register_id', $data->pluck('register_id'))
             ->get()
             ->groupBy('register_id');

@@ -51,16 +51,27 @@
                 @endisset
 
                 <div class="row">
+
                     <div class="col-md-6 col-sm-12">
+                        <h2 style="color: #101010; font-weight: bold; text-align: center; margin-bottom: 20px;">
+                            Student Name :
+                            <label id="StudentName" style="font-weight: 400; text-transform: uppercase;"></label>
+                        </h2>
                         <div class="row">
                             {{-- University --}}
+
                             <div class="col-md-12 mb-3">
                                 <div class="form-group">
                                     <label for="university">University <span class="text-danger">*</span></label>
-                                    <input type="text" name="university" id="university"
-                                        class="form-control @error('university') is-invalid @enderror"
-                                        value="{{ old('university', $edit->university ?? '') }}"
-                                        placeholder="Enter University Name">
+                                    <select name="university" id="university"
+                                        class="form-control select2 @error('university') is-invalid @enderror">
+                                        @foreach ($universities as $uni)
+                                            <option value="{{ $uni }}"
+                                                {{ old('university', $edit->university ?? 'Vrundavan Computers') == $uni ? 'selected' : '' }}>
+                                                {{ $uni }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     @error('university')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -71,23 +82,28 @@
                             <div class="col-md-12 mb-3">
                                 <div class="form-group">
                                     <label for="department">Department <span class="text-danger">*</span></label>
-                                    <input type="text" name="department" id="department"
-                                        class="form-control @error('department') is-invalid @enderror"
-                                        value="{{ old('department', $edit->department ?? '') }}"
-                                        placeholder="Enter Department Name">
+                                    <select name="department" id="department"
+                                        class="form-control search_by_department @error('department') is-invalid @enderror select2"
+                                        data-selected-department-id="{{ old('department', $edit->department ?? '') }}"
+                                        required>
+                                        <option value="">Select Department</option>
+                                    </select>
+
+
                                     @error('department')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
 
+
                             {{-- Register No --}}
                             <div class="col-md-12 mb-3">
                                 <div class="form-group">
-                                    <label for="register_no">Select Student<span class="text-danger">*</span></label>
+                                    <label for="register_no">GR No<span class="text-danger">*</span></label>
 
                                     <input list="registers_id" id="register_id" name="register_id"
-                                        class="form-control @error('register_id') is-invalid @enderror"
+                                        class="form-control bg-light readonly @error('register_id') is-invalid @enderror"
                                         value="{{ old('register_id', '' . ($edit->register_id ?? ($student->id ?? ($admission_id ?? '')))) }}"
                                         placeholder="Register No. ">
 
@@ -259,10 +275,7 @@
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-12" id="{{ isset($edit) ? '' : 'RegisterCource' }}">
-                        <p style="color: #101010; font-weight: bold;">
-                            Student Name :
-                            <label id="StudentName" style="font-weight: 400; text-transform: uppercase;"></label>
-                        </p>
+
 
                         <table class="table table-bordered" id="RegisterCourceTable">
                             <thead>
@@ -378,13 +391,14 @@
 
 @section('page_leavel_script')
     @include('software.utils.getCourse')
+    @include('software.utils.getDepartment')
     @include('software.utils.getBatchByCourseid')
     @include('software.utils.getClassByBatch')
     @include('software.utils.getShiftByBatchByCourseidByClass')
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 

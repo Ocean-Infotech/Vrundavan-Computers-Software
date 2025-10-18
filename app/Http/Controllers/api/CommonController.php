@@ -12,6 +12,7 @@ use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterClass;
+use App\Models\Master\MasterDepartment;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
@@ -158,6 +159,28 @@ class CommonController extends Controller
             return $this->sendError($e->getMessage());
         }
         return $this->sendError("Something want to wrong in register API");
+    }
+
+    public function get_department(Request $request)
+    {
+        try {
+            $data = MasterDepartment::where('status', 'active')
+                ->orderBy('name', 'ASC')
+                ->get();
+
+            $data = $data->map(function ($row) {
+                return [
+                    'id' => $row?->id . "",
+                    'name' => $row?->name . "",
+                ];
+            });
+
+            return $this->sendResponse($data, "Department list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendError("Something went wrong in Department API");
     }
 
     public function get_admission(Request $request)
