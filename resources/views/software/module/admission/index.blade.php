@@ -90,12 +90,13 @@
                             </th>
                         </tr>
                         <tr>
-                            <th><b>Full Name:</b> <span id="fullname" class="text-uppercase"></span></th>
-                            <th><b>Father Name:</b> <span id="FatherName" class="text-uppercase"></span></th>
+                               <th><b>Surname:</b> <span id="modalSurname" class="text-uppercase"></span></th>
+    <th><b>Name:</b> <span id="modalName" class="text-uppercase"></span></th>
                             {{-- <th><b>Mother Name:</b> <span id="MotherName" class="text-uppercase"></span></th> --}}
                         </tr>
 
                         <tr>
+                            <th><b>Father Name:</b> <span id="FatherName" class="text-uppercase"></span></th>
                             <th colspan="2"><b>Mother Name:</b> <span id="MotherName" class="text-upercase"></span></th>
                         </tr>
                         <tr>
@@ -408,8 +409,9 @@
                                 $('#modalDOB').text('-');
                             }
                             $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#fullname').text((data.last_name + ' ' + data.first_name + ' ' + data
-                                .father_name).toUpperCase() ?? '-');
+                           $('#modalSurname').text(data.last_name?.toUpperCase() ?? '-');
+$('#modalName').text(data.first_name?.toUpperCase() ?? '-');
+
                             $('#FatherName').text(data.father_name ?? '-');
                             $('#MotherName').text(data.mother_name ?? '-');
                             $('#modalGender').text(data.gender ?? '-');
