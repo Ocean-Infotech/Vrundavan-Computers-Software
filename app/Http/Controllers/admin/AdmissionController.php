@@ -476,7 +476,12 @@ class AdmissionController extends Controller
             abort(403, 'User does not have the right permissions.');
         }
         $validated = $request->validated();
-// dd($validated,$request->all());
+        $validated['first_name']  = strtoupper($validated['first_name']);
+        $validated['last_name']   = strtoupper($validated['last_name']);
+        $validated['father_name'] = strtoupper($validated['father_name']);
+        $validated['mother_name'] = strtoupper($validated['mother_name']);
+
+        // dd($validated,$request->all());
         $token = Session::get('external_api_token');
         try {
             $loginUserId = Auth::user()->id;
@@ -1028,5 +1033,45 @@ class AdmissionController extends Controller
 
         // dd($course);
         return view($modules['folder_path'] . '.view', compact('admission', 'course'));
+    }
+    public function checkAadharDuplicate(Request $request)
+    {
+        $aadharCardNo = $request->input('aadhar_card_no');
+        $editId = $request->input('edit_id');
+
+        // Remove spaces
+        $aadharCardNo = str_replace(' ', '', $aadharCardNo);
+
+        $query = Admission::where('aadhar_card_no', $aadharCardNo);
+
+        if ($editId) {
+            $query->where('id', '!=', $editId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Aadhaar card number already exists' : ''
+        ]);
+    }
+
+    public function checkMobileDuplicate(Request $request)
+    {
+        $mobileNo = $request->input('mobile_no');
+        $editId = $request->input('edit_id');
+
+        $query = Admission::where('mobile_no', $mobileNo);
+
+        if ($editId) {
+            $query->where('id', '!=', $editId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Mobile number already exists' : ''
+        ]);
     }
 }

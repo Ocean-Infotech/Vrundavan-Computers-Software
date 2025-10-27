@@ -465,7 +465,16 @@
                                 rows += '<tr>';
                                 rows += '<td>' + item.id + '</td>';
                                 rows += '<td>' + item.course.course_name + '</td>';
-                                rows += '<td>' + item.date + '</td>';
+                             let formattedDate = "";
+if(item.date){
+    let d = new Date(item.date);
+    let day = ("0" + d.getDate()).slice(-2);
+    let month = ("0" + (d.getMonth() + 1)).slice(-2);
+    let year = d.getFullYear();
+    formattedDate = day + "-" + month + "-" + year;
+}
+rows += '<td>' + formattedDate + '</td>';
+
                                 rows += '</tr>';
                             });
                         } else {
@@ -655,7 +664,16 @@
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.course.course_name + '</td>';
-                                    rows += '<td>' + item.date + '</td>';
+                                 let formattedDate = "";
+if(item.date){
+    let d = new Date(item.date);
+    let day = ("0" + d.getDate()).slice(-2);
+    let month = ("0" + (d.getMonth() + 1)).slice(-2);
+    let year = d.getFullYear();
+    formattedDate = day + "-" + month + "-" + year;
+}
+rows += '<td>' + formattedDate + '</td>';
+
                                     rows += '</tr>';
                                 });
                             } else {

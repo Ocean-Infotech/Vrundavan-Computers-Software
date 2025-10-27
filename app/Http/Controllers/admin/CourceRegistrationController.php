@@ -201,6 +201,9 @@ class CourceRegistrationController extends Controller
             View::share('admission_id', Session::get('admission_id'));
             // Session::remove('admission_id');
         }
+        $universities = CourceRegistration::$universities;
+        View::share('universities', $universities);
+
         // dd($modules, request()->all(), Session::get('admission_id'), $admissions,$admission_id);
         return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
     }
@@ -242,11 +245,11 @@ class CourceRegistrationController extends Controller
 
         try {
             $coursereg = $request->validated();
-   if (!empty($coursereg['department'])) {
-            $departmentName = MasterDepartment::where('id', $coursereg['department'])
-                ->value('name');
-            $coursereg['department'] = $departmentName ?? null;
-        }
+            // if (!empty($coursereg['department'])) {
+            //     $departmentName = MasterDepartment::where('id', $coursereg['department'])
+            //         ->value('name');
+            //     $coursereg['department'] = $departmentName ?? null;
+            // }
             // Format the date if provided
             if (!empty($coursereg['date'])) {
                 $coursereg['date'] = Carbon::parse($coursereg['date'])->format('Y-m-d');
@@ -260,7 +263,7 @@ class CourceRegistrationController extends Controller
             // return $coursereg;
             CourceRegistration::create($coursereg);
 
-            // dd($coursereg,$request->all());
+            dd($coursereg, $request->all());
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
