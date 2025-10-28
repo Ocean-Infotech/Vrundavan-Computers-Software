@@ -151,37 +151,36 @@
             dtable.draw();
         });
         $(document).on('change', '.row-checkbox', function() {
-    let id = $(this).val();
-    let status = $(this).is(':checked') ? 1 : 0;
+            let id = $(this).val();
+            let status = $(this).is(':checked') ? 1 : 0;
 
-    $.ajax({
-        url: "{{ route('fee-history.update-status') }}",
-        type: "POST",
-        data: {
-            id: id,
-            status: status,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            if (response.success) {
-                toastr.options = {
-                    "closeButton": true,
-                    "progressBar": true,
-                    "positionClass": "toast-top-right",
-                    "timeOut": "2000"
-                };
-                toastr.success(response.message);
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function(xhr) {
-            toastr.error('Something went wrong while updating status.');
-            console.error('AJAX Error:', xhr.responseText);
-        }
-    });
-});
-
+            $.ajax({
+                url: "{{ route('fee-history.update-status') }}",
+                type: "POST",
+                data: {
+                    id: id,
+                    status: status,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "2000"
+                        };
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('Something went wrong while updating status.');
+                    console.error('AJAX Error:', xhr.responseText);
+                }
+            });
+        });
     </script>
 
     @include('software.utils.getAdmission')

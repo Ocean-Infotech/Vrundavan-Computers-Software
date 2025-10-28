@@ -1,4 +1,7 @@
 |-------------------------------------------- Local
+28-10-2025
+ALTER TABLE fees_collections
+ADD COLUMN checked_status TINYINT(1) NOT NULL DEFAULT 0 AFTER password;
 
 
 |-------------------------------------------- Live
