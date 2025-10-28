@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('cheque_no')->nullable();
             $table->string('return_reason')->nullable();
             $table->string('password')->nullable();
+             $table->tinyInteger('checked_status')->default(0)->after('password')->comment('0 = unchecked, 1 = checked');
             $table->string('status')->default('active')->comment('active, inactive');
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

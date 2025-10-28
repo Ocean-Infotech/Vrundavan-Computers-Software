@@ -347,7 +347,7 @@ class FeesCollectionController extends Controller
         // dd($selectedSemester);
 
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'student_id','selectedSemester'));
+        return view($modules['folder_path'] . '.form', compact('modules', 'student_id', 'selectedSemester'));
     }
 
 
@@ -483,7 +483,7 @@ class FeesCollectionController extends Controller
             $totalFee = $feesData->fees;
         }
         $modules = [
-            'route' => 'fees-collection', // Change to your actual route name
+            'route' => 'fees-collection', 
         ];
         //  Convert to words
         // $totalInWords = $this->$totalFee;

@@ -4,6 +4,7 @@
 use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
+use App\Http\Controllers\admin\FeeHistoryController;
 use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
 use App\Http\Controllers\admin\DocumentTypeController;
@@ -200,9 +201,12 @@ Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
 Route::get('fees-collection/{register_id}/semester-report', [FeesCollectionController::class, 'semesterReport'])->name('fees-collection.semester-report');
+// Fee History
+Route::resource('fee-history', FeeHistoryController::class)
+    ->only(['index']);
 
-
-
+Route::post('fee-history/update-status', [FeeHistoryController::class, 'updateCheckedStatus'])
+    ->name('fee-history.update-status');
 // fees collection pending
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');

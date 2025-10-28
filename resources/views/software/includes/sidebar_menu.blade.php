@@ -162,10 +162,12 @@
             'fees-collection-edit',
             'fees-collection-delete',
             'fees-collection-pending',
-            'fees-collection-report'
+            'fees-collection-report',
+            'fee-history-list'
+
         ])
             <li
-                class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list' || $sidebar_active == 'fees-collection-create' || $sidebar_active == 'fees-collection-pending' ? 'active open' : '' }}">
+                class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list' || $sidebar_active == 'fees-collection-create' || $sidebar_active == 'fees-collection-pending' || $sidebar_active == 'fee-history' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-receipt me-2"></i>
                     <div data-i18n="Fees Collection">Fees Collection</div>
@@ -196,6 +198,14 @@
                             </a>
                         </li>
                     @enddirectCan
+
+                      @directCan('fee-history-list')
+            <li class="menu-item {{ Route::current()->getName() == 'fee-history.index' ? 'active' : '' }}">
+                <a href="{{ route('fee-history.index') }}" class="menu-link">
+                    <div data-i18n="Fee History">Fee History</div>
+                </a>
+            </li>
+        @enddirectCan
 
                 </ul>
             </li>
@@ -243,7 +253,7 @@
             'department-list'
         ])
             <li
-                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable', 'student-requests', 'fees','department']) ? 'active open' : '' }}">
+                class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable', 'student-requests', 'fees', 'department']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-certificate me-2"></i>
                     <div data-i18n="Course Masters">Course Masters</div>

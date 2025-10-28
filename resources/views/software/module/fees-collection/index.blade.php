@@ -1,7 +1,7 @@
 @extends('software.layout.app')
 
 @php
-    $page_title = isset($modules['title']) ? $modules['title'] : null;
+    $page_title = 'Fee History';
     $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
     $route = isset($modules['route']) ? $modules['route'] : null;
     $permisstion_prefix = isset($modules['permisstion_prefix']) ? $modules['permisstion_prefix'] : null;
