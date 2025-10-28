@@ -199,9 +199,24 @@
                     <td>{{ $totalFee }}</td>
                 </tr>
                 <tr>
-                    <td>Payment Mode</td>
-                    <td>{{ $feesData->mode ?? '__________' }}</td>
-                </tr>
+    <td>Payment Mode</td>
+    <td>
+        @php
+            $mode = strtolower($feesData->mode ?? '');
+        @endphp
+
+        @if($mode === 'online' && !empty($feesData->upi_id))
+            Online ({{ $feesData->upi_id }})
+        @elseif($mode === 'cheque' && !empty($feesData->cheque_no))
+            Cheque ({{ $feesData->cheque_no }})
+        @elseif($mode === 'return' && !empty($feesData->return_reason))
+            Return ({{ $feesData->return_reason }})
+        @else
+            {{ $feesData->mode ?? '__________' }}
+        @endif
+    </td>
+</tr>
+
             </table>
 
             <div class="signature">

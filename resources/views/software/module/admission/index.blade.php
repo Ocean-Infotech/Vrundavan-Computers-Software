@@ -56,13 +56,14 @@
                                     <tr>
                                         @foreach ($columns as $item)
                                             <th class="{{ $item?->className ?? '' }}">
-                                                {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}
+                                                {!! $item?->td_label ?: $item?->name !!}
                                             </th>
                                         @endforeach
                                     </tr>
                                 </thead>
                             @endif
                         </table>
+
                     </div>
                 </div>
             </div>
@@ -90,8 +91,8 @@
                             </th>
                         </tr>
                         <tr>
-                               <th><b>Surname:</b> <span id="modalSurname" class="text-uppercase"></span></th>
-    <th><b>Name:</b> <span id="modalName" class="text-uppercase"></span></th>
+                            <th><b>Surname:</b> <span id="modalSurname" class="text-uppercase"></span></th>
+                            <th><b>Name:</b> <span id="modalName" class="text-uppercase"></span></th>
                             {{-- <th><b>Mother Name:</b> <span id="MotherName" class="text-uppercase"></span></th> --}}
                         </tr>
 
@@ -276,7 +277,14 @@
                                                 <p class="mb-1" id="modalShift">-</p>
                                             </div>
                                         </div>
-                                        <br><br>
+                                        <div class="row mb-2">
+                                            <div class="col-6">
+                                                <p class="mb-1"><strong>&nbsp;</strong></p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="mb-1">&nbsp;</p>
+                                            </div>
+                                        </div>
                                         <div class="row mb-2">
                                             <div class="col-md-6">
                                                 <p class="mb-1"><strong>SPID:</strong></p>
@@ -285,15 +293,14 @@
                                                 <p class="mb-1" id="modalSPID2">-</p>
                                             </div>
                                         </div>
-                                             <div class="row mb-2">
-                    <div class="col-6">
-                        <p class="mb-1"><strong>&nbsp;</strong></p>
-                    </div>
-                    <div class="col-6">
-                        <p class="mb-1">&nbsp;</p>
-                    </div>
-                </div>
-
+                                        <div class="row mb-2">
+                                            <div class="col-6">
+                                                <p class="mb-1"><strong>&nbsp;</strong></p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="mb-1">&nbsp;</p>
+                                            </div>
+                                        </div>
                                         <div class="row mb-2">
                                             <div class="col-md-6">
                                                 <p class="mb-1"><strong>DOC:</strong></p>
@@ -367,7 +374,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -409,8 +416,8 @@
                                 $('#modalDOB').text('-');
                             }
                             $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                           $('#modalSurname').text(data.last_name?.toUpperCase() ?? '-');
-$('#modalName').text(data.first_name?.toUpperCase() ?? '-');
+                            $('#modalSurname').text(data.last_name?.toUpperCase() ?? '-');
+                            $('#modalName').text(data.first_name?.toUpperCase() ?? '-');
 
                             $('#FatherName').text(data.father_name ?? '-');
                             $('#MotherName').text(data.mother_name ?? '-');
@@ -475,8 +482,14 @@ $('#modalName').text(data.first_name?.toUpperCase() ?? '-');
                                 .toUpperCase()
                             );
 
-                            let courseNames = courses.map(c => `${c.course.course_name}`).join(', ');
+                            let courseNames = courses.map(c => {
+                                let batchName = c?.batch?.batch_name ?
+                                    ` (${c.batch.batch_name})` : '';
+                                return `${c.course.course_name}${batchName}`;
+                            }).join(', ');
+
                             $('#modalCourse').text(courseNames);
+
                             $('#modalClass').text(courses[0]?.class?.class ?? '-');
 
                             let shiftTime = courses[0]?.shift ?

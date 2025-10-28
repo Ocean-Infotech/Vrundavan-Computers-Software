@@ -263,8 +263,6 @@
                         <tbody>
                             @if (isset($edit))
                                 @foreach ($getfeescollection as $row)
-
-
                                     <tr>
                                         <td>{{ $row->id }}</td>
                                         <th>{{ $row->year_semester }}</th>
@@ -286,7 +284,7 @@
                             <h5 style="color: rgb(0, 0, 255);">Course Fees : <span id="CourseFees">00</span></h5>
                         </div>
                         <div class="col-md-4">
-                            <h5 style="color: rgb(0, 128, 0);">Deposite Fees : <span id="DepositeFees">00</span></h5>
+                            <h5 style="color: rgb(0, 128, 0);">Deposit Fees : <span id="DepositeFees">00</span></h5>
                         </div>
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
@@ -455,7 +453,7 @@
 
 
             window.currentStudentDetails = null;
-                $('#FeesCollectionDetails').hide();
+            $('#FeesCollectionDetails').hide();
 
 
             function searchData() {
@@ -569,6 +567,8 @@
                             $('#CourseFees').text(formatCurrency(fullCourseFee));
                             $('#DepositeFees').text(formatCurrency(depositedFees));
                             $('#PendingFees').text(formatCurrency(fullCourseFee - depositedFees));
+                            $('#fees').val(fullCourseFee -
+                                depositedFees); // Auto-fill Course Fees = Pending Fees
 
 
                             $('#year_semester').trigger("change");
@@ -599,14 +599,11 @@
                     $('#fees').val('').prop('disabled', true);
                     $('#CourseFees').text("0.00");
                     $('#PendingFees').text("0.00");
-
-                    // Optional message
                     showMessage("All semester fees have been paid.", "info");
                     return;
                 }
 
-                $('#fees').val($("#fees").attr('data-editValue')).prop('disabled', false).removeClass(
-                    'is-invalid');
+                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
                 $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
 
                 // Calculate semester fee
@@ -620,22 +617,35 @@
                     $('#PendingFees').text("0.00");
                     showMessage("Fees already paid for Semester " + selectedSemester, "info");
                 } else {
-                    $('#fees').val('').prop('disabled', false);
+                    // ✅ MAIN FIX: Auto-fill Course Fees with Pending Fee
                     $('#CourseFees').text(formatCurrency(semesterFee));
 
-                    let unpaid = window.unpaidSemesters.find(item => parseInt(
-                        item.semester) === selectedSemester);
+                    let unpaid = window.unpaidSemesters.find(item => parseInt(item.semester) ===
+                        selectedSemester);
                     if (unpaid) {
-                        var DepositeFees = semesterFee - unpaid.pending_fee
-                        $('#PendingFees').text(formatCurrency(unpaid.pending_fee));
-                        $('#pandingfeesinput').val(formatCurrency(unpaid.pending_fee));
-                        $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
-                    }
+                        var depositedFees = semesterFee - unpaid.pending_fee;
+                        var pendingFee = unpaid.pending_fee;
 
+                        $('#PendingFees').text(formatCurrency(pendingFee));
+                        $('#pandingfeesinput').val(formatCurrency(pendingFee));
+                        $('#DepositeFees').text(formatCurrency(depositedFees.toFixed(2)));
+
+                        // ✅ AUTO FILL COURSE FEES INPUT WITH PENDING FEE
+                        $('#fees').val(pendingFee.toFixed(2));
+                    } else {
+                        // If no unpaid record found, assume full semester fee is pending
+                        var pendingFee = semesterFee;
+                        $('#PendingFees').text(formatCurrency(pendingFee));
+                        $('#pandingfeesinput').val(formatCurrency(pendingFee));
+                        $('#DepositeFees').text("0.00");
+
+                        // ✅ AUTO FILL COURSE FEES INPUT WITH FULL SEMESTER FEE
+                        $('#fees').val(pendingFee.toFixed(2));
+                    }
                 }
 
                 /** Edit time show table */
-                if ($("#fees").attr('data-editValue')) {
+                if ($("#fees").attr('data-editValue') && editId) {
                     $('#fees').val($("#fees").attr('data-editValue'));
                 }
             });

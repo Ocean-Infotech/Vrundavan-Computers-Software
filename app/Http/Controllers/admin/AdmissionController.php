@@ -85,11 +85,11 @@ class AdmissionController extends Controller
 
         try {
             $columns = [
-                (object) ['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object) ['data' => "id", 'name' => 'id', 'td_label' => 'REG No.'],
                 (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
-                (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
-                (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' => 'w-5 text-center'],
+                (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Stu <i class="bx bx-info-circle"></i>'],
+                (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => '<i class="fab fa-google-drive" style="font-size:18px;color:#4285F4;"></i>', 'className' => 'w-5 text-center'],
                 // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
                 (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],
                 (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Update', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
@@ -132,25 +132,27 @@ class AdmissionController extends Controller
                     // })
 
                     ->editColumn('gdrivefolderurl', function ($row) {
-                        // Check if folder already exists
                         if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
                             $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
                             return '<a href="' . $row->gdrivefolderurl . '"
-                    data-id="' . $row->id . '"
-                    data-foldername="' . $folderName . '"
-                    data-folderurl="' . $row->gdrivefolderurl . '"
-                    class="btn btn-warning btn-sm open_google_drive_folder">
-                    <i class="bx bx-copy-alt"></i> Open Documents
-                </a>';
+            target="_blank"
+            data-id="' . $row->id . '"
+            data-foldername="' . $folderName . '"
+            data-folderurl="' . $row->gdrivefolderurl . '"
+            class="btn btn-sm open_google_drive_folder"
+            title="Open Google Drive Folder">
+            <i class="fab fa-google-drive" style="font-size:18px;"></i>
+        </a>';
                         } else {
-                            // Folder not created yet → show Create button
                             return '<a href="javascript:void(0)"
-                    data-id="' . $row->id . '"
-                    class="btn btn-primary btn-sm create_google_drive_folder">
-                    <i class="fa fa-folder-plus"></i> Create Folder
-                </a>';
+            data-id="' . $row->id . '"
+            class="btn btn-primary btn-sm create_google_drive_folder"
+            title="Create Google Drive Folder">
+            <i class="fa fa-folder-plus"></i>
+        </a>';
                         }
                     })
+
 
 
                     // ->editColumn('status', function ($row) use ($modules) {
