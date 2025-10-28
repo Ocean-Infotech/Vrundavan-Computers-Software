@@ -41,78 +41,70 @@ class FeeHistoryController extends Controller
         View::share('modules', $modules);
 
         try {
-            $columns = [
-                (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'GR No'],
-                (object)['data' => "student_name", 'name' => 'student_name', 'td_label' => 'Student Name'],
-                (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "fees", 'name' => 'fees', 'td_label' => 'Course Fees'],
-                // (object)['data' => "mode", 'name' => 'mode', 'td_label' => 'Mode'],
-                (object)['data' => "id", 'name' => 'id', 'td_label' => 'Receipt No'],
-                (object)['data' => "checkbox", 'name' => 'checkbox', 'td_label' => 'Check Box'],
+            // ✅ Fetch data with pagination and search
+            $feesQuery = FeesCollection::with(['course'])
+                ->orderByDesc('date')
+                ->orderByDesc('id');
 
-                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-            ];
-
-            View::share("columns", $columns);
-
-            if ($request->ajax()) {
-                $data = FeesCollection::with(['course'])
-                    ->select('*')
-                    ->withTrashed()
-                    ->orderByDesc('id');
-
-                $returnData = DataTables::of($data)
-                    ->addIndexColumn()
-                    ->editColumn('date', function ($row) {
-                        return $row->date ? Helper::convert_date($row->date, 'Y-m-d', 'd-m-Y') : '-';
-                    })
-
-                    ->addColumn('checkbox', function ($row) {
-                        $checked = $row->checked_status == 1 ? 'checked' : '';
-                        return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '" ' . $checked . '>';
-                    })
-
-
-                    ->rawColumns(['mode', 'checkbox'])
-                    ->make(true);
-
-                return $returnData;
+            // ✅ Add search functionality
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $feesQuery->where(function($query) use ($search) {
+                    $query->where('id', 'LIKE', '%' . $search . '%')
+                          ->orWhere('student_name', 'LIKE', '%' . $search . '%');
+                });
             }
 
-            return view($modules['folder_path'] . '.index');
+            // ✅ Use pagination (100 records per page)
+            $paginatedData = $feesQuery->paginate(100);
+
+            // ✅ Group only the current page data by date
+            $groupedData = $paginatedData->getCollection()->groupBy(function ($item) {
+                return $item->date ? Helper::convert_date($item->date, 'Y-m-d', 'd-m-Y') : 'No Date';
+            });
+
+            // ✅ Replace the collection inside paginator with grouped data
+            $paginatedData->setCollection($groupedData);
+
+            return view($modules['folder_path'] . '.index', [
+                'data' => $paginatedData,
+                'modules' => $modules
+            ]);
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
-   public function updateCheckedStatus(Request $request)
-{
-    try {
-        $id = $request->id;
-        $status = $request->status;
 
-        $fee = FeesCollection::find($id);
 
-        if (!$fee) {
+    public function updateCheckedStatus(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $status = $request->status;
+
+            $fee = FeesCollection::find($id);
+
+            if (!$fee) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Record not found'
+                ], 404);
+            }
+
+            $fee->checked_status = $status;
+            $fee->save();
+
+            $message = $status == 1 ? 'Fee record marked as checked successfully' : 'Fee record unmarked successfully';
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Record not found'
-            ], 404);
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
         }
-
-        $fee->checked_status = $status;
-        $fee->save();
-
-        $message = $status == 1 ? 'Fee record marked as checked successfully' : 'Fee record unmarked successfully';
-
-        return response()->json([
-            'success' => true,
-            'message' => $message
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong: ' . $e->getMessage()
-        ], 500);
     }
-}
 }
