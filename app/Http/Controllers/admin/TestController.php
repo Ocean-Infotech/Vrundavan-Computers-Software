@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\StudentTestMark;
 use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,7 @@ class TestController extends Controller
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
                 (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
+                (object)['data' => "add_marks", 'name' => 'add_marks', 'td_label' => 'Marks Entry', 'orderable' => false, 'searchable' => false, 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
@@ -66,9 +68,9 @@ class TestController extends Controller
             if ($request->ajax()) {
                 // dd($request->all());
                 $data = Test::select('*')
-            ->withTrashed()
-            ->with(['course', 'batch'])
-            ->orderBy('id', 'desc'); 
+                    ->withTrashed()
+                    ->with(['course', 'batch'])
+                    ->orderBy('id', 'desc');
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -81,6 +83,13 @@ class TestController extends Controller
                     ->editColumn('date', function ($row) {
                         return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
                     })
+                    ->addColumn('add_marks', function ($row) use ($modules) {
+                        return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
+        <i class="fa-solid fa-file-circle-check"></i>
+    </a>';
+                    })
+
+
                     ->editColumn('status', function ($row) use ($modules) {
                         $status = '';
                         $dropdown = "";
@@ -121,7 +130,7 @@ class TestController extends Controller
 
                         return $btn;
                     })
-                    ->rawColumns(['status', 'action'])
+                    ->rawColumns(['status', 'action', 'add_marks'])
                     ->make(true);
                 return $returnData;
             }
@@ -328,6 +337,57 @@ class TestController extends Controller
             return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+    public function addMarks($id)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            // Load test with batch, students, and their admission details
+            $test = Test::with(['batch.students.admission'])->findOrFail($id);
+            $students = $test->batch->students ?? [];
+
+            // Load previously saved marks for each student for this specific test
+            foreach ($students as $student) {
+                $student->admission->load([
+                    'testMarks' => function ($query) use ($id) {
+                        $query->where('test_id', $id);
+                    }
+                ]);
+            }
+
+            return view($modules['folder_path'] . '.add_marks', compact('test', 'students', 'modules'));
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+
+
+    public function saveMarksAjax(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'test_id' => 'required|integer',
+                'student_id' => 'required|integer',
+                'mark' => 'nullable|numeric',
+            ]);
+
+            \App\Models\StudentTestMark::updateOrCreate(
+                [
+                    'test_id' => $validated['test_id'],
+                    'register_id' => $validated['student_id'],
+                ],
+                [
+                    'marks' => $validated['mark'] ?? 0,
+                ]
+            );
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }

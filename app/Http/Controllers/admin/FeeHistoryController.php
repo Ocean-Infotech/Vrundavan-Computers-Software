@@ -41,12 +41,11 @@ class FeeHistoryController extends Controller
         View::share('modules', $modules);
 
         try {
-            // ✅ Fetch data with pagination and search
+
             $feesQuery = FeesCollection::with(['course'])
                 ->orderByDesc('date')
                 ->orderByDesc('id');
 
-            // ✅ Add search functionality
             if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
                 $feesQuery->where(function($query) use ($search) {
@@ -55,15 +54,12 @@ class FeeHistoryController extends Controller
                 });
             }
 
-            // ✅ Use pagination (100 records per page)
             $paginatedData = $feesQuery->paginate(100);
 
-            // ✅ Group only the current page data by date
             $groupedData = $paginatedData->getCollection()->groupBy(function ($item) {
                 return $item->date ? Helper::convert_date($item->date, 'Y-m-d', 'd-m-Y') : 'No Date';
             });
 
-            // ✅ Replace the collection inside paginator with grouped data
             $paginatedData->setCollection($groupedData);
 
             return view($modules['folder_path'] . '.index', [
@@ -74,7 +70,6 @@ class FeeHistoryController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
-
 
     public function updateCheckedStatus(Request $request)
     {
