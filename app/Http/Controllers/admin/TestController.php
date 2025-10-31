@@ -57,7 +57,7 @@ class TestController extends Controller
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
                 (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => "add_marks", 'name' => 'add_marks', 'td_label' => 'Marks Entry', 'orderable' => false, 'searchable' => false, 'className' =>  'w-5 text-center'],
+                // (object)['data' => "add_marks", 'name' => 'add_marks', 'td_label' => 'Marks Entry', 'orderable' => false, 'searchable' => false, 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
@@ -83,11 +83,11 @@ class TestController extends Controller
                     ->editColumn('date', function ($row) {
                         return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
                     })
-                    ->addColumn('add_marks', function ($row) use ($modules) {
-                        return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
-        <i class="fa-solid fa-file-circle-check"></i>
-    </a>';
-                    })
+    //                 ->addColumn('add_marks', function ($row) use ($modules) {
+    //                     return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
+    //     <i class="fa-solid fa-file-circle-check"></i>
+    // </a>';
+    //                 })
 
 
                     ->editColumn('status', function ($row) use ($modules) {
@@ -111,25 +111,32 @@ class TestController extends Controller
                         return $status;
                     })
                     ->addColumn('action', function ($row) use ($modules) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($modules['permission_edit']) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($modules['permission_delete']) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
-                        }
+                    $btn = '';
 
-                        return $btn;
-                    })
+                    // ✅ Move Add Marks button before edit/delete
+                    $btn .= '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Add Marks">
+                                <i class="fa-solid fa-file-circle-check"></i>
+                             </a>';
+
+                    if (!$row?->deleted_at) {
+                        if ($modules['permission_edit']) {
+                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                     </a>';
+                        }
+                        if ($modules['permission_delete']) {
+                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                     </a>';
+                        }
+                    } else {
+                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data">
+                                    <i class="ti ti-history"></i>
+                                 </a>';
+                    }
+
+                    return $btn ?: '-';
+                })
                     ->rawColumns(['status', 'action', 'add_marks'])
                     ->make(true);
                 return $returnData;
