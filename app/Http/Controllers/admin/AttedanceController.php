@@ -73,14 +73,22 @@ class AttedanceController extends Controller
             ];
             View::share("columns", $columns);
 
+                    $admission_id = $request->get('admission_id');
+View::share('admission_id', $admission_id);
+
+
             $data = [];
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = Attedance::select('*');
-                $data = $data->withTrashed();
-                $data = $data->orderBy('created_at', 'desc');
-                $data = $data->with(['course', 'admission', 'batch']);
+                 $data = Attedance::with(['course', 'admission', 'batch'])
+                ->withTrashed()
+                ->orderBy('created_at', 'desc');
+
+            // ✅ Filter only this student's attendance if admission_id is given
+            if (!empty($admission_id)) {
+                $data->where('admission_id', $admission_id);
+            }
 
                 $editPermission = true;
                 $deletePermission = true;

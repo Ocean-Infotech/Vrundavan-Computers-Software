@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TestreportController extends Controller
 {
@@ -25,11 +26,6 @@ class TestreportController extends Controller
             'table_name' => (new Test())->getTable(),
             'permission_prefix' => 'test_report',
         ];
-
-        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-list', ['only' => ['index','show']]);
-        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-create', ['only' => ['create','store']]);
-        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-edit', ['only' => ['edit','update']]);
-        // $this->middleware('permission:'.$this->modules['permission_prefix'].'-delete', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
@@ -40,6 +36,7 @@ class TestreportController extends Controller
         $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
         $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
         if (!$modules['permission_list']) {
             if (isset($request) && $request->ajax()) {
                 return $this->sendError('User does not have the right permissions.', [], [], 403);
@@ -68,12 +65,23 @@ class TestreportController extends Controller
         View::share('subjects', $subjects);
 
         if ($request->ajax()) {
+            // Log request data for debugging (check storage/logs/laravel.log)
+            Log::info('Test Report Request Data:', [
+                'student_search' => $request->student_search,
+                'course_id' => $request->course_id,
+                'batch_id' => $request->batch_id,
+                'subject_name' => $request->subject_name,
+                'date' => $request->date,
+                'search_value' => $request->search['value'] ?? null,
+            ]);
+
             $query = DB::table('test')
                 ->select(
                     'test.*',
                     'cource_registration.fee',
                     'cource_registration.date as cr_date',
                     'cource_registration.register_id',
+                    'cource_registration.id as admission_id',
                     DB::raw("CONCAT(admission.first_name, ' ', admission.last_name) AS student_name"),
                     'master_batch.batch_name',
                     'master_course.course_name',
@@ -98,34 +106,51 @@ class TestreportController extends Controller
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
                     $searchValue = $request->search['value'] ?? null;
+                    $studentSearch = $request->student_search ?? null;
                     $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
 
-                    if (!$hasRequiredFilters && empty($searchValue)) {
+                    // If no required filters and no search values, return empty
+                    if (!$hasRequiredFilters && empty($searchValue) && empty($studentSearch)) {
                         $query->whereRaw('0=1');
                         return;
                     }
 
+                    // Student search filter (by ID or admission ID or name)
+                    if (!empty($studentSearch)) {
+                        $query->where(function ($q) use ($studentSearch) {
+                            $q->where('cource_registration.id', 'like', "%{$studentSearch}%")
+                                ->orWhere('admission.id', 'like', "%{$studentSearch}%")
+                                ->orWhere(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$studentSearch}%");
+                        });
+                    }
+
+                    // General DataTable search
                     if (!empty($searchValue)) {
                         $query->where(function ($q) use ($searchValue) {
                             $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
                                 ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
                                 ->orWhere('test.marks', 'like', "%{$searchValue}%")
-                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
+                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
+                                ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
                         });
                     }
 
+                    // Course filter
                     if ($request->filled('course_id')) {
                         $query->where('test.course_id', $request->course_id);
                     }
 
+                    // Batch filter
                     if ($request->filled('batch_id')) {
                         $query->where('test.batch_id', $request->batch_id);
                     }
 
+                    // Subject filter
                     if ($request->filled('subject_name')) {
                         $query->where('test.subject_name', $request->subject_name);
                     }
 
+                    // Date filter
                     if ($request->filled('date')) {
                         $query->whereDate('test.date', $request->date);
                     }
@@ -137,22 +162,14 @@ class TestreportController extends Controller
                     return $row->subject_name ?? '-';
                 })
                 ->addColumn('input', function ($row) {
-                    $value = htmlspecialchars($row->student_mark ?? '', ENT_QUOTES, 'UTF-8');
-                    $max = htmlspecialchars($row->marks ?? '', ENT_QUOTES, 'UTF-8');
-                    $registerId = htmlspecialchars($row->register_id ?? '', ENT_QUOTES, 'UTF-8');
-                    return '<input
-                        type="text"
-                        name="marks' . ($row->student_mark_id ?? $row->id) . '"
-                        value="' . $value . '"
-                        min="0"
-                        max="' . $max . '"
-                        placeholder="Max: ' . $max . '"
-                        data-id="' . $row->id . '"
-                        data-register-id="' . $registerId . '"
-                        class="form-control w-50 mark-input"
-                        required
-                        oninput="this.value = this.value.replace(/[^0-9]/g, \'\');" />';
+                    $value = htmlspecialchars($row->student_mark ?? 0, ENT_QUOTES, 'UTF-8'); // ✅ default 0
+                    if ($value === '' || $value === null) {
+                        $value = 0; // ✅ handles empty string also
+                    }
+                    return '<span>' . $value . '</span>';
                 })
+
+
                 ->rawColumns(['input'])
                 ->make(true);
         }
@@ -195,7 +212,7 @@ class TestreportController extends Controller
             return response()->json(['message' => 'Test not found'], 404);
         }
 
-        if ($request->marks > $test->mark) {
+        if ($request->marks > $test->marks) {
             return response()->json(['message' => 'Marks cannot exceed maximum allowed'], 422);
         }
 
@@ -223,8 +240,6 @@ class TestreportController extends Controller
 
         return response()->json(['message' => 'Marks saved for the student.']);
     }
-
-
 
     /**
      * Display the specified resource.

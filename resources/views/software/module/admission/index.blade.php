@@ -374,7 +374,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -958,6 +958,20 @@
             // redirect to view page
             window.open("/software/admission/view/" + register_id + "/" + course_id, "_blank");
         });
+        $(document).on('click', '.open-attendance', function(e) {
+            e.preventDefault();
+            var admissionId = $(this).data('admission-id');
+            localStorage.setItem('admission_id', admissionId);
+            window.open("{{ url('software/attedance') }}", "_blank");
+        });
+            $(document).on('click', '.open-test', function(e) {
+                e.preventDefault();
+                var admissionId = $(this).data('admission-id');
+                localStorage.setItem('admission_id', admissionId);
+                window.open($(this).attr('href'), '_blank');
+            });
+  
+
     </script>
 
 

@@ -166,7 +166,6 @@
 
 @endsection
 
-
 @section('page_leavel_script')
 
     <script type="text/javascript">
@@ -178,6 +177,36 @@
 
 
         $(document).ready(function() {
+
+            // Check if URL parameters exist and populate the form
+            function populateFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const admissionId = urlParams.get('admission_id');
+                const courseId = urlParams.get('course_id');
+                const batchId = urlParams.get('batch_id');
+
+                if (admissionId) {
+                    $('#admission_id').val(admissionId);
+
+                    // If course_id is provided, select it
+                    if (courseId) {
+                        setTimeout(function() {
+                            $('select[name="course_id"]').val(courseId).trigger('change');
+
+                            // If batch_id is provided, select it after course loads
+                            if (batchId) {
+                                setTimeout(function() {
+                                    $('select[name="batch_id"]').val(batchId).trigger('change');
+                                }, 1000);
+                            }
+                        }, 500);
+                    }
+                }
+            }
+
+            // Call the function on page load
+            populateFromURL();
+
             // Load data into simple table
             function loadTableData() {
 

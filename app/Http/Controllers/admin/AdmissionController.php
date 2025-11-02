@@ -89,6 +89,8 @@ class AdmissionController extends Controller
                 (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
                 (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Stu <i class="bx bx-info-circle"></i>'],
+                (object) ['data' => "attendance_button", 'name' => 'attendance_button', 'td_label' => '<i class="bx bx-calendar-check" style="font-size:18px;color:#28a745;"></i>', 'className' => 'w-5 text-center'],
+                (object) ['data' => "test_button", 'name' => 'test_button', 'td_label' => '<i class="bx bx-file" style="font-size:18px;color:#17a2b8;"></i>', 'className' => 'w-5 text-center'],
                 (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => '<i class="fab fa-google-drive" style="font-size:18px;color:#4285F4;"></i>', 'className' => 'w-5 text-center'],
                 // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
                 (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],
@@ -155,6 +157,7 @@ class AdmissionController extends Controller
 
 
 
+
                     // ->editColumn('status', function ($row) use ($modules) {
                     //     $dropdown = '<ul class="dropdown-menu">';
                     //     $button = '';
@@ -189,6 +192,32 @@ class AdmissionController extends Controller
                     ->addColumn('view_button', function ($row) {
                         return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
                     })
+                    // Replace the existing attendance_button code in your controller (around line 130)
+                    ->addColumn('attendance_button', function ($row) {
+                        return '<a href="' . url('software/attedance') . '"
+        class="btn btn-warning btn-sm open-attendance"
+        data-admission-id="' . $row->id . '"
+        target="_blank"
+        title="View Attendance">
+        <i class="bx bx-calendar-check"></i>
+    </a>';
+                    })
+
+
+
+
+
+                    ->addColumn('test_button', function ($row) {
+                        return '<a href="' . url('software/test_report') . '"
+        class="btn btn-info btn-sm open-test"
+        data-admission-id="' . $row->id . '"
+        title="View Test Report">
+        <i class="bx bx-file"></i>
+    </a>';
+                    })
+
+
+
 
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
@@ -207,7 +236,7 @@ class AdmissionController extends Controller
                         return $btn ?: '-';
                     })
 
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button', 'attendance_button', 'test_button'])
                     ->make(true);
             }
 

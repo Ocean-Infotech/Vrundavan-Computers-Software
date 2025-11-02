@@ -42,7 +42,8 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
+                                                <table id="yajra-datatables" class="table table-hover dt-responsive nowrap" style="width: 100%">
+
                             @if (isset($columns))
                                 <thead>
                                     <tr>
@@ -59,7 +60,7 @@
             </div>
         </div>
     </div>
-    
+
 @endsection
 
 @section('page_script_file')

@@ -115,6 +115,9 @@ Route::get('admission-course', [AdmissionController::class, 'course'])->name('ad
 Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
 Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
 
+Route::get('admission/attendance/{id}', [AdmissionController::class, 'viewAttendance'])->name('admission.view-attendance');
+Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMarks'])->name('admission.view-test-marks');
+
 
 /** Master Course Modules */
 Route::resource('/course', MasterCourseController::class);
