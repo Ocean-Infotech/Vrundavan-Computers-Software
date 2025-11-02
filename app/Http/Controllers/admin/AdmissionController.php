@@ -89,8 +89,9 @@ class AdmissionController extends Controller
                 (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
                 (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Stu <i class="bx bx-info-circle"></i>'],
-                (object) ['data' => "attendance_button", 'name' => 'attendance_button', 'td_label' => '<i class="bx bx-calendar-check" style="font-size:18px;color:#28a745;"></i>', 'className' => 'w-5 text-center'],
-                (object) ['data' => "test_button", 'name' => 'test_button', 'td_label' => '<i class="bx bx-file" style="font-size:18px;color:#17a2b8;"></i>', 'className' => 'w-5 text-center'],
+                (object) ['data' => "attendance_button", 'name' => 'attendance_button', 'td_label' => 'Att.', 'className' => 'w-5 text-center'],
+                (object) ['data' => "test_button", 'name' => 'test_button', 'td_label' => 'Test', 'className' => 'w-5 text-center'],
+
                 (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => '<i class="fab fa-google-drive" style="font-size:18px;color:#4285F4;"></i>', 'className' => 'w-5 text-center'],
                 // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
                 (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],

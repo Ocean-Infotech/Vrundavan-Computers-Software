@@ -106,22 +106,23 @@ class TestreportController extends Controller
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
                     $searchValue = $request->search['value'] ?? null;
-                    $studentSearch = $request->student_search ?? null;
+                    $studentSearch = trim($request->student_search ?? '');
                     $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
 
-                    // If no required filters and no search values, return empty
-                    if (!$hasRequiredFilters && empty($searchValue) && empty($studentSearch)) {
+                    // If no search and no filters => empty table
+                    if (empty($studentSearch) && empty($searchValue) && !$hasRequiredFilters) {
                         $query->whereRaw('0=1');
                         return;
                     }
 
-                    // Student search filter (by ID or admission ID or name)
+                    // ✅ If student is searched => show only that student's data (ignore others)
                     if (!empty($studentSearch)) {
                         $query->where(function ($q) use ($studentSearch) {
-                            $q->where('cource_registration.id', 'like', "%{$studentSearch}%")
-                                ->orWhere('admission.id', 'like', "%{$studentSearch}%")
+                            $q->where('cource_registration.id', $studentSearch)
+                                ->orWhere('admission.id', $studentSearch)
                                 ->orWhere(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$studentSearch}%");
                         });
+                        return; // Stop here to prevent other filters from interfering
                     }
 
                     // General DataTable search
@@ -135,26 +136,24 @@ class TestreportController extends Controller
                         });
                     }
 
-                    // Course filter
+                    // Apply filters only if studentSearch is empty
                     if ($request->filled('course_id')) {
                         $query->where('test.course_id', $request->course_id);
                     }
 
-                    // Batch filter
                     if ($request->filled('batch_id')) {
                         $query->where('test.batch_id', $request->batch_id);
                     }
 
-                    // Subject filter
                     if ($request->filled('subject_name')) {
                         $query->where('test.subject_name', $request->subject_name);
                     }
 
-                    // Date filter
                     if ($request->filled('date')) {
                         $query->whereDate('test.date', $request->date);
                     }
                 })
+
                 ->editColumn('cr_date', function ($row) {
                     return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';
                 })
