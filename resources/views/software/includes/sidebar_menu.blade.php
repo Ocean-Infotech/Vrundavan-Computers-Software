@@ -376,40 +376,53 @@
             </ul>
         </li>
 
-    @directCanAny([
-    'library-book-master-list',
-    'library-book-master-create',
-    'library-book-master-edit',
-    'library-book-master-delete',
-    'issue-book-list',
-    'issue-book-create',
-    'issue-book-edit',
-    'issue-book-delete'
-])
-    <li class="menu-item {{ in_array($sidebar_active, ['library-book-master', 'issue-book']) ? 'active open' : '' }}">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-library me-2"></i>
-            <div data-i18n="Library">Library</div>
-        </a>
-        <ul class="menu-sub">
-            {{-- Library Book Master --}}
-            <li class="menu-item {{ $sidebar_active == 'library-book-master' ? 'active' : '' }}">
-                <a href="{{ route('library-book-master.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-book-open me-2"></i>
-                    <div data-i18n="Book Master">Book Master</div>
+        @directCanAny([
+            'library-book-master-list',
+            'library-book-master-create',
+            'library-book-master-edit',
+            'library-book-master-delete',
+            'issue-book-list',
+            'issue-book-create',
+            'issue-book-edit',
+            'issue-book-delete'
+        ])
+            <li
+                class="menu-item {{ in_array($sidebar_active, ['library-book-master', 'issue-book']) ? 'active open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-library me-2"></i>
+                    <div data-i18n="Library">Library</div>
                 </a>
-            </li>
+                <ul class="menu-sub">
 
-            {{-- Issue Book --}}
-            <li class="menu-item {{ $sidebar_active == 'issue-book' ? 'active' : '' }}">
-                <a href="{{ route('issue-book.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-book-bookmark me-2"></i>
-                    <div data-i18n="Issue Book">Issue Book</div>
-                </a>
+                    {{-- Library Book Master --}}
+                    @directCanAny([
+                        'library-book-master-list',
+                        'library-book-master-create',
+                        'library-book-master-edit',
+                        'library-book-master-delete'
+                    ])
+                        <li class="menu-item {{ $sidebar_active == 'library-book-master' ? 'active' : '' }}">
+                            <a href="{{ route('library-book-master.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-book-open me-2"></i>
+                                <div data-i18n="Book Master">Book Master</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
+                    {{-- Issue Book --}}
+                    @directCanAny(['issue-book-list', 'issue-book-create', 'issue-book-edit', 'issue-book-delete'])
+                        <li class="menu-item {{ $sidebar_active == 'issue-book' ? 'active' : '' }}">
+                            <a href="{{ route('issue-book.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-book-bookmark me-2"></i>
+                                <div data-i18n="Issue Book">Issue Book</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
+                </ul>
             </li>
-        </ul>
-    </li>
-@enddirectCanAny
+        @enddirectCanAny
+
 
 
 
