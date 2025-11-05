@@ -5,6 +5,8 @@ use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\FeeHistoryController;
+use App\Http\Controllers\admin\master\IssueBookController;
+use App\Http\Controllers\admin\master\LibraryMasterBookController;
 use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
 use App\Http\Controllers\admin\DocumentTypeController;
@@ -89,7 +91,7 @@ Route::resource('admission', AdmissionController::class)->except(['show']);
 Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
 // Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
 Route::post('admission/check-aadhar-duplicate', [AdmissionController::class, 'checkAadharDuplicate'])->name('admission.check-aadhar-duplicate');
-    Route::post('admission/check-mobile-duplicate', [AdmissionController::class, 'checkMobileDuplicate'])->name('admission.check-mobile-duplicate');
+Route::post('admission/check-mobile-duplicate', [AdmissionController::class, 'checkMobileDuplicate'])->name('admission.check-mobile-duplicate');
 
 Route::post('admission/update-course-status', [AdmissionController::class, 'updateCourseStatus'])->name('admission.update-course-status');
 Route::get('admission/view/{register_id}/{course_id}', [AdmissionController::class, 'view'])->name('admission.view');
@@ -143,6 +145,18 @@ Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::cla
 Route::resource('/department', MasterDepartmentController::class);
 Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
 Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
+
+/** Library Book Master Modules */
+Route::resource('/library-book-master', LibraryMasterBookController::class);
+Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMasterBookController::class, 'restore'])->name('library-book-master.restore');
+Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
+
+
+/** Issue Book Modules */
+Route::resource('/issue-book', IssueBookController::class);
+Route::match(['get', 'post'], 'issue-book/restore/{id}', [IssueBookController::class, 'restore'])->name('issue-book.restore');
+Route::match(['get', 'post'], 'issue-book/status-update', [IssueBookController::class, 'status_update'])->name('issue-book.status-update');
+
 
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
@@ -263,7 +277,7 @@ Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks
 // Notification Setting
 Route::resource('/notification_setting', NotificationSettingController::class);
 Route::get('get-students-by-course/{course_id}', [NotificationSettingController::class, 'getStudentsByCourse'])
-->name('get.students.by.course');
+    ->name('get.students.by.course');
 
 // Timetable
 Route::resource('/timetable', TimetableController::class);
@@ -280,4 +294,3 @@ Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class
 
 
 Route::post('/push-test', [PushController::class, 'sendStatic']);
-

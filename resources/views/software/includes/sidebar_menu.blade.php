@@ -164,7 +164,6 @@
             'fees-collection-pending',
             'fees-collection-report',
             'fee-history-list'
-
         ])
             <li
                 class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list' || $sidebar_active == 'fees-collection-create' || $sidebar_active == 'fees-collection-pending' || $sidebar_active == 'fee-history' ? 'active open' : '' }}">
@@ -199,13 +198,13 @@
                         </li>
                     @enddirectCan
 
-                      @directCan('fee-history-list')
-            <li class="menu-item {{ Route::current()->getName() == 'fee-history.index' ? 'active' : '' }}">
-                <a href="{{ route('fee-history.index') }}" class="menu-link">
-                    <div data-i18n="Fee History">Fee History</div>
-                </a>
-            </li>
-        @enddirectCan
+                    @directCan('fee-history-list')
+                        <li class="menu-item {{ Route::current()->getName() == 'fee-history.index' ? 'active' : '' }}">
+                            <a href="{{ route('fee-history.index') }}" class="menu-link">
+                                <div data-i18n="Fee History">Fee History</div>
+                            </a>
+                        </li>
+                    @enddirectCan
 
                 </ul>
             </li>
@@ -376,6 +375,42 @@
 
             </ul>
         </li>
+
+    @directCanAny([
+    'library-book-master-list',
+    'library-book-master-create',
+    'library-book-master-edit',
+    'library-book-master-delete',
+    'issue-book-list',
+    'issue-book-create',
+    'issue-book-edit',
+    'issue-book-delete'
+])
+    <li class="menu-item {{ in_array($sidebar_active, ['library-book-master', 'issue-book']) ? 'active open' : '' }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+            <i class="menu-icon tf-icons bx bx-library me-2"></i>
+            <div data-i18n="Library">Library</div>
+        </a>
+        <ul class="menu-sub">
+            {{-- Library Book Master --}}
+            <li class="menu-item {{ $sidebar_active == 'library-book-master' ? 'active' : '' }}">
+                <a href="{{ route('library-book-master.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-book-open me-2"></i>
+                    <div data-i18n="Book Master">Book Master</div>
+                </a>
+            </li>
+
+            {{-- Issue Book --}}
+            <li class="menu-item {{ $sidebar_active == 'issue-book' ? 'active' : '' }}">
+                <a href="{{ route('issue-book.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-book-bookmark me-2"></i>
+                    <div data-i18n="Issue Book">Issue Book</div>
+                </a>
+            </li>
+        </ul>
+    </li>
+@enddirectCanAny
+
 
 
         @directCanAny(['biomax-list'])

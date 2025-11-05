@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LibraryMasterBook extends Model
 {
-     use SoftDeletes;
+    use SoftDeletes;
 
-	public $table = 'library_book_master';
+    public $table = 'library_book_master';
 
-	protected $fillable = [
+    protected $fillable = [
         'book_name',
         'library_book_no',
         'author_name',
@@ -24,4 +24,18 @@ class LibraryMasterBook extends Model
         'updated_by',
         'deleted_by'
     ];
+    public static $status = [
+        'active' => 'Active',
+        'destroy' => 'Destroy',
+        'not available' => 'Not Available',
+
+    ];
+    public static function getStatusOptions()
+    {
+        return self::$status;
+    }
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

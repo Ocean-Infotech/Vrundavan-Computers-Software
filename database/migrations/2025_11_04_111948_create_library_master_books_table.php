@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('library_book_no');
             $table->string('author_name');
             $table->string('publisher_name');
-            $table->string('total_number_of_page');->nullable();
+            $table->string('total_number_of_page')->nullable();
             $table->date('purchase_date');
             $table->integer('price');
             $table->string('status')->default('active')->comment('active, destroy, not available');
-            $table->string('created_by')
+            $table->string('created_by');
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->string('deleted_by')->nullable();
