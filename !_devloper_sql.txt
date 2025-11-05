@@ -1,4 +1,9 @@
 |-------------------------------------------- Local
+ALTER TABLE `library_issued_books` CHANGE `return_by` `return_by` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `library_book_master` CHANGE `purchase_date` `purchase_date` DATE NULL;
+ALTER TABLE `library_book_master` CHANGE `created_by` `created_by` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
 28-10-2025
 ALTER TABLE fees_collections
 ADD COLUMN checked_status TINYINT(1) NOT NULL DEFAULT 0 AFTER password;

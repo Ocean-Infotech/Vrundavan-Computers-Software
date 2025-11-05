@@ -152,12 +152,13 @@ Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMaster
 Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
 
 
-/** Issue Book Modules */
-Route::resource('/issue-book', IssueBookController::class);
-Route::match(['get', 'post'], 'issue-book/restore/{id}', [IssueBookController::class, 'restore'])->name('issue-book.restore');
 Route::match(['get', 'post'], 'issue-book/status-update', [IssueBookController::class, 'status_update'])->name('issue-book.status-update');
 
+/** Issue Book Modules */
+Route::resource('/issue-book', IssueBookController::class);
+Route::match(['get', 'post'], 'issue-book/return/{id}', [IssueBookController::class, 'returnBook'])->name('issue-book.return');
 
+Route::match(['get', 'post'], 'issue-book/restore/{id}', [IssueBookController::class, 'restore'])->name('issue-book.restore');
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');

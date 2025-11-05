@@ -14,15 +14,13 @@ return new class extends Migration
         Schema::create('library_issued_books', function (Blueprint $table) {
             $table->id();
             $table->string('book_id');
-            $table->string('library_book_no');
-            $table->string('book_name');
             $table->string('student_id');
             $table->date('issued_date');
-            $table->string('issued_by');
-            $table->date('return_date');
-            $table->date('return_by');
+            $table->string('issued_by')->nullable();
+            $table->date('return_date')->nullable();
+            $table->date('return_by')->nullable();
             $table->string('status')->default('active')->comment('active, deactive');
-            $table->string('created_by');
+            $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->string('deleted_by')->nullable();

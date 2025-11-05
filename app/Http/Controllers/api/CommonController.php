@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Documents;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
+use App\Models\LibraryMasterBook;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
@@ -186,7 +187,7 @@ class CommonController extends Controller
     public function get_admission(Request $request)
     {
         try {
-            $data = Admission::where('status', 'created')->orderBy('id', 'DESC')->get();
+            $data = Admission::where('status', 'created')->orderBy('id', 'ASC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
@@ -528,5 +529,25 @@ class CommonController extends Controller
             return $this->sendError($e->getMessage());
         }
         return $this->sendError("Something want to wrong in register API");
+    }
+    public function get_books(Request $request)
+    {
+        $search = $request->get('search', '');
+
+        $query = \App\Models\LibraryMasterBook::query();
+
+        if (!empty($search)) {
+            $query->where('book_name', 'like', "%{$search}%")
+                ->orWhere('library_book_no', 'like', "%{$search}%");
+        }
+
+        $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
+
+        $options = '';
+        foreach ($books as $book) {
+            $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
+        }
+
+        return response($options);
     }
 }

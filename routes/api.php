@@ -25,12 +25,12 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-semester', 'get_semester')->name('get-semester');
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-admission', 'get_admission')->name('get-admission');
+    Route::get('get-books', 'get_books')->name('get-books');
     Route::any('get-class', 'get_class')->name('get-class');
     Route::any('get-shift', 'get_shift')->name('get-shift');
     Route::any('get-class-bybatch', 'get_classbybatch')->name('get-class-bybatch');
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
-        Route::any('get-department', 'get_department')->name('get_department');
-
+    Route::any('get-department', 'get_department')->name('get_department');
 });
 
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);

@@ -9,12 +9,10 @@ class LibraryIssuedBooks extends Model
 {
     use SoftDeletes;
 
-	public $table = 'library_book_master';
+    public $table = 'library_issued_books';
 
-	protected $fillable = [
+    protected $fillable = [
         'book_id',
-        'library_book_no',
-        'book_name',
         'student_id',
         'issued_date',
         'issued_by',
@@ -25,4 +23,25 @@ class LibraryIssuedBooks extends Model
         'updated_by',
         'deleted_by'
     ];
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+    public function student()
+    {
+        return $this->belongsTo(Admission::class, 'student_id');
+    }
+    public function book()
+    {
+        return $this->belongsTo(LibraryMasterBook::class, 'book_id');
+    }
+    public function issuedBy()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'issued_by');
+    }
+
+    public function returnedByUser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'return_by');
+    }
 }
