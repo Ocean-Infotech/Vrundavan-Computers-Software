@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('return_date');
             $table->date('return_by');
             $table->string('status')->default('active')->comment('active, deactive');
-            $table->string('created_by')
+            $table->string('created_by');
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->string('deleted_by')->nullable();
