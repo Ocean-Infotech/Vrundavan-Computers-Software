@@ -251,11 +251,9 @@ class IssueBookController extends Controller
             $validated['created_by'] = Auth::user()->id;
             $validated['issued_by'] = Auth::user()->id;
             if (!empty($validated['book_id'])) {
-                // Take everything after the last " - " or after "LBM"
-                preg_match('/LBM(\d+)/', $validated['book_id'], $match);
+                preg_match('/PVM-(\d+)/', $validated['book_id'], $match);
                 if (!empty($match[1])) {
-                    // Get the real ID from DB using that book number
-                    $book = \App\Models\LibraryMasterBook::where('library_book_no', 'LBM' . $match[1])->first();
+                    $book = LibraryMasterBook::where('library_book_no', 'PVM-' . $match[1])->first();
                     if ($book) {
                         $validated['book_id'] = $book->id;
                         $validated['book_name'] = $book->book_name;
@@ -311,11 +309,9 @@ class IssueBookController extends Controller
             $validated = $request->validated();
 
             if (!empty($validated['book_id'])) {
-                // Take everything after the last " - " or after "LBM"
-                preg_match('/LBM(\d+)/', $validated['book_id'], $match);
+                preg_match('/PVM-(\d+)/', $validated['book_id'], $match);
                 if (!empty($match[1])) {
-                    // Get the real ID from DB using that book number
-                    $book = \App\Models\LibraryMasterBook::where('library_book_no', 'LBM' . $match[1])->first();
+                    $book = LibraryMasterBook::where('library_book_no', 'PVM-' . $match[1])->first();
                     if ($book) {
                         $validated['book_id'] = $book->id;
                         $validated['book_name'] = $book->book_name;
@@ -323,6 +319,7 @@ class IssueBookController extends Controller
                     }
                 }
             }
+
 
             if (!empty($validated['student_id'])) {
                 // Extract ID from "13 - NAME"
