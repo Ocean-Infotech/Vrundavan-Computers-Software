@@ -5,7 +5,6 @@ use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\FeeHistoryController;
-use App\Http\Controllers\admin\master\IssueBookController;
 use App\Http\Controllers\admin\master\LibraryMasterBookController;
 use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
@@ -28,6 +27,7 @@ use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
+use App\Http\Controllers\admin\master\IssuedBookController;
 use App\Http\Controllers\admin\master\MasterClassController;
 use App\Http\Controllers\admin\master\MasterDepartmentController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
@@ -152,13 +152,13 @@ Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMaster
 Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
 
 
-Route::match(['get', 'post'], 'issue-book/status-update', [IssueBookController::class, 'status_update'])->name('issue-book.status-update');
+Route::match(['get', 'post'], 'issued-book/status-update', [IssuedBook::class, 'status_update'])->name('issued-book.status-update');
 
 /** Issue Book Modules */
-Route::resource('/issue-book', IssueBookController::class);
-Route::match(['get', 'post'], 'issue-book/return/{id}', [IssueBookController::class, 'returnBook'])->name('issue-book.return');
+Route::resource('/issued-book', IssuedBookController::class);
+Route::match(['get', 'post'], 'issued-book/return/{id}', [IssuedBookController::class, 'returnBook'])->name('issued-book.return');
 
-Route::match(['get', 'post'], 'issue-book/restore/{id}', [IssueBookController::class, 'restore'])->name('issue-book.restore');
+Route::match(['get', 'post'], 'issued-book/restore/{id}', [IssuedBookController::class, 'restore'])->name('issued-book.restore');
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
