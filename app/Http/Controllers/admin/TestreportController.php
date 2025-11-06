@@ -48,10 +48,11 @@ class TestreportController extends Controller
         // Columns for datatable
         $columns = [
             (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
-            (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
-            (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
+            // (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
+            // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
             (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
             (object)['data' => "cr_date", 'name' => 'cource_registration.date', 'td_label' => 'Date'],
+            (object)['data' => "test", 'name' => 'test', 'td_label' => 'Total Mark'],
             (object)['data' => "input", 'name' => 'test.marks', 'td_label' => 'Marks'],
         ];
         View::share("columns", $columns);
@@ -83,8 +84,8 @@ class TestreportController extends Controller
                     'cource_registration.register_id',
                     'cource_registration.id as admission_id',
                     DB::raw("CONCAT(admission.first_name, ' ', admission.last_name) AS student_name"),
-                    'master_batch.batch_name',
-                    'master_course.course_name',
+                    // 'master_batch.batch_name',
+                    // 'master_course.course_name',
                     'student_test_marks.marks as student_mark',
                     'student_test_marks.id as student_mark_id'
                 )
@@ -129,10 +130,10 @@ class TestreportController extends Controller
                     if (!empty($searchValue)) {
                         $query->where(function ($q) use ($searchValue) {
                             $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
-                                ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
+                                // ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
                                 ->orWhere('test.marks', 'like', "%{$searchValue}%")
-                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
-                                ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
+                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
+                                // ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
                         });
                     }
 
