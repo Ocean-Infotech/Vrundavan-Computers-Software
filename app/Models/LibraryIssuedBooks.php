@@ -35,7 +35,7 @@ class LibraryIssuedBooks extends Model
     {
         return $this->belongsTo(LibraryMasterBook::class, 'book_id');
     }
-    public function issuedBy()
+    public function issuedByUser()
     {
         return $this->belongsTo(\App\Models\User::class, 'issued_by');
     }
