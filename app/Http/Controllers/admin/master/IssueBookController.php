@@ -54,13 +54,16 @@ class IssueBookController extends Controller
         try {
             // ✅ Updated columns for Issue Book List
             $columns = [
-                (object)['data' => "book_name", 'name' => 'book_name', 'td_label' => 'Book Name'],
-                (object)['data' => "book_number", 'name' => 'book_number', 'td_label' => 'Book No'],
+                // (object)['data' => "book_name", 'name' => 'book_name', 'td_label' => 'Book Name'],
+                // (object)['data' => "book_number", 'name' => 'book_number', 'td_label' => 'Book No'],
+                (object)['data' => "book_info", 'name' => 'book_info', 'td_label' => 'Book Detail'],
                 (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Id'],
-                (object)['data' => "issue_date", 'name' => 'issue_date', 'td_label' => 'Issue Date'],
-                (object)['data' => "issue_by_name", 'name' => 'issue_by_name', 'td_label' => 'Issue By Name'],
-                (object)['data' => "return_date", 'name' => 'return_date', 'td_label' => 'Return Date'],
-                (object)['data' => "return_by_name", 'name' => 'return_by_name', 'td_label' => 'Return By Name'],
+                (object)['data' => "issue_return_dates", 'name' => 'issue_return_dates', 'td_label' => 'Date Detail'],
+                (object)['data' => "issue_return_by", 'name' => 'issue_return_by', 'td_label' => 'User Detail'],
+                // (object)['data' => "issue_date", 'name' => 'issue_date', 'td_label' => 'Issue Date'],
+                // (object)['data' => "issue_by_name", 'name' => 'issue_by_name', 'td_label' => 'Issue By Name'],
+                // (object)['data' => "return_date", 'name' => 'return_date', 'td_label' => 'Return Date'],
+                // (object)['data' => "return_by_name", 'name' => 'return_by_name', 'td_label' => 'Return By Name'],
                 // (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
@@ -123,9 +126,33 @@ class IssueBookController extends Controller
                 return DataTables::of($data)
                     ->addIndexColumn()
 
-                    ->addColumn('book_name', function ($row) {
-                        return $row->book?->book_name ?? '-';
+                    ->addColumn('book_info', function ($row) {
+                        $bookNo = $row->book?->library_book_no ?? '';
+                        $bookName = $row->book?->book_name ?? '';
+                        return $bookNo && $bookName ? "({$bookNo}) {$bookName}" : ($bookName ?: '-');
                     })
+
+                    ->addColumn('issue_return_dates', function ($row) {
+                        $issueDate = !empty($row->issued_date)
+                            ? \Carbon\Carbon::parse($row->issued_date)->format('d-m-Y')
+                            : '-';
+
+                        $returnDate = !empty($row->return_date)
+                            ? \Carbon\Carbon::parse($row->return_date)->format('d-m-Y')
+                            : '-';
+
+                        // return "<b>Issue:</b> {$issueDate}<br><b>Return:</b> {$returnDate}";
+                        return "<b>Issue:</b> <span style='color:#333;'>{$issueDate}</span><br><b>Return:</b> <span style='color:#333;'>{$returnDate}</span>";
+                    })
+
+                    ->addColumn('issue_return_by', function ($row) {
+                        $issueBy = $row->issuedByUser?->name ?? '-';
+                        $returnBy = $row->returnedByUser?->name ?? '-';
+
+                        return "<b>Issue by:</b> {$issueBy}<br><b>Return by:</b> {$returnBy}";
+                    })
+
+
 
                     // ✅ Separate Book Number
                     ->addColumn('book_number', function ($row) {
@@ -221,7 +248,7 @@ class IssueBookController extends Controller
                     })
 
 
-                    ->rawColumns(['status', 'action'])
+                    ->rawColumns(['status', 'action', 'issue_return_dates', 'issue_return_by'])
                     ->make(true);
             }
 
