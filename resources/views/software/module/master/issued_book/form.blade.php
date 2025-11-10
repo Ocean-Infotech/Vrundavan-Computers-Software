@@ -192,6 +192,23 @@
 
         });
     </script>
+<script>
+$(document).ready(function() {
+    // Retrieve the stored values
+    let selectedBookName = localStorage.getItem('selected_book_name');
+
+    // If a book was selected from the previous page
+    if (selectedBookName) {
+        $('#search_id').val(selectedBookName); // autofill the book input
+
+        // Clear storage once filled
+        localStorage.removeItem('selected_book_name');
+        localStorage.removeItem('selected_book_id');
+    }
+});
+</script>
+
+
 @endsection
 
 

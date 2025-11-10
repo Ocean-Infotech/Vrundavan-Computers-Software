@@ -423,9 +423,19 @@
                         </li>
                     @enddirectCanAny
 
-                    {{-- Issue Book --}}
-                    @directCanAny(['issued-book-list', 'issued-book-create', 'issued-book-edit', 'issued-book-delete'])
-                        <li class="menu-item {{ $sidebar_active == 'issued-book' ? 'active' : '' }}">
+                    {{-- Issue Book (Create Page) --}}
+                    @directCan('issued-book-create')
+                        <li class="menu-item {{ Route::is('issued-book.create') ? 'active' : '' }}">
+                            <a href="{{ route('issued-book.create') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bx-book-add me-2"></i>
+                                <div data-i18n="Issue Book">Issue Book</div>
+                            </a>
+                        </li>
+                    @enddirectCan
+
+                    {{-- Issued Book List --}}
+                    @directCanAny(['issued-book-list', 'issued-book-edit', 'issued-book-delete'])
+                        <li class="menu-item {{ Route::is('issued-book.index') ? 'active' : '' }}">
                             <a href="{{ route('issued-book.index') }}" class="menu-link">
                                 <i class="menu-icon tf-icons bx bx-book-bookmark me-2"></i>
                                 <div data-i18n="Issued Book">Issued Book</div>
@@ -436,6 +446,7 @@
                 </ul>
             </li>
         @enddirectCanAny
+
 
 
 

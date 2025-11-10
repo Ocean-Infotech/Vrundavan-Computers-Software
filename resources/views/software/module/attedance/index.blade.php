@@ -25,8 +25,7 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' =>
-                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
+            'show_add_btn' =>false,
             'show_api_attendance' =>
                 isset($modules) && isset($modules['permission_show_api_attendance'])
                     ? $modules['permission_show_api_attendance']
