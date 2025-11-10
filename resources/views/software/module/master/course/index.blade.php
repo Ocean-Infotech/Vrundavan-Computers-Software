@@ -41,7 +41,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
+                        <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap" style="width: 100%">
                             @if (isset($columns))
                                 <thead>
                                     <tr>

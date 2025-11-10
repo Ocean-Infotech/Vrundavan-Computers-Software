@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('image');
             $table->string('link')->nullable();
-              $table->string('status')->default('active')->comment('active, inactive');
-              $table->string('created_by')->nullable();;
+            $table->string('status')->default('active')->comment('active, inactive');
+            $table->string('created_by')->nullable();;
             $table->string('updated_by')->nullable();;
             $table->string('deleted_by')->nullable();;
             $table->softDeletes();

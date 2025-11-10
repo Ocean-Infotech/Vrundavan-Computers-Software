@@ -25,14 +25,19 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-semester', 'get_semester')->name('get-semester');
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-admission', 'get_admission')->name('get-admission');
+    Route::get('get-books', 'get_books')->name('get-books');
     Route::any('get-class', 'get_class')->name('get-class');
     Route::any('get-shift', 'get_shift')->name('get-shift');
     Route::any('get-class-bybatch', 'get_classbybatch')->name('get-class-bybatch');
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
+    Route::any('get-department', 'get_department')->name('get_department');
 });
 
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);
 Route::post("student/verify-otp", [AuthenticationController::class, 'studentVerifyOtp']);
+Route::post("student/logout", [AuthenticationController::class, 'studentLogout'])
+    ->middleware('auth:student-api');
+Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
 
 
 Route::group(['middleware' => ['auth:student-api']], function () {
@@ -46,10 +51,10 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('document-details', [ApiStudentController::class, 'document_details']);
         Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
-
-
-        // Route::post('request', [StudentRequestController::class, 'store']);
-        // Route::post('request-subject-list', [StudentRequestController::class, 'subjects']);
+        Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
+        Route::post('test-details', [ApiStudentController::class, 'test_details']);
+        Route::post('notifications-list', [ApiStudentController::class, 'notifications_list']);
+        Route::post('notifications-mark-read', [ApiStudentController::class, 'notifications_mark_read']);
     });
 
 
@@ -62,23 +67,18 @@ Route::group(['middleware' => ['auth:student-api']], function () {
 
     Route::controller(StudentRequestController::class)->group(function () {
         Route::post('request-form', [StudentRequestController::class, 'request_form']);
+        Route::post('request-list', [StudentRequestController::class, 'request_list']);
         Route::post('request-subject-list', [StudentRequestController::class, 'request_subject_list']);
     });
 
 
     Route::controller(UserController::class)->group(function () {
-        Route::post('get-profile', 'getProfile');
-        Route::post('update-profile', 'updateProfile');
-        Route::post('withdraw-request', 'withdrawRequest');
-        Route::post('point-check-withdraw-request-amount', 'PointCheckWithdrawRequestAmount');
-        Route::post('withdraw-history', 'withdrawHistory');
+
+        // Route::post('get-profile', 'getProfile');
     });
 
     Route::controller(CommonController::class)->group(function () {
-        Route::post('sliders', 'sliders');
-        Route::post('verify-qr-scan', 'verifyQrScan');
-        Route::post('scan-history', 'scanHistory');
-        Route::post('my-points', 'myPoints');
+
         Route::post('documents', 'documents');
     });
 });

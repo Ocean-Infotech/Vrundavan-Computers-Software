@@ -51,10 +51,11 @@ class FeescollectionpendingController extends Controller
                 (object)['data' => 'student_name', 'name' => 'register_id', 'td_label' => 'Student Name'],
                 (object)['data' => 'contact_no', 'name' => 'contact_no', 'td_label' => 'Contact No'],
                 (object)['data' => 'course.course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => 'date', 'name' => 'date', 'td_label' => 'DOJ'],
+                (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status'],
                 (object)['data' => 'total_fee', 'name' => 'total_fee', 'td_label' => 'Total Fees'],
                 (object)['data' => 'paid_fee', 'name' => 'paid_fee', 'td_label' => 'Paid Fees'],
                 (object)['data' => 'pending_fee', 'name' => 'pending_fee', 'td_label' => 'Pending Fees'],
+                (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action'],
             ];
             View::share("columns", $columns);
 
@@ -65,11 +66,12 @@ class FeescollectionpendingController extends Controller
             $semesters = range(1, 8); // or fetch from DB if dynamic
 
 
+            // dd('hello');
             if ($request->ajax()) {
 
                 // dd($request->all());
                 $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-                    ->where('status', 'active')
+                    // ->where('status', 'active')
                     ->groupBy('register_id');
 
                 $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -116,7 +118,7 @@ class FeescollectionpendingController extends Controller
 
                 $data = $dataQuery->get();
 
-                $allRegistrations = CourceRegistration::with('course')
+                $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
                     ->whereIn('register_id', $data->pluck('register_id'))
                     ->get()
                     ->groupBy('register_id');
@@ -137,33 +139,36 @@ class FeescollectionpendingController extends Controller
                     ->addColumn('contact_no', function ($row) {
                         return $row->admission->mobile_no ?? '-';
                     })
+                    ->addColumn('action', function ($row) {
+                        $url = route('fees-collection-pending.view-fee', $row->register_id);
+                        return '<a href="' . $url . '" class="btn btn-sm btn-primary">View Fee</a>';
+                    })
+
                     ->editColumn('course_name', function ($row) use ($allRegistrations) {
-                        $registrations = $allRegistrations[$row->register_id] ?? collect();
+                        $registrations = $allRegistrations->get($row->register_id, collect());
                         return $registrations->map(function ($item) {
-                            return $item->course->course_name . ' (' . number_format($item->fee, 2) . ')';
+                            return $item->course->course_name . ' (' . number_format((float) $item->fee, 2) . ')';
                         })->implode('<br> ');
                     })
-                    ->editColumn('date', function ($row) use ($allRegistrations) {
-                        $registrations = $allRegistrations[$row->register_id] ?? collect();
-                        return $registrations->map(function ($item) {
-                            return Carbon::parse($item->date)->format('d-m-Y');
-                        })->implode('<br> ');
-                    })
+
+
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
-                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
+                        $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
                         return '₹' . number_format($total_fee, 2);
                     })
                     ->addColumn('paid_fee', function ($row) use ($feesCollection) {
                         $paid_fee = $feesCollection[$row->register_id] ?? 0;
                         return '₹' . number_format($paid_fee, 2);
                     })
+
+
                     ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
-                        $total_fee = ($allRegistrations[$row->register_id] ?? collect())->sum('fee');
-                        $paid_fee = $feesCollection[$row->register_id] ?? 0;
+                        $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
+                        $paid_fee = (float) ($feesCollection[$row->register_id] ?? 0);
                         $pending = $total_fee - $paid_fee;
                         return '₹' . number_format($pending, 2);
                     })
-                    ->rawColumns(['total_fee', 'course_name', 'date'])
+                    ->rawColumns(['total_fee', 'course_name', 'date', 'action'])
                     ->make(true);
             }
 
@@ -224,7 +229,7 @@ class FeescollectionpendingController extends Controller
     {
         try {
             $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-                ->where('status', 'active')
+                // ->where('status', 'active')
                 ->groupBy('register_id');
 
             $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -262,7 +267,7 @@ class FeescollectionpendingController extends Controller
 
             $data = $dataQuery->get();
 
-            $allRegistrations = CourceRegistration::with('course')
+            $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
                 ->whereIn('register_id', $data->pluck('register_id'))
                 ->get()
                 ->groupBy('register_id');
@@ -332,7 +337,7 @@ class FeescollectionpendingController extends Controller
     public function printView(Request $request)
     {
         $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-            ->where('status', 'active')
+            // ->where('status', 'active')
             ->groupBy('register_id');
 
         $dataQuery = CourceRegistration::whereIn('id', $sub)
@@ -370,7 +375,7 @@ class FeescollectionpendingController extends Controller
 
         $data = $dataQuery->get();
 
-        $allRegistrations = CourceRegistration::with('course')
+        $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
             ->whereIn('register_id', $data->pluck('register_id'))
             ->get()
             ->groupBy('register_id');
@@ -381,5 +386,57 @@ class FeescollectionpendingController extends Controller
             ->pluck('total_paid', 'student_id');
 
         return view('software.module.fees-collection-pending.print', compact('data', 'allRegistrations', 'feesCollection'));
+    }
+    public function viewFee($id)
+    {
+        try {
+            // Student fetch
+            $student = Admission::findOrFail($id);
+
+            // Active course registration with course details
+            $courseReg = CourceRegistration::where('register_id', $id)
+                // ->where('status', 'active')
+                ->with('course')
+                ->firstOrFail();
+
+            if (!$courseReg || !$courseReg->course) {
+                return back()->withErrors('Course not found for this student.');
+            }
+
+            // Semester wise fee calculation
+            $totalSemesters = $courseReg->course->semester ?? 0;
+            $semesterFee    = ($courseReg->course->course_fees && $totalSemesters > 0)
+                ? $courseReg->course->course_fees / $totalSemesters
+                : 0;
+
+            // Get fees paid grouped by semester
+            $feesCollections = FeesCollection::where('admission_id', $id)
+                ->where('course_id', $courseReg->course_id)
+                ->get();
+
+            $semesterPaid = [];
+            foreach ($feesCollections as $fee) {
+                $sem = $fee->year_semester;
+                $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
+            }
+
+            // Prepare final data
+            $feesData = [];
+            for ($sem = 1; $sem <= $totalSemesters; $sem++) {
+                $paid    = $semesterPaid[$sem] ?? 0;
+                $pending = max($semesterFee - $paid, 0);
+
+                $feesData[] = [
+                    'semester'    => "Semester $sem",
+                    'total_fee'   => $semesterFee,
+                    'paid_fee'    => $paid,
+                    'pending_fee' => $pending,
+                ];
+            }
+
+            return view('software.module.fees-collection-pending.view-fee', compact('student', 'courseReg', 'feesData'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 }

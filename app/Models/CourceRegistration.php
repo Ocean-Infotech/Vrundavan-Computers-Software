@@ -33,6 +33,9 @@ class CourceRegistration extends Model
         'deleted_by',
     ];
 
+    public static $universities = [
+        'Vrundavan Computers',
+    ];
     public function admission()
     {
         return $this->belongsTo(Admission::class, 'register_id', 'id');
@@ -76,5 +79,13 @@ class CourceRegistration extends Model
     public function semester()
     {
         return $this->belongsTo(FeesCollection::class, 'year_semester'); // adjust name/key as needed
+    }
+    public function student()
+    {
+        return $this->belongsTo(Admission::class, 'admission_id', 'id');
+    }
+    public function registrations()
+    {
+        return $this->hasMany(CourceRegistration::class, 'admission_id', 'id');
     }
 }

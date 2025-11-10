@@ -84,74 +84,72 @@ class AuthenticatedController extends Controller
     }
 
 
-    public function student_update_profile(Request $request)
-    {
-        try {
-            // dd('hello');
-            $loginUser = Auth::user();
-            if (!$loginUser) {
-                return $this->sendError("Unauthorization", [], [], 401);
-            }
-
-            $validator =  Validator::make($request->all(), [
-                'email_address' => [
-                    'required',
-                    'email',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-                ],
-                'mobile_no' => [
-                    'required',
-                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                    Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUser->id),
-                ],
-                'other_mobile_no' => [
-                    'required',
-                    'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                    Rule::unique((new Admission())->getTable())->ignore($loginUser->id),
-                ],
-                'aadhar_card_no' => [
-                    'required',
-                    'regex:/^[2-9]{1}[0-9]{11}$/',
-                    'string',
-                    Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUser->id),
-                ],
-                'temporary_address' => [
-                    'required',
-                    'string',
-                    // Rule::unique((new Admission())->getTable(),'temporary_address')->ignore($loginUser->id),
-                ],
-                'permanent_address' => [
-                    'required',
-                    'string',
-                ],
-            ]);
-
-            if ($validator->fails()) {
-                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
-            }
-
-            $responseData = [];
-            $updateParams = $request->all();
-            $updateTeamPerson = Admission::where('id', $loginUser?->id)->first();
-        $oldMobile = $updateTeamPerson->mobile_no;
-
-            // return $updateParams;
-            $updateTeamPerson->update($updateParams);
-
-             if (isset($updateParams['mobile_no']) && $updateParams['mobile_no'] != $oldMobile) {
-            \App\Models\SendOTP::where('model', Admission::class)
-                ->where('model_id', $loginUser->id)
-                ->update(['send_to' => $updateParams['mobile_no']]);
+   public function student_update_profile(Request $request)
+{
+    try {
+        $loginUser = Auth::user();
+        if (!$loginUser) {
+            return $this->sendError("Unauthorization", [], [], 401);
         }
 
-            $newRequest = new Request();
-            $newRequest['admission_id'] = $loginUser?->id;
-            $login_profile = (array)self::student_profile_response($newRequest);
+        $loginUserId = $loginUser->id;
 
-            return $this->sendResponse($login_profile, "Update student profile successfully.");
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+        $validator =  Validator::make($request->all(), [
+            'mobile_no' => [
+                'required',
+                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                Rule::unique((new Admission())->getTable(), 'mobile_no')->ignore($loginUserId),
+            ],
+            'other_mobile_no' => [
+                'required',
+                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($loginUserId),
+            ],
+            'whatsapp_no' => [ 
+                'nullable',
+                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
+                Rule::unique((new Admission())->getTable(), 'whatsapp_no')->ignore($loginUserId),
+            ],
+            'aadhar_card_no' => [
+                'required',
+                'regex:/^[2-9]{1}[0-9]{11}$/',
+                'string',
+                Rule::unique((new Admission())->getTable(), 'aadhar_card_no')->ignore($loginUserId),
+            ],
+            'temporary_address' => [
+                'required',
+                'string',
+            ],
+            'permanent_address' => [
+                'required',
+                'string',
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
         }
-        return $this->sendError("Something want to wrong.");
+
+        $updateParams = $request->only([
+            'mobile_no',
+            'other_mobile_no',
+            'whatsapp_no',
+            'aadhar_card_no',
+            'temporary_address',
+            'permanent_address',
+        ]);
+
+        $updateTeamPerson = Admission::where('id', $loginUser?->id)->first();
+        $updateTeamPerson->update($updateParams);
+
+        $newRequest = new Request();
+        $newRequest['admission_id'] = $loginUser?->id;
+        $login_profile = (array)self::student_profile_response($newRequest);
+
+        return $this->sendResponse($login_profile, "Update student profile successfully.");
+    } catch (\Exception $e) {
+        return $this->sendError($e->getMessage());
     }
+}
+
 }

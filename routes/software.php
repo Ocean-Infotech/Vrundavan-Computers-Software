@@ -4,6 +4,9 @@
 use App\Http\Controllers\admin\ApplicationUserController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\DocumentController;
+use App\Http\Controllers\admin\FeeHistoryController;
+use App\Http\Controllers\admin\master\LibraryMasterBookController;
+use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
 use App\Http\Controllers\admin\DocumentTypeController;
 use App\Http\Controllers\admin\FeesCollectionController;
@@ -11,11 +14,9 @@ use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
-
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
-
 use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
@@ -26,13 +27,19 @@ use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\GoogleDriveController;
+use App\Http\Controllers\admin\master\IssuedBookController;
 use App\Http\Controllers\admin\master\MasterClassController;
+use App\Http\Controllers\admin\master\MasterDepartmentController;
 use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
+use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\PushController;
+use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\StudentRequestController;
 use Illuminate\Support\Facades\Storage;
 use Google\Client;
 use Illuminate\Support\Facades\Artisan;
@@ -40,7 +47,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'dashboard'])->name('software.dashboard');
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard,showUsers');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard.showUsers');
 
 Route::get('/removeimage/{id}', [DashboardController::class, 'remove_image'])->name('remove_image');
 
@@ -80,11 +87,21 @@ Route::match(['get', 'post'], 'slider-update-status', [SliderController::class, 
 Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
+
 Route::post('admission/restore/{id}', [AdmissionController::class, 'restore'])->name('admission.restore');
-Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+// Route::post('admission-update-status', [AdmissionController::class, 'status_update'])->name('admission.status-update');
+Route::post('admission/check-aadhar-duplicate', [AdmissionController::class, 'checkAadharDuplicate'])->name('admission.check-aadhar-duplicate');
+Route::post('admission/check-mobile-duplicate', [AdmissionController::class, 'checkMobileDuplicate'])->name('admission.check-mobile-duplicate');
+
+Route::post('admission/update-course-status', [AdmissionController::class, 'updateCourseStatus'])->name('admission.update-course-status');
+Route::get('admission/view/{register_id}/{course_id}', [AdmissionController::class, 'view'])->name('admission.view');
 Route::post('admission-education-detail-delete', [AdmissionController::class, 'education_detail_delete'])->name('admission.education-detail-delete');
 Route::post('admission-create-google-drive-folder', [AdmissionController::class, 'createFolder'])->name('admission.create-google-drive-folder');
 Route::post('admission-google-drive-rename-folder', [AdmissionController::class, 'renameFolder'])->name('admission.google-drive-rename-folder');
+// routes/web.php
+Route::post('admission/create-folder', [AdmissionController::class, 'createFolder'])
+    ->name('admission.create-folder');
+
 
 // AJAX routes for Aadhaar
 Route::get('admission-aadhar-card-no-suggestion', [AdmissionController::class, 'aadharCardNoSuggestion'])->name('admission.aadhar-card-no-suggestion');
@@ -99,6 +116,9 @@ Route::get('admission-course', [AdmissionController::class, 'course'])->name('ad
 
 Route::match(['get', 'post'], 'course-fees-get', [AdmissionController::class, 'courseFeesGet'])->name('admission.course-fees-get');
 Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class, 'courseFeesUpdate'])->name('admission.course-fees-update');
+
+Route::get('admission/attendance/{id}', [AdmissionController::class, 'viewAttendance'])->name('admission.view-attendance');
+Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMarks'])->name('admission.view-test-marks');
 
 
 /** Master Course Modules */
@@ -121,7 +141,24 @@ Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
 
+/** Master Department Modules */
+Route::resource('/department', MasterDepartmentController::class);
+Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
+Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
 
+/** Library Book Master Modules */
+Route::resource('/library-book-master', LibraryMasterBookController::class);
+Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMasterBookController::class, 'restore'])->name('library-book-master.restore');
+Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
+
+
+Route::match(['get', 'post'], 'issued-book/status-update', [IssuedBook::class, 'status_update'])->name('issued-book.status-update');
+
+/** Issue Book Modules */
+Route::resource('/issued-book', IssuedBookController::class);
+Route::match(['get', 'post'], 'issued-book/return/{id}', [IssuedBookController::class, 'returnBook'])->name('issued-book.return');
+
+Route::match(['get', 'post'], 'issued-book/restore/{id}', [IssuedBookController::class, 'restore'])->name('issued-book.restore');
 /** Attedance Modules */
 Route::resource('/attedance', AttedanceController::class);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
@@ -165,7 +202,7 @@ Route::match(['get', 'post'], 'cource-registration/restore/{id}', [CourceRegistr
 Route::match(['get', 'post'], 'cource-registration-update-status', [CourceRegistrationController::class, 'update_status'])->name('cource-registration.status-update');
 Route::match(['get', 'post'], 'cource-registration-get-register-cource', [CourceRegistrationController::class, 'get_register_cource'])->name('cource-registration.get-register-cource');
 Route::get('/cource-registration/create/{admission_id?}', [CourceRegistrationController::class, 'create'])->name('cource-registration.create');
-Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::class, 'edit'])->name('cource-registration.edit');
+Route::get('/cource-registration/{register_id}/edit/', [CourceRegistrationController::class, 'edit'])->name('cource-registration.edit');
 
 
 
@@ -173,18 +210,27 @@ Route::get('/cource-registration/{register_id}/edit/', [AdmissionController::cla
 // Fees Collection
 
 Route::resource('fees-collection', FeesCollectionController::class);
+Route::get('fees-collection/create/{id?}', [FeesCollectionController::class, 'create'])
+    ->name('fees-collection.create');
 Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
 Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
 Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionController::class, 'search_fees_collection_details'])->name('fees-collection.search-fees-collection-details');
 Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController::class, 'check_master_password'])->name('fees-collection.check-master-password');
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
+Route::get('fees-collection/{register_id}/semester-report', [FeesCollectionController::class, 'semesterReport'])->name('fees-collection.semester-report');
+// Fee History
+Route::resource('fee-history', FeeHistoryController::class)
+    ->only(['index']);
 
-
+Route::post('fee-history/update-status', [FeeHistoryController::class, 'updateCheckedStatus'])
+    ->name('fee-history.update-status');
 // fees collection pending
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');
 Route::resource('fees-collection-pending', FeescollectionpendingController::class);
+Route::get('fees-collection-pending/view-fee/{id}', [FeescollectionpendingController::class, 'viewFee'])->name('fees-collection-pending.view-fee');
+
 
 
 // Students Fees Report
@@ -208,11 +254,18 @@ Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
 
+//Fee Details
+Route::resource('fees', MasterFeeDetailController::class);
+
+
 /** Test Modules */
 Route::resource('/test', TestController::class);
 Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
 Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
 Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
+Route::get('/add-marks/{id}', [TestController::class, 'addMarks'])->name('test.add-marks');
+Route::post('/save-marks', [TestController::class, 'saveMarks'])->name('test.save-marks');
+Route::post('/test/save-marks-ajax', [TestController::class, 'saveMarksAjax'])->name('test.save-marks-ajax');
 
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
@@ -222,8 +275,23 @@ Route::post('/marks/store', [TestreportController::class, 'store'])->name('marks
 
 
 // Route::match(['get', 'post'], 'biomax/status', [BioMaxController::class, 'biomax_status'])->name('biomax.status');
+// Notification Setting
+Route::resource('/notification_setting', NotificationSettingController::class);
+Route::get('get-students-by-course/{course_id}', [NotificationSettingController::class, 'getStudentsByCourse'])
+    ->name('get.students.by.course');
+
+// Timetable
+Route::resource('/timetable', TimetableController::class);
+
+// Student request
+Route::resource('/student-requests', StudentRequestController::class);
+
+
 
 
 /** System Login User */
 Route::resource('system-user', SystemUserController::class);
 Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class, 'redemptionItemStatuUpdate'])->name('system-user-status');
+
+
+Route::post('/push-test', [PushController::class, 'sendStatic']);

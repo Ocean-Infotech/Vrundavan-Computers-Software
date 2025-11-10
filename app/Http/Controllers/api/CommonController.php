@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Documents;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
+use App\Models\LibraryMasterBook;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterClass;
+use App\Models\Master\MasterDepartment;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
@@ -34,8 +36,8 @@ class CommonController extends Controller
             $data = DB::table('cource_registration as cr')
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
-                ->where('cr.status', 'active')
-                ->orderBy('cr.id', 'DESC')
+                // ->where('cr.status', 'active')
+                ->orderBy('cr.id', 'ASC')
                 ->select(
                     'cr.id as course_reg_id',
                     'a.id as admission_id',
@@ -160,10 +162,32 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    public function get_department(Request $request)
+    {
+        try {
+            $data = MasterDepartment::where('status', 'active')
+                ->orderBy('name', 'ASC')
+                ->get();
+
+            $data = $data->map(function ($row) {
+                return [
+                    'id' => $row?->id . "",
+                    'name' => $row?->name . "",
+                ];
+            });
+
+            return $this->sendResponse($data, "Department list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendError("Something went wrong in Department API");
+    }
+
     public function get_admission(Request $request)
     {
         try {
-            $data = Admission::where('status', 'created')->orderBy('id', 'DESC')->get();
+            $data = Admission::where('status', 'created')->orderBy('id', 'ASC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
@@ -505,5 +529,25 @@ class CommonController extends Controller
             return $this->sendError($e->getMessage());
         }
         return $this->sendError("Something want to wrong in register API");
+    }
+    public function get_books(Request $request)
+    {
+        $search = $request->get('search', '');
+
+        $query = \App\Models\LibraryMasterBook::query();
+
+        if (!empty($search)) {
+            $query->where('book_name', 'like', "%{$search}%")
+                ->orWhere('library_book_no', 'like', "%{$search}%");
+        }
+
+        $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
+
+        $options = '';
+        foreach ($books as $book) {
+            $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
+        }
+
+        return response($options);
     }
 }

@@ -37,10 +37,12 @@ class Admission extends Authenticatable
         'date_of_birth',
         'email_address',
         'gender',
+        'profile_pic',
         'category',
         'enrolment_no',
         'spid',
         'apaar_id_abc_id',
+        'udise',
         'gdrivefolderurl',
         'gdrivefolderid',
         'gdrivefoldername',
@@ -73,5 +75,13 @@ class Admission extends Authenticatable
     public function course()
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
+    }
+    public function educationDetails()
+    {
+        return $this->hasMany(EducationDetails::class, 'admission_id');
+    }
+    public function testMarks()
+    {
+        return $this->hasMany(\App\Models\StudentTestMark::class, 'register_id', 'id');
     }
 }

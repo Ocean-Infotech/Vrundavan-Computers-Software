@@ -19,6 +19,8 @@
                     'content'));
             },
             success: function(response) {
+                console.log(response);
+
                 if (response.status) {
                     // console.log("getAdmission 18",response.data, admission_id);
                     let options = "<option value=''>Select Admission</option>";

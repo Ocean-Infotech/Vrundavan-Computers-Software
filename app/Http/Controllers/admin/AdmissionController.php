@@ -85,13 +85,17 @@ class AdmissionController extends Controller
 
         try {
             $columns = [
-                (object) ['data' => "id", 'name' => 'id', 'td_label' => 'Register No.'],
+                (object) ['data' => "id", 'name' => 'id', 'td_label' => 'REG No.'],
                 (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
-                (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Student Info'],
-                (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => 'Google Drive Folder', 'className' => 'w-5 text-center'],
-                (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
-                (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+                (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Stu <i class="bx bx-info-circle"></i>'],
+                (object) ['data' => "attendance_button", 'name' => 'attendance_button', 'td_label' => 'Att.', 'className' => 'w-5 text-center'],
+                (object) ['data' => "test_button", 'name' => 'test_button', 'td_label' => 'Test', 'className' => 'w-5 text-center'],
+
+                (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => '<i class="fab fa-google-drive" style="font-size:18px;color:#4285F4;"></i>', 'className' => 'w-5 text-center'],
+                // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
+                (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],
+                (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Update', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             if (!$modules['permission_edit'] && !$modules['permission_delete']) {
                 $columns = array_filter($columns, function ($col) {
@@ -125,26 +129,51 @@ class AdmissionController extends Controller
                         return trim("{$first} {$father} {$last}");
                     })
 
+                    // ->editColumn('gdrivefolderurl', function ($row) {
+                    //     $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+                    //     return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
+                    // })
+
                     ->editColumn('gdrivefolderurl', function ($row) {
-                        $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-                        return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
-                    })
-
-                    ->editColumn('status', function ($row) use ($modules) {
-                        $dropdown = '<ul class="dropdown-menu">';
-                        $button = '';
-
-                        if ($row->status == "created") {
-                            $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
-                        } elseif ($row->status == "rejected") {
-                            $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
-                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
+                        if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
+                            $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
+                            return '<a href="' . $row->gdrivefolderurl . '"
+            target="_blank"
+            data-id="' . $row->id . '"
+            data-foldername="' . $folderName . '"
+            data-folderurl="' . $row->gdrivefolderurl . '"
+            class="btn btn-sm open_google_drive_folder"
+            title="Open Google Drive Folder">
+            <i class="fab fa-google-drive" style="font-size:18px;"></i>
+        </a>';
+                        } else {
+                            return '<a href="javascript:void(0)"
+            data-id="' . $row->id . '"
+            class="btn btn-primary btn-sm create_google_drive_folder"
+            title="Create Google Drive Folder">
+            <i class="fa fa-folder-plus"></i>
+        </a>';
                         }
-
-                        $dropdown .= '</ul>';
-                        return $button . $dropdown;
                     })
+
+
+
+
+                    // ->editColumn('status', function ($row) use ($modules) {
+                    //     $dropdown = '<ul class="dropdown-menu">';
+                    //     $button = '';
+
+                    //     if ($row->status == "created") {
+                    //         $button = '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                    //         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="rejected">Reject</a></li>';
+                    //     } elseif ($row->status == "rejected") {
+                    //         $button = '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle" data-bs-toggle="dropdown">' . ucfirst($row->status) . '</button>';
+                    //         $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row->id . '" data-update_status="created">Re-Create</a></li>';
+                    //     }
+
+                    //     $dropdown .= '</ul>';
+                    //     return $button . $dropdown;
+                    // })
 
                     ->addColumn('course_button', function ($row) use ($modules) {
                         // if ($modules['course-register_add']) {
@@ -152,17 +181,52 @@ class AdmissionController extends Controller
                         // }
                         return "-";
                     })
+                    ->addColumn('book_button', function ($row) {
+                        return '<button class="btn btn-info btn-sm book-btn"
+                data-id="' . $row->id . '"
+                data-name="' . $row->first_name . '">
+                Book
+            </button>';
+                    })
+
 
                     ->addColumn('view_button', function ($row) {
                         return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
                     })
+                    // Replace the existing attendance_button code in your controller (around line 130)
+                    ->addColumn('attendance_button', function ($row) {
+                        return '<a href="' . url('software/attedance') . '"
+        class="btn btn-warning btn-sm open-attendance"
+        data-admission-id="' . $row->id . '"
+        target="_blank"
+        title="View Attendance">
+        <i class="bx bx-calendar-check"></i>
+    </a>';
+                    })
+
+
+
+
+
+                    ->addColumn('test_button', function ($row) {
+                        return '<a href="' . url('software/test_report') . '"
+        class="btn btn-info btn-sm open-test"
+        data-admission-id="' . $row->id . '"
+        title="View Test Report">
+        <i class="bx bx-file"></i>
+    </a>';
+                    })
+
+
+
 
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
                         if (!$row->deleted_at) {
                             if ($editPermisstion) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-primary btn-sm mx-1">Update</a>';
                             }
+
                             if ($deletePermisstion) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                             }
@@ -173,7 +237,7 @@ class AdmissionController extends Controller
                         return $btn ?: '-';
                     })
 
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button', 'attendance_button', 'test_button'])
                     ->make(true);
             }
 
@@ -212,9 +276,33 @@ class AdmissionController extends Controller
         }
 
         View::share('modules', $modules);
-
         $validated = $request->validated();
+        if ($request->hasFile('profile_pic')) {
+            $file = $request->file('profile_pic');
 
+            $firstName = $request->input('first_name');
+            $profileName = $request->input('last_name'); // or another field if needed
+            $folderName = $firstName . '_' . $profileName;
+
+            $destinationPath = public_path('uploads/profile_pics/' . $folderName);
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move($destinationPath, $filename);
+
+            $validated['profile_pic'] = 'uploads/profile_pics/' . $folderName . '/' . $filename;
+        }
+
+        $validated['first_name']  = strtoupper($validated['first_name']);
+        $validated['last_name']   = strtoupper($validated['last_name']);
+        $validated['father_name'] = strtoupper($validated['father_name']);
+        $validated['mother_name'] = strtoupper($validated['mother_name']);
+
+
+        // dd($request->all(), $validated);
         $token = Session::get('external_api_token');
 
         try {
@@ -222,16 +310,20 @@ class AdmissionController extends Controller
             $loginUserId = Auth::user()->id;
             $validated['created_by'] = $loginUserId;
 
+
             $admission = Admission::create($validated);
+
             $admission_id = $admission->id;
             try {
                 $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
-                $parentFolderId = '1koMqPtZeiGBLuD4I3Dly-3i3DslR978g'; // Main Student Folder ID
+                $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
 
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
 
                 $admission->update([
-                    'gdrivefolderurl' => $folderData['link']
+                    'gdrivefolderid'   => $folderData['id'] ?? null,
+                    'gdrivefoldername' => $folderData['name'] ?? $folderName,
+                    'gdrivefolderurl'  => $folderData['link'] ?? null,
                 ]);
             } catch (\Exception $e) {
                 \Log::error("Google Drive folder creation failed: " . $e->getMessage());
@@ -349,9 +441,9 @@ class AdmissionController extends Controller
             }
                     */
             if (Helper::directCan('course-register-create')) {
-                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+                return Redirect::route('cource-registration.create', ['admission_id' => $admission_id])->with('success', $admission->first_name . ' has been successfully admitted.');
             }
-            return Redirect::route($modules['route'] . '.index')->with('success', $admission->name . ' has been successfully admitted.');
+            return Redirect::route($modules['route'] . '.index')->with('success', $admission->first_name . ' has been successfully admitted.');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -361,7 +453,7 @@ class AdmissionController extends Controller
     {
         $student = Admission::withTrashed()->find($request->id);
 
-        $studentCourses = CourceRegistration::with(['course'])
+        $studentCourses = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
             ->withTrashed()
             ->where('register_id', $request->id)
             ->get();
@@ -391,6 +483,7 @@ class AdmissionController extends Controller
         View::share('modules', $modules);
         try {
 
+
             $edit = Admission::findOrFail($id);
 
             $education = EducationDetails::where('admission_id', $id)->get();
@@ -398,8 +491,7 @@ class AdmissionController extends Controller
 
             return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
         } catch (\Exception $e) {
-            return view($modules['folder_path'] . '.form', compact('modules', 'edit'));
-        } catch (\Exception $e) {
+
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
@@ -416,7 +508,12 @@ class AdmissionController extends Controller
             abort(403, 'User does not have the right permissions.');
         }
         $validated = $request->validated();
+        $validated['first_name']  = strtoupper($validated['first_name']);
+        $validated['last_name']   = strtoupper($validated['last_name']);
+        $validated['father_name'] = strtoupper($validated['father_name']);
+        $validated['mother_name'] = strtoupper($validated['mother_name']);
 
+        // dd($validated,$request->all());
         $token = Session::get('external_api_token');
         try {
             $loginUserId = Auth::user()->id;
@@ -424,7 +521,24 @@ class AdmissionController extends Controller
 
             $admission = Admission::where('id', $id)->firstOrFail();
             $admission_id = $admission->id;
+            if ($request->hasFile('profile_pic')) {
+                $file = $request->file('profile_pic');
 
+                $firstName = $request->input('first_name');
+                $profileName = $request->input('last_name');
+                $folderName = $firstName . '_' . $profileName;
+
+                $destinationPath = public_path('uploads/profile_pics/' . $folderName);
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($destinationPath, $filename);
+
+                $validated['profile_pic'] = 'uploads/profile_pics/' . $folderName . '/' . $filename;
+            }
 
             $admission->update($validated);
 
@@ -569,7 +683,7 @@ class AdmissionController extends Controller
 
                 Session::put('admission_id', $admission_id);
                 if (Helper::directCan('course-register-create')) {
-                    return Redirect::route('cource-registration.create', [$admission_id])->with('success', $admission->name . ' has been successfully admitted.');
+                    return Redirect::route('cource-registration.create', [$admission_id])->with('success', $admission->first_name . ' has been successfully admitted.');
                 }
                 return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' updated successfully');
 
@@ -660,7 +774,7 @@ class AdmissionController extends Controller
         $modules = $this->modules;
         $validator = Validator::make($request->all(), [
             'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'update_status' => ['required', 'in:created,rejected,completed,cancelled']
+            'update_status' => ['required', 'in:running,completed,cancel']
         ]);
 
         if ($validator->fails() && $isAjax) {
@@ -709,81 +823,52 @@ class AdmissionController extends Controller
     //  =================== Main Folder Ni ander Multipal Folder create krva  no code niche no che vrundavan computer line -462 thi start thay che ==============================
     public function createFolder(Request $request)
     {
-        $modules = $this->modules;
-        $validator = Validator::make($request->all(), [
-            'id' => ['required', Rule::exists($modules['table_name'], 'id')],
-            'foldername' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors(), 'Validation Error', 422);
-        }
-
-        $recordId = $request->input('id');
-        $subFolderName = $request->input('foldername');
-
-        $client = new Google_Client();
-        $client->setClientId(config('filesystems.disks.google.clientId'));
-        $client->setClientSecret(config('filesystems.disks.google.clientSecret'));
-        $client->refreshToken(config('filesystems.disks.google.refreshToken'));
-
-        $service = new Drive($client);
-
-        $mainFolderName = 'Vrundavan-Computer';
-        $mainFolderId = $this->getOrCreateFolder($service, $mainFolderName);
-
-
-        $fileMetadata = new DriveFile([
-            'name' => $subFolderName,
-            'mimeType' => 'application/vnd.google-apps.folder',
-            'parents' => [$mainFolderId],
-        ]);
+        $admission = Admission::findOrFail($request->id);
 
         try {
-            $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id, name',
+            $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
+            $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
+
+            $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
+
+            $admission->update([
+                'gdrivefolderid'   => $folderData['id'] ?? null,
+                'gdrivefoldername' => $folderData['name'] ?? $folderName,
+                'gdrivefolderurl'  => $folderData['link'] ?? null,
             ]);
 
-            $folderId = $folder->id;
-            $folderUrl = "https://drive.google.com/drive/folders/{$folderId}";
-
-            $createfolder = Admission::withTrashed()->findOrFail($recordId);
-            $createfolder->gdrivefolderurl = $folderUrl;
-            $createfolder->gdrivefolderid = $folderId;
-            $createfolder->gdrivefoldername = $folder->name;
-            $createfolder->save();
-
-            return $this->sendResponse($createfolder, $folder->name . ' Create Google Drive Folder successfully!');
+            return response()->json(['success' => true, 'message' => 'Folder created successfully']);
         } catch (\Exception $e) {
-            return $this->sendError($e->getMessage());
+            \Log::error("Google Drive folder creation failed: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    private function getOrCreateFolder(Drive $service, string $folderName): string
-    {
-        $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
-        $results = $service->files->listFiles([
-            'q' => $query,
-            'fields' => 'files(id, name)',
-        ]);
+    // private function getOrCreateFolder(Drive $service, string $folderName): string
+    // {
+    //     $query = "mimeType='application/vnd.google-apps.folder' and name='$folderName' and trashed=false";
+    //     $results = $service->files->listFiles([
+    //         'q' => $query,
+    //         'fields' => 'files(id, name)',
+    //     ]);
 
-        $files = $results->getFiles();
+    //     $files = $results->getFiles();
 
-        if (empty($files)) {
-            $fileMetadata = new DriveFile([
-                'name' => $folderName,
-                'mimeType' => 'application/vnd.google-apps.folder',
-            ]);
+    //     if (empty($files)) {
+    //         $fileMetadata = new DriveFile([
+    //             'name' => $folderName,
+    //             'mimeType' => 'application/vnd.google-apps.folder',
+    //         ]);
 
-            $folder = $service->files->create($fileMetadata, [
-                'fields' => 'id',
-            ]);
+    //         $folder = $service->files->create($fileMetadata, [
+    //             'fields' => 'id',
+    //         ]);
 
-            return $folder->id;
-        } else {
-            return $files[0]->id;
-        }
-    }
+    //         return $folder->id;
+    //     } else {
+    //         return $files[0]->id;
+    //     }
+    // }
 
     // ========================= line no - 545 lagin che Folder crate thay che ane te folder  ni ander multipal Folder create thay code End ==============================
 
@@ -931,5 +1016,94 @@ class AdmissionController extends Controller
         } else {
             return response()->json(['message' => 'Record not found.'], 404);
         }
+    }
+
+    public function updateCourseStatus(Request $request)
+    {
+        $request->validate([
+            'register_id' => 'required|integer',
+            'course_id'   => 'required|integer',
+            'status'      => 'required|in:Running,Completed,Cancel',
+        ]);
+
+        $course = CourceRegistration::where('register_id', $request->register_id)
+            ->where('course_id', $request->course_id)
+            ->first();
+
+        if (!$course) {
+            return $this->sendError('Course not found.');
+        }
+
+        $course->status = $request->status;
+        $course->updated_at = now();
+        $course->save();
+
+        return $this->sendResponse($course, 'Status updated successfully.');
+    }
+    public function view($register_id, $course_id)
+    {
+        $modules = $this->modules;
+        $admission = Admission::findOrFail($register_id);
+
+        $course = CourceRegistration::where('register_id', $register_id)
+            ->where('course_id', $course_id)
+            ->with('course')
+            ->firstOrFail();
+
+        $mother_letters = str_split(strtoupper($admission->mother_name));
+
+        $full_name = strtoupper($admission->first_name . ' ' . $admission->last_name . ' ' . $admission->father_name);
+        $full_name_letters = str_split($full_name);
+
+        $permanent_address_letters = str_split(strtoupper($admission->permanent_address ?? ''));
+
+
+        View::share('modules', $modules);
+        View::share('mother_letters', $mother_letters);
+        View::share('full_name_letters', $full_name_letters);
+        View::share('permanent_address_letters', $permanent_address_letters);
+
+        // dd($course);
+        return view($modules['folder_path'] . '.view', compact('admission', 'course'));
+    }
+    public function checkAadharDuplicate(Request $request)
+    {
+        $aadharCardNo = $request->input('aadhar_card_no');
+        $editId = $request->input('edit_id');
+
+        // Remove spaces
+        $aadharCardNo = str_replace(' ', '', $aadharCardNo);
+
+        $query = Admission::where('aadhar_card_no', $aadharCardNo);
+
+        if ($editId) {
+            $query->where('id', '!=', $editId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Aadhaar card number already exists' : ''
+        ]);
+    }
+
+    public function checkMobileDuplicate(Request $request)
+    {
+        $mobileNo = $request->input('mobile_no');
+        $editId = $request->input('edit_id');
+
+        $query = Admission::where('mobile_no', $mobileNo);
+
+        if ($editId) {
+            $query->where('id', '!=', $editId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Mobile number already exists' : ''
+        ]);
     }
 }

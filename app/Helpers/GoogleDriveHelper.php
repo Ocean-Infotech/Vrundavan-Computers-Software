@@ -12,7 +12,7 @@ class GoogleDriveHelper
     {
         $client = new Google_Client();
         // JSON file path
-        $client->setAuthConfig(storage_path('google/service-account.json'));
+        $client->setAuthConfig(storage_path('google/vrundavan-computer-469909-c5332d639c01.json'));
         $client->addScope(Google_Service_Drive::DRIVE);
         return $client;
     }
@@ -24,24 +24,24 @@ class GoogleDriveHelper
      * @param string $parentFolderId
      * @return array
      */
-    public static function createFolder($folderName, $parentFolderId = null)
-    {
-        $client = self::getClient();
-        $service = new Google_Service_Drive($client);
+   public static function createFolder($folderName, $parentFolderId)
+{
+    $client = self::getClient();
+    $service = new \Google_Service_Drive($client);
 
-        $fileMetadata = new Google_Service_Drive_DriveFile([
-            'name' => $folderName,
-            'mimeType' => 'application/vnd.google-apps.folder',
-            'parents' => $parentFolderId ? [$parentFolderId] : []
-        ]);
+    $fileMetadata = new \Google_Service_Drive_DriveFile([
+        'name'     => $folderName,
+        'mimeType' => 'application/vnd.google-apps.folder',
+        'parents'  => [$parentFolderId],
+    ]);
 
-        $folder = $service->files->create($fileMetadata, [
-            'fields' => 'id, webViewLink'
-        ]);
+    $folder = $service->files->create($fileMetadata, ['fields' => 'id, name, webViewLink']);
 
-        return [
-            'id' => $folder->id,
-            'link' => $folder->webViewLink
-        ];
-    }
+    return [
+        'id'   => $folder->id,
+        'name' => $folder->name,
+        'link' => $folder->webViewLink,
+    ];
+}
+
 }

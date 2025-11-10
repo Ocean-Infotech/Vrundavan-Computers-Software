@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 
 class SliderController extends Controller
 {
@@ -21,11 +20,13 @@ class SliderController extends Controller
             'permission_prefix' => 'banner',
         ];
     }
+
+    // All Sliders (Admin use)
     public function index()
     {
         $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
             unset($slider->created_by, $slider->updated_by, $slider->deleted_by);
-            $slider->image = url('storage/' . $slider->image);
+            $slider->image = url($slider->image); // public/uploads/sliders/... url
             return $slider;
         });
 
@@ -54,7 +55,9 @@ class SliderController extends Controller
                 );
             }
 
-            $imagePath = $request->file('image')->store('sliders', 'public');
+            $fileName = time() . '_' . $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('uploads/sliders'), $fileName);
+            $imagePath = 'uploads/sliders/' . $fileName;
 
             $slider = Slider::create([
                 'title' => $request->title,
@@ -70,32 +73,31 @@ class SliderController extends Controller
         }
     }
 
-    // List Sliders
-public function slider_list()
-{
-    $sliders = Slider::where('status', 'active')
-        ->orderBy('id', 'desc')
-        ->get();
+    // List Active Sliders
+    public function slider_list()
+    {
+        $sliders = Slider::where('status', 'active')
+            ->orderBy('id', 'desc')
+            ->get();
 
-    if ($sliders->isEmpty()) {
-        return $this->sendError('No sliders found.', [], [], 404);
+        if ($sliders->isEmpty()) {
+            return $this->sendError('No sliders found.', [], [], 404);
+        }
+
+        $sliders = $sliders->map(function ($slider) {
+            unset(
+                $slider->created_by,
+                $slider->updated_by,
+                $slider->deleted_by,
+                $slider->created_at,
+                $slider->updated_at
+            );
+            $slider->image = asset($slider->image);
+            return $slider;
+        });
+
+        return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
     }
-
-    $sliders = $sliders->map(function ($slider) {
-        unset(
-            $slider->created_by,
-            $slider->updated_by,
-            $slider->deleted_by,
-            $slider->created_at,
-            $slider->updated_at
-        );
-        $slider->image = url('storage/' . $slider->image);
-        return $slider;
-    });
-
-    return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
-}
-
 
     // Update Slider
     public function slider_update(Request $request)
@@ -132,10 +134,14 @@ public function slider_list()
             }
 
             if ($request->hasFile('image')) {
-                if ($slider->image && Storage::disk('public')->exists($slider->image)) {
-                    Storage::disk('public')->delete($slider->image);
+                // delete old file
+                if ($slider->image && file_exists(public_path($slider->image))) {
+                    unlink(public_path($slider->image));
                 }
-                $slider->image = $request->file('image')->store('sliders', 'public');
+
+                $fileName = time() . '_' . $request->file('image')->getClientOriginalName();
+                $request->file('image')->move(public_path('uploads/sliders'), $fileName);
+                $slider->image = 'uploads/sliders/' . $fileName;
             }
 
             $slider->title = $request->title;
@@ -159,8 +165,8 @@ public function slider_list()
             return $this->sendError('Slider not found.', [], [], 404);
         }
 
-        if ($slider->image && Storage::disk('public')->exists($slider->image)) {
-            Storage::disk('public')->delete($slider->image);
+        if ($slider->image && file_exists(public_path($slider->image))) {
+            unlink(public_path($slider->image));
         }
 
         $slider->delete();

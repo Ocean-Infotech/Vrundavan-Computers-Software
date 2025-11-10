@@ -82,7 +82,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
+                                                <table id="yajra-datatables" class="table table-hover dt-responsive nowrap" style="width: 100%">
+
                             @if (isset($columns))
                                 <thead>
                                     <tr>
@@ -188,7 +189,7 @@
             $('.select_filter').on('change keyup', function() {
                 dtable.draw();
             });
-            
+
         });
     </script>
     <script>
@@ -242,7 +243,7 @@
         var queryString = '?search_id=' + encodeURIComponent(search_id) +
                           '&course_id=' + encodeURIComponent(course_id);
 
-                          
+
 
         var url = "{{ route('students-fees-report.print') }}" + queryString;
 

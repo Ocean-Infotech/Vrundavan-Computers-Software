@@ -79,12 +79,11 @@ class MasterCityController extends Controller
                     })
                     ->editColumn('status', function ($record) {
                         $status = '';
-                        if($record?->status == "active"){
+                        if ($record?->status == "active") {
                             $status = '<span class="badge bg-success-subtle text-success text-uppercase">Active</span>';
-                        }
-                        else if($record?->status == "inactive"){
+                        } else if ($record?->status == "inactive") {
                             $status = '<span class="badge bg-danger-subtle text-danger text-uppercase">InActive</span>';
-                        }else{
+                        } else {
                             $status = '-';
                         }
                         return $status;
@@ -185,7 +184,7 @@ class MasterCityController extends Controller
                     return $query->where('country_id', $request->country_id)
                         ->whereNull('deleted_at'); // Only check non-deleted records
                 })
-                ->ignore($id),
+                    ->ignore($id),
             ],
             'status' => 'required',
             // 'name' => 'required|unique:' . $modules['table_name'] . ',name,' . $id . '|max:255',

@@ -27,7 +27,7 @@ Route::group(['prefix' => 'software', 'middleware' => [SoftwareAuthMiddleware::c
 // });
 
 Route::get('/gd-test', function(){
-    $parentFolderId = '1koMqPtZeiGBLuD4I3Dly-3i3DslR978g';
+    $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI';
     $res = \App\Helpers\GoogleDriveHelper::createFolder('student_' . time(), $parentFolderId);
     return response()->json($res);
 });

@@ -23,6 +23,7 @@ class FeesCollection extends Model
     'cheque_no',
     'return_reason',
     'password',
+    'checked_status',
     'status',
 ];
 
