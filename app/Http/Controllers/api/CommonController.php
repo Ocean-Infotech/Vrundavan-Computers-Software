@@ -530,24 +530,29 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
-    public function get_books(Request $request)
-    {
-        $search = $request->get('search', '');
+  public function get_books(Request $request)
+{
+    $search = $request->get('search', '');
 
-        $query = \App\Models\LibraryMasterBook::query();
+    // ✅ FIXED: removed extra semicolon and chained where() properly
+    $query = \App\Models\LibraryMasterBook::query()
+        ->where('status', 'active');
 
-        if (!empty($search)) {
-            $query->where('book_name', 'like', "%{$search}%")
-                ->orWhere('library_book_no', 'like', "%{$search}%");
-        }
-
-        $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
-
-        $options = '';
-        foreach ($books as $book) {
-            $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
-        }
-
-        return response($options);
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('book_name', 'like', "%{$search}%")
+              ->orWhere('library_book_no', 'like', "%{$search}%");
+        });
     }
+
+    $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
+
+    $options = '';
+    foreach ($books as $book) {
+        $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
+    }
+
+    return response($options);
+}
+
 }

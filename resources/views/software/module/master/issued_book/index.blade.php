@@ -168,14 +168,14 @@
             }
         });
 
-$('.my_daterangepicker').on('apply.daterangepicker', function(ev, picker) {
-    $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
-    dtable.ajax.reload(); // ✅ reload data
-});
-$('.my_daterangepicker').on('cancel.daterangepicker', function(ev, picker) {
-    $(this).val('');
-    dtable.ajax.reload(); // ✅ reload data after clearing
-});
+        $('.my_daterangepicker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' to ' + picker.endDate.format('DD/MM/YYYY'));
+            dtable.ajax.reload(); // ✅ reload data
+        });
+        $('.my_daterangepicker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+            dtable.ajax.reload(); // ✅ reload data after clearing
+        });
 
 
 
@@ -283,12 +283,12 @@ $('.my_daterangepicker').on('cancel.daterangepicker', function(ev, picker) {
                         data.search = $('input[type="search"]').val();
                         data.book_id = $('#search_id').val(); // ✅ SENDS Book filter
                         data.student_id = $('#admission_search').val();
-                          let selectedDate = $('input[name="selected_date"]').val();
-                    if (selectedDate && selectedDate.includes('to')) {
-                        let parts = selectedDate.split('to');
-                        data.start_date = parts[0].trim();
-                        data.end_date = parts[1].trim();
-                    }
+                        let selectedDate = $('input[name="selected_date"]').val();
+                        if (selectedDate && selectedDate.includes('to')) {
+                            let parts = selectedDate.split('to');
+                            data.start_date = parts[0].trim();
+                            data.end_date = parts[1].trim();
+                        }
                         // data.status = $('select[name="status"] option:selected').val();
                         // data.role = $('select[name="role"] option:selected').val();
                     },
@@ -320,19 +320,19 @@ $('.my_daterangepicker').on('cancel.daterangepicker', function(ev, picker) {
             dtable.draw();
         });
     </script>
-<script>
-$(document).on('click', '.open-issue-create', function() {
-    let bookId = $(this).data('book-id');
-    let bookName = $(this).data('book-name');
+    <script>
+        $(document).on('click', '.open-issue-create', function() {
+            let bookId = $(this).data('book-id');
+            let bookName = $(this).data('book-name');
 
-    // Store the book details in localStorage
-    localStorage.setItem('selected_book_id', bookId);
-    localStorage.setItem('selected_book_name', bookName);
+            // Store the book details in localStorage
+            localStorage.setItem('selected_book_id', bookId);
+            localStorage.setItem('selected_book_name', bookName);
 
-    // Redirect to the Issue Book Create page
-    window.location.href = "{{ route('issued-book.create') }}";
-});
-</script>
+            // Redirect to the Issue Book Create page
+            window.location.href = "{{ route('issued-book.create') }}";
+        });
+    </script>
 
 
     @include('software.includes.script-delete-record')
