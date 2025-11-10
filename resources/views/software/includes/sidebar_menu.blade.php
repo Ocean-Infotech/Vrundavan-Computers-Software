@@ -147,14 +147,28 @@
                 </a>
                 <ul class="menu-sub">
 
-                    <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active' : '' }}">
-                        <a href="{{ route('attedance.index') }}" class="menu-link">
-                            <div data-i18n="Attendance">Attendance</div>
-                        </a>
-                    </li>
+                    {{-- Create Attendance --}}
+                    @directCan('attedance-create')
+                        <li class="menu-item {{ Route::current()->getName() == 'attedance.create' ? 'active' : '' }}">
+                            <a href="{{ route('attedance.create') }}" class="menu-link">
+                                <div data-i18n="Create Attendance">Create Attendance</div>
+                            </a>
+                        </li>
+                    @enddirectCan
+
+                    {{-- View Attendance --}}
+                    @directCan('attedance-list')
+                        <li class="menu-item {{ Route::current()->getName() == 'attedance.index' ? 'active' : '' }}">
+                            <a href="{{ route('attedance.index') }}" class="menu-link">
+                                <div data-i18n="View Attendance">View Attendance</div>
+                            </a>
+                        </li>
+                    @enddirectCan
+
                 </ul>
             </li>
         @enddirectCanAny
+
 
         @directCanAny([
             'fees-collection-list',
