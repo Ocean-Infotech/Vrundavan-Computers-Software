@@ -320,6 +320,19 @@ $('.my_daterangepicker').on('cancel.daterangepicker', function(ev, picker) {
             dtable.draw();
         });
     </script>
+<script>
+$(document).on('click', '.open-issue-create', function() {
+    let bookId = $(this).data('book-id');
+    let bookName = $(this).data('book-name');
+
+    // Store the book details in localStorage
+    localStorage.setItem('selected_book_id', bookId);
+    localStorage.setItem('selected_book_name', bookName);
+
+    // Redirect to the Issue Book Create page
+    window.location.href = "{{ route('issued-book.create') }}";
+});
+</script>
 
 
     @include('software.includes.script-delete-record')

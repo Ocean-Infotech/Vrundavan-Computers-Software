@@ -129,8 +129,20 @@ class IssuedBookController extends Controller
                     ->addColumn('book_info', function ($row) {
                         $bookNo = $row->book?->library_book_no ?? '';
                         $bookName = $row->book?->book_name ?? '';
-                        return $bookNo && $bookName ? "({$bookNo}) {$bookName}" : ($bookName ?: '-');
+
+                        if ($bookNo && $bookName) {
+                            $display = "({$bookNo}) {$bookName}";
+                            $bookId = $row->book?->id ?? 0;
+                        return '<a href="javascript:void(0)" class="text-primary open-issue-create"
+    data-book-id="' . $bookId . '"
+    data-book-name="' . $display . '"
+    style="text-decoration:none;">' . $display . '</a>';
+
+                        }
+
+                        return '-';
                     })
+
 
                     ->addColumn('issue_return_dates', function ($row) {
                         $issueDate = !empty($row->issued_date)
@@ -248,7 +260,7 @@ class IssuedBookController extends Controller
                     })
 
 
-                    ->rawColumns(['status', 'action', 'issue_return_dates', 'issue_return_by'])
+                    ->rawColumns(['status', 'action', 'issue_return_dates', 'issue_return_by', 'book_info'])
                     ->make(true);
             }
 
@@ -277,40 +289,52 @@ class IssuedBookController extends Controller
             $validated = $request->validated();
             $validated['created_by'] = Auth::user()->id;
             $validated['issued_by'] = Auth::user()->id;
+
+            // ✅ Fix: detect LBM instead of PVM
             if (!empty($validated['book_id'])) {
-                preg_match('/PVM-(\d+)/', $validated['book_id'], $match);
+                // Example: (LBM004) Pride and Prejudice
+                preg_match('/LBM-?(\d+)/', $validated['book_id'], $match);
                 if (!empty($match[1])) {
-                    $book = LibraryMasterBook::where('library_book_no', 'PVM-' . $match[1])->first();
+                    $book = LibraryMasterBook::where('library_book_no', 'LBM' . $match[1])->first();
                     if ($book) {
                         $validated['book_id'] = $book->id;
                         $validated['book_name'] = $book->book_name;
                         $validated['library_book_no'] = $book->library_book_no;
+                    } else {
+                        return back()->withErrors('Invalid book selected. Please choose from the list.');
                     }
+                } else {
+                    return back()->withErrors('Invalid book code format.');
                 }
             }
 
+            // ✅ Extract Student ID (from "13 - Name")
             if (!empty($validated['student_id'])) {
-                // Extract ID from "13 - NAME"
                 preg_match('/^(\d+)/', $validated['student_id'], $match);
                 if (!empty($match[1])) {
                     $validated['student_id'] = $match[1];
                 }
             }
 
-            // dd($request->all(),$validated);
+            // ✅ Format issued date properly
             if ($request->has('issued_date')) {
                 $validated['issued_date'] = date('Y-m-d', strtotime($request->issued_date));
             } elseif ($request->has('date')) {
                 $validated['date'] = date('Y-m-d', strtotime($request->date));
             }
+
+            // ✅ Create record
             LibraryIssuedBooks::create($validated);
 
-
-            return redirect()->route($this->modules['route'] . '.index')->withSuccess('Library Book Created Successfully!');
+            return redirect()
+                ->route($this->modules['route'] . '.index')
+                ->withSuccess('Library Book Issued Successfully!');
         } catch (\Exception $e) {
-            return Redirect::route('software.software.dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.software.dashboard')
+                ->withErrors($e->getMessage());
         }
     }
+
 
     public function edit($id)
     {
