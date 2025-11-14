@@ -4,9 +4,12 @@ namespace App\Http\Controllers\admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Imports\StudentImport;
 use Illuminate\Http\Request;
 use App\Models\Admission;
 use App\Models\EducationDetails;
+use Maatwebsite\Excel\Facades\Excel;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -1105,5 +1108,43 @@ class AdmissionController extends Controller
             'exists' => $exists,
             'message' => $exists ? 'Mobile number already exists' : ''
         ]);
+    }
+    public function import()
+    {
+        try {
+            $modules = $this->modules;
+            return view($modules['folder_path'] . '.import');
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function importStore(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+            $import = new StudentImport();
+            Excel::import($import, $request->file('import_file'));
+
+            // Duplicate messages
+            $messages = [];
+
+            foreach ($import->duplicateRows as $dup) {
+                $messages[] = "Row {$dup['row']} → Duplicate Mobile Numbers: " . implode(',', $dup['numbers']);
+            }
+
+            return back()->with([
+                'duplicateErrors' => $messages,
+                'totalCount'      => $import->totalCount,
+                'successCount'    => $import->successCount,
+                'failedCount'     => $import->failedCount,
+                'errorRows'       => $import->errorRows, // <-- NEW
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 }
