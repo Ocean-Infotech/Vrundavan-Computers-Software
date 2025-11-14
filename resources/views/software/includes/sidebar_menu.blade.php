@@ -113,21 +113,26 @@
         @enddirectCanAny
 
 
-        @directCanAny(['admission-list', 'admission-create', 'admission-edit', 'admission-delete'])
+        @directCanAny(['admission-list', 'admission-create', 'admission-edit', 'admission-delete', 'admission-import'])
             <li
                 class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="ti ti-school me-2"></i>
                     <div data-i18n="Student">Student</div>
                 </a>
+
                 <ul class="menu-sub">
+
+                    {{-- New Admission --}}
                     @directCan('admission-create')
                         <li class="menu-item {{ Route::current()->getName() == 'admission.create' ? 'active' : '' }}">
                             <a href="{{ route('admission.create') }}" class="menu-link">
-                                <div data-i18n="New Admission ">New Admission</div>
+                                <div data-i18n="New Admission">New Admission</div>
                             </a>
                         </li>
                     @enddirectCan
+
+                    {{-- Registered Students --}}
                     @directCan('admission-list')
                         <li class="menu-item {{ Route::current()->getName() == 'admission.index' ? 'active' : '' }}">
                             <a href="{{ route('admission.index') }}" class="menu-link">
@@ -135,9 +140,20 @@
                             </a>
                         </li>
                     @enddirectCan
+
+                    {{-- Import Student --}}
+                    @directCan('admission-import')
+                        <li class="menu-item {{ Route::current()->getName() == 'admission.import' ? 'active' : '' }}">
+                            <a href="{{ route('admission.import') }}" class="menu-link">
+                                <div data-i18n="Import Student">Import Student</div>
+                            </a>
+                        </li>
+                    @enddirectCan
+
                 </ul>
             </li>
         @enddirectCanAny
+
 
         @directCanAny(['attedance-list', 'attedance-create', 'attedance-edit', 'attedance-delete'])
             <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
@@ -225,7 +241,8 @@
         @enddirectCanAny
 
         @directCanAny(['test-list', 'test_report-list'])
-            <li class="menu-item {{ $sidebar_active == 'test' || $sidebar_active == 'test_report' ? 'active open' : '' }}">
+            <li
+                class="menu-item {{ $sidebar_active == 'test' || $sidebar_active == 'test_report' ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="bx bx-notepad me-2"></i>
                     <div data-i18n="Test">Test</div>
