@@ -35,6 +35,7 @@ class CourceRegistration extends Model
 
     public static $universities = [
         'Vrundavan Computers',
+        'BKNMU',
     ];
     public function admission()
     {
