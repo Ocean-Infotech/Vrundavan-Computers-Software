@@ -14,6 +14,7 @@ use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
+use App\Http\Controllers\Admin\Master\MasterUniversityController;
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
@@ -149,6 +150,10 @@ Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::cla
 Route::resource('/department', MasterDepartmentController::class);
 Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
 Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
+/** Master Department Modules */
+Route::resource('/university', MasterUniversityController::class);
+Route::match(['get', 'post'], 'university/restore/{id}', [MasterUniversityController::class, 'restore'])->name('university.restore');
+Route::match(['get', 'post'], 'university-update-status', [MasterUniversityController::class, 'status_update'])->name('university.status-update');
 
 /** Library Book Master Modules */
 Route::resource('/library-book-master', LibraryMasterBookController::class);

@@ -31,6 +31,8 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-class-bybatch', 'get_classbybatch')->name('get-class-bybatch');
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
     Route::any('get-department', 'get_department')->name('get_department');
+    Route::get('get-university', 'get_university')->name('get_university');
+
 });
 
 Route::post("student/send-otp", [AuthenticationController::class, 'studentSendOtp']);

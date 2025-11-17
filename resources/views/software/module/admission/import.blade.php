@@ -97,7 +97,8 @@
                     </div>
 
                     {{-- Summary --}}
-                    @php $report = session('import_report'); @endphp
+                @php $report = session()->pull('import_report'); @endphp
+
 
                     @if ($report)
 

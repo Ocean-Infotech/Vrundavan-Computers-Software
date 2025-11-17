@@ -335,6 +335,16 @@
                         </li>
                     @enddirectCanAny
 
+                    @directCanAny(['university-list', 'university-create', 'university-edit', 'university-delete'])
+                        <li class="menu-item {{ $sidebar_active == 'university' ? 'active' : '' }}">
+                            <a href="{{ route('university.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bx bxs-school me-2"></i>
+                                <div data-i18n="University Master">University Master</div>
+                            </a>
+                        </li>
+                    @enddirectCanAny
+
+
                     {{-- Syllabus --}}
                     @directCanAny(['syllabus-list', 'syllabus-create', 'syllabus-edit', 'syllabus-delete'])
                         <li class="menu-item {{ $sidebar_active == 'syllabus' ? 'active' : '' }}">

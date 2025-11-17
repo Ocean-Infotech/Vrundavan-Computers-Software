@@ -17,6 +17,7 @@ use App\Models\Master\MasterDepartment;
 use App\Models\Master\MasterPincode;
 use App\Models\Master\MasterShift;
 use App\Models\Master\MasterState;
+use App\Models\Master\MasterUniversity;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -183,6 +184,28 @@ class CommonController extends Controller
 
         return $this->sendError("Something went wrong in Department API");
     }
+    public function get_university(Request $request)
+    {
+        try {
+            $data = MasterUniversity::where('status', 'active')
+                ->orderBy('name', 'ASC')
+                ->get();
+
+            $data = $data->map(function ($row) {
+                return [
+                    'id' => $row?->id . "",
+                    'name' => $row?->name . "",
+                ];
+            });
+
+            return $this->sendResponse($data, "University list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendError("Something went wrong in University API");
+    }
+
 
     public function get_admission(Request $request)
     {
@@ -530,29 +553,28 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
-  public function get_books(Request $request)
-{
-    $search = $request->get('search', '');
+    public function get_books(Request $request)
+    {
+        $search = $request->get('search', '');
 
-    // ✅ FIXED: removed extra semicolon and chained where() properly
-    $query = \App\Models\LibraryMasterBook::query()
-        ->where('status', 'active');
+        // ✅ FIXED: removed extra semicolon and chained where() properly
+        $query = \App\Models\LibraryMasterBook::query()
+            ->where('status', 'active');
 
-    if (!empty($search)) {
-        $query->where(function ($q) use ($search) {
-            $q->where('book_name', 'like', "%{$search}%")
-              ->orWhere('library_book_no', 'like', "%{$search}%");
-        });
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('book_name', 'like', "%{$search}%")
+                    ->orWhere('library_book_no', 'like', "%{$search}%");
+            });
+        }
+
+        $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
+
+        $options = '';
+        foreach ($books as $book) {
+            $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
+        }
+
+        return response($options);
     }
-
-    $books = $query->orderBy('book_name', 'asc')->limit(10)->get();
-
-    $options = '';
-    foreach ($books as $book) {
-        $options .= "<option value='{$book->book_name} - {$book->library_book_no}' data-id='{$book->id}'></option>";
-    }
-
-    return response($options);
-}
-
 }

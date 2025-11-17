@@ -51,33 +51,16 @@
                             @method('PUT')
                         @endisset
                         <div class="row">
+
                             <div class="col-md-4 col-sm-12">
                                 <div class="form-group">
-                                    <label class="form-label">Select Course <span class="text-danger">*</span></label>
-                                    <select id="course" name="course_id"
-                                        class="form-control select2 search_by_course @error('course_id') is-invalid @enderror"
-                                        data-selectedCourseId="{{ isset($edit) ? $edit->course_id : old('course_id') }}"
-                                        required>
-                                        <option value="">Select Course</option>
-                                    </select>
+                                    <label class="form-label"> Name <span class="text-danger">*</span> </label>
+                                    <input id="name" type="text"
+                                        class="form-control @error('name') is-invalid @enderror" name="name"
+                                        value="{{ isset($edit?->name) ? $edit?->name : old('name') }}"
+                                        autocomplete="name" autofocus placeholder="Enter Batch Name">
 
-
-                                    @error('course_id')
-                                        <span class="invalid-feedback">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-12">
-                                <div class="form-group">
-                                    <label class="form-label"> Batch Name <span class="text-danger">*</span> </label>
-                                    <input id="batch_name" type="text"
-                                        class="form-control @error('batch_name') is-invalid @enderror" name="batch_name"
-                                        value="{{ isset($edit?->batch_name) ? $edit?->batch_name : old('batch_name') }}"
-                                        autocomplete="batch_name" autofocus placeholder="Enter Batch Name">
-
-                                    @error('batch_name')
+                                    @error('name')
                                         <span class="invalid-feedback">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -108,5 +91,4 @@
 
 
 @section('page_leavel_script')
-    @include('software.utils.getCourse')
 @endsection

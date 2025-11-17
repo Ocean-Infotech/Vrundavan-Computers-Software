@@ -1133,7 +1133,8 @@ class AdmissionController extends Controller
             $report = $import->report;
 
             // Save report in session so blade can show it
-            Session::put('import_report', $report);
+         Session::flash('import_report', $report);
+
 
             $message = "Import finished — Inserted: " . count($report['inserted']) .
                 ", Skipped: " . count($report['skipped']) .

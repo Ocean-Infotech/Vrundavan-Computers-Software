@@ -201,8 +201,7 @@ class CourceRegistrationController extends Controller
             View::share('admission_id', Session::get('admission_id'));
             // Session::remove('admission_id');
         }
-        $universities = CourceRegistration::$universities;
-        View::share('universities', $universities);
+
 
         // dd($modules, request()->all(), Session::get('admission_id'), $admissions,$admission_id);
         return view($modules['folder_path'] . '.form', compact('modules', 'admissions'));
@@ -301,12 +300,12 @@ class CourceRegistrationController extends Controller
             $admissions = Admission::all();
             $edit = CourceRegistration::findOrFail($id);
 
-            // Pass universities from model
-            $universities = CourceRegistration::$universities;
+        
+
 
             return view(
                 $modules['folder_path'] . '.form',
-                compact('modules', 'edit', 'admissions', 'universities')
+                compact('modules', 'edit', 'admissions')
             );
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());

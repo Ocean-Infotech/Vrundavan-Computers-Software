@@ -64,19 +64,18 @@
                                 <div class="form-group">
                                     <label for="university">University <span class="text-danger">*</span></label>
                                     <select name="university" id="university"
-                                        class="form-control select2 @error('university') is-invalid @enderror">
-                                        @foreach ($universities as $uni)
-                                            <option value="{{ $uni }}"
-                                                {{ old('university', $edit->university ?? 'Vrundavan Computers') == $uni ? 'selected' : '' }}>
-                                                {{ $uni }}
-                                            </option>
-                                        @endforeach
+                                        class="form-control search_by_university select2 @error('university') is-invalid @enderror"
+                                        data-selected-university-id="{{ old('university', $edit->university ?? '') }}"
+                                        required>
+                                        <option value="">Select University</option>
                                     </select>
+
                                     @error('university')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>
+
 
                             {{-- Department --}}
                             <div class="col-md-12 mb-3">
@@ -392,13 +391,14 @@
 @section('page_leavel_script')
     @include('software.utils.getCourse')
     @include('software.utils.getDepartment')
+    @include('software.utils.getUniversity')
     @include('software.utils.getBatchByCourseid')
     @include('software.utils.getClassByBatch')
     @include('software.utils.getShiftByBatchByCourseidByClass')
 
 
     <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
+                                                                                                                                                                                                                                                <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script> -->
 
 
 
@@ -465,15 +465,15 @@
                                 rows += '<tr>';
                                 rows += '<td>' + item.id + '</td>';
                                 rows += '<td>' + item.course.course_name + '</td>';
-                             let formattedDate = "";
-                        if(item.date){
-                            let d = new Date(item.date);
-                            let day = ("0" + d.getDate()).slice(-2);
-                            let month = ("0" + (d.getMonth() + 1)).slice(-2);
-                            let year = d.getFullYear();
-                            formattedDate = day + "-" + month + "-" + year;
-                        }
-                        rows += '<td>' + formattedDate + '</td>';
+                                let formattedDate = "";
+                                if (item.date) {
+                                    let d = new Date(item.date);
+                                    let day = ("0" + d.getDate()).slice(-2);
+                                    let month = ("0" + (d.getMonth() + 1)).slice(-2);
+                                    let year = d.getFullYear();
+                                    formattedDate = day + "-" + month + "-" + year;
+                                }
+                                rows += '<td>' + formattedDate + '</td>';
 
                                 rows += '</tr>';
                             });
@@ -664,15 +664,15 @@
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.course.course_name + '</td>';
-                                 let formattedDate = "";
-                                if(item.date){
-                                    let d = new Date(item.date);
-                                    let day = ("0" + d.getDate()).slice(-2);
-                                    let month = ("0" + (d.getMonth() + 1)).slice(-2);
-                                    let year = d.getFullYear();
-                                    formattedDate = day + "-" + month + "-" + year;
-                                }
-                                rows += '<td>' + formattedDate + '</td>';
+                                    let formattedDate = "";
+                                    if (item.date) {
+                                        let d = new Date(item.date);
+                                        let day = ("0" + d.getDate()).slice(-2);
+                                        let month = ("0" + (d.getMonth() + 1)).slice(-2);
+                                        let year = d.getFullYear();
+                                        formattedDate = day + "-" + month + "-" + year;
+                                    }
+                                    rows += '<td>' + formattedDate + '</td>';
 
                                     rows += '</tr>';
                                 });

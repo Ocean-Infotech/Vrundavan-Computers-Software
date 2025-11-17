@@ -134,10 +134,10 @@ class MasterDepartmentController extends Controller
                     'name' => $subject->name,
                 ]);
             }
-  if ($request->action == "save_next") {
-            return redirect()->route($modules['route'] . '.create')
-                ->withSuccess($modules['title'] . ' created successfully! Add next department.');
-        }
+            if ($request->action == "save_next") {
+                return redirect()->route($modules['route'] . '.create')
+                    ->withSuccess($modules['title'] . ' created successfully! Add next department.');
+            }
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
         } catch (\Exception $e) {
             if ($request->ajax()) {
@@ -151,12 +151,12 @@ class MasterDepartmentController extends Controller
     public function edit(string $id)
     {
         try {
-        $modules = $this->modules;
-        $modules['login_user_role'] = Helper::getLoginUserRole();
-        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
-        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
-        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
-        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+            $modules = $this->modules;
+            $modules['login_user_role'] = Helper::getLoginUserRole();
+            $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+            $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+            $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+            $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
 
             View::share('modules', $modules);
             $edit = MasterDepartment::findOrFail($id);
