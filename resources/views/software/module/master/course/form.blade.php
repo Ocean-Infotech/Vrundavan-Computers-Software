@@ -142,6 +142,9 @@
                         <button type="submit" class="btn btn-success mt-1">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
+                          <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
+                Save & Next
+            </button>
                         <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
                 </div>

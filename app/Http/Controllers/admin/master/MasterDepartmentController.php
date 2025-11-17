@@ -134,7 +134,10 @@ class MasterDepartmentController extends Controller
                     'name' => $subject->name,
                 ]);
             }
-
+  if ($request->action == "save_next") {
+            return redirect()->route($modules['route'] . '.create')
+                ->withSuccess($modules['title'] . ' created successfully! Add next department.');
+        }
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' create successfully');
         } catch (\Exception $e) {
             if ($request->ajax()) {

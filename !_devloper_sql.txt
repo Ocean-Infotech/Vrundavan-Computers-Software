@@ -1,4 +1,8 @@
 |-------------------------------------------- Local
+17-11-2025
+ALTER TABLE admission MODIFY category VARCHAR(50) NULL;
+
+
 14-11-2025
 ALTER TABLE `admission` CHANGE `mother_name` `mother_name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
 ALTER TABLE `admission` CHANGE `temporary_address` `temporary_address` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;

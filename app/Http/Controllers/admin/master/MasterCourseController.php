@@ -195,9 +195,14 @@ class MasterCourseController extends Controller
                 }
                         */
             }
+if ($request->action == "save_next") {
+    return Redirect::route($modules['route'] . '.create')
+        ->withSuccess($modules['title'] . ' added successfully. Please add next record.');
+}
 
-            return Redirect::route($modules['route'] . '.index')
-                ->withSuccess($modules['title'] . ' Create Successfully');
+return Redirect::route($modules['route'] . '.index')
+    ->withSuccess($modules['title'] . ' added successfully.');
+
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }

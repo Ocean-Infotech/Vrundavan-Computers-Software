@@ -204,7 +204,10 @@ class MasterShiftController extends Controller
                     'message' => $modules['title'] . ' created successfully.',
                 ]);
             }
-
+            if ($request->action == "save_next") {
+                return redirect()->route($modules['route'] . '.create')
+                    ->withSuccess($modules['title'] . ' created successfully. Add next shift.');
+            }
             return Redirect::route($modules['route'] . '.index')
                 ->withSuccess($modules['title'] . ' created successfully.');
         } catch (\Exception $e) {

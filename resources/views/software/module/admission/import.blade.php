@@ -1,3 +1,5 @@
+
+
 @extends('software.layout.app')
 
 @php
@@ -95,48 +97,45 @@
                     </div>
 
                     {{-- Summary --}}
-                    @if (session('totalCount'))
-                        <div style="padding:10px; margin-top:20px;">
+                    @php $report = session('import_report'); @endphp
 
-                            <h4 style="margin-bottom:10px;">Import Summary</h4>
+                    @if ($report)
 
-                            <p style="margin:0;">
-                                <strong>Total Data:</strong> {{ session('totalCount') }} &nbsp; | &nbsp;
-                                <strong>Total Success:</strong> {{ session('successCount') }} &nbsp; | &nbsp;
-                                <strong>Total Failed:</strong> {{ session('failedCount') }}
-                            </p>
-
-                            <hr>
+                        {{-- Summary --}}
+                        <div class="alert alert-info mt-3">
+                            Import Finished —
+                            Inserted: {{ count($report['inserted']) }},
+                            Skipped: {{ count($report['skipped']) }},
+                            Errors: {{ count($report['errors']) }}
                         </div>
-                    @endif
-                    @if (session('duplicateErrors'))
-                        <div style="padding:10px; margin-top:10px;">
 
-                            <h4 class="text-danger" style="margin-bottom:10px;">Duplicate Rows Found</h4>
-
-                            <ul style="margin-left:20px;" class="text-danger">
-                                @foreach (session('duplicateErrors') as $msg)
-                                    <li>{{ $msg }}</li>
+                        {{-- Skipped Rows --}}
+                        @if (count($report['skipped']))
+                            <div class="mt-3">
+                                <h5>Skipped Rows:</h5>
+                                @foreach ($report['skipped'] as $r)
+                                    <div style="padding:6px 0; border-bottom:1px solid #ddd;">
+                                        <strong>Row {{ $r['row'] }} —</strong>
+                                        {{ $r['reason'] }}
+                                    </div>
                                 @endforeach
-                            </ul>
+                            </div>
+                        @endif
 
-                        </div>
+                        {{-- Error Rows --}}
+                        @if (count($report['errors']))
+                            <div class="mt-4">
+                                <h5>Rows With Errors:</h5>
+                                @foreach ($report['errors'] as $e)
+                                    <div style="padding:6px 0; border-bottom:1px solid #ddd;">
+                                        <strong>Row {{ $e['row'] }} —</strong>
+                                        {{ $e['message'] }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
                     @endif
-                    @if (session('errorRows'))
-    <div style="padding:10px; margin-top:10px;">
-
-        <h4 class="text-danger" style="margin-bottom:10px;">Failed Row Errors</h4>
-
-        <ul style="margin-left:20px; color:red;">
-            @foreach (session('errorRows') as $err)
-                <li>
-                    <strong>Row {{ $err['row'] }}:</strong> {{ $err['error'] }}
-                </li>
-            @endforeach
-        </ul>
-
-    </div>
-@endif
 
 
 
@@ -161,7 +160,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                                                                                                                    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                                                                                        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 

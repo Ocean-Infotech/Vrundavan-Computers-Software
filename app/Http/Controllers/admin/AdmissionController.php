@@ -1129,20 +1129,17 @@ class AdmissionController extends Controller
             $import = new StudentImport();
             Excel::import($import, $request->file('import_file'));
 
-            // Duplicate messages
-            $messages = [];
+            // Get report from import class
+            $report = $import->report;
 
-            foreach ($import->duplicateRows as $dup) {
-                $messages[] = "Row {$dup['row']} → Duplicate Mobile Numbers: " . implode(',', $dup['numbers']);
-            }
+            // Save report in session so blade can show it
+            Session::put('import_report', $report);
 
-            return back()->with([
-                'duplicateErrors' => $messages,
-                'totalCount'      => $import->totalCount,
-                'successCount'    => $import->successCount,
-                'failedCount'     => $import->failedCount,
-                'errorRows'       => $import->errorRows, // <-- NEW
-            ]);
+            $message = "Import finished — Inserted: " . count($report['inserted']) .
+                ", Skipped: " . count($report['skipped']) .
+                ", Errors: " . count($report['errors']);
+
+            return back()->with('success', $message);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
         }
