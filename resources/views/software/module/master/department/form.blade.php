@@ -65,9 +65,11 @@
                         <button type="submit" class="btn btn-success mt-1">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
-                          <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
-                Save & Next
-            </button>
+                        @if (!isset($edit))
+                            <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
+                                Save & Next
+                            </button>
+                        @endif
                         <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
                 </div>
@@ -77,27 +79,25 @@
 @endsection
 
 @section('page_leavel_script')
-  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-<script>
-    ClassicEditor
-        .create(document.querySelector('#subject_editor'), {
-            toolbar: [
-                'heading', '|',
-                'bold', 'italic', 'underline', 'link', '|',
-                'bulletedList', 'numberedList', '|',
-                'blockQuote', 'undo', 'redo'
-            ]
-        })
-
-</script>
-<style>
-    .ck-editor__editable {
-        min-height: 300px !important;
-        max-height: 300px !important;
-        overflow-y: auto;
-    }
-</style>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#subject_editor'), {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', 'link', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'blockQuote', 'undo', 'redo'
+                ]
+            })
+    </script>
+    <style>
+        .ck-editor__editable {
+            min-height: 300px !important;
+            max-height: 300px !important;
+            overflow-y: auto;
+        }
+    </style>
 
 
 @endsection
-

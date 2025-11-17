@@ -97,15 +97,15 @@
                                     name="course_year" maxlength="4"
                                     value="{{ isset($edit?->course_year) ? $edit?->course_year : old('course_year') }}"
                                     placeholder="Enter Course Year">
-                                    @if (isset($course_year_type))
+                                @if (isset($course_year_type))
                                     <!-- <button class="btn btn-outline-primary dropdown-toggle waves-effect" type="button"
-                                        data-bs-toggle="dropdown" aria-expanded="false">Type</button>
-                                    <ul class="dropdown-menu dropdown-menu-end" style="" name="course_year_type">
-                                        @foreach ($course_year_type as $key => $item)
-                                        <li value="{{ $key ?? '' }}" class="dropdown-item">{{ $item ?? '' }}</li>
-                                        @endforeach
-                                    </ul> -->
-                                    @endif
+                                                data-bs-toggle="dropdown" aria-expanded="false">Type</button>
+                                            <ul class="dropdown-menu dropdown-menu-end" style="" name="course_year_type">
+                                                @foreach ($course_year_type as $key => $item)
+    <li value="{{ $key ?? '' }}" class="dropdown-item">{{ $item ?? '' }}</li>
+    @endforeach
+                                            </ul> -->
+                                @endif
                             </div>
 
                             @error('course_year')
@@ -121,8 +121,8 @@
                             <label class="form-label">Total Semester <span class="text-danger">*</span> </label>
                             <div class="input-group">
                                 <input id="semester" type="text"
-                                    class="form-control @error('semester') is-invalid @enderror num_only"
-                                    name="semester" maxlength="4"
+                                    class="form-control @error('semester') is-invalid @enderror num_only" name="semester"
+                                    maxlength="4"
                                     value="{{ isset($edit?->semester) ? $edit?->semester : old('semester') }}"
                                     placeholder="Enter Course Semester" readonly>
                             </div>
@@ -142,9 +142,12 @@
                         <button type="submit" class="btn btn-success mt-1">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
-                          <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
-                Save & Next
-            </button>
+                        @if (!isset($edit))
+                            <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
+                                Save & Next
+                            </button>
+                        @endif
+
                         <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                     </div>
                 </div>
@@ -156,17 +159,17 @@
 
 
 @section('page_leavel_script')
-<script>
-    $(document).ready(function () {
-        $('#course_year').on('input', function () {
-            let year = parseInt($(this).val());
-            if (!isNaN(year) && year > 0) {
-                $('#semester').val(year * 2);
-            } else {
-                $('#semester').val('');
-            }
+    <script>
+        $(document).ready(function() {
+            $('#course_year').on('input', function() {
+                let year = parseInt($(this).val());
+                if (!isNaN(year) && year > 0) {
+                    $('#semester').val(year * 2);
+                } else {
+                    $('#semester').val('');
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 @endsection

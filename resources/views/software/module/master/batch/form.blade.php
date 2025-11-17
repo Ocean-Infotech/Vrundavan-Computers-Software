@@ -56,7 +56,8 @@
                                     <label class="form-label">Select Course <span class="text-danger">*</span></label>
                                     <select id="course" name="course_id"
                                         class="form-control select2 search_by_course @error('course_id') is-invalid @enderror"
-                                        data-selectedCourseId="{{ isset($edit) ? $edit->course_id : old('course_id') }}" required>
+                                        data-selectedCourseId="{{ isset($edit) ? $edit->course_id : old('course_id') }}"
+                                        required>
                                         <option value="">Select Course</option>
                                     </select>
 
@@ -90,9 +91,11 @@
                                 <button type="submit" class="btn btn-success mt-1">
                                     {{ isset($edit) ? 'Update' : 'Submit' }}
                                 </button>
-                                <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
-                Save & Next
-            </button>
+                                @if (!isset($edit))
+                                    <button type="submit" name="action" value="save_next" class="btn btn-primary mt-1">
+                                        Save & Next
+                                    </button>
+                                @endif
                                 <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
                             </div>
                         </div>
