@@ -14,7 +14,7 @@ use App\Http\Controllers\admin\master\MasterCityController;
 use App\Http\Controllers\admin\master\MasterCountryController;
 use App\Http\Controllers\admin\master\MasterPincodeController;
 use App\Http\Controllers\admin\master\MasterStateController;
-use App\Http\Controllers\Admin\Master\MasterUniversityController;
+use App\Http\Controllers\admin\master\MasterUniversityController;
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
