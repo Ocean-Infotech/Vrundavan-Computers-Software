@@ -1,4 +1,41 @@
 |-------------------------------------------- Local
+17-11-2025
+ALTER TABLE admission MODIFY category VARCHAR(50) NULL;
+
+
+14-11-2025
+ALTER TABLE `admission` CHANGE `mother_name` `mother_name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `admission` CHANGE `temporary_address` `temporary_address` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `admission` CHANGE `permanent_address` `permanent_address` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `admission` CHANGE `date_of_birth` `date_of_birth` DATE NULL;
+ALTER TABLE `admission` CHANGE `category` `category` ENUM('SC','ST','OBC','EWS','General') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT 'SC, ST, OBC, EWS, General';
+ALTER TABLE `cource_registration` CHANGE `course_id` `course_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `cource_registration` CHANGE `batch_id` `batch_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `cource_registration` CHANGE `shift_id` `shift_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+ALTER TABLE `cource_registration` CHANGE `fee` `fee` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+|-------------------------------------------- Live
+ALTER TABLE `library_issued_books` CHANGE `return_by` `return_by` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `library_book_master` CHANGE `purchase_date` `purchase_date` DATE NULL;
+ALTER TABLE `library_book_master` CHANGE `created_by` `created_by` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+28-10-2025
+ALTER TABLE fees_collections
+ADD COLUMN checked_status TINYINT(1) NOT NULL DEFAULT 0 AFTER password;
+12-10-2025
+ALTER TABLE `cource_registration` CHANGE `status` `status` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Running';
+ALTER TABLE `admission`
+ADD COLUMN `profile_pic` VARCHAR(255) NULL AFTER `other_mobile_no`;
+ALTER TABLE `admission`
+ADD COLUMN `udise` VARCHAR(50) AFTER `apaar_id_abc_id`;
+
+12-08-2025
+
+ALTER TABLE `cource_registration` CHANGE `university` `university` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL, CHANGE `department` `department` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
+
+
 
 php artisan migrate:refresh --path=database/migrations/2025_05_15_100531_create_attedance_table.php
 
@@ -17,7 +54,13 @@ ALTER TABLE `admission` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER 
 
 ALTER TABLE `master_course` ADD `biometric_id` VARCHAR(255) NULL DEFAULT NULL AFTER `id`;
 
-|-------------------------------------------- Live
+ALTER TABLE `cource_registration`
+ADD COLUMN `university` VARCHAR(255) NOT NULL AFTER `admission_id`,
+ADD COLUMN `department` VARCHAR(255) NOT NULL AFTER `university`;
+ALTER TABLE `requests` CHANGE `subject` `subject_id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
+
+
+
 ALTER TABLE `cource_registration` ADD `admission_id` VARCHAR(255) NOT NULL AFTER `course_id`;
 
 ALTER TABLE `fees_collections` CHANGE `password` `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;

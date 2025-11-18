@@ -1,7 +1,7 @@
 <!doctype html>
 
-<html lang="en" class="light-style layout-wide customizer-hide layout-navbar-fixed layout-menu-fixed" dir="ltr" data-theme="theme-default"
-    data-assets-path="{{ asset('/') }}" data-template="vertical-menu-template">
+<html lang="en" class="light-style layout-wide customizer-hide layout-navbar-fixed layout-menu-fixed" dir="ltr"
+    data-theme="theme-default" data-assets-path="{{ asset('/') }}" data-template="vertical-menu-template">
 
 <head>
     <meta charset="utf-8" />
@@ -161,6 +161,28 @@
 
         });
     </script>
+    <!-- Firebase App (required) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
+
+    <script>
+        const firebaseConfig = @json($firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then(function(registration) {
+                    messaging.useServiceWorker(registration);
+                    console.log('Service Worker registered and messaging linked.');
+                }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                });
+        }
+    </script>
+
+
+
+
     @yield('page_script_file')
 
     @yield('page_leavel_script')

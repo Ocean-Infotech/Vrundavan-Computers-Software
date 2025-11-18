@@ -67,9 +67,9 @@ class MasterClassController extends Controller
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         if ($request->has('search')) {
-                        $query->where('class', 'like', "%" . $request->search . "%");
-                    }
-                })
+                            $query->where('class', 'like', "%" . $request->search . "%");
+                        }
+                    })
 
 
                     ->editColumn('status', function ($row) use ($modules) {
@@ -77,21 +77,21 @@ class MasterClassController extends Controller
                         $dropdown = "";
                         $dropdown .= '<ul class="dropdown-menu" style="">';
 
-                    if ($row->status == "active") {
-                        $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
-                        // $btn = '<span class="badge bg-success bg-glow">Active</span>';
-                    } elseif ($row->status == "inactive") {
-                        $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
-                        $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
-                        // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
-                    } else {
+                        if ($row->status == "active") {
+                            $status .= '<button type="button" class="btn btn-success btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-danger update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="inactive">Inactive</a></li>';
+                            // $btn = '<span class="badge bg-success bg-glow">Active</span>';
+                        } elseif ($row->status == "inactive") {
+                            $status .= '<button type="button" class="btn btn-danger btn-sm w-100 dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">' . ucfirst($row->status) . '</button>';
+                            $dropdown .= '<li><a href="javascript:void(0)" class="dropdown-item waves-effect btn-label-success update-status" data-url="' . route($modules["route"] . '.status-update') . '" data-id="' . $row["id"] . '"  data-update_status="active">Active</a></li>';
+                            // $btn = '<span class="badge bg-danger bg-glow">In-Active</span>';
+                        } else {
+                            return $status;
+                        }
+                        $dropdown .= '</ul>';
+                        $status .= $dropdown;
                         return $status;
-                    }
-                    $dropdown .= '</ul>';
-                    $status .= $dropdown;
-                    return $status;
-                })
+                    })
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if (!$row?->deleted_at) {
@@ -110,8 +110,8 @@ class MasterClassController extends Controller
                             $btn = '-';
                         }
 
-                    return $btn;
-                })
+                        return $btn;
+                    })
                     ->rawColumns(['status', 'action'])
                     ->make(true);
                 return $returnData;
@@ -144,7 +144,10 @@ class MasterClassController extends Controller
                     'name' => $class->class,
                 ]);
             }
-
+            if ($request->action == "save_next") {
+                return redirect()->route('class.create')
+                    ->withSuccess('Class created successfully! Add next record.');
+            }
             // For non-AJAX, redirect normally
             return redirect()->route('class.index')->withSuccess('Class created successfully!');
         } catch (\Exception $e) {

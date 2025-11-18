@@ -59,12 +59,14 @@
 
                                 <input list="search" id="search_id" name="search"
                                     class="form-control @error('search') is-invalid @enderror"
-                                    value="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}" placeholder="Search">
+                                    value="{{ $id ?? old('search', $admission_id ?? ($edit->admission_id ?? ($student_id ?? ''))) }}"
+                                    placeholder="Search">
 
                                 <datalist id="search" class="search_by_courceregistration"
                                     data-append="search_by_courceregistration"
-                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($id ?? '')) }}">
+                                    data-selectedCourceRegistrationId="{{ old('search', $edit->admission_id ?? ($student_id ?? '')) }}">
                                 </datalist>
+
                                 @error('search')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -128,19 +130,20 @@
                                 <label for="year_semester">Year / Semester <span class="text-danger">*</span></label>
                                 <select name="year_semester" id="year_semester"
                                     class="form-control required select2 @error('year_semester') is-invalid @enderror"
-                                    data-semester="{{ isset($edit?->year_semester) ? $edit?->year_semester : old('year_semester') }}"
+                                    data-semester="{{ old('year_semester', $selectedSemester ?? '') }}"
                                     placeholder="Semester">
                                     <option value="">Select Semester</option>
                                     @if (isset($edit))
                                         @for ($semester = 1; $semester <= $edit->course->semester; $semester++)
                                             <option value="{{ $semester }}"
-                                                {{ (int) old('year_semester', $edit->year_semester ?? '') === $semester ? 'selected' : '' }}
+                                                {{ (int) old('year_semester', $selectedSemester ?? ($edit->year_semester ?? '')) === $semester ? 'selected' : '' }}
                                                 {{ in_array($semester, $paid_semesters ?? []) ? 'disabled' : '' }}>
                                                 {{ $semester }}
                                             </option>
                                         @endfor
                                     @endif
                                 </select>
+
 
                                 @error('year_semester')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -281,7 +284,7 @@
                             <h5 style="color: rgb(0, 0, 255);">Course Fees : <span id="CourseFees">00</span></h5>
                         </div>
                         <div class="col-md-4">
-                            <h5 style="color: rgb(0, 128, 0);">Deposite Fees : <span id="DepositeFees">00</span></h5>
+                            <h5 style="color: rgb(0, 128, 0);">Deposit Fees : <span id="DepositeFees">00</span></h5>
                         </div>
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
@@ -311,8 +314,8 @@
                     <div id="password_error" class="text-danger mt-2 d-none">Password is required.</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" id="check_master_password" class="btn btn-primary">Confirm</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -492,18 +495,19 @@
 
 
             window.currentStudentDetails = null;
+            $('#FeesCollectionDetails').hide();
+
 
             function searchData() {
                 var search_id = $('#search_id').val()?.trim();
                 console.log("L-461", search_id);
 
-                if (search_id === '') {
-                    $('#search_id').addClass('is-invalid');
-                    showMessage("Search is required", "warning");
-                    return;
-                } else {
-                    $("#search_id").removeClass("is-invalid");
-                }
+                // if (search_id === '') {
+                //     $('#search_id').addClass('is-invalid');
+                //     showMessage("Search is required", "warning");
+                //     return;
+                // }
+                // $("#search_id").removeClass("is-invalid");
 
                 $.ajax({
                     type: 'POST',
@@ -610,6 +614,8 @@
                             $('#CourseFees').text(formatCurrency(fullCourseFee));
                             $('#DepositeFees').text(formatCurrency(depositedFees));
                             $('#PendingFees').text(formatCurrency(fullCourseFee - depositedFees));
+                            $('#fees').val(fullCourseFee -
+                                depositedFees); // Auto-fill Course Fees = Pending Fees
 
 <<<<<<< HEAD
 =======
@@ -618,7 +624,7 @@
 >>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                         } else {
                             $('#FeesCollectionDetails').hide();
-                            showMessage("No data found for the given ID", "error");
+                            // showMessage("No data found for the given ID", "error");
                         }
                     },
                     error: function() {
@@ -643,6 +649,7 @@
                     $('#fees').val('').prop('disabled', true);
                     $('#CourseFees').text("0.00");
                     $('#PendingFees').text("0.00");
+<<<<<<< HEAD
 <<<<<<< HEAD
 
                     // Optional message
@@ -678,12 +685,13 @@
 =======
 
                     // Optional message
+=======
+>>>>>>> c82521d9c4512c157e11a2e813ae61243122819c
                     showMessage("All semester fees have been paid.", "info");
                     return;
                 }
 
-                $('#fees').val($("#fees").attr('data-editValue')).prop('disabled', false).removeClass(
-                    'is-invalid');
+                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
                 $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
 
                 // Calculate semester fee
@@ -697,22 +705,35 @@
                     $('#PendingFees').text("0.00");
                     showMessage("Fees already paid for Semester " + selectedSemester, "info");
                 } else {
-                    $('#fees').val('').prop('disabled', false);
+                    // ✅ MAIN FIX: Auto-fill Course Fees with Pending Fee
                     $('#CourseFees').text(formatCurrency(semesterFee));
 
-                    let unpaid = window.unpaidSemesters.find(item => parseInt(
-                        item.semester) === selectedSemester);
+                    let unpaid = window.unpaidSemesters.find(item => parseInt(item.semester) ===
+                        selectedSemester);
                     if (unpaid) {
-                        var DepositeFees = semesterFee - unpaid.pending_fee
-                        $('#PendingFees').text(formatCurrency(unpaid.pending_fee));
-                        $('#pandingfeesinput').val(formatCurrency(unpaid.pending_fee));
-                        $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
-                    }
+                        var depositedFees = semesterFee - unpaid.pending_fee;
+                        var pendingFee = unpaid.pending_fee;
 
+                        $('#PendingFees').text(formatCurrency(pendingFee));
+                        $('#pandingfeesinput').val(formatCurrency(pendingFee));
+                        $('#DepositeFees').text(formatCurrency(depositedFees.toFixed(2)));
+
+                        // ✅ AUTO FILL COURSE FEES INPUT WITH PENDING FEE
+                        $('#fees').val(pendingFee.toFixed(2));
+                    } else {
+                        // If no unpaid record found, assume full semester fee is pending
+                        var pendingFee = semesterFee;
+                        $('#PendingFees').text(formatCurrency(pendingFee));
+                        $('#pandingfeesinput').val(formatCurrency(pendingFee));
+                        $('#DepositeFees').text("0.00");
+
+                        // ✅ AUTO FILL COURSE FEES INPUT WITH FULL SEMESTER FEE
+                        $('#fees').val(pendingFee.toFixed(2));
+                    }
                 }
 
                 /** Edit time show table */
-                if ($("#fees").attr('data-editValue')) {
+                if ($("#fees").attr('data-editValue') && editId) {
                     $('#fees').val($("#fees").attr('data-editValue'));
 >>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                 }

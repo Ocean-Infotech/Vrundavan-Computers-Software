@@ -12,14 +12,19 @@
         }
 
         .receipt {
-            width: 48%;
-            display: inline-block;
-            vertical-align: top;
+            width: 100%;
+            /* Full width instead of 48% */
+            display: block;
+            /* Block instead of inline-block */
+            margin-bottom: 20px;
+            /* Space between two copies */
             padding: 10px;
             border: 1px solid #000;
             box-sizing: border-box;
-            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
         }
+
 
         .header {
             text-align: center;
@@ -76,6 +81,46 @@
             border-top: 1px dashed #000;
             padding-top: 5px;
         }
+
+        .header {
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.4;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+
+        .header img {
+            display: block;
+            margin: 0 auto;
+        }
+
+
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            /* transparency level */
+            z-index: 0;
+            /* keep behind text */
+            pointer-events: none;
+            /* ignore clicks */
+        }
+
+        .watermark img {
+            width: 300px;
+            /* adjust as needed */
+            height: auto;
+        }
+
+        .receipt>*:not(.watermark) {
+            position: relative;
+            z-index: 1;
+            /* text always above logo */
+        }
     </style>
 </head>
 
@@ -83,13 +128,26 @@
 
     @for ($i = 0; $i < 2; $i++)
         <div class="receipt">
-            <div class="header">
-                Shree Patel Vidhyarthi Ashram Sanchalit<br>
-                <strong>Shree Patel Vidhya Mandir Computer Science College</strong><br>
-                Veraval Road, Keshod - 362 220<br>
-                Mo. 96874 51774<br>
-                Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
+            <div class="watermark">
+                <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
             </div>
+            <div class="header">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 80px; text-align: left;">
+                            <img src="{{ asset('uploads/logo/logo.png') }}" alt="College Logo"
+                                style="width:70px; height:auto;">
+                        </td>
+                        <td style="text-align: center;">
+                            Shree Patel Vidhyarthi Ashram Sanchalit<br>
+                            <strong>Shree Patel Vidhya Mandir Computer Science College</strong><br>
+                            Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
+                            Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
 
             <table class="info-table">
                 <tr>
@@ -142,8 +200,23 @@
                 </tr>
                 <tr>
                     <td>Payment Mode</td>
-                    <td>{{ $feesData->mode ?? '__________' }}</td>
+                    <td>
+                        @php
+                            $mode = strtolower($feesData->mode ?? '');
+                        @endphp
+
+                        @if ($mode === 'online' && !empty($feesData->upi_id))
+                            Online ({{ $feesData->upi_id }})
+                        @elseif($mode === 'cheque' && !empty($feesData->cheque_no))
+                            Cheque ({{ $feesData->cheque_no }})
+                        @elseif($mode === 'return' && !empty($feesData->return_reason))
+                            Return ({{ $feesData->return_reason }})
+                        @else
+                            {{ $feesData->mode ?? '__________' }}
+                        @endif
+                    </td>
                 </tr>
+
             </table>
 
             <div class="signature">
@@ -212,7 +285,7 @@
         const rows = document.querySelectorAll("table.info-table td");
         rows.forEach(row => {
             if (row.textContent.includes("Amount In Words") || row.textContent.includes(
-                "Rs. In Words")) {
+                    "Rs. In Words")) {
                 const totalCell = document.querySelector(
                     "table.fees-table tbody tr:last-child th:last-child");
                 if (totalCell) {

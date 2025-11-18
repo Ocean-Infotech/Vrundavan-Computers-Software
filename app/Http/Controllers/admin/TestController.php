@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\StudentTestMark;
 use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,8 +55,9 @@ class TestController extends Controller
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
-                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark'],
-                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
+                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark','className' =>  'w-5 text-center'],
+                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date','className' =>  'w-5 text-center'],
+                // (object)['data' => "add_marks", 'name' => 'add_marks', 'td_label' => 'Marks Entry', 'orderable' => false, 'searchable' => false, 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
@@ -65,9 +67,10 @@ class TestController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = Test::select('*');
-                $data = $data->withTrashed();
-                $data = $data->with(['course', 'batch']);
+                $data = Test::select('*')
+                    ->withTrashed()
+                    ->with(['course', 'batch'])
+                    ->orderBy('id', 'desc');
 
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -77,6 +80,16 @@ class TestController extends Controller
                             // $query->orWhere('subject_name', 'like',"%".$request->search."%");
                         }
                     })
+                    ->editColumn('date', function ($row) {
+                        return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
+                    })
+    //                 ->addColumn('add_marks', function ($row) use ($modules) {
+    //                     return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
+    //     <i class="fa-solid fa-file-circle-check"></i>
+    // </a>';
+    //                 })
+
+
                     ->editColumn('status', function ($row) use ($modules) {
                         $status = '';
                         $dropdown = "";
@@ -98,26 +111,33 @@ class TestController extends Controller
                         return $status;
                     })
                     ->addColumn('action', function ($row) use ($modules) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($modules['permission_edit']) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($modules['permission_delete']) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
-                        }
+                    $btn = '';
 
-                        return $btn;
-                    })
-                    ->rawColumns(['status', 'action'])
+                    // ✅ Move Add Marks button before edit/delete
+                    $btn .= '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Add Marks">
+                                <i class="fa-solid fa-file-circle-check"></i>
+                             </a>';
+
+                    if (!$row?->deleted_at) {
+                        if ($modules['permission_edit']) {
+                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                     </a>';
+                        }
+                        if ($modules['permission_delete']) {
+                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                     </a>';
+                        }
+                    } else {
+                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data">
+                                    <i class="ti ti-history"></i>
+                                 </a>';
+                    }
+
+                    return $btn ?: '-';
+                })
+                    ->rawColumns(['status', 'action', 'add_marks'])
                     ->make(true);
                 return $returnData;
             }
@@ -324,6 +344,57 @@ class TestController extends Controller
             return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+    public function addMarks($id)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            // Load test with batch, students, and their admission details
+            $test = Test::with(['batch.students.admission'])->findOrFail($id);
+            $students = $test->batch->students ?? [];
+
+            // Load previously saved marks for each student for this specific test
+            foreach ($students as $student) {
+                $student->admission->load([
+                    'testMarks' => function ($query) use ($id) {
+                        $query->where('test_id', $id);
+                    }
+                ]);
+            }
+
+            return view($modules['folder_path'] . '.add_marks', compact('test', 'students', 'modules'));
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+
+
+    public function saveMarksAjax(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'test_id' => 'required|integer',
+                'student_id' => 'required|integer',
+                'mark' => 'nullable|numeric',
+            ]);
+
+            \App\Models\StudentTestMark::updateOrCreate(
+                [
+                    'test_id' => $validated['test_id'],
+                    'register_id' => $validated['student_id'],
+                ],
+                [
+                    'marks' => $validated['mark'] ?? 0,
+                ]
+            );
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }

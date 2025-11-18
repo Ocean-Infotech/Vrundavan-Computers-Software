@@ -21,6 +21,16 @@ Route::get('/software/login', [LoginController::class, 'showLoginForm'])->name('
 Route::group(['prefix' => 'software', 'middleware' => [SoftwareAuthMiddleware::class]], function () {
     include  base_path("routes/software.php");
 });
+// Route::get('/gd-test', function(){
+//     $res = \App\Helpers\GoogleDriveHelper::createFolder('test-'.time(), '1Zccw9vC6d4rfBvoLAe3tPWCRNDWE9gk7');
+//     return $res;
+// });
+
+Route::get('/gd-test', function(){
+    $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI';
+    $res = \App\Helpers\GoogleDriveHelper::createFolder('student_' . time(), $parentFolderId);
+    return response()->json($res);
+});
 
 
 Route::get('/nimit', function () {

@@ -58,24 +58,48 @@
                     <input type="hidden" name="admission_id" id="admission_hidden">
 
                     <div class="collapse show" id="aadharSection">
-                        <div class="col-md-12 col-sm-12 mb-3">
-                            <div class="form-group">
-                                <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
-                                <input id="aadhar_card_no" type="text"
-                                    class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
-                                    minlength="14" maxlength="14" name="aadhar_card_no"
-                                    value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
-                                    autocomplete="aadhar_card_no" autofocus
-                                    placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)" autocapitalize="off">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label"> Aadhaar Card No. <span class="text-danger">*</span> </label>
+                                    <input id="aadhar_card_no" type="text"
+                                        class="form-control @error('aadhar_card_no') is-invalid @enderror num_only"
+                                        minlength="14" maxlength="14" name="aadhar_card_no"
+                                        value="{{ isset($edit?->aadhar_card_no) ? $edit?->aadhar_card_no : old('aadhar_card_no') }}"
+                                        autocomplete="aadhar_card_no" autofocus
+                                        placeholder="Enter Aadhaar Card No. (xxxx xxxx xxxx)" autocapitalize="off">
 
-                                @error('aadhar_card_no')
-                                    <span class="invalid-feedback">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                    @error('aadhar_card_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">Profile Picture</label>
+                                    <input type="file" class="form-control @error('profile_pic') is-invalid @enderror"
+                                        name="profile_pic" accept="image/*">
+                                    @error('profile_pic')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+
+                                    {{-- Show existing image if editing --}}
+                                    @isset($edit?->profile_pic)
+                                        <div class="mt-2">
+                                            <img src="{{ asset($edit->profile_pic) }}" alt="Profile Picture"
+                                                style="height:100px; width:100px; object-fit:cover; border-radius:50%;">
+                                        </div>
+                                    @endisset
+                                </div>
+                            </div>
+
                         </div>
                     </div>
+
                     <hr>
 
                     <div class="text-left">
@@ -93,12 +117,12 @@
                             {{-- First Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> First Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label"> Surname <span class="text-danger">*</span> </label>
                                     <input id="first_name" type="text"
                                         class="form-control text-uppercase @error('first_name') is-invalid @enderror"
                                         name="first_name" autocapitalize="off"
                                         value="{{ isset($edit?->first_name) ? $edit?->first_name : old('first_name') }}"
-                                        placeholder="Enter First Name">
+                                        placeholder="Enter Surname">
                                     @error('first_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -108,12 +132,12 @@
                             {{-- Last Name --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label"> Last Name <span class="text-danger">*</span> </label>
+                                    <label class="form-label"> Name <span class="text-danger">*</span> </label>
                                     <input id="last_name" type="text"
                                         class="form-control text-uppercase @error('last_name') is-invalid @enderror "
                                         name="last_name" autocapitalize="off"
                                         value="{{ isset($edit?->last_name) ? $edit?->last_name : old('last_name') }}"
-                                        placeholder="Enter Last Name">
+                                        placeholder="Enter Name">
                                     @error('last_name')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror
@@ -201,7 +225,8 @@
                             {{-- Category --}}
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <small class="fw-medium d-block @error('category') is-invalid @enderror">Category <span class="text-danger">*</span></small>
+                                    <small class="fw-medium d-block @error('category') is-invalid @enderror">Category <span
+                                            class="text-danger">*</span></small>
                                     @foreach (['SC', 'ST', 'OBC', 'EWS', 'General'] as $cat)
                                         <div class="form-check form-check-inline mt-1">
                                             <input type="radio" name="category" class="form-check-input"
@@ -409,7 +434,7 @@
 
                     <div class="collapse show mt-2" id="Academy">
                         <div class="row">
-                            <div class="col-md-12 col-sm-12  mb-3">
+                            <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
                                     <label class="form-label"> APAAR ID/ABC ID </label>
                                     <input id="apaar_id_abc_id" type="text"
@@ -425,6 +450,22 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-md-6 col-sm-12  mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">UDISE</label>
+                                    <input id="udise" type="text"
+                                        class="form-control @error('udise') is-invalid @enderror" autocapitalize="off"
+                                        name="udise" value="{{ isset($edit?->udise) ? $edit?->udise : old('udise') }}"
+                                        placeholder="Enter UDISE">
+
+                                    @error('udise')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
                             <div class="col-md-6 col-sm-12  mb-3">
                                 <div class="form-group">
                                     <label class="form-label"> Enrollment No.</label>
@@ -653,6 +694,129 @@
                 numericOnly: true
             });
 
+            // Real-time duplicate check on Aadhaar input
+            let aadharCheckTimeout;
+            $('#aadhar_card_no').on('input', function() {
+                clearTimeout(aadharCheckTimeout);
+
+                let cleanAadhar = $(this).val().replace(/\s/g, '');
+
+                // Only check if Aadhaar is complete (12 digits)
+                if (cleanAadhar.length === 12) {
+                    aadharCheckTimeout = setTimeout(function() {
+                        checkAadharDuplicate(cleanAadhar);
+                    }, 500); // 500ms delay to avoid excessive API calls
+                } else {
+                    // Clear any previous error messages if Aadhaar is incomplete
+                    $('#aadhar_card_no').removeClass('is-invalid');
+                    $('#aadhar_card_no').siblings('.invalid-feedback.duplicate-error').remove();
+                }
+            });
+
+            // Function to check Aadhaar duplication
+            function checkAadharDuplicate(aadhar) {
+                // Get edit ID if exists (to exclude current record from duplicate check)
+                let editId = '{{ isset($edit) && $edit?->id ? $edit->id : '' }}';
+
+                $.ajax({
+                    url: "{{ route($route . '.check-aadhar-duplicate') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        aadhar_card_no: aadhar,
+                        edit_id: editId
+                    },
+                    success: function(response) {
+                        // Remove previous duplicate error message if exists
+                        $('#aadhar_card_no').siblings('.invalid-feedback.duplicate-error').remove();
+
+                        if (response.exists) {
+                            // Show error
+                            $('#aadhar_card_no').addClass('is-invalid');
+
+                            // Add new error message with specific class
+                            let errorMsg = `<span class="invalid-feedback duplicate-error" style="display: block;">
+                                <strong>This Aadhaar card number is already registered!</strong>
+                            </span>`;
+                            $('#aadhar_card_no').after(errorMsg);
+
+                            // Show toast notification
+                            // toastr.error('This Aadhaar card number is already registered!');
+                        } else {
+                            // Remove duplicate error only (keep validation errors)
+                            $('#aadhar_card_no').removeClass('is-invalid');
+
+                            // Only remove invalid class if no other validation errors exist
+                            if ($('#aadhar_card_no').siblings('.invalid-feedback').not(
+                                    '.duplicate-error').length === 0) {
+                                $('#aadhar_card_no').removeClass('is-invalid');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Aadhaar duplicate check error:', error);
+                    }
+                });
+            }
+
+            // Real-time duplicate check on Mobile input
+            let mobileCheckTimeout;
+            $('#mobile_no').on('input', function() {
+                clearTimeout(mobileCheckTimeout);
+
+                let mobile = $(this).val().trim();
+
+                // Only check when length is 10 digits
+                if (mobile.length === 10) {
+                    mobileCheckTimeout = setTimeout(function() {
+                        checkMobileDuplicate(mobile);
+                    }, 500);
+                } else {
+                    $('#mobile_no').removeClass('is-invalid');
+                    $('#mobile_no').siblings('.invalid-feedback.duplicate-error').remove();
+                }
+            });
+
+            // Function to check Mobile duplication
+            function checkMobileDuplicate(mobile) {
+                let editId = '{{ isset($edit) && $edit?->id ? $edit->id : '' }}';
+
+                $.ajax({
+                    url: "{{ route($route . '.check-mobile-duplicate') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        mobile_no: mobile,
+                        edit_id: editId
+                    },
+                    success: function(response) {
+                        $('#mobile_no').siblings('.invalid-feedback.duplicate-error').remove();
+
+                        if (response.exists) {
+                            $('#mobile_no').addClass('is-invalid');
+
+                            let errorMsg = `<span class="invalid-feedback duplicate-error" style="display: block;">
+                    <strong>This mobile number is already registered!</strong>
+                </span>`;
+                            $('#mobile_no').after(errorMsg);
+
+                            // toastr.error('This mobile number is already registered!');
+                        } else {
+                            $('#mobile_no').removeClass('is-invalid');
+
+                            if ($('#mobile_no').siblings('.invalid-feedback').not('.duplicate-error')
+                                .length === 0) {
+                                $('#mobile_no').removeClass('is-invalid');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Mobile duplicate check error:', error);
+                    }
+                });
+            }
+
+
             // Handle Autocomplete
             $("#aadhar_card_no").autocomplete({
                 source: function(request, response) {
@@ -660,19 +824,19 @@
 
                     if (cleanTerm.length < 4) return;
 
-                    $.ajax({
-                        url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
-                        data: {
-                            term: cleanTerm
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            response(data);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Suggestion AJAX error:', error);
-                        }
-                    });
+                    // $.ajax({
+                    //     url: "{{ route($route . '.aadhar-card-no-suggestion') }}",
+                    //     data: {
+                    //         term: cleanTerm
+                    //     },
+                    //     dataType: 'json',
+                    //     success: function(data) {
+                    //         response(data);
+                    //     },
+                    //     error: function(xhr, status, error) {
+                    //         console.error('Suggestion AJAX error:', error);
+                    //     }
+                    // });
                 },
                 minLength: 4,
                 select: function(event, ui) {
@@ -683,8 +847,7 @@
                     $.ajax({
                         url: "{{ route($route . '.aadhar-card-no-to-data') }}",
                         data: {
-                            aadhar: ui.item.value.replace(/\s/g,
-                                '')
+                            aadhar: ui.item.value.replace(/\s/g, '')
                         },
                         dataType: 'json',
                         success: function(data) {
@@ -695,7 +858,7 @@
                                     alertTitle = 'Course Already Registered';
                                 } else if (data.message.includes(
                                         'Admission form complete but course registration not done yet'
-                                        )) {
+                                    )) {
                                     alertTitle = 'Course Registration Pending';
                                 }
 
@@ -717,7 +880,6 @@
                                         window.location.href = data.redirect_url;
                                     }
                                 });
-
                             }
 
                             if (data.user) {
@@ -739,7 +901,7 @@
                                 $('#permanent_address').val(data.user.permanent_address ||
                                     '');
                                 $('#parent_mobile_no').val(data.user.parent_mobile_no ||
-                                '');
+                                    '');
                                 $('#other_mobile_no').val(data.user.other_mobile_no || '');
                                 $('#whatsapp_no').val(data.user.whatsapp_no || '');
                                 $('#cast').val(data.user.cast || '');
@@ -782,44 +944,42 @@
         });
     </script>
 
-
-
-
     <script>
         $(document).ready(function() {
-
-
-
             $('#mobile_no').on('keyup', function() {
-                whatsapp_no
                 var mobile_no = $(this).val();
-                var whatsapp_no = $('#whatsapp_no').val(mobile_no);
+                $('#whatsapp_no').val(mobile_no);
             });
 
-            $('.remove_row').on('click', function() {
-                $(this).closest('tr').remove();
+            // Event delegation for dynamically added remove buttons
+            $(document).on('click', '.remove_row', function() {
                 var education_id = $(this).data('education_id');
+                var $row = $(this).closest('tr');
 
-                $.ajax({
-                    url: "{{ route($route . '.education-detail-delete') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: education_id,
-                    },
-                    success: function(response) {
-                        console.log(response);
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
+                if (education_id) {
+                    $.ajax({
+                        url: "{{ route($route . '.education-detail-delete') }}",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: education_id,
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            $row.remove();
+                            toastr.success('Education detail deleted successfully');
+                        },
+                        error: function(error) {
+                            console.log(error);
+                            toastr.error('Error deleting education detail');
+                        }
+                    });
+                } else {
+                    $row.remove();
+                }
             });
-
 
             $('#education').on('change', function() {
-
-
                 let selectededucationId = $(this).val();
                 let selectededucationText = $(this).find("option:selected").text();
 
@@ -835,7 +995,6 @@
                     $('#education').val('').trigger('change');
                     return;
                 }
-
 
                 let index = $('table tbody tr').length;
                 let newRow = $('<tr>');
@@ -854,14 +1013,10 @@
                     <td><input type="text" name="board_university[]" class="form-control" placeholder="Enter Board or University" value="" autocapitalize="off"></td>
                     <td><input type="text" name="passing_year[]" class="form-control" placeholder="Enter Passing Year" value=""></td>
                     <td><input type="text" name="school_name_college_name[]" class="form-control" placeholder="Enter School Name or College Name" value="" autocapitalize="off"></td>
-
                     <td><button type="button" class="btn btn-danger remove_row"><i class="fa-solid fa-trash"></i></button></td>
                 `);
 
                 tableBody.append(newRow);
-                newRow.find('.remove_row').on('click', function() {
-                    newRow.remove();
-                });
 
                 $('#education').val('').trigger('change');
             });
@@ -871,6 +1026,7 @@
             toastr[type](message);
         }
     </script>
+
     <script>
         function copyTemporaryAddress() {
             const tempAddress = document.getElementById('temporary_address');

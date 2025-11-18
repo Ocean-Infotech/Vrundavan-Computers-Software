@@ -25,10 +25,11 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' =>
-                isset($modules) && isset($modules['permission_add']) ? $modules['permission_add'] : false,
+            'show_add_btn' =>false,
             'show_api_attendance' =>
-                isset($modules) && isset($modules['permission_show_api_attendance']) ? $modules['permission_show_api_attendance'] : false,
+                isset($modules) && isset($modules['permission_show_api_attendance'])
+                    ? $modules['permission_show_api_attendance']
+                    : false,
             'show_filter_btn' => false,
             'show_export_btns' => false,
             'show_excal_btn' => false,
@@ -43,7 +44,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="display table table-hover">
+                        <table id="yajra-datatables" class="table table-hover dt-responsive nowrap" style="width: 100%">
+
                             @if (isset($columns))
                                 <thead>
                                     <tr>
@@ -60,6 +62,8 @@
             </div>
         </div>
     </div>
+    <input type="hidden" id="admission_id" value="{{ $admission_id ?? '' }}">
+
 @endsection
 
 @section('page_script_file')
@@ -88,6 +92,8 @@
         var dtable = null;
         $(document).ready(function() {
 
+        var admission_id = $('#admission_id').val();
+
             dtable = $('#yajra-datatables').DataTable({
                 searching: true,
                 processing: true,
@@ -96,66 +102,47 @@
                     [1, 'desc']
                 ],
                 ajax: {
-                    "url": "{{ route($route . '.index') }}",
-                    'beforeSend': function(request) {
-                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
-                            'content'));
-                    },
+                    url: "{{ route($route . '.index') }}",
                     type: "GET",
                     data: function(data) {
                         data.search = $('input[type="search"]').val();
-                        // data.status = $('select[name="status"] option:selected').val();
-                        // data.role = $('select[name="role"] option:selected').val();
+                         data.admission_id = admission_id;
                     },
+                    beforeSend: function(request) {
+                        request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
+                            'content'));
+                    }
                 },
                 columns: {!! json_encode($columns) !!},
                 language: {
                     searchPlaceholder: 'Search...',
-                },
-                // dom:'lBfrtip',
-                // buttons: ["csv"],
+                }
             });
         });
+
         $('input[name="search"]').keyup(function() {
             dtable.draw();
         });
+
         jQuery(document).on('change', 'select', function(event) {
             event.preventDefault();
             dtable.draw();
         });
+
         $('#filter_section').hide();
         $("#show_filter").click(function() {
             $('#filter_section').toggle();
         });
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('#add-attendance-btn').on('click', function() {
-                $.ajax({
-                    url: "{{ route('attedance.fetch-logs') }}",
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    beforeSend: function() {
-                        $('#add-attendance-btn').prop('disabled', true).text('Syncing...');
-                    },
-                    success: function(res) {
-                        location.reload();
-                    },
-                    error: function(xhr) {
-                        alert(xhr.responseJSON?.message || 'Something went wrong.');
-                    },
-                    complete: function() {
-                        $('#add-attendance-btn').prop('disabled', false).text(
-                            'Fetch Attendance Logs');
-                    }
-                });
-            });
-        });
-    </script>
+            var admissionId = localStorage.getItem('admission_id');
 
+    if (admissionId) {
+        // Set hidden field value
+        $('#admission_id').val(admissionId);
 
+        // ✅ Clear it immediately so it won’t persist for next visit
+        localStorage.removeItem('admission_id');
+    }
+    </script>
 
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')

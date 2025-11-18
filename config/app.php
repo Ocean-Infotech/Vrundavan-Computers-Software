@@ -69,7 +69,7 @@ return [
     */
 
     // 'timezone' => 'UTC',
-    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'timezone' => env('APP_TIMEZONE', 'Asia/Kolkata'),
 
     /*
     |--------------------------------------------------------------------------
@@ -182,6 +182,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Spatie\Permission\PermissionServiceProvider::class,
+        App\Providers\FirebaseServiceProvider::class,
     ],
 
 

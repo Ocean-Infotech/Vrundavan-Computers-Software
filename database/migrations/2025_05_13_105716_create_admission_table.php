@@ -33,6 +33,7 @@ return new class extends Migration
             $table->enum('category',["SC", "ST", "OBC", "EWS", "General"])->comment('SC, ST, OBC, EWS, General');
             $table->string('enrolment_no')->nullable();
             $table->string('spid')->nullable();
+            $table->string('profile_pic')->nullable();
             $table->string('apaar_id_abc_id')->nullable();
             $table->string('status')->default('created')->comment('created, rejected, completed, cancelled');
             $table->string('created_by')->nullable();

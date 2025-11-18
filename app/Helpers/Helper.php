@@ -2,10 +2,18 @@
 
 namespace App\Helpers;
 
+use App\Models\Admission;
+use App\Models\Notification;
 use App\Models\Setting;
+use App\Models\StudentDeviceToken;
+use App\Services\FirebaseService;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Str;
+use Kreait\Firebase\Messaging\Notification as FcmNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -259,4 +267,21 @@ class Helper
             return $e->getMessage();
         }
     }
+   public static function sendPushNotification($studentId, $title, $body)
+    {
+        $factory = (new Factory)->withServiceAccount(config('services.firebase.credentials'));
+        $messaging = $factory->createMessaging();
+
+        $tokens = StudentDeviceToken::where('student_id', $studentId)->pluck('device_token')->toArray();
+
+        if (count($tokens) > 0) {
+            foreach ($tokens as $token) {
+                $message = CloudMessage::withTarget('token', $token)
+                    ->withNotification(FcmNotification::create($title, $body));
+
+                $messaging->send($message);
+            }
+        }
+    }
+
 }
