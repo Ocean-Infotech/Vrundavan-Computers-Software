@@ -289,11 +289,7 @@
                         <div class="col-md-4">
                             <h5 style="color: rgb(255, 0, 0); font-weight: bold;">Pending Fees : <span
                                     id="PendingFees">00</span></h5>
-<<<<<<< HEAD
-                                    <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
-=======
                             <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                         </div>
                     </div>
                 </div>
@@ -574,12 +570,8 @@
                                         item.semester) === semVal);
                                     if (unpaid) {
                                         $(this).prop('disabled', false).text(
-<<<<<<< HEAD
-                                            `${semVal} (Pending ₹${unpaid.pending_fee})`);
-=======
                                             `${semVal} (Pending ₹${unpaid.pending_fee.toFixed(2)})`
                                         );
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                                     }
                                 }
                             });
@@ -617,11 +609,8 @@
                             $('#fees').val(fullCourseFee -
                                 depositedFees); // Auto-fill Course Fees = Pending Fees
 
-<<<<<<< HEAD
-=======
 
                             $('#year_semester').trigger("change");
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                         } else {
                             $('#FeesCollectionDetails').hide();
                             // showMessage("No data found for the given ID", "error");
@@ -906,7 +895,7 @@
                 return parseFloat($('#CourseFees').text().replace(/[^0-9.-]+/g, "")) || 0;
             }
 
-<<<<<<< HEAD
+
             function getPendingFees() {
                 return parseFloat($('#PendingFees').text().replace(/[^0-9.-]+/g, "")) || 0;
             }

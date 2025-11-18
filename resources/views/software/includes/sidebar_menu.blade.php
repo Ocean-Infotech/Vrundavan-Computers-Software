@@ -290,8 +290,7 @@
                 </a>
                 <ul class="menu-sub">
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         <li
             class="menu-item {{ $sidebar_active == 'course' || $sidebar_active == 'shift' || $sidebar_active == 'class' || $sidebar_active == 'syllabus' || $sidebar_active == 'batch' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -299,10 +298,7 @@
                 <div data-i18n="Masters">Masters</div>
             </a>
             <ul class="menu-sub">
-=======
-=======
-                    {{-- Course --}}
->>>>>>> c82521d9c4512c157e11a2e813ae61243122819c
+
                     @directCanAny(['course-list', 'course-create', 'course-edit', 'course-delete'])
                         <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
                             <a href="{{ route('course.index') }}" class="menu-link">
@@ -405,7 +401,7 @@
                 </ul>
             </li>
         @enddirectCanAny
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
+
 
         <li class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">

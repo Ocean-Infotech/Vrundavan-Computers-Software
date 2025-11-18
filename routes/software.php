@@ -233,15 +233,8 @@ Route::get('fees-collection/{register_id}/semester-report', [FeesCollectionContr
 Route::resource('fee-history', FeeHistoryController::class)
     ->only(['index']);
 
-<<<<<<< HEAD
-
-// routes/web.php or admin.php (as per your project)
-
-
-=======
 Route::post('fee-history/update-status', [FeeHistoryController::class, 'updateCheckedStatus'])
     ->name('fee-history.update-status');
->>>>>>> c82521d9c4512c157e11a2e813ae61243122819c
 // fees collection pending
 Route::get('fees-collection-pending/export-excel', [FeescollectionpendingController::class, 'exportExcel'])->name('fees-collection-pending.export-excel');
 Route::get('fees-collection-pending/print', [FeescollectionpendingController::class, 'printView'])->name('fees-collection-pending.print');

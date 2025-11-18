@@ -49,8 +49,7 @@
                     <div class="table-responsive">
                         <!-- <table id="yajra-datatables" class="dt-responsive table table-hover"> -->
                         <!-- <table id="yajra-datatables" class="dt-responsive table table-hover" style="width:100%"> -->
-                        <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap"
-                            style="width: 100%;">
+                        <table id="yajra-datatables" class="table table-striped table-hover dt-responsive">
                             @if (isset($columns))
                                 <thead>
                                     <tr>
@@ -970,7 +969,7 @@
                 localStorage.setItem('admission_id', admissionId);
                 window.open($(this).attr('href'), '_blank');
             });
-  
+
 
     </script>
 
