@@ -237,20 +237,32 @@ class FeesCollectionController extends Controller
             // Track total fees paid per semester
             $semesterPaid = [];
             foreach ($feesCollections as $fee) {
-                $sem = $fee->year_semester;
+                $sem = strtolower($fee->year_semester ?? '');
                 $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
             }
-
+            
             // Initialize semester tracking
             $total_semesters = $getcourceSingle->course->semester;
             $paid_semesters = [];
             $unpaid_semesters = [];
+            
+            $semesterInWords = [];
+            $semesterInWords[1] = "first";
+            $semesterInWords[2] = "second";
+            $semesterInWords[3] = "third";
+            $semesterInWords[4] = "four";
+            $semesterInWords[5] = "five";
+            $semesterInWords[6] = "six";
+            $semesterInWords[7] = "saven";
+            $semesterInWords[8] = "eight";
+            // $semesterInWords = array_flip($semesterInWords);
 
             // Loop over all semesters to calculate pending fees
             for ($sem = 1; $sem <= $total_semesters; $sem++) {
-                $paid = $semesterPaid[$sem] ?? 0;
+                $sem_name = $semesterInWords[$sem];
+                $paid = $semesterPaid[$sem_name] ?? $semesterPaid[$sem] ?? 0;
                 $pending = $semester_fee - $paid;
-
+                
                 if ($pending <= 0) {
                     $paid_semesters[] = $sem;
                 } else {
