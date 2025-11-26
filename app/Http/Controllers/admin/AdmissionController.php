@@ -126,10 +126,13 @@ class AdmissionController extends Controller
                     })
 
                     ->editColumn('admission_name', function ($row) {
+                        return $row?->full_name;
+                        /*
                         $first = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
                         $last = $row->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
+                        return trim("{$last} {$father} {$first}");
+                        */
                     })
 
                     // ->editColumn('gdrivefolderurl', function ($row) {
@@ -140,27 +143,11 @@ class AdmissionController extends Controller
                     ->editColumn('gdrivefolderurl', function ($row) {
                         if (!empty($row->gdrivefolderurl) && !empty($row->gdrivefolderid) && !empty($row->gdrivefoldername)) {
                             $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-                            return '<a href="' . $row->gdrivefolderurl . '"
-            target="_blank"
-            data-id="' . $row->id . '"
-            data-foldername="' . $folderName . '"
-            data-folderurl="' . $row->gdrivefolderurl . '"
-            class="btn btn-sm open_google_drive_folder"
-            title="Open Google Drive Folder">
-            <i class="fab fa-google-drive" style="font-size:18px;"></i>
-        </a>';
+                            return '<a href="' . $row->gdrivefolderurl . '" target="_blank" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-sm open_google_drive_folder" title="Open Google Drive Folder"> <i class="fab fa-google-drive" style="font-size:18px;"></i> </a>';
                         } else {
-                            return '<a href="javascript:void(0)"
-            data-id="' . $row->id . '"
-            class="btn btn-primary btn-sm create_google_drive_folder"
-            title="Create Google Drive Folder">
-            <i class="fa fa-folder-plus"></i>
-        </a>';
+                            return '<a href="javascript:void(0)" data-id="' . $row->id . '" class="btn btn-primary btn-sm create_google_drive_folder" title="Create Google Drive Folder"> <i class="fa fa-folder-plus"></i> </a>';
                         }
                     })
-
-
-
 
                     // ->editColumn('status', function ($row) use ($modules) {
                     //     $dropdown = '<ul class="dropdown-menu">';
@@ -185,43 +172,20 @@ class AdmissionController extends Controller
                         return "-";
                     })
                     ->addColumn('book_button', function ($row) {
-                        return '<button class="btn btn-info btn-sm book-btn"
-                data-id="' . $row->id . '"
-                data-name="' . $row->first_name . '">
-                Book
-            </button>';
+                        return '<button class="btn btn-info btn-sm book-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '"> Book </button>';
                     })
-
 
                     ->addColumn('view_button', function ($row) {
                         return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
                     })
                     // Replace the existing attendance_button code in your controller (around line 130)
                     ->addColumn('attendance_button', function ($row) {
-                        return '<a href="' . url('software/attedance') . '"
-        class="btn btn-warning btn-sm open-attendance"
-        data-admission-id="' . $row->id . '"
-        target="_blank"
-        title="View Attendance">
-        <i class="bx bx-calendar-check"></i>
-    </a>';
+                        return '<a href="' . url('software/attedance') . '" class="btn btn-warning btn-sm open-attendance" data-admission-id="' . $row->id . '" target="_blank" title="View Attendance"> <i class="bx bx-calendar-check"></i> </a>';
                     })
-
-
-
-
 
                     ->addColumn('test_button', function ($row) {
-                        return '<a href="' . url('software/test_report') . '"
-        class="btn btn-info btn-sm open-test"
-        data-admission-id="' . $row->id . '"
-        title="View Test Report">
-        <i class="bx bx-file"></i>
-    </a>';
+                        return '<a href="' . url('software/test_report') . '" class="btn btn-info btn-sm open-test" data-admission-id="' . $row->id . '" title="View Test Report"> <i class="bx bx-file"></i> </a>';
                     })
-
-
-
 
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {
                         $btn = '';
@@ -1133,7 +1097,7 @@ class AdmissionController extends Controller
             $report = $import->report;
 
             // Save report in session so blade can show it
-         Session::flash('import_report', $report);
+            Session::flash('import_report', $report);
 
 
             $message = "Import finished — Inserted: " . count($report['inserted']) .

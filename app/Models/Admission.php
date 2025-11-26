@@ -84,4 +84,13 @@ class Admission extends Authenticatable
     {
         return $this->hasMany(\App\Models\StudentTestMark::class, 'register_id', 'id');
     }
+
+    public function getFullNameAttribute()
+    {
+        #full_name
+        $first = $this?->first_name ?? '';
+        $father = $this?->father_name ?? '';
+        $last = $this?->last_name ?? '';
+        return trim("{$last} {$father} {$first}");
+    }
 }

@@ -73,22 +73,22 @@ class AttedanceController extends Controller
             ];
             View::share("columns", $columns);
 
-                    $admission_id = $request->get('admission_id');
-View::share('admission_id', $admission_id);
+            $admission_id = $request->get('admission_id');
+            View::share('admission_id', $admission_id);
 
 
             $data = [];
 
             if ($request->ajax()) {
                 // dd($request->all());
-                 $data = Attedance::with(['course', 'admission', 'batch'])
-                ->withTrashed()
-                ->orderBy('created_at', 'desc');
+                $data = Attedance::with(['course', 'admission', 'batch'])
+                    ->withTrashed()
+                    ->orderBy('created_at', 'desc');
 
-            // ✅ Filter only this student's attendance if admission_id is given
-            if (!empty($admission_id)) {
-                $data->where('admission_id', $admission_id);
-            }
+                // ✅ Filter only this student's attendance if admission_id is given
+                if (!empty($admission_id)) {
+                    $data->where('admission_id', $admission_id);
+                }
 
                 $editPermission = true;
                 $deletePermission = true;
@@ -102,13 +102,16 @@ View::share('admission_id', $admission_id);
                         }
                     })
                     ->editColumn('UserName', function ($row) {
-                        if($row?->UserName){
+                        if ($row?->UserName) {
                             return $row?->UserName;
-                        }else{
+                        } else {
+                            return $row?->admission?->full_name ?? '';
+                            /*
                             $first = $row?->admission?->first_name ?? '';
                             $father = $row?->admission?->father_name ?? '';
                             $last = $row?->admission?->last_name ?? '';
                             return trim("{$first} {$father} {$last}");
+                            */
                         }
                         return "-";
                     })
@@ -194,7 +197,7 @@ View::share('admission_id', $admission_id);
                     })
 
 
-                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave','leve_status'])
+                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave', 'leve_status'])
                     ->make(true);
                 return $returnData;
             }
@@ -232,10 +235,10 @@ View::share('admission_id', $admission_id);
 
             if ($request->filled('filter_admission') && $request->filter_admission) {
                 $CourceRegistration = CourceRegistration::where('id', $request->filter_admission)->first();
-                if($CourceRegistration){
+                if ($CourceRegistration) {
                     $data->where('course_id', $CourceRegistration?->course_id);
                     $data->where('batch_id', $CourceRegistration?->batch_id);
-                }else{
+                } else {
                     $data->where('id', $request->filter_admission);
                 }
             }
