@@ -1,3 +1,12 @@
+=====> production
+cd bcakeshod.com
+git pull origin production
+
+=====> testing
+cd test.bcakeshod.com
+git pull origin developer
+
+
 |-------------------------------------------- Local
 17-11-2025
 ALTER TABLE admission MODIFY category VARCHAR(50) NULL;

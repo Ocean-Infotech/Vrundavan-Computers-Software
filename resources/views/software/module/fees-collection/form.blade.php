@@ -638,8 +638,6 @@
                     $('#fees').val('').prop('disabled', true);
                     $('#CourseFees').text("0.00");
                     $('#PendingFees').text("0.00");
-<<<<<<< HEAD
-<<<<<<< HEAD
 
                     // Optional message
                     showMessage("All semester fees have been paid.", "info");
@@ -670,12 +668,6 @@
                         $('#pandingfeesinput').val(formatCurrency(unpaid.pending_fee));
                         $('#DepositeFees').text(formatCurrency(DepositeFees.toFixed(2)));
                     }
-
-=======
-
-                    // Optional message
-=======
->>>>>>> c82521d9c4512c157e11a2e813ae61243122819c
                     showMessage("All semester fees have been paid.", "info");
                     return;
                 }
@@ -724,7 +716,6 @@
                 /** Edit time show table */
                 if ($("#fees").attr('data-editValue') && editId) {
                     $('#fees').val($("#fees").attr('data-editValue'));
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
                 }
             });
 
@@ -977,7 +968,7 @@
 
         });
     </script>
-=======
+
     <script>
         // $(document).ready(function() {
 
@@ -1040,7 +1031,7 @@
         //         var newPending = pendingFee - newFee;
         //         $('#PendingFees').text(newPending.toFixed(2));
         //     });
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
+
 
         //     $('#semester').on('change', function() {
         //         $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
@@ -1103,13 +1094,6 @@
                     $('#passwordModal').modal('hide');
                 }
             });
-<<<<<<< HEAD
-
-
-
-
-=======
->>>>>>> bdadedcf96db21dc2e7e99d0aeddb0931ef1e058
         });
     </script>
     @include('software.utils.getCourceRegistration')
