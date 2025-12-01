@@ -167,7 +167,7 @@
                 @directCan('attedance-create')
                 <li class="menu-item {{ Route::current()->getName() == 'attedance.create' ? 'active' : '' }}">
                     <a href="{{ route('attedance.create') }}" class="menu-link">
-                        <div data-i18n="Create Attendance">Create Attendance</div>
+                        <div data-i18n="Attendance"> Attendance</div>
                     </a>
                 </li>
                 @enddirectCan
@@ -297,13 +297,7 @@
                     </li>
                 @enddirectCanAny
 
-                @directCanAny(['course-list', 'course-create', 'course-edit', 'course-delete'])
-                    <li class="menu-item {{ $sidebar_active == 'course' ? 'active' : '' }}">
-                        <a href="{{ route('course.index') }}" class="menu-link">
-                            <div data-i18n="Course Master">Course Master</div>
-                        </a>
-                    </li>
-                @enddirectCanAny
+
 
                 {{-- Batch --}}
                 @directCanAny(['batch-list', 'batch-create', 'batch-edit', 'batch-delete'])

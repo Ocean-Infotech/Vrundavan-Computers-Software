@@ -129,8 +129,10 @@
                             </th>
                         </tr>
                         <tr>
-                            <th colspan="2"><b>APAAR ID/ABC ID:</b> <span id="ModalAPAARID"
+                            <th><b>APAAR ID/ABC ID:</b> <span id="ModalAPAARID"
                                     class="text-lowercase"></span></th>
+                            <th><b>UDISE No:</b> <span id="ModalUDISE" class="text-lowercase"></span></th>
+
                         </tr>
                         <tr>
                             <th><b>Enrollment No:</b> <span id="ModalEnrollment" class="text-lowercase"></span></th>
@@ -434,6 +436,8 @@
                             $('#ModalAPAARID').text(data.apaar_id_abc_id ?? '-');
                             $('#ModalEnrollment').text(data.enrolment_no ?? '-');
                             $('#ModalSPID').text(data.spid ?? '-');
+                            $('#ModalUDISE').text(data.udise ?? '-');
+
 
 
                             $('#infoModal').modal('show');
