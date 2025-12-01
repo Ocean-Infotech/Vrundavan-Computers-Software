@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin\master;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\FeesReceipt;
 use App\Models\Master\MasterCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterCourceRequest;
+use App\Models\Admission;
+use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
+use App\Models\StudentRequest;
+use App\Models\Timetable;
 use App\Traits\BioMetricTrait;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -195,14 +201,13 @@ class MasterCourseController extends Controller
                 }
                         */
             }
-if ($request->action == "save_next") {
-    return Redirect::route($modules['route'] . '.create')
-        ->withSuccess($modules['title'] . ' added successfully. Please add next record.');
-}
+            if ($request->action == "save_next") {
+                return Redirect::route($modules['route'] . '.create')
+                    ->withSuccess($modules['title'] . ' added successfully. Please add next record.');
+            }
 
-return Redirect::route($modules['route'] . '.index')
-    ->withSuccess($modules['title'] . ' added successfully.');
-
+            return Redirect::route($modules['route'] . '.index')
+                ->withSuccess($modules['title'] . ' added successfully.');
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
@@ -326,68 +331,91 @@ return Redirect::route($modules['route'] . '.index')
         $modules = $this->modules;
         $modules['login_user_role'] = Helper::getLoginUserRole();
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
         if (!$modules['permission_delete']) {
-            if (isset($request) && $request->ajax()) {
-                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
+
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = MasterCourse::findOrFail($id);
+            $course = MasterCourse::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            // ✅ Use correct column names for all related modules
+            $isUsed =
+                $course->batches()->exists() ||
 
-            if ($dataDelete->delete()) {
+                FeesCollection::where('course_id', $course->id)->exists() ||  // corrected
+
+                CourceRegistration::where('course_id', $course->id)->exists() || // corrected
+                Timetable::where('course_id', $course->id)->exists() ;       // corrected
+
+
+            if ($isUsed) {
+                $message = 'This course cannot be deleted because it is already assigned in others Data.';
                 if ($isAjax) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                    return response()->json(['success' => false, 'message' => $message], 400);
                 }
-
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
 
+            // Soft delete
+            $course->deleted_by = Auth::id();
+            $course->save();
+            $course->delete();
+
+            $successMsg = $modules['title'] . ' deleted successfully.';
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
-                ]);
+                return response()->json(['success' => true, 'message' => $successMsg]);
             }
-
-            return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+            return redirect()->route($modules['route'] . '.index')->withSuccess($successMsg);
         } catch (\Exception $e) {
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ]);
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
-
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
 
-
     public function restore($id)
     {
-
-        $modules = $this->modules;
-
         try {
+            $course = MasterCourse::withTrashed()->findOrFail($id);
 
-            $restore_data = MasterCourse::withTrashed()->findOrFail($id);
-            $restore_data->restore();
 
-            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
+            $isUsed =
+                $course->batches()->exists() ||
+
+                FeesCollection::where('course_id', $course->id)->exists() ||
+
+                CourceRegistration::where('course_id', $course->id)->exists() ||
+                Timetable::where('course_id', $course->id)->exists() ;
+
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This course cannot be restored because it is already assigned in others data.'
+                ], 400);
+            }
+
+
+            $course->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Course restored successfully.'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }
