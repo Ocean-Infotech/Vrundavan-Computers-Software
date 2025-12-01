@@ -43,8 +43,9 @@ class CommonController extends Controller
                     'cr.id as course_reg_id',
                     'a.id as admission_id',
                     'a.first_name',
-                    'a.father_name',
                     'a.last_name',
+                    'a.father_name',
+
                     'mc.course_name',
                 )
                 ->get();
@@ -54,7 +55,7 @@ class CommonController extends Controller
                 $temp['id'] = $row?->course_reg_id . "";
                 // $temp['course_reg_id'] = $row?->course_reg_id . "";
                 // $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
-                $temp['name'] = $row?->last_name  . " " . $row?->father_name . " " . $row?->first_name .  "";
+                $temp['name'] = $row?->first_name  . " " . $row?->last_name . " " . $row?->father_name .  "";
                 $temp['course_name'] = $row?->course_name;
                 return $temp;
             });
@@ -216,7 +217,7 @@ class CommonController extends Controller
             $data = $data->map(function ($row) {
                 // $temp = $row;
                 $temp['id'] = $row?->id . "";
-                $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
+                $temp['name'] = $row?->first_name . " " . $row?->last_name . " " . $row?->father_name . "";
                 return $temp;
             });
             return $this->sendResponse($data, "Course list.");
