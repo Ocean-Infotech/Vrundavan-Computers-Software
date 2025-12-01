@@ -31,7 +31,7 @@ class MasterBatchRequest extends FormRequest
                 'required',
                 Rule::exists((new MasterCourse())->getTable(), 'id')
             ],
-            
+
             // 'name' => 'required|string|max:255|unique:' . (new MasterCity())->getTable() . ',name',
             'batch_name' => [
                 'required',
@@ -49,7 +49,7 @@ class MasterBatchRequest extends FormRequest
         return [
             'course_id.required' => 'The Course Name is required.',
             'batch_name.required' => 'The Batch Name is required.',
-            
+
         ];
     }
 }
