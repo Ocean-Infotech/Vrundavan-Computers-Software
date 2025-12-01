@@ -390,8 +390,8 @@
                                 $('#modalDOB').text('-');
                             }
                             $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#modalSurname').text(data.last_name?.toUpperCase() ?? '-');
-                            $('#modalName').text(data.first_name?.toUpperCase() ?? '-');
+                            $('#modalSurname').text(data.first_name?.toUpperCase() ?? '-');
+                            $('#modalName').text(data.last_name?.toUpperCase() ?? '-');
 
                             $('#FatherName').text(data.father_name ?? '-');
                             $('#MotherName').text(data.mother_name ?? '-');
@@ -454,7 +454,7 @@
                                 // ===== Populate Header =====
                                 $('#modalGRNo').text(student.id ?? '-');
                                 $('#modalFullName').text(
-                                    `${student.last_name} ${student.first_name} ${student.father_name}`
+                                    `${student.first_name} ${student.last_name} ${student.father_name}`
                                     .toUpperCase()
                                 );
 
