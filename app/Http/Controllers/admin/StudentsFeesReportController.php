@@ -282,7 +282,7 @@ class StudentsFeesReportController extends Controller
 
         // Course registration + course
         $courseRegistration = CourceRegistration::where('register_id', $studentId)
-            ->with('course')
+            ->with(['course', 'batch'])
             ->first();
 
         if (!$courseRegistration || !$courseRegistration->course) {
@@ -323,7 +323,7 @@ class StudentsFeesReportController extends Controller
             ]);
         }
 
-            $feesDetails = MasterFeeDetail::select('fee_name as name', 'amount')->get()->toArray();
+        $feesDetails = MasterFeeDetail::select('fee_name as name', 'amount')->get()->toArray();
 
 
         // Get one fees record for student info
@@ -344,7 +344,9 @@ class StudentsFeesReportController extends Controller
             'semester_fee',
             'paidFee',
             'pendingFee',
-            'receipt'  // <-- Pass receipt here
+            'receipt',
+            'courseRegistration'
+             // <-- Pass receipt here
         ))->with('modules', $this->modules);
     }
 }

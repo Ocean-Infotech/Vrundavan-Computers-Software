@@ -129,14 +129,14 @@
     @for ($i = 0; $i < 2; $i++)
         <div class="receipt">
             <div class="watermark">
-                <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
+                <img src="{{ asset('uploads/logo/transparent_logo.png') }}" alt="Logo Watermark">
             </div>
             <div class="header">
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 80px; text-align: left;">
-                            <img src="{{ asset('uploads/logo/logo.png') }}" alt="College Logo"
-                                style="width:70px; height:auto;">
+                            <img src="{{ asset('uploads/logo/logo.jpg') }}" alt="College Logo"
+                                style="width:100px; height:auto;">
                         </td>
                         <td style="text-align: center;">
                             Shree Patel Vidhyarthi Ashram Sanchalit<br>

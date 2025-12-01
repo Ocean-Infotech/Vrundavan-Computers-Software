@@ -187,7 +187,8 @@
                     <table>
                         <tr>
                             <td style="width: 80px; text-align: left;">
-                                <img src="{{ asset('uploads/logo/logo.png') }}" alt="College Logo">
+                                <img src="{{ asset('uploads/logo/logo.png') }}" style="width: 120px; height: 100px;"
+                                    alt="College Logo">
                             </td>
                             <td style="text-align: center;">
                                 Shree Patel Vidhyarthi Ashram Sanchalit<br>
@@ -203,9 +204,9 @@
                 <table class="info-table">
                     <tr>
                         <td>Receipt No.</td>
-                        <td>{{ $receipt->receipt_no}}</td>
+                        <td>{{ $receipt->receipt_no }}</td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td>Student Name</td>
                         <td>
                             {{ trim(
@@ -217,11 +218,34 @@
                             ) ?:
                                 '____________' }}
                         </td>
+                    </tr> --}}
+                    <tr>
+                        <td>Student Name</td>
+                        <td>
+                            {{ trim(
+                                ($feesData->admission->first_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->father_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->last_name ?? ''),
+                            ) ?:
+                                '____________' }}
+
+                            ({{ $courseRegistration->register_id ?? 'N/A' }})
+                        </td>
                     </tr>
+
                     <tr>
                         <td>Class</td>
-                        <td>{{ $feesData->course->course_name ?? '____________' }}</td>
+                        <td>
+                            {{ $feesData->course->course_name ?? '____________' }}
+                            -
+                            {{ $courseRegistration->batch->batch_name ?? '____________' }}
+                        </td>
                     </tr>
+
+
+
                     <tr>
                         <td>Semester</td>
                         <td>{{ $feesData->year_semester ?? '____________' }}</td>
@@ -245,12 +269,12 @@
                         @foreach ($feesDetails as $fee)
                             <tr>
                                 <td>{{ $fee['name'] }}</td>
-                                <td>{{ number_format($fee['amount'], 2) }}/-</td>
+                                <td>{{ number_format($fee['amount']) }}/-</td>
                             </tr>
                         @endforeach
                         <tr class="total-row">
                             <td><strong>Total Fees</strong></td>
-                            <td><strong>{{ number_format($paidFee, 2) }}/-</strong></td>
+                            <td><strong>{{ number_format($paidFee) }}/-</strong></td>
                         </tr>
                     </tbody>
                 </table>
