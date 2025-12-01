@@ -129,8 +129,7 @@
                             </th>
                         </tr>
                         <tr>
-                            <th><b>APAAR ID/ABC ID:</b> <span id="ModalAPAARID"
-                                    class="text-lowercase"></span></th>
+                            <th><b>APAAR ID/ABC ID:</b> <span id="ModalAPAARID" class="text-lowercase"></span></th>
                             <th><b>UDISE No:</b> <span id="ModalUDISE" class="text-lowercase"></span></th>
 
                         </tr>
@@ -157,9 +156,9 @@
                     <h5 class="modal-title" id="courseModalLabel">Course Details</h5>
                     <div class="d-flex align-items-center">
                         <!-- Edit Button -->
-                        <a href="#" id="courseEditBtn" class="btn btn-primary btn-sm me-2">
+                        {{-- <a href="#" id="courseEditBtn" class="btn btn-primary btn-sm me-2">
                             <i class="fas fa-edit"></i> Update Course
-                        </a>
+                        </a> --}}
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
@@ -331,33 +330,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateModalLabel">Update Course Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateForm">
-                        <input type="hidden" class="form-control" id="updateCourseId" name="course_id">
-                        <input type="hidden" class="form-control" id="updateRegisterId" name="register_id">
-                        <div class="mb-3">
-                            <label for="updateCourseName" class="form-label">Course Name</label>
-                            <input type="text" class="form-control" id="updateCourseName" name="courseName" readonly
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="updateFees" class="form-label">Fees</label>
-                            <input type="number" class="form-control" id="updateFees" name="fees" required>
-                        </div>
-                        <button type="submit" id="updateForm" class="btn btn-primary">Save Changes</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
 
 
@@ -375,7 +348,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -462,82 +435,82 @@
             let id = $(this).data('id');
 
             $.ajax({
-                url: "{{ route($route . '.show') }}",
-                type: "GET",
-                data: {
-                    id: id
-                },
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        let courses = response.courses;
-                        let student = response.student;
+                    url: "{{ route($route . '.show') }}",
+                    type: "GET",
+                    data: {
+                        id: id
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.success) {
+                            let courses = response.courses;
+                            let student = response.student;
 
-                        if (courses.length > 0) {
-                            // ✅ Set Edit Button URL
-                            let editUrl = 'cource-registration/' + student.id + '/edit';
-                            $('#courseEditBtn').attr('href', editUrl);
+                            if (courses.length > 0) {
+                                // ✅ Set Edit Button URL
+                                let editUrl = 'cource-registration/' + student.id + '/edit';
+                                $('#courseEditBtn').attr('href', editUrl);
 
-                            // ===== Populate Header =====
-                            $('#modalGRNo').text(student.id ?? '-');
-                            $('#modalFullName').text(
-                                `${student.last_name} ${student.first_name} ${student.father_name}`
-                                .toUpperCase()
-                            );
+                                // ===== Populate Header =====
+                                $('#modalGRNo').text(student.id ?? '-');
+                                $('#modalFullName').text(
+                                    `${student.last_name} ${student.first_name} ${student.father_name}`
+                                    .toUpperCase()
+                                );
 
-                            let courseNames = courses.map(c => {
-                                let batchName = c?.batch?.batch_name ?
-                                    ` (${c.batch.batch_name})` : '';
-                                return `${c.course.course_name}${batchName}`;
-                            }).join(', ');
+                                let courseNames = courses.map(c => {
+                                    let batchName = c?.batch?.batch_name ?
+                                        ` (${c.batch.batch_name})` : '';
+                                    return `${c.course.course_name}${batchName}`;
+                                }).join(', ');
 
-                            $('#modalCourse').text(courseNames);
+                                $('#modalCourse').text(courseNames);
 
-                            $('#modalClass').text(courses[0]?.class?.class ?? '-');
+                                $('#modalClass').text(courses[0]?.class?.class ?? '-');
 
-                            let shiftTime = courses[0]?.shift ?
-                                `${courses[0].shift.from_time} - ${courses[0].shift.to_time}` : '-';
-                            $('#modalShift').text(shiftTime);
+                                let shiftTime = courses[0]?.shift ?
+                                    `${courses[0].shift.from_time} - ${courses[0].shift.to_time}` : '-';
+                                $('#modalShift').text(shiftTime);
 
-                            $('#modalUniversity').text(courses[0]?.university ?? '-');
-                            $('#modalDepartment2').text(courses[0]?.department ?? '-');
-                            $('#modalEnrollNo').text(student.enrolment_no ?? '-');
-                            $('#modalSPID2').text(student.spid ?? '-');
-                            $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
+                                $('#modalUniversity').text(courses[0]?.university ?? '-');
+                                $('#modalDepartment2').text(courses[0]?.department ?? '-');
+                                $('#modalEnrollNo').text(student.enrolment_no ?? '-');
+                                $('#modalSPID2').text(student.spid ?? '-');
+                                $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
 
-                            let firstCourse = courses[0];
+                                let firstCourse = courses[0];
 
-                            let doj = '-';
-                            if (firstCourse.created_at) {
-                                doj = moment(firstCourse.created_at).format('DD-MM-YYYY');
-                            }
+                                let doj = '-';
+                                if (firstCourse.created_at) {
+                                    doj = moment(firstCourse.created_at).format('DD-MM-YYYY');
+                                }
 
-                            let doc = '-';
-                            if (firstCourse.status === 'Completed' && firstCourse.updated_at) {
-                                doc = moment(firstCourse.updated_at).format('DD-MM-YYYY');
-                            }
+                                let doc = '-';
+                                if (firstCourse.status === 'Completed' && firstCourse.updated_at) {
+                                    doc = moment(firstCourse.updated_at).format('DD-MM-YYYY');
+                                }
 
-                            $('#modalDOJ').text(doj);
-                            $('#modalDOC').text(doc);
+                                $('#modalDOJ').text(doj);
+                                $('#modalDOC').text(doc);
 
-                            $('#modalName').text(
-                                `${student.first_name} ${student.father_name} ${student.last_name}`
-                            );
+                                $('#modalName').text(
+                                    `${student.first_name} ${student.father_name} ${student.last_name}`
+                                );
 
-                            $('#courseData').empty();
+                                $('#courseData').empty();
 
-                            courses.forEach(function(course) {
-                                let row = `<div class="row mb-3">`;
+                                courses.forEach(function(course) {
+                                        let row = `<div class="row mb-3">`;
 
-                                if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
-                                    row += `<div class="col-md-3 mb-2">
+                                        if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
+                                            row += `<div class="col-md-3 mb-2">
                                 <button type="button" class="btn btn-success w-100 collectFees" data-id="${course.id}">
                                     Fees
                                 </button>
                             </div>`;
-                                }
+                                        }
 
-                                row += `<div class="col-md-3 mb-2">
+                                        row += `<div class="col-md-3 mb-2">
                             <button type="button" class="btn btn-primary w-100 formBtn"
                                 data-register_id="${course.register_id}"
                                 data-course_id="${course.course_id}">
@@ -545,33 +518,34 @@
                             </button>
                         </div>`;
 
-                                if ("{{ $fees_collection_edit ?? 'false' }}" == "true") {
-                                    row += `<div class="col-md-3 mb-2">
-                                <button type="button" class="btn btn-warning w-100 updateBtn"
-                                    data-register_id="${course.register_id}"
-                                    data-course_id="${course.course_id}">
-                                    Update
-                                </button>
-                            </div>`;
-                                }
+                                        row += `<div class="col-md-3 mb-2">
+                                    <button type="button" class="btn btn-warning w-100 updateBtn"
+                                        data-admission_id="${course.admission_id}"
+                                        data-register_id="${course.register_id}"
+                                        data-course_id="${course.course_id}">
+                                        Update
+                                    </button>
+                                </div>`;
 
-                                let statusOptions = ['Running', 'Completed', 'Cancel'];
-                                let currentStatus = course.status ?? '';
-                                let statusClass =
-                                    currentStatus === 'Running' ? 'btn-primary' :
-                                    currentStatus === 'Completed' ? 'btn-success' :
-                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
 
-                                let statusDropdown = `<div class="btn-group w-100">
+
+                                    let statusOptions = ['Running', 'Completed', 'Cancel'];
+                                    let currentStatus = course.status ?? '';
+                                    let statusClass =
+                                        currentStatus === 'Running' ? 'btn-primary' :
+                                        currentStatus === 'Completed' ? 'btn-success' :
+                                        currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+
+                                    let statusDropdown = `<div class="btn-group w-100">
                             <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" aria-expanded="false" style="height: 37px">
                                 ${currentStatus || 'Select Status'}
                             </button>
                             <ul class="dropdown-menu w-100">`;
 
-                                statusOptions.forEach(function(option) {
-                                    if (option !== currentStatus) {
-                                        statusDropdown += `<li>
+                                    statusOptions.forEach(function(option) {
+                                        if (option !== currentStatus) {
+                                            statusDropdown += `<li>
                                     <a href="javascript:void(0)" class="dropdown-item update-status"
                                         data-register_id="${course.register_id}"
                                         data-course_id="${course.course_id}"
@@ -579,15 +553,15 @@
                                         ${option}
                                     </a>
                                 </li>`;
-                                    }
+                                        }
+                                    });
+
+                                    statusDropdown += `</ul></div>`; row +=
+                                    `<div class="col-md-3 mb-2">${statusDropdown}</div>`; row +=
+                                    `</div>`;
+
+                                    $('#courseData').append(row);
                                 });
-
-                                statusDropdown += `</ul></div>`;
-                                row += `<div class="col-md-3 mb-2">${statusDropdown}</div>`;
-                                row += `</div>`;
-
-                                $('#courseData').append(row);
-                            });
 
                             $('#course').modal('show');
                         } else {
@@ -735,33 +709,17 @@
             let url = '/software/fees-collection/get-details/' + admId;
             window.open(url, '_blank'); // 🔹 Opens in new tab
         });
-
         $(document).on('click', '.updateBtn', function() {
-            $('#course').modal('hide');
-            $('#updateModal').modal('show');
 
-            let register_id = $(this).data('register_id');
-            let course_id = $(this).data('course_id');
+            let admission_id = $(this).data('admission_id');
 
-            $.ajax({
-                url: "{{ route($route . '.course-fees-get') }}",
-                method: 'GET',
-                data: {
-                    register_id: register_id,
-                    course_id: course_id
-                },
-                success: function(response) {
-                    $('#updateCourseName').val(response.course_name);
-                    $('#updateFees').val(response.fee);
-                    $('#updateCourseId').val(course_id);
-                    $('#updateRegisterId').val(register_id);
-                },
-                error: function() {
-                    alert('Error fetching course details.');
-                }
-            });
+            // Correct redirect URL
+            let url = "/software/cource-registration/" + admission_id + "/edit";
+
+            window.location.href = url;
         });
 
+       
         // Submit Update Form
         $(document).ready(function() {
             $('#updateForm').on('submit', function(e) {
@@ -967,14 +925,12 @@
             localStorage.setItem('admission_id', admissionId);
             window.open("{{ url('software/attedance') }}", "_blank");
         });
-            $(document).on('click', '.open-test', function(e) {
-                e.preventDefault();
-                var admissionId = $(this).data('admission-id');
-                localStorage.setItem('admission_id', admissionId);
-                window.open($(this).attr('href'), '_blank');
-            });
-
-
+        $(document).on('click', '.open-test', function(e) {
+            e.preventDefault();
+            var admissionId = $(this).data('admission-id');
+            localStorage.setItem('admission_id', admissionId);
+            window.open($(this).attr('href'), '_blank');
+        });
     </script>
 
 
