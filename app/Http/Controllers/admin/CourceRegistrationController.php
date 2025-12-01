@@ -96,9 +96,10 @@ class CourceRegistrationController extends Controller
                     })
                     ->editColumn('student_name', function ($row) {
                         $first = $row->admission->first_name ?? '';
-                        $father = $row->admission->father_name ?? '';
+
                         $last = $row->admission->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
+                         $father = $row->admission->father_name ?? '';
+                        return trim("{$first} {$last}  {$father} ");
                     })
 
                     ->editColumn('batch_and_class_or_shift', function ($row) {
@@ -300,7 +301,7 @@ class CourceRegistrationController extends Controller
             $admissions = Admission::all();
             $edit = CourceRegistration::findOrFail($id);
 
-        
+
 
 
             return view(

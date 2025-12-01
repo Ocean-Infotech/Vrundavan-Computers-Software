@@ -129,7 +129,7 @@
     @for ($i = 0; $i < 2; $i++)
         <div class="receipt">
             <div class="watermark">
-                <img src="{{ asset('uploads/logo/transparent_logo.png') }}" alt="Logo Watermark">
+                <img src="{{ asset('uploads/logo/logo.jpg') }}" alt="Logo Watermark">
             </div>
             <div class="header">
                 <table style="width: 100%;">

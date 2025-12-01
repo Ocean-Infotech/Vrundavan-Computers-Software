@@ -132,13 +132,12 @@ class AdmissionController extends Controller
                     })
 
                     ->editColumn('admission_name', function ($row) {
-
-                        $last   = $row->last_name ?? '';
                         $first  = $row->first_name ?? '';
+                        $last   = $row->last_name ?? '';
                         $father = $row->father_name ?? '';
 
                         // Create LastName FirstName FatherName
-                        $fullName = trim("$last $first $father");
+                        $fullName = trim("$first $last  $father");
 
                         return $fullName ?: '____________';
                     })
