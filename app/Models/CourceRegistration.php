@@ -6,6 +6,7 @@ use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterShift;
+use App\Models\Master\MasterUniversity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -88,5 +89,9 @@ class CourceRegistration extends Model
     public function registrations()
     {
         return $this->hasMany(CourceRegistration::class, 'admission_id', 'id');
+    }
+       public function university()
+    {
+        return $this->hasMany(MasterUniversity::class, 'university', 'id');
     }
 }

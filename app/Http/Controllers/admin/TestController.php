@@ -55,8 +55,8 @@ class TestController extends Controller
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
-                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark','className' =>  'w-5 text-center'],
-                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date','className' =>  'w-5 text-center'],
+                (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark', 'className' =>  'w-5 text-center'],
+                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date', 'className' =>  'w-5 text-center'],
                 // (object)['data' => "add_marks", 'name' => 'add_marks', 'td_label' => 'Marks Entry', 'orderable' => false, 'searchable' => false, 'className' =>  'w-5 text-center'],
                 (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
                 (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
@@ -83,11 +83,11 @@ class TestController extends Controller
                     ->editColumn('date', function ($row) {
                         return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
                     })
-    //                 ->addColumn('add_marks', function ($row) use ($modules) {
-    //                     return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
-    //     <i class="fa-solid fa-file-circle-check"></i>
-    // </a>';
-    //                 })
+                    //                 ->addColumn('add_marks', function ($row) use ($modules) {
+                    //                     return '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon" data-bs-toggle="tooltip" title="Add Marks">
+                    //     <i class="fa-solid fa-file-circle-check"></i>
+                    // </a>';
+                    //                 })
 
 
                     ->editColumn('status', function ($row) use ($modules) {
@@ -111,32 +111,32 @@ class TestController extends Controller
                         return $status;
                     })
                     ->addColumn('action', function ($row) use ($modules) {
-                    $btn = '';
+                        $btn = '';
 
-                    // ✅ Move Add Marks button before edit/delete
-                    $btn .= '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Add Marks">
+                        // ✅ Move Add Marks button before edit/delete
+                        $btn .= '<a href="' . route($modules["route"] . '.add-marks', [$row["id"]]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Add Marks">
                                 <i class="fa-solid fa-file-circle-check"></i>
                              </a>';
 
-                    if (!$row?->deleted_at) {
-                        if ($modules['permission_edit']) {
-                            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1" title="Edit">
+                        if (!$row?->deleted_at) {
+                            if ($modules['permission_edit']) {
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                      </a>';
-                        }
-                        if ($modules['permission_delete']) {
-                            $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1" title="Delete">
+                            }
+                            if ($modules['permission_delete']) {
+                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1" title="Delete">
                                         <i class="fa-solid fa-trash"></i>
                                      </a>';
-                        }
-                    } else {
-                        $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data">
+                            }
+                        } else {
+                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data">
                                     <i class="ti ti-history"></i>
                                  </a>';
-                    }
+                        }
 
-                    return $btn ?: '-';
-                })
+                        return $btn ?: '-';
+                    })
                     ->rawColumns(['status', 'action', 'add_marks'])
                     ->make(true);
                 return $returnData;
@@ -333,19 +333,23 @@ class TestController extends Controller
 
     public function restore($id)
     {
-
-        $modules = $this->modules;
-
         try {
+            $restoreData = Test::withTrashed()->findOrFail($id);
+            $restoreData->restore();
 
-            $restore_data = Test::withTrashed()->findOrFail($id);
-            $restore_data->restore();
-
-            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
+            return response()->json([
+                'status'  => true,
+                'message' => 'Record restored successfully!'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
+
+
     public function addMarks($id)
     {
         $modules = $this->modules;

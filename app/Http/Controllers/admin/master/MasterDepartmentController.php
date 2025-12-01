@@ -8,6 +8,7 @@ use App\Models\Master\MasterDepartment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
+use App\Models\CourceRegistration;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
@@ -232,51 +233,101 @@ class MasterDepartmentController extends Controller
     {
         $modules = $this->modules;
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
         if (!$modules['permission_delete']) {
-            if (isset($request) && $request->ajax()) {
-                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
+
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = MasterDepartment::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            $department = MasterDepartment::findOrFail($id);
 
-            if ($dataDelete->delete()) {
+            // 🔍 Check if department is used in other modules
+            $isUsed =
+                CourceRegistration::where('department', $department->id)->exists();
+
+
+            if ($isUsed) {
+                $message = 'This department cannot be deleted because it is already assigned in others Data.';
+
                 if ($isAjax) {
                     return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                        'success' => false,
+                        'message' => $message
+                    ], 400);
                 }
 
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
+
+            // Soft delete logic
+            $department->deleted_by = Auth::id();
+            $department->save();
+            $department->delete();
+
+            $successMsg = $modules['title'] . ' deleted successfully.';
 
             if ($isAjax) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
+                    'success' => true,
+                    'message' => $successMsg
                 ]);
             }
 
-            return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+            return redirect()->route($modules['route'] . '.index')->withSuccess($successMsg);
         } catch (\Exception $e) {
+
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
+                    'message' => $e->getMessage()
                 ]);
             }
 
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+    public function restore($id)
+    {
+        $modules = $this->modules;
+
+        try {
+
+            $department = MasterDepartment::withTrashed()->findOrFail($id);
+
+            // 🔍 Check if department is still linked in other modules
+            $isUsed =
+                CourceRegistration::where('department', $department->id)->exists();
+
+
+
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This department cannot be restored because it is already assigned in others Data'
+                ], 400);
+            }
+
+            // Restore
+            $department->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Department restored successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

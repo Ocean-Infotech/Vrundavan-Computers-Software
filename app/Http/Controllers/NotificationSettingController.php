@@ -246,18 +246,36 @@ class NotificationSettingController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         try {
             $notificationSetting = NotificationSetting::findOrFail($id);
             $notificationSetting->delete();
 
-            return Redirect::route($this->modules['route'] . '.index')
-                ->withSuccess($this->modules['title'] . ' deleted successfully');
+            // If AJAX request, return JSON success
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $this->modules['title'] . ' deleted successfully.',
+                ]);
+            }
+
+            // For normal requests, fallback redirect
+            return redirect()->route($this->modules['route'] . '.index')
+                ->withSuccess($this->modules['title'] . ' deleted successfully.');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->route('dashboard')->withErrors($e->getMessage());
         }
     }
+
+
 
     public function getStudentsByCourse($course_id)
     {

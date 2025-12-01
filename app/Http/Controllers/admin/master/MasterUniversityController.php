@@ -8,6 +8,7 @@ use App\Http\Requests\MasterUniversityRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
+use App\Models\CourceRegistration;
 use App\Models\Master\MasterUniversity;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -232,47 +233,61 @@ class MasterUniversityController extends Controller
     {
         $modules = $this->modules;
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
         if (!$modules['permission_delete']) {
-            if (isset($request) && $request->ajax()) {
-                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
+
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = MasterUniversity::findOrFail($id);
+            $shift = MasterUniversity::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            // 🔍 Check if Shift is used anywhere
+            $isUsed =
+                CourceRegistration::where('university', $shift->id)->exists();
 
-            if ($dataDelete->delete()) {
+
+            if ($isUsed) {
+                $message = 'This University cannot be deleted because it is already assigned in others Data.';
+
                 if ($isAjax) {
                     return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                        'success' => false,
+                        'message' => $message
+                    ], 400);
                 }
 
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
+
+            // Soft delete
+            $shift->deleted_by = Auth::id();
+            $shift->save();
+            $shift->delete();
+
+            $success = $modules['title'] . ' deleted successfully.';
 
             if ($isAjax) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
+                    'success' => true,
+                    'message' => $success
                 ]);
             }
 
-            return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+            return redirect()->route($modules['route'] . '.index')->withSuccess($success);
         } catch (\Exception $e) {
+
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
+                    'message' => $e->getMessage()
                 ]);
             }
 
@@ -281,17 +296,34 @@ class MasterUniversityController extends Controller
     }
     public function restore($id)
     {
-
         $modules = $this->modules;
 
         try {
+            $shift = MasterUniversity::withTrashed()->findOrFail($id);
 
-            $restore_data = MasterUniversity::withTrashed()->findOrFail($id);
-            $restore_data->restore();
+            // 🔍 Check if Shift is used
+            $isUsed =
+                CourceRegistration::where('university', $shift->id)->exists();
 
-            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This University cannot be restored because it is already assigned in others Data.'
+                ], 400);
+            }
+
+            // Restore
+            $shift->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'University restored successfully!'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -17,12 +17,13 @@ return new class extends Migration
             $table->string('course_id');
             $table->string('batch_id');
             $table->string('class_id');
-            $table->string('semester');
+            $table->string('semester')->nullable();
             $table->string('attachment');
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
             $table->string('deleted_by')->nullable();
+            $table->softDeletes();
         });
     }
 

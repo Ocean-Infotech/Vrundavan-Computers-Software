@@ -13,6 +13,11 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterClassRequest;
+use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
+use App\Models\Master\MasterShift;
+use App\Models\StudentRequest;
+use App\Models\Timetable;
 
 class MasterClassController extends Controller
 {
@@ -238,34 +243,46 @@ class MasterClassController extends Controller
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = MasterClass::findOrFail($id);
+            $class = MasterClass::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            // 🔍 Check if Class is used anywhere
+            $isUsed =
+                MasterShift::where('class_id', $class->id)->exists() ||
 
-            if ($dataDelete->delete()) {
+                CourceRegistration::where('class_id', $class->id)->exists() ||
+                Timetable::where('class_id', $class->id)->exists();
+
+            if ($isUsed) {
+                $message = 'This class cannot be deleted because it is already assigned in others Data.';
+
                 if ($isAjax) {
                     return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                        'success' => false,
+                        'message' => $message
+                    ], 400);
                 }
 
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
+
+            // Soft delete logic
+            $class->deleted_by = Auth::user()?->id;
+            $class->save();
+            $class->delete();
+
+            $success = $modules['title'] . ' deleted successfully.';
 
             if ($isAjax) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
+                    'success' => true,
+                    'message' => $success,
                 ]);
             }
 
             return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+                ->withSuccess($success);
         } catch (\Exception $e) {
+
             if ($isAjax) {
                 return response()->json([
                     'success' => false,
@@ -273,24 +290,44 @@ class MasterClassController extends Controller
                 ]);
             }
 
-            return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
+            return redirect()->route($modules['route'] . '.index')
+                ->withErrors($e->getMessage());
         }
     }
-
-
     public function restore($id)
     {
-
         $modules = $this->modules;
 
         try {
+            $class = MasterClass::withTrashed()->findOrFail($id);
 
-            $restore_data = MasterClass::withTrashed()->findOrFail($id);
-            $restore_data->restore();
+            // 🔍 Check if class is used anywhere
+            $isUsed =
+                MasterShift::where('class_id', $class->id)->exists() ||
 
-            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
+                CourceRegistration::where('class_id', $class->id)->exists() ||
+                Timetable::where('class_id', $class->id)->exists();
+
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This class cannot be restored because it is already assigned in others data.'
+                ], 400);
+            }
+
+            // Restore soft deleted class
+            $class->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Class restored successfully!'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

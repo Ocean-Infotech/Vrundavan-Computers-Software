@@ -8,6 +8,9 @@ git pull origin developer
 
 
 |-------------------------------------------- Local
+1-12-2025
+php artisan migrate:refresh --path=database\migrations\2025_08_20_113737_create_timetables_table.php
+
 17-11-2025
 ALTER TABLE admission MODIFY category VARCHAR(50) NULL;
 

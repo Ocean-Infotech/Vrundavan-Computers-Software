@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin\master;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LibraryMasterBookRequest;
+use App\Models\LibraryIssuedBooks;
 use App\Models\LibraryMasterBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,15 +49,15 @@ class LibraryMasterBookController extends Controller
         View::share('modules', $modules);
 
         try {
-          $columns = [
-    (object)['data' => "book_info", 'name' => 'book_info', 'td_label' => 'Book Details'],
-    (object)['data' => "library_book_no", 'name' => 'library_book_no', 'td_label' => 'Library Book No'],
-    (object)['data' => "purchase_date", 'name' => 'purchase_date', 'td_label' => 'Purchase Date'],
-    (object)['data' => "price", 'name' => 'price', 'td_label' => 'Price'],
-    (object)['data' => "created_by", 'name' => 'created_by', 'td_label' => 'Entry Add By'],
-    (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
-    (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
-];
+            $columns = [
+                (object)['data' => "book_info", 'name' => 'book_info', 'td_label' => 'Book Details'],
+                (object)['data' => "library_book_no", 'name' => 'library_book_no', 'td_label' => 'Library Book No'],
+                (object)['data' => "purchase_date", 'name' => 'purchase_date', 'td_label' => 'Purchase Date'],
+                (object)['data' => "price", 'name' => 'price', 'td_label' => 'Price'],
+                (object)['data' => "created_by", 'name' => 'created_by', 'td_label' => 'Entry Add By'],
+                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center'],
+                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+            ];
 
 
             View::share("columns", $columns);
@@ -103,11 +104,11 @@ class LibraryMasterBookController extends Controller
                         return $row->createdByUser?->name ?? '';
                     })
                     ->addColumn('book_info', function ($row) {
-    $html = '<strong>' . e($row->book_name) . '</strong><br>';
-    $html .= '<small>Author: ' . e($row->author_name) . '</small><br>';
-    $html .= '<small>Publisher: ' . e($row->publisher_name) . '</small>';
-    return $html;
-})
+                        $html = '<strong>' . e($row->book_name) . '</strong><br>';
+                        $html .= '<small>Author: ' . e($row->author_name) . '</small><br>';
+                        $html .= '<small>Publisher: ' . e($row->publisher_name) . '</small>';
+                        return $html;
+                    })
 
 
                     ->editColumn('purchase_date', function ($row) {
@@ -128,7 +129,7 @@ class LibraryMasterBookController extends Controller
                         }
                         return $btn ?: '-';
                     })
-                    ->rawColumns(['status', 'action','book_info'])
+                    ->rawColumns(['status', 'action', 'book_info'])
                     ->make(true);
             }
             return view($modules['folder_path'] . '.index');
@@ -187,7 +188,7 @@ class LibraryMasterBookController extends Controller
             $update = LibraryMasterBook::findOrFail($id);
 
             $validated = $request->validated();
-// dd($request->all(),$validated);
+            // dd($request->all(),$validated);
             $validated['updated_by'] = Auth::user()->id;
 
             if ($request->has('purchase_date')) {
@@ -237,51 +238,55 @@ class LibraryMasterBookController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
         if (!$modules['permission_delete']) {
-            if (isset($request) && $request->ajax()) {
-                return $this->sendError('User does not have the right permissions.', [], [], 403);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
             }
             abort(403, 'User does not have the right permissions.');
         }
+
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = LibraryMasterBook::findOrFail($id);
+            $course = LibraryMasterBook::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            // ✅ Use correct column names for all related modules
+            $isUsed =
 
-            if ($dataDelete->delete()) {
+
+                LibraryIssuedBooks::where('book_id', $course->id)->exists();  // corrected
+
+
+
+
+            if ($isUsed) {
+                $message = 'This Books cannot be deleted because it is already assigned in others Data.';
                 if ($isAjax) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                    return response()->json(['success' => false, 'message' => $message], 400);
                 }
-
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
 
+            // Soft delete
+            $course->deleted_by = Auth::id();
+            $course->save();
+            $course->delete();
+
+            $successMsg = $modules['title'] . ' deleted successfully.';
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
-                ]);
+                return response()->json(['success' => true, 'message' => $successMsg]);
             }
-
-            return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+            return redirect()->route($modules['route'] . '.index')->withSuccess($successMsg);
         } catch (\Exception $e) {
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ]);
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
-
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
@@ -289,12 +294,34 @@ class LibraryMasterBookController extends Controller
     public function restore($id)
     {
         try {
-            $restore = LibraryMasterBook::withTrashed()->findOrFail($id);
-            $restore->restore();
+            $course = LibraryMasterBook::withTrashed()->findOrFail($id);
 
-            return Redirect::back()->withSuccess('Library Book Restored Successfully!');
+
+            $isUsed =
+            
+
+                LibraryIssuedBooks::where('book_id', $course->id)->exists();  // corrected
+
+
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This Books cannot be restored because it is already assigned in others data.'
+                ], 400);
+            }
+
+
+            $course->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Books restored successfully.'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route('library-book-master.index')->withErrors($e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

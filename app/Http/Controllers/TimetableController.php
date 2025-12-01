@@ -238,22 +238,61 @@ class TimetableController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+     */ public function destroy(Request $request, string $id)
     {
+        $isAjax = $request->ajax();
+
         try {
             $timetable = Timetable::findOrFail($id);
 
+            // Soft delete: if you want soft delete, comment out the next line and use $timetable->delete()
+            // Permanently delete attachment if exists
             if (!empty($timetable->attachment) && file_exists(public_path($timetable->attachment))) {
                 unlink(public_path($timetable->attachment));
             }
 
+            // Optional: track who deleted
+            $timetable->deleted_by = Auth::user()?->id;
+            $timetable->save();
+
+            // Soft delete or permanent delete
             $timetable->delete();
 
-            return Redirect::route($this->modules['route'] . '.index')
-                ->withSuccess($this->modules['title'] . ' deleted successfully');
+            if ($isAjax) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Timetable deleted successfully.'
+                ]);
+            }
+
+            return redirect()->back()->withSuccess('Timetable deleted successfully.');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            if ($isAjax) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $timetable = Timetable::withTrashed()->findOrFail($id);
+            $timetable->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Timetable restored successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

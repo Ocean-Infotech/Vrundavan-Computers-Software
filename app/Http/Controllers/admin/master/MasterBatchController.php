@@ -13,6 +13,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterBatchRequest;
+use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
+use App\Models\StudentRequest;
+use App\Models\Timetable;
 
 class MasterBatchController extends Controller
 {
@@ -241,62 +245,92 @@ class MasterBatchController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+        $modules['login_user_role'] = Helper::getLoginUserRole();
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
+        if (!$modules['permission_delete']) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.'
+                ], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
+
         $isAjax = $request->ajax();
 
         try {
-            $dataDelete = MasterBatch::findOrFail($id);
+            $batch = MasterBatch::findOrFail($id);
 
-            // Soft delete logic
-            $dataDelete->deleted_by = Auth::user()?->id;
-            $dataDelete->save();
+            // ✅ Correct dependency checks for batch usage
+            $isUsed =
+                // StudentRequest::where('batch_id', $batch->id)->exists() ||
+                // FeesCollection::where('batch_id', $batch->id)->exists() ||
+                CourceRegistration::where('batch_id', $batch->id)->exists() ||
+                Timetable::where('batch_id', $batch->id)->exists();
 
-            if ($dataDelete->delete()) {
+            if ($isUsed) {
+                $message = 'This batch cannot be deleted because it is already assigned in other modules.';
+
                 if ($isAjax) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => $modules['title'] . ' deleted successfully.',
-                    ]);
+                    return response()->json(['success' => false, 'message' => $message], 400);
                 }
 
-                return redirect()->route($modules['route'] . '.index')
-                    ->withSuccess($modules['title'] . ' deleted successfully.');
+                return redirect()->route($modules['route'] . '.index')->withErrors($message);
             }
+
+            // Soft Delete
+            $batch->deleted_by = Auth::id();
+            $batch->save();
+            $batch->delete();
+
+            $successMsg = $modules['title'] . ' deleted successfully.';
 
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Something went wrong, please try again later.',
-                ]);
+                return response()->json(['success' => true, 'message' => $successMsg]);
             }
 
-            return redirect()->route($modules['route'] . '.index')
-                ->withErrors('Something went wrong, please try again later.');
+            return redirect()->route($modules['route'] . '.index')->withSuccess($successMsg);
         } catch (\Exception $e) {
             if ($isAjax) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ]);
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
             }
 
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
-
-
     public function restore($id)
     {
-
-        $modules = $this->modules;
-
         try {
+            $batch = MasterBatch::withTrashed()->findOrFail($id);
 
-            $restore_data = MasterBatch::withTrashed()->findOrFail($id);
-            $restore_data->restore();
+            // Correct dependency checks
+            $isUsed =
+                // StudentRequest::where('batch_id', $batch->id)->exists() ||
+                // FeesCollection::where('batch_id', $batch->id)->exists() ||
+                CourceRegistration::where('batch_id', $batch->id)->exists() ||
+                Timetable::where('batch_id', $batch->id)->exists();
 
-            return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This batch cannot be restored because it is already assigned in other modules.'
+                ], 400);
+            }
+
+            $batch->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Batch restored successfully.'
+            ]);
         } catch (\Exception $e) {
-            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

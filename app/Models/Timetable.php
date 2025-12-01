@@ -7,10 +7,14 @@ use App\Models\Master\MasterClass;
 use App\Models\Master\MasterCourse;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Timetable extends Model
 {
+
+  use SoftDeletes;
     use HasFactory;
+
 
     public $table = 'timetables';
 

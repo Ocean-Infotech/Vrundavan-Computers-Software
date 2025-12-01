@@ -354,7 +354,7 @@ class MasterCourseController extends Controller
                 FeesCollection::where('course_id', $course->id)->exists() ||  // corrected
 
                 CourceRegistration::where('course_id', $course->id)->exists() || // corrected
-                Timetable::where('course_id', $course->id)->exists() ;       // corrected
+                Timetable::where('course_id', $course->id)->exists();       // corrected
 
 
             if ($isUsed) {
@@ -388,32 +388,29 @@ class MasterCourseController extends Controller
         try {
             $course = MasterCourse::withTrashed()->findOrFail($id);
 
-
             $isUsed =
                 $course->batches()->exists() ||
-
                 FeesCollection::where('course_id', $course->id)->exists() ||
-
                 CourceRegistration::where('course_id', $course->id)->exists() ||
-                Timetable::where('course_id', $course->id)->exists() ;
+                Timetable::where('course_id', $course->id)->exists();
 
             if ($isUsed) {
                 return response()->json([
-                    'status' => 'error',
+                    'success' => false,
                     'message' => 'This course cannot be restored because it is already assigned in others data.'
-                ], 400);
+                ], 400);  // important
             }
-
 
             $course->restore();
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'message' => 'Course restored successfully.'
             ]);
         } catch (\Exception $e) {
+
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => $e->getMessage()
             ], 500);
         }
