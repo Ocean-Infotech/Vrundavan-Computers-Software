@@ -82,9 +82,10 @@ class AdmissionRequest extends FormRequest
 
             'other_mobile_no' => [
                 'nullable',
-                'regex:/^(?:\+91|91)?[6-9]\d{9}$/',
-                Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($id),
+                // 'regex:/^[6-9]\d{9}$/',
+                // Rule::unique((new Admission())->getTable(), 'other_mobile_no')->ignore($id),
             ],
+
             'profile_pic' => [
                 'nullable',
                 'image',

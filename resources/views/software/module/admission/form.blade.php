@@ -231,9 +231,9 @@
                                         <div class="form-check form-check-inline mt-1">
                                             <input type="radio" name="category" class="form-check-input"
                                                 value="{{ $cat }}" id="category_{{ $cat }}"
-                                                {{ old('category', $edit->category ?? '') === $cat ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="category_{{ $cat }}">
-                                                {{ $cat }} </label>
+                                                {{ isset($edit) && $edit->category === $cat ? 'checked' : '' }}>
+                                            <label class="form-check-label"
+                                                for="category_{{ $cat }}">{{ $cat }}</label>
                                         </div>
                                     @endforeach
                                     @error('category')
@@ -380,7 +380,6 @@
                                         name="other_mobile_no" autocapitalize="off"
                                         value="{{ isset($edit?->other_mobile_no) ? $edit?->other_mobile_no : old('other_mobile_no') }}"
                                         placeholder="Enter Other Mobile No.">
-
                                     @error('other_mobile_no')
                                         <span class="invalid-feedback">
                                             <strong>{{ $message }}</strong>
