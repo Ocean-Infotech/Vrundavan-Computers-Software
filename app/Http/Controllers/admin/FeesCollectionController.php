@@ -79,7 +79,7 @@ class FeesCollectionController extends Controller
                 // dd($request->all());
                 $data = FeesCollection::select('*')->where('admission_id', $request?->search);
                 $data = $data->withTrashed();
-                $data = $data->with(['course']);
+                $data = $data->with(['course','admission']);
                 // dd("L-75", $data->get());
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
@@ -94,6 +94,14 @@ class FeesCollectionController extends Controller
                             return Helper::convert_date($row?->date, "Y-m-d", 'd-m-Y');
                         }
                         return "-";
+                    })
+                    ->editColumn('student_name', function ($row) {
+                        $first  = $row?->admission?->first_name ?? '';
+                         $last   = $row?->admission?->last_name ?? '';
+                        $father = $row?->admission?->father_name ?? '';
+
+
+                        return trim("$first $last  $father");   // Surname First Father
                     })
                     ->editColumn('status', function ($row) use ($modules) {
                         $btn = '';
@@ -127,6 +135,8 @@ class FeesCollectionController extends Controller
                         $btn .= $dropdown;
                         return $btn;
                     })
+
+
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if (!$row?->deleted_at) {
@@ -240,12 +250,12 @@ class FeesCollectionController extends Controller
                 $sem = strtolower($fee->year_semester ?? '');
                 $semesterPaid[$sem] = ($semesterPaid[$sem] ?? 0) + $fee->fees;
             }
-            
+
             // Initialize semester tracking
             $total_semesters = $getcourceSingle->course->semester;
             $paid_semesters = [];
             $unpaid_semesters = [];
-            
+
             $semesterInWords = [];
             $semesterInWords[1] = "first";
             $semesterInWords[2] = "second";
@@ -262,7 +272,7 @@ class FeesCollectionController extends Controller
                 $sem_name = $semesterInWords[$sem];
                 $paid = $semesterPaid[$sem_name] ?? $semesterPaid[$sem] ?? 0;
                 $pending = $semester_fee - $paid;
-                
+
                 if ($pending <= 0) {
                     $paid_semesters[] = $sem;
                 } else {
@@ -493,7 +503,7 @@ class FeesCollectionController extends Controller
             $totalFee = $feesData->fees;
         }
         $modules = [
-            'route' => 'fees-collection', 
+            'route' => 'fees-collection',
         ];
         //  Convert to words
         // $totalInWords = $this->$totalFee;

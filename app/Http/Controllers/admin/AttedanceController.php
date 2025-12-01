@@ -102,19 +102,23 @@ class AttedanceController extends Controller
                         }
                     })
                     ->editColumn('UserName', function ($row) {
-                        if ($row?->UserName) {
-                            return $row?->UserName;
-                        } else {
-                            return $row?->admission?->full_name ?? '';
-                            /*
-                            $first = $row?->admission?->first_name ?? '';
-                            $father = $row?->admission?->father_name ?? '';
-                            $last = $row?->admission?->last_name ?? '';
-                            return trim("{$first} {$father} {$last}");
-                            */
+
+                        // If username exists, return it
+                        if (!empty($row?->UserName)) {
+                            return $row->UserName;
                         }
-                        return "-";
+
+                        // Otherwise use Admission full name in format:
+                        // LastName FirstName FatherName
+                        $last   = $row?->admission?->first_name ?? '';
+                        $first  = $row?->admission?->last_name ?? '';
+                        $father = $row?->admission?->father_name ?? '';
+
+                        $fullName = trim("$last $first $father");
+
+                        return $fullName ?: "-";
                     })
+
                     ->addColumn('course_name', function ($row) {
                         return $row?->course?->course_name ?? '-';
                     })

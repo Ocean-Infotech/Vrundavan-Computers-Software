@@ -390,8 +390,8 @@
                                 $('#modalDOB').text('-');
                             }
                             $('#modalAadhar').text(data.aadhar_card_no ?? '-');
-                            $('#modalSurname').text(data.first_name?.toUpperCase() ?? '-');
-                            $('#modalName').text(data.last_name?.toUpperCase() ?? '-');
+                            $('#modalSurname').text(data.last_name?.toUpperCase() ?? '-');
+                            $('#modalName').text(data.first_name?.toUpperCase() ?? '-');
 
                             $('#FatherName').text(data.father_name ?? '-');
                             $('#MotherName').text(data.mother_name ?? '-');
@@ -719,7 +719,7 @@
             window.location.href = url;
         });
 
-       
+
         // Submit Update Form
         $(document).ready(function() {
             $('#updateForm').on('submit', function(e) {

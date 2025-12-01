@@ -495,9 +495,9 @@
                             }
                             $('#year_semester').html(semester_rows);
                             // Fill other student info
-                            let studentname = studentdetails.admission.last_name + ' ' +
-                                studentdetails.admission.father_name + ' ' +
-                                studentdetails.admission.first_name;
+                            let studentname = studentdetails.admission.first_name + ' ' +
+                                studentdetails.admission.last_name + ' ' +
+                                studentdetails.admission.father_name;
 
                             $('#student_id').text(studentdetails.admission.id);
                             $('#admission_id').text(studentdetails.id);

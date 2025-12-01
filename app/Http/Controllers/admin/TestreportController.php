@@ -84,7 +84,8 @@ class TestreportController extends Controller
                     'cource_registration.date as cr_date',
                     'cource_registration.register_id',
                     'cource_registration.id as admission_id',
-                    DB::raw("CONCAT(admission.first_name, ' ', admission.last_name) AS student_name"),
+                    DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
+
                     // 'master_batch.batch_name',
                     // 'master_course.course_name',
                     'student_test_marks.marks as student_mark',
@@ -134,7 +135,7 @@ class TestreportController extends Controller
                                 // ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
                                 ->orWhere('test.marks', 'like', "%{$searchValue}%")
                                 ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
-                                // ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
+                            // ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
                         });
                     }
 

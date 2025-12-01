@@ -56,8 +56,8 @@ class StudentRequestController extends Controller
 
         try {
             if ($request->ajax()) {
-       $data = StudentRequest::with('subject')
-        ->orderBy('requests.id', 'desc');
+                $data = StudentRequest::with('subject')
+                    ->orderBy('requests.id', 'desc');
 
                 return Datatables::of($data)
                     ->addIndexColumn()
@@ -72,11 +72,12 @@ class StudentRequestController extends Controller
                     })
 
                     ->addColumn('student_id', function ($row) {
-                        if ($row->student) {
-                            return $row->student->first_name . ' ' . $row->student->last_name;
-                        }
-                        return '-';
+                        $first = $row->student?->first_name;
+                        $last  = $row->student?->last_name;
+
+                        return $first ? "$first $last" : '---';
                     })
+
                     ->addColumn('created_at', function ($row) {
                         return $row->created_at ? $row->created_at->format('d-m-Y H:i') : '-';
                     })

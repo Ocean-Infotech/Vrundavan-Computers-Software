@@ -89,7 +89,7 @@ class FeescollectionpendingController extends Controller
                     $dataQuery->where(function ($q) use ($studentFilter) {
                         $q->where('register_id', $studentFilter)
                             ->orWhereHas('admission', function ($q2) use ($studentFilter) {
-                                $q2->where(DB::raw("CONCAT(first_name,' ',father_name,' ',last_name)"), 'like', "%$studentFilter%")
+                                $q2->where(DB::raw("CONCAT(first_name,' ',last_name,' ',father_name)"), 'like', "%$studentFilter%")
                                     ->orWhere('mobile_no', 'like', "%$studentFilter%");
                             });
                     });
@@ -132,9 +132,10 @@ class FeescollectionpendingController extends Controller
                     ->addIndexColumn()
                     ->editColumn('student_name', function ($row) {
                         $first = $row->admission->first_name ?? '';
-                        $father = $row->admission->father_name ?? '';
+
                         $last = $row->admission->last_name ?? '';
-                        return trim("{$first} {$father} {$last}");
+                        $father = $row->admission->father_name ?? '';
+                        return trim("{$first}  {$last} {$father}");
                     })
                     ->addColumn('contact_no', function ($row) {
                         return $row->admission->mobile_no ?? '-';

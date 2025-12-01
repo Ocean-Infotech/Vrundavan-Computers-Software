@@ -42,20 +42,29 @@ class FeeHistoryController extends Controller
 
         try {
 
-            $feesQuery = FeesCollection::with(['course'])
+            // $feesQuery = FeesCollection::with(['course'])
+            //     ->orderByDesc('date')
+            //     ->orderByDesc('id');
+            $feesQuery = FeesCollection::with(['course', 'admission'])
                 ->orderByDesc('date')
                 ->orderByDesc('id');
-
             if ($request->has('search') && !empty($request->search)) {
                 $search = $request->search;
-                $feesQuery->where(function($query) use ($search) {
+                $feesQuery->where(function ($query) use ($search) {
                     $query->where('id', 'LIKE', '%' . $search . '%')
-                          ->orWhere('student_name', 'LIKE', '%' . $search . '%');
+                        ->orWhere('student_name', 'LIKE', '%' . $search . '%');
                 });
             }
 
             $paginatedData = $feesQuery->paginate(100);
+            foreach ($paginatedData as $item) {
 
+                $first  = $item->admission->last_name ?? '';
+                $father = $item->admission->first_name ?? '';
+                $last   = $item->admission->father_name ?? '';
+
+                $item->student_name = trim("$father $first   $last ");
+            }
             $groupedData = $paginatedData->getCollection()->groupBy(function ($item) {
                 return $item->date ? Helper::convert_date($item->date, 'Y-m-d', 'd-m-Y') : 'No Date';
             });

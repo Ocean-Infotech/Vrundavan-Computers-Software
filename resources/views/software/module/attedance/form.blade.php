@@ -277,7 +277,7 @@
                                 }
                                 rows += '<td>' + item.register_id + '</td>';
                                 rows += '<td>' + item.admission.first_name + ' ' + item
-                                    .admission.father_name + ' ' + item.admission.last_name +
+                                    .admission.last_name + ' ' + item.admission.father_name +
                                     '</td>';
                                 if (in_time == "") {
                                     rows += '<td><button type="button" data-id="' + item.id +

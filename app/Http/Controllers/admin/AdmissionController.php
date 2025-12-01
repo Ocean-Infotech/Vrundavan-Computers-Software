@@ -89,7 +89,13 @@ class AdmissionController extends Controller
         try {
             $columns = [
                 (object) ['data' => "id", 'name' => 'id', 'td_label' => 'REG No.'],
-                (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                // (object) ['data' => "admission_name", 'name' => 'first_name', 'td_label' => 'Name'],
+                (object) [
+                    'data' => 'admission_name',
+                    'name' => 'first_name',
+                    'td_label' => 'Name'
+                ],
+
                 (object) ['data' => "course_button", 'name' => 'course_button', 'td_label' => 'Course'],
                 (object) ['data' => "view_button", 'name' => 'view_button', 'td_label' => 'Stu <i class="bx bx-info-circle"></i>'],
                 (object) ['data' => "attendance_button", 'name' => 'attendance_button', 'td_label' => 'Att.', 'className' => 'w-5 text-center'],
@@ -126,14 +132,17 @@ class AdmissionController extends Controller
                     })
 
                     ->editColumn('admission_name', function ($row) {
-                        return $row?->full_name;
-                        /*
-                        $first = $row->first_name ?? '';
+
+                        $last   = $row->last_name ?? '';
+                        $first  = $row->first_name ?? '';
                         $father = $row->father_name ?? '';
-                        $last = $row->last_name ?? '';
-                        return trim("{$last} {$father} {$first}");
-                        */
+
+                        // Create LastName FirstName FatherName
+                        $fullName = trim("$last $first $father");
+
+                        return $fullName ?: '____________';
                     })
+
 
                     // ->editColumn('gdrivefolderurl', function ($row) {
                     //     $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;

@@ -171,12 +171,15 @@ class IssueBookController extends Controller
                     })
 
 
-                    // ✅ Student Last Name + First Name
                     ->editColumn('student_id', function ($row) {
-                        $last = $row->student?->last_name ?? '';
-                        $first = $row->student?->first_name ?? '';
-                        $id = $row->student?->id ?? '';
-                        $fullName = trim($last . ' ' . $first);
+
+                        $last   = $row->student?->last_name ?? '';
+                        $first  = $row->student?->first_name ?? '';
+                        $father = $row->student?->father_name ?? '';
+                        $id     = $row->student?->id ?? '';
+
+                        // Final formatted name: Last First Father
+                        $fullName = trim("{$last} {$first} {$father}");
 
                         return $fullName ? "({$id}) {$fullName}" : '-';
                     })

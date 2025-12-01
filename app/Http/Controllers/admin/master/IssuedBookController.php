@@ -133,11 +133,10 @@ class IssuedBookController extends Controller
                         if ($bookNo && $bookName) {
                             $display = "({$bookNo}) {$bookName}";
                             $bookId = $row->book?->id ?? 0;
-                        return '<a href="javascript:void(0)" class="text-primary open-issue-create"
+                            return '<a href="javascript:void(0)" class="text-primary open-issue-create"
     data-book-id="' . $bookId . '"
     data-book-name="' . $display . '"
     style="text-decoration:none;">' . $display . '</a>';
-
                         }
 
                         return '-';
@@ -185,14 +184,17 @@ class IssuedBookController extends Controller
 
                     // ✅ Student Last Name + First Name
                     ->editColumn('student_id', function ($row) {
-                        $last = $row->student?->last_name ?? '';
-                        $first = $row->student?->first_name ?? '';
-                        $id = $row->student?->id ?? '';
-                        $fullName = trim($last . ' ' . $first);
+
+                        $last   = $row->student?->last_name ?? '';
+                        $first  = $row->student?->first_name ?? '';
+                        $father = $row->student?->father_name ?? '';
+                        $id     = $row->student?->id ?? '';
+
+                        // Final formatted name: Last First Father
+                        $fullName = trim("{$first} {$last}  {$father}");
 
                         return $fullName ? "({$id}) {$fullName}" : '-';
                     })
-
 
                     ->editColumn('issue_date', function ($row) {
                         // dd($row->issued_date);
