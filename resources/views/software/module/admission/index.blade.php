@@ -226,7 +226,7 @@
 
                                             <div class="row mb-2">
                                                 <div class="col-md-6">
-                                                    <p class="mb-1"><strong>UDISE/ABC ID:</strong></p>
+                                                    <p class="mb-1"><strong>ABC ID:</strong></p>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p class="mb-1" id="modalUdiseABC">-</p>
@@ -293,12 +293,12 @@
                                                 <p class="mb-1" id="modalSPID2">-</p>
                                             </div>
                                         </div>
-                                        <div class="row mb-2">
-                                            <div class="col-6">
-                                                <p class="mb-1"><strong>&nbsp;</strong></p>
+                                      <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>UDISE No:</strong></p>
                                             </div>
-                                            <div class="col-6">
-                                                <p class="mb-1">&nbsp;</p>
+                                            <div class="col-md-6">
+                                                <p class="mb-1" id="modaludiseno">-</p>
                                             </div>
                                         </div>
                                         <div class="row mb-2">
@@ -477,6 +477,8 @@
                                 $('#modalEnrollNo').text(student.enrolment_no ?? '-');
                                 $('#modalSPID2').text(student.spid ?? '-');
                                 $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
+                                $('#modaludiseno').text(student.udise ?? '-');
+
 
                                 let firstCourse = courses[0];
 
