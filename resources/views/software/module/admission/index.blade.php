@@ -293,7 +293,7 @@
                                                 <p class="mb-1" id="modalSPID2">-</p>
                                             </div>
                                         </div>
-                                      <div class="row mb-2">
+                                        <div class="row mb-2">
                                             <div class="col-md-6">
                                                 <p class="mb-1"><strong>UDISE No:</strong></p>
                                             </div>
@@ -348,7 +348,7 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
 
     <!-- <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-                                                                                                                                                                                                                                                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
+                                                                                                                                                                                                                                                    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script> -->
 
 @endsection
 
@@ -435,84 +435,84 @@
             let id = $(this).data('id');
 
             $.ajax({
-                    url: "{{ route($route . '.show') }}",
-                    type: "GET",
-                    data: {
-                        id: id
-                    },
-                    dataType: "json",
-                    success: function(response) {
-                        if (response.success) {
-                            let courses = response.courses;
-                            let student = response.student;
+                url: "{{ route($route . '.show') }}",
+                type: "GET",
+                data: {
+                    id: id
+                },
+                dataType: "json",
+                success: function(response) {
+                    if (response.success) {
+                        let courses = response.courses;
+                        let student = response.student;
 
-                            if (courses.length > 0) {
-                                // ✅ Set Edit Button URL
-                                let editUrl = 'cource-registration/' + student.id + '/edit';
-                                $('#courseEditBtn').attr('href', editUrl);
+                        if (courses.length > 0) {
+                            // ✅ Set Edit Button URL
+                            let editUrl = 'cource-registration/' + student.id + '/edit';
+                            $('#courseEditBtn').attr('href', editUrl);
 
-                                // ===== Populate Header =====
-                                $('#modalGRNo').text(student.id ?? '-');
-                                $('#modalFullName').text(
-                                    `${student.first_name} ${student.last_name} ${student.father_name}`
-                                    .toUpperCase()
-                                );
+                            // ===== Populate Header =====
+                            $('#modalGRNo').text(student.id ?? '-');
+                            $('#modalFullName').text(
+                                `${student.first_name} ${student.last_name} ${student.father_name}`
+                                .toUpperCase()
+                            );
 
-                                let courseNames = courses.map(c => {
-                                    let batchName = c?.batch?.batch_name ?
-                                        ` (${c.batch.batch_name})` : '';
-                                    return `${c.course.course_name}${batchName}`;
-                                }).join(', ');
+                            let courseNames = courses.map(c => {
+                                let batchName = c?.batch?.batch_name ?
+                                    ` (${c.batch.batch_name})` : '';
+                                return `${c.course.course_name}${batchName}`;
+                            }).join(', ');
 
-                                $('#modalCourse').text(courseNames);
+                            $('#modalCourse').text(courseNames);
 
-                                $('#modalClass').text(courses[0]?.class?.class ?? '-');
+                            $('#modalClass').text(courses[0]?.class?.class ?? '-');
 
-                                let shiftTime = courses[0]?.shift ?
-                                    `${courses[0].shift.from_time} - ${courses[0].shift.to_time}` : '-';
-                                $('#modalShift').text(shiftTime);
+                            let shiftTime = courses[0]?.shift ?
+                                `${courses[0].shift.from_time} - ${courses[0].shift.to_time}` : '-';
+                            $('#modalShift').text(shiftTime);
 
-                                $('#modalUniversity').text(courses[0]?.university ?? '-');
-                                $('#modalDepartment2').text(courses[0]?.department ?? '-');
-                                $('#modalEnrollNo').text(student.enrolment_no ?? '-');
-                                $('#modalSPID2').text(student.spid ?? '-');
-                                $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
-                                $('#modaludiseno').text(student.udise ?? '-');
+                            $('#modalUniversity').text(courses[0]?.university ?? '-');
+                            $('#modalDepartment2').text(courses[0]?.department ?? '-');
+                            $('#modalEnrollNo').text(student.enrolment_no ?? '-');
+                            $('#modalSPID2').text(student.spid ?? '-');
+                            $('#modalUdiseABC').text(student.apaar_id_abc_id ?? '-');
+                            $('#modaludiseno').text(student.udise ?? '-');
 
 
-                                let firstCourse = courses[0];
+                            let firstCourse = courses[0];
 
-                                let doj = '-';
-                                if (firstCourse.created_at) {
-                                    doj = moment(firstCourse.created_at).format('DD-MM-YYYY');
-                                }
+                            let doj = '-';
+                            if (firstCourse.created_at) {
+                                doj = moment(firstCourse.created_at).format('DD-MM-YYYY');
+                            }
 
-                                let doc = '-';
-                                if (firstCourse.status === 'Completed' && firstCourse.updated_at) {
-                                    doc = moment(firstCourse.updated_at).format('DD-MM-YYYY');
-                                }
+                            let doc = '-';
+                            if (firstCourse.status === 'Completed' && firstCourse.updated_at) {
+                                doc = moment(firstCourse.updated_at).format('DD-MM-YYYY');
+                            }
 
-                                $('#modalDOJ').text(doj);
-                                $('#modalDOC').text(doc);
+                            $('#modalDOJ').text(doj);
+                            $('#modalDOC').text(doc);
 
-                                $('#modalName').text(
-                                    `${student.first_name} ${student.father_name} ${student.last_name}`
-                                );
+                            $('#modalName').text(
+                                `${student.first_name} ${student.father_name} ${student.last_name}`
+                            );
 
-                                $('#courseData').empty();
+                            $('#courseData').empty();
 
-                                courses.forEach(function(course) {
-                                        let row = `<div class="row mb-3">`;
+                            courses.forEach(function(course) {
+                                let row = `<div class="row mb-3">`;
 
-                                        if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
-                                            row += `<div class="col-md-3 mb-2">
+                                if ("{{ $fees_collection_create ?? 'false' }}" == "true") {
+                                    row += `<div class="col-md-3 mb-2">
                                 <button type="button" class="btn btn-success w-100 collectFees" data-id="${course.id}">
                                     Fees
                                 </button>
                             </div>`;
-                                        }
+                                }
 
-                                        row += `<div class="col-md-3 mb-2">
+                                row += `<div class="col-md-3 mb-2">
                             <button type="button" class="btn btn-primary w-100 formBtn"
                                 data-register_id="${course.register_id}"
                                 data-course_id="${course.course_id}">
@@ -520,9 +520,10 @@
                             </button>
                         </div>`;
 
-                                        row += `<div class="col-md-3 mb-2">
+                                row += `<div class="col-md-3 mb-2">
                                     <button type="button" class="btn btn-warning w-100 updateBtn"
-                                        data-admission_id="${course.admission_id}"
+                                 data-id="${course.id}"
+
                                         data-register_id="${course.register_id}"
                                         data-course_id="${course.course_id}">
                                         Update
@@ -531,23 +532,23 @@
 
 
 
-                                    let statusOptions = ['Running', 'Completed', 'Cancel'];
-                                    let currentStatus = course.status ?? '';
-                                    let statusClass =
-                                        currentStatus === 'Running' ? 'btn-primary' :
-                                        currentStatus === 'Completed' ? 'btn-success' :
-                                        currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
+                                let statusOptions = ['Running', 'Completed', 'Cancel'];
+                                let currentStatus = course.status ?? '';
+                                let statusClass =
+                                    currentStatus === 'Running' ? 'btn-primary' :
+                                    currentStatus === 'Completed' ? 'btn-success' :
+                                    currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
 
-                                    let statusDropdown = `<div class="btn-group w-100">
+                                let statusDropdown = `<div class="btn-group w-100">
                             <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100"
                                 data-bs-toggle="dropdown" aria-expanded="false" style="height: 37px">
                                 ${currentStatus || 'Select Status'}
                             </button>
                             <ul class="dropdown-menu w-100">`;
 
-                                    statusOptions.forEach(function(option) {
-                                        if (option !== currentStatus) {
-                                            statusDropdown += `<li>
+                                statusOptions.forEach(function(option) {
+                                    if (option !== currentStatus) {
+                                        statusDropdown += `<li>
                                     <a href="javascript:void(0)" class="dropdown-item update-status"
                                         data-register_id="${course.register_id}"
                                         data-course_id="${course.course_id}"
@@ -555,15 +556,17 @@
                                         ${option}
                                     </a>
                                 </li>`;
-                                        }
-                                    });
+                                    }
+                                });
 
-                                    statusDropdown += `</ul></div>`; row +=
-                                    `<div class="col-md-3 mb-2">${statusDropdown}</div>`; row +=
+                                statusDropdown += `</ul></div>`;
+                                row +=
+                                    `<div class="col-md-3 mb-2">${statusDropdown}</div>`;
+                                row +=
                                     `</div>`;
 
-                                    $('#courseData').append(row);
-                                });
+                                $('#courseData').append(row);
+                            });
 
                             $('#course').modal('show');
                         } else {
@@ -713,10 +716,9 @@
         });
         $(document).on('click', '.updateBtn', function() {
 
-            let admission_id = $(this).data('admission_id');
+            let id = $(this).data('id');
+            window.location.href = "/software/cource-registration/" + id + "/edit";
 
-            // Correct redirect URL
-            let url = "/software/cource-registration/" + admission_id + "/edit";
 
             window.location.href = url;
         });
