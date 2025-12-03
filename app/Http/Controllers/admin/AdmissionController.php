@@ -290,7 +290,8 @@ class AdmissionController extends Controller
 
             $admission_id = $admission->id;
             try {
-                $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
+             $folderName = $admission->id . '- ' . $admission->last_name . ' ' . $admission->first_name . ' ' . $admission->father_name;
+
                 $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
 
                 $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);
@@ -801,7 +802,8 @@ class AdmissionController extends Controller
         $admission = Admission::findOrFail($request->id);
 
         try {
-            $folderName = $admission->id . '-' . $admission->first_name . '-' . $admission->father_name . '-' . $admission->last_name;
+            $folderName = $admission->id . '- ' . $admission->last_name . ' ' . $admission->first_name . ' ' . $admission->father_name;
+
             $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
 
             $folderData = \App\Helpers\GoogleDriveHelper::createFolder($folderName, $parentFolderId);

@@ -47,11 +47,11 @@ class TestreportController extends Controller
 
         // Columns for datatable
         $columns = [
-            (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
+            // (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
             // (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
             // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
             (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
-            (object)['data' => "unit_name", 'name' => 'test.unit', 'td_label' => 'Unit'],
+            (object)['data' => "unit_name", 'name' => 'test.unit_name', 'td_label' => 'Unit'],
             (object)['data' => "cr_date", 'name' => 'cource_registration.date', 'td_label' => 'Date'],
             (object)['data' => "mark", 'name' => 'test.mark', 'td_label' => 'Total Mark'],
             (object)['data' => "input", 'name' => 'test.marks', 'td_label' => 'Marks'],
@@ -67,15 +67,7 @@ class TestreportController extends Controller
         View::share('subjects', $subjects);
 
         if ($request->ajax()) {
-            // Log request data for debugging (check storage/logs/laravel.log)
-            Log::info('Test Report Request Data:', [
-                'student_search' => $request->student_search,
-                'course_id' => $request->course_id,
-                'batch_id' => $request->batch_id,
-                'subject_name' => $request->subject_name,
-                'date' => $request->date,
-                'search_value' => $request->search['value'] ?? null,
-            ]);
+
 
             $query = DB::table('test')
                 ->select(
@@ -108,54 +100,48 @@ class TestreportController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->filter(function ($query) use ($request) {
-                    $searchValue = $request->search['value'] ?? null;
-                    $studentSearch = trim($request->student_search ?? '');
-                    $hasRequiredFilters = $request->filled('course_id') && $request->filled('batch_id') && $request->filled('subject_name');
 
-                    // If no search and no filters => empty table
-                    if (empty($studentSearch) && empty($searchValue) && !$hasRequiredFilters) {
-                        $query->whereRaw('0=1');
-                        return;
-                    }
+                $studentSearch = trim($request->student_search ?? '');
+                $searchValue = $request->search['value'] ?? null;
 
-                    // ✅ If student is searched => show only that student's data (ignore others)
-                    if (!empty($studentSearch)) {
-                        $query->where(function ($q) use ($studentSearch) {
+                // ----------------------------------------
+                // CASE 1: Student Search → Show only his data
+                // ----------------------------------------
+                if (!empty($studentSearch)) {
+
+                    $query->where(function ($q) use ($studentSearch) {
+
+                        if (is_numeric($studentSearch)) {
+
+                            // 🟢 Typed ID → Exact match
                             $q->where('cource_registration.id', $studentSearch)
-                                ->orWhere('admission.id', $studentSearch)
-                                ->orWhere(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$studentSearch}%");
-                        });
-                        return; // Stop here to prevent other filters from interfering
-                    }
+                              ->orWhere('admission.id', $studentSearch);
 
-                    // General DataTable search
-                    if (!empty($searchValue)) {
-                        $query->where(function ($q) use ($searchValue) {
-                            $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
-                                // ->orWhere('master_course.course_name', 'like', "%{$searchValue}%")
-                                ->orWhere('test.marks', 'like', "%{$searchValue}%")
-                                ->orWhere('test.subject_name', 'like', "%{$searchValue}%");
-                            // ->orWhere('master_batch.batch_name', 'like', "%{$searchValue}%");
-                        });
-                    }
+                        } else {
 
-                    // Apply filters only if studentSearch is empty
-                    if ($request->filled('course_id')) {
-                        $query->where('test.course_id', $request->course_id);
-                    }
+                            // 🟢 Typed Name → LIKE match
+                            $q->where(DB::raw("
+                                CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name)
+                            "), 'like', "%{$studentSearch}%");
+                        }
 
-                    if ($request->filled('batch_id')) {
-                        $query->where('test.batch_id', $request->batch_id);
-                    }
+                    });
 
-                    if ($request->filled('subject_name')) {
-                        $query->where('test.subject_name', $request->subject_name);
-                    }
+                    return; // IMPORTANT
+                }
 
-                    if ($request->filled('date')) {
-                        $query->whereDate('test.date', $request->date);
-                    }
-                })
+                // ----------------------------------------
+                // CASE 2: Normal datatable search
+                // ----------------------------------------
+                if (!empty($searchValue)) {
+                    $query->where(function ($q) use ($searchValue) {
+                        $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
+                          ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
+                          ->orWhere('test.marks', 'like', "%{$searchValue}%");
+                    });
+                }
+            })
+
 
                 ->editColumn('cr_date', function ($row) {
                     return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';

@@ -95,22 +95,28 @@
                         </div>
 
 
-                        <!-- Student Id (Shown as Text) -->
-                        <div class="col-md-12">
-                            <label class="form-label"><strong>Student Id:</strong> <span
-                                    id="student_id">{{ isset($edit) && $edit?->student_id ? $edit?->student_id : '---' }}</span>
-                            </label>
-                            {{-- <p id="student_id" class="form-control-plaintext mb-0">--</p> --}}
+                        <div class="row">
+                            <!-- Student Id -->
+                            <div class="col-md-3">
+                                <label class="form-label">
+                                    <strong>Student Id:</strong>
+                                    <span id="student_id">
+                                        {{ isset($edit) && $edit?->student_id ? $edit?->student_id : '---' }}
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Admission Id -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <strong>Admission Id:</strong>
+                                    <span id="admission_id">
+                                        {{ isset($edit) && $edit?->admission_id ? $edit?->admission_id : '---' }}
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
-
-
-                        <!-- Admission Id (Shown as Text) -->
-                        <div class="col-md-12">
-                            <label class="form-label"><strong>Admission Id:</strong> <span id="admission_id"
-                                    class="">{{ isset($edit) && $edit?->admission_id ? $edit?->admission_id : '---' }}</span></label>
-                            {{-- <p id="admission_id" class="form-control-plaintext mb-0">--</p> --}}
-                        </div>
 
                         <!-- Course Name (Shown as Text) -->
                         <div class="col-md-12 mb-3">
@@ -495,13 +501,18 @@
                             }
                             $('#year_semester').html(semester_rows);
                             // Fill other student info
-                            let studentname = studentdetails.admission.first_name + ' ' +
-                                studentdetails.admission.last_name + ' ' +
+                            let studentname = studentdetails.admission.last_name + ' ' +
+                                studentdetails.admission.first_name + ' ' +
                                 studentdetails.admission.father_name;
+
 
                             $('#student_id').text(studentdetails.admission.id);
                             $('#admission_id').text(studentdetails.id);
-                            $('#course_id').text(studentdetails.course.course_name);
+                            let batchname = studentdetails.batch ? studentdetails.batch.batch_name : "";
+                            let coursename = studentdetails.course.course_name;
+
+                            $('#course_id').text(coursename + (batchname ? ' - ' + batchname : ''));
+
                             $('#student_name').text(studentname);
 
                             // Hidden inputs

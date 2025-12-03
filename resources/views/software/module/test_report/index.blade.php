@@ -32,7 +32,7 @@
     </div>
 
     <div class="row my-3">
-        <div class="row mb-3">
+         <div class="row mb-3">
             <!-- Student Search -->
             <div class="col-md-3 col-sm-12 mb-3">
                 <div class="form-group">
@@ -45,10 +45,16 @@
                         data-selectedCourceRegistrationId="">
                     </datalist>
 
+
+
                     @error('search')
-                        <span class="invalid-feedback">{{ $message }}</span>
+                    <span class="invalid-feedback">{{ $message }}</span>
                     @enderror
                 </div>
+            </div>
+           <div class="col-md-3 col-sm-12 mb-3">
+                <label class="fw-bold">Student Name :</label>
+                <span id="selected_student_name" class="fw-bold"></span>
             </div>
 
             {{-- <div class="col-md-3 col-sm-12 mb-3">
@@ -142,106 +148,114 @@
 @endsection
 
 @section('page_leavel_script')
-   <script>
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    let dtable;
-
-    $(document).ready(function() {
-        dtable = $('#yajra-datatables').DataTable({
-            processing: true,
-            serverSide: true,
-            order: [
-                [1, 'desc']
-            ],
-            searching: true,
-            ajax: {
-                url: "{{ route($route . '.index') }}",
-                type: "GET",
-                data: function(data) {
-                    data.admission_id = $('#admission_id').val();
-                    data.date = $('#date').val();
-                    data.course_id = $('#course').val();
-                    data.batch_id = $('#batch').val();
-                    data.subject_name = $('#subject').val();
-                    data.student_search = $('#search_id').val();
-                    data.search = $('input[type="search"]').val();
-                }
-            },
-            columns: {!! json_encode($columns) !!},
-            language: {
-                searchPlaceholder: 'Search...',
-                emptyTable: "No data available in table"
-            },
-            drawCallback: function(settings) {
-                let api = this.api();
-                let data = api.rows({
-                    page: 'current'
-                }).data();
-                let studentSearch = $('#search_id').val();
-                let admissionId = $('#admission_id').val();
-
-                // Check if student is searched but no data found
-                if (data.length === 0 && (studentSearch || admissionId)) {
-                    $('#yajra-datatables tbody').html(`
-                        <tr class="odd">
-                            <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
-                                <strong>No Test Report Found for this Student.</strong>
-                            </td>
-                        </tr>
-                    `);
-                }
-                // Show default message when no student is selected
-                else if (data.length === 0 && !studentSearch && !admissionId) {
-                    $('#yajra-datatables tbody').html(`
-                        <tr class="odd">
-                            <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
-                                Please select <strong>Student ID</strong> or <strong>Name</strong>.
-                            </td>
-                        </tr>
-                    `);
-                }
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
 
-        // Check localStorage for admission_id
-        var admissionId = localStorage.getItem('admission_id');
-        if (admissionId) {
-            $('#admission_id').val(admissionId);
-            $('#search_id').val(admissionId);
-            localStorage.removeItem('admission_id');
+        let dtable;
 
-            setTimeout(function() {
+        $(document).ready(function() {
+            dtable = $('#yajra-datatables').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [
+                    [1, 'desc']
+                ],
+                searching: true,
+                ajax: {
+                    url: "{{ route($route . '.index') }}",
+                    type: "GET",
+                    data: function(data) {
+                        data.admission_id = $('#admission_id').val();
+                        data.date = $('#date').val();
+                        data.course_id = $('#course').val();
+                        data.batch_id = $('#batch').val();
+                        data.subject_name = $('#subject').val();
+                        data.student_search = $('#search_id').val();
+                        data.search = $('input[type="search"]').val();
+                    }
+                },
+                columns: {!! json_encode($columns) !!},
+                language: {
+                    searchPlaceholder: 'Search...',
+                    emptyTable: "No data available in table"
+                },
+                drawCallback: function(settings) {
+                    let api = this.api();
+                    let data = api.rows({
+                        page: 'current'
+                    }).data();
+                    let studentSearch = $('#search_id').val();
+                    let admissionId = $('#admission_id').val();
+
+                    // 🟢 Show selected student name below search
+                    if (data.length > 0 && studentSearch) {
+                        $("#selected_student_name").text(data[0].student_name ?? '');
+                    } else {
+                        $("#selected_student_name").text('');
+                    }
+
+                    // Check if student is searched but no data found
+                    if (data.length === 0 && (studentSearch || admissionId)) {
+                        $('#yajra-datatables tbody').html(`
+            <tr class="odd">
+                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                    <strong>No Test Report Found for this Student.</strong>
+                </td>
+            </tr>
+        `);
+                    }
+                    // Show default message when no student is selected
+                    else if (data.length === 0 && !studentSearch && !admissionId) {
+                        $('#yajra-datatables tbody').html(`
+            <tr class="odd">
+                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                    Please select <strong>Student ID</strong> or <strong>Name</strong>.
+                </td>
+            </tr>
+        `);
+                    }
+                }
+
+            });
+
+            // Check localStorage for admission_id
+            var admissionId = localStorage.getItem('admission_id');
+            if (admissionId) {
+                $('#admission_id').val(admissionId);
+                $('#search_id').val(admissionId);
+                localStorage.removeItem('admission_id');
+
+                setTimeout(function() {
+                    dtable.draw();
+                }, 500);
+            }
+
+            // Student search functionality
+            $("#search_id").on('keyup change', function() {
                 dtable.draw();
-            }, 500);
-        }
+            });
 
-        // Student search functionality
-        $("#search_id").on('keyup change', function() {
-            dtable.draw();
-        });
+            $('#filter-btn').on('click', function() {
+                if (!$('#date').val() && !$('#batch').val() && !$('#subject').val()) {
+                    toastr.warning("Please select at least one filter before searching.");
+                    return;
+                }
+                dtable.draw();
+            });
 
-        $('#filter-btn').on('click', function() {
-            if (!$('#date').val() && !$('#batch').val() && !$('#subject').val()) {
-                toastr.warning("Please select at least one filter before searching.");
-                return;
-            }
-            dtable.draw();
-        });
+            $(document).on('change', '#date, #batch, #subject, #course', function() {
+                dtable.draw();
+            });
 
-        $(document).on('change', '#date, #batch, #subject, #course', function() {
-            dtable.draw();
+            $(document).on('keyup', 'input[type="search"]', function() {
+                dtable.draw();
+            });
         });
-
-        $(document).on('keyup', 'input[type="search"]', function() {
-            dtable.draw();
-        });
-    });
-</script>
+    </script>
 
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')

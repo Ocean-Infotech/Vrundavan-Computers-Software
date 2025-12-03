@@ -103,7 +103,7 @@ Route::post('admission-google-drive-rename-folder', [AdmissionController::class,
 
 Route::post('admission/create-folder', [AdmissionController::class, 'createFolder'])
     ->name('admission.create-folder');
-    Route::get('admission/import', [AdmissionController::class, 'import'])->name('admission.import');
+Route::get('admission/import', [AdmissionController::class, 'import'])->name('admission.import');
 Route::post('admission/import-store', [AdmissionController::class, 'importStore'])->name('admission.import-store');
 
 
@@ -131,6 +131,10 @@ Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMa
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
+Route::delete('/course/permanent-delete/{id}',
+    [MasterCourseController::class, 'permanent_delete']
+)->name('course.permanent-delete');
+
 
 /** Master Semester Modules */
 Route::resource('/semester', MasterSemesterController::class);
@@ -151,10 +155,15 @@ Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::cla
 Route::resource('/department', MasterDepartmentController::class);
 Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
 Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
+Route::delete('/department/permanent-delete/{id}', [MasterDepartmentController::class, 'permanentDelete'])->name('department.permanent-delete');
+
+
 /** Master Department Modules */
 Route::resource('/university', MasterUniversityController::class);
 Route::match(['get', 'post'], 'university/restore/{id}', [MasterUniversityController::class, 'restore'])->name('university.restore');
 Route::match(['get', 'post'], 'university-update-status', [MasterUniversityController::class, 'status_update'])->name('university.status-update');
+Route::delete('/university/permanent-delete/{id}', [MasterUniversityController::class, 'permanentDelete'])->name('university.permanent-delete');
+
 
 /** Library Book Master Modules */
 Route::resource('/library-book-master', LibraryMasterBookController::class);
@@ -263,6 +272,10 @@ Route::match(['get', 'post'], 'subject-update-status', [MasterSubjectController:
 Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
+Route::delete(
+    '/class/permanent-delete/{id}',
+    [MasterClassController::class, 'permanent_delete']
+)->name('class.permanent-delete');
 
 //Fee Details
 Route::resource('fees', MasterFeeDetailController::class);
