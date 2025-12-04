@@ -166,7 +166,6 @@
     <script src="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @endsection
-
 @section('page_leavel_script')
     <script>
         $.ajaxSetup({
@@ -211,50 +210,52 @@
 
                     let response = settings.json;
                     let student = response.student_details;
+                    let studentSearch = $('#search_id').val();
+                    let admissionId = $('#admission_id').val();
 
+                    // Update student details from server response
                     if (student) {
                         $("#selected_student_name").text(student.student_name ?? '');
                         $("#selected_student_id").text(student.student_id ?? '');
                         $("#selected_admission_id").text(student.admission_id ?? '');
                         $("#selected_course_name").text(student.course_name ?? '');
-                    } else {
+                    }
+                    // Alternative: Get from first row if server doesn't send student_details
+                    else if (data.length > 0 && studentSearch) {
+                        $("#selected_student_name").text(data[0].student_name ?? '');
+                        $("#selected_student_id").text(data[0].student_id ?? '');
+                        $("#selected_admission_id").text(data[0].admission_id ?? '');
+                        $("#selected_course_name").text(data[0].course_name ?? '');
+                    }
+                    // Clear if no student selected
+                    else if (!studentSearch && !admissionId) {
                         $("#selected_student_name").text('');
                         $("#selected_student_id").text('');
                         $("#selected_admission_id").text('');
                         $("#selected_course_name").text('');
                     }
-                    let studentSearch = $('#search_id').val();
-                    let admissionId = $('#admission_id').val();
-
-                    // 🟢 Show selected student name below search
-                    if (data.length > 0 && studentSearch) {
-                        $("#selected_student_name").text(data[0].student_name ?? '');
-                    } else {
-                        $("#selected_student_name").text('');
-                    }
 
                     // Check if student is searched but no data found
                     if (data.length === 0 && (studentSearch || admissionId)) {
                         $('#yajra-datatables tbody').html(`
-            <tr class="odd">
-                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
-                    <strong>No Test Report Found for this Student.</strong>
-                </td>
-            </tr>
-        `);
+                            <tr class="odd">
+                                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                                    <strong>No Test Report Found for this Student.</strong>
+                                </td>
+                            </tr>
+                        `);
                     }
                     // Show default message when no student is selected
                     else if (data.length === 0 && !studentSearch && !admissionId) {
                         $('#yajra-datatables tbody').html(`
-            <tr class="odd">
-                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
-                    Please select <strong>Student ID</strong> or <strong>Name</strong>.
-                </td>
-            </tr>
-        `);
+                            <tr class="odd">
+                                <td valign="top" colspan="{{ count($columns) }}" class="dataTables_empty text-center text-danger">
+                                    Please select <strong>Student ID</strong> or <strong>Name</strong>.
+                                </td>
+                            </tr>
+                        `);
                     }
                 }
-
             });
 
             // Check localStorage for admission_id
@@ -269,8 +270,17 @@
                 }, 500);
             }
 
-            // Student search functionality
-            $("#search_id").on('keyup change', function() {
+            // Student search functionality - trigger on input change
+            $("#search_id").on('input change', function() {
+                let selectedValue = $(this).val();
+
+                // Update admission_id when student is selected from datalist
+                if (selectedValue) {
+                    $('#admission_id').val(selectedValue);
+                } else {
+                    $('#admission_id').val('');
+                }
+
                 dtable.draw();
             });
 
@@ -289,6 +299,7 @@
             $(document).on('keyup', 'input[type="search"]', function() {
                 dtable.draw();
             });
+
         });
     </script>
 
