@@ -483,8 +483,8 @@
                         }
 
                         $('#RegisterCourceTable tbody').html(rows);
-                      var studentname = response.admission.last_name + ' ' +
-                  response.admission.first_name + ' ' +
+                      var studentname = response.admission.first_name + ' ' +
+                  response.admission.last_name + ' ' +
                   response.admission.father_name;
                         $('#StudentName').text(studentname);
                     }
@@ -683,8 +683,8 @@
                             }
 
                             $('#RegisterCourceTable tbody').html(rows);
-                            var studentname = response.admission.last_name + ' ' +
-                  response.admission.first_name + ' ' +
+                            var studentname = response.admission.first_name + ' ' +
+                  response.admission.last_name + ' ' +
                   response.admission.father_name;
                             $('#StudentName').text(studentname);
                         }

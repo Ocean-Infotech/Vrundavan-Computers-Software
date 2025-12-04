@@ -138,7 +138,7 @@ class AdmissionController extends Controller
 
                         // Create LastName FirstName FatherName
                         $fullName = trim("$first $last  $father");
-
+// dd($fullName);
                         return $fullName ?: '____________';
                     })
 
