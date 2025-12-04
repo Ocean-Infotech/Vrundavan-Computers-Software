@@ -22,6 +22,10 @@ use App\Models\Timetable;
 use App\Traits\BioMetricTrait;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MasterCourseController extends Controller
 {
@@ -29,6 +33,20 @@ class MasterCourseController extends Controller
     use BioMetricTrait;
 
     public $modules = [];
+    protected array $exportableColumns = [
+        'course_name' => 'Course Name',
+        'course_fees' => 'Course Fees',
+        'course_year' => 'Course Duration (Years)',
+        'semester' => 'Total Semesters',
+        'status' => 'Status',
+    ];
+    protected array $defaultExportColumns = [
+        'course_name',
+        'course_fees',
+        'course_year',
+        'semester',
+        'status',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -77,7 +95,6 @@ class MasterCourseController extends Controller
             $data = [];
 
             if ($request->ajax()) {
-                // dd($request->all());
                 $data = MasterCourse::select('*');
                 $data = $data->withTrashed();
 
@@ -133,7 +150,9 @@ class MasterCourseController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -413,6 +432,146 @@ class MasterCourseController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeCourseList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $courses = $this->buildCourseExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($courses as $course) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($course, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'course-master-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeCourseList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $courses = $this->buildCourseExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'courses' => $courses,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeCourseList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildCourseExportQuery(Request $request, string $scope): Builder
+    {
+        $query = MasterCourse::query()->withTrashed()->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('course_name', 'like', "%{$search}%")
+                    ->orWhere('course_fees', 'like', "%{$search}%")
+                    ->orWhere('course_year', 'like', "%{$search}%")
+                    ->orWhere('semester', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(MasterCourse $course, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'course_fees':
+                return $course->course_fees !== null ? (float) $course->course_fees : null;
+            case 'course_year':
+                return $course->course_year !== null ? (int) $course->course_year : null;
+            case 'semester':
+                return $course->semester !== null ? (int) $course->semester : null;
+            case 'status':
+                return $course->status ? ucfirst($course->status) : '-';
+            default:
+                return $course->{$columnKey} ?? '-';
         }
     }
 }

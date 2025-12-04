@@ -131,6 +131,8 @@ Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMa
 
 
 /** Master Course Modules */
+Route::get('course/export-excel', [MasterCourseController::class, 'exportExcel'])->name('course.export-excel');
+Route::get('course/print', [MasterCourseController::class, 'printView'])->name('course.print');
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
