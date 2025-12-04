@@ -47,7 +47,7 @@ class TestreportController extends Controller
 
         // Columns for datatable
         $columns = [
-            (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
+            // (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
             // (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
             // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
             (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
