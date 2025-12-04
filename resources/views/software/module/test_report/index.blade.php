@@ -32,7 +32,7 @@
     </div>
 
     <div class="row my-3">
-         <div class="row mb-3">
+        <div class="row mb-3">
             <!-- Student Search -->
             <div class="col-md-3 col-sm-12 mb-3">
                 <div class="form-group">
@@ -48,14 +48,34 @@
 
 
                     @error('search')
-                    <span class="invalid-feedback">{{ $message }}</span>
+                        <span class="invalid-feedback">{{ $message }}</span>
                     @enderror
                 </div>
             </div>
-           <div class="col-md-3 col-sm-12 mb-3">
-                <label class="fw-bold">Student Name :</label>
-                <span id="selected_student_name" class="fw-bold"></span>
+            <div class="col-md-12 mb-3 d-flex flex-wrap">
+
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="fw-bold">Student Name :</label>
+                    <span id="selected_student_name" class="fw-bold text-dark"></span>
+                </div>
+
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="fw-bold">Student Id :</label>
+                    <span id="selected_student_id" class="fw-bold text-dark"></span>
+                </div>
+
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="fw-bold">Admission Id :</label>
+                    <span id="selected_admission_id" class="fw-bold text-dark"></span>
+                </div>
+
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label class="fw-bold">Course Name :</label>
+                    <span id="selected_course_name" class="fw-bold text-dark"></span>
+                </div>
+
             </div>
+
 
             {{-- <div class="col-md-3 col-sm-12 mb-3">
                 <div class="form-group">
@@ -188,6 +208,21 @@
                     let data = api.rows({
                         page: 'current'
                     }).data();
+
+                    let response = settings.json;
+                    let student = response.student_details;
+
+                    if (student) {
+                        $("#selected_student_name").text(student.student_name ?? '');
+                        $("#selected_student_id").text(student.student_id ?? '');
+                        $("#selected_admission_id").text(student.admission_id ?? '');
+                        $("#selected_course_name").text(student.course_name ?? '');
+                    } else {
+                        $("#selected_student_name").text('');
+                        $("#selected_student_id").text('');
+                        $("#selected_admission_id").text('');
+                        $("#selected_course_name").text('');
+                    }
                     let studentSearch = $('#search_id').val();
                     let admissionId = $('#admission_id').val();
 

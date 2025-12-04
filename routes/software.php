@@ -83,6 +83,9 @@ Route::resource('permissions', PermissionController::class);
 Route::resource('slider', SliderController::class);
 Route::match(['get', 'post'], 'slider/restore/{id}', [SliderController::class, 'restore'])->name('slider.restore');
 Route::match(['get', 'post'], 'slider-update-status', [SliderController::class, 'update_status'])->name('slider.status-update');
+Route::delete('/slider/permanent-delete/{id}',
+    [SliderController::class, 'permanentDelete']
+)->name('slider.permanent-delete');
 
 
 Route::resource('admission', AdmissionController::class)->except(['show']);
@@ -150,6 +153,10 @@ Route::match(['get', 'post'], 'shift-update-status', [MasterShiftController::cla
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
+Route::delete('batch/permanent-delete/{id}',
+    [MasterBatchController::class, 'permanentDelete']
+)->name('batch.permanent-delete');
+
 
 /** Master Department Modules */
 Route::resource('/department', MasterDepartmentController::class);
@@ -263,10 +270,19 @@ Route::resource('students-fees-report', StudentsFeesReportController::class);
 Route::resource('syllabus', SyllabusController::class);
 Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
 Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');
+Route::delete('/syllabus/permanent-delete/{id}',
+    [SyllabusController::class, 'permanentDelete']
+)->name('syllabus.permanent-delete');
+
+
 
 Route::resource('/subject', MasterSubjectController::class);
 Route::match(['get', 'post'], 'subject/restore/{id}', [MasterSubjectController::class, 'restore'])->name('subject.restore');
 Route::match(['get', 'post'], 'subject-update-status', [MasterSubjectController::class, 'update_status'])->name('subject.status-update');
+Route::delete('/subject/permanent-delete/{id}',
+    [MasterSubjectController::class, 'permanentDelete']
+)->name('subject.permanent-delete');
+
 
 /** Master Class Modules */
 Route::resource('/class', MasterClassController::class);
@@ -289,6 +305,10 @@ Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStu
 Route::get('/add-marks/{id}', [TestController::class, 'addMarks'])->name('test.add-marks');
 Route::post('/save-marks', [TestController::class, 'saveMarks'])->name('test.save-marks');
 Route::post('/test/save-marks-ajax', [TestController::class, 'saveMarksAjax'])->name('test.save-marks-ajax');
+Route::delete('test/permanent-delete/{id}',
+    [TestController::class, 'permanentDelete']
+)->name('test.permanent-delete');
+
 
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
@@ -304,7 +324,18 @@ Route::get('get-students-by-course/{course_id}', [NotificationSettingController:
     ->name('get.students.by.course');
 
 // Timetable
-Route::resource('/timetable', TimetableController::class);
+/** Timetable Routes */
+Route::resource('timetable', TimetableController::class);
+
+Route::match(['get', 'post'], 'timetable/restore/{id}',
+    [TimetableController::class, 'restore']
+)->name('timetable.restore');
+
+Route::delete('timetable/permanent-delete/{id}',
+    [TimetableController::class, 'permanentDelete']
+)->name('timetable.permanent-delete');
+
+
 
 // Student request
 Route::resource('/student-requests', StudentRequestController::class);

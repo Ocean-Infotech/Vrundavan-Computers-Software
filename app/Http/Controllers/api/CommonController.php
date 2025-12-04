@@ -52,7 +52,8 @@ class CommonController extends Controller
 
             $data = $data->map(function ($row) {
                 // $temp = $row;
-                $temp['id'] = $row?->course_reg_id . "";
+            $temp['id'] = $row?->admission_id . ""; // <-- register_id levanu
+
                 // $temp['course_reg_id'] = $row?->course_reg_id . "";
                 // $temp['name'] = $row?->first_name . " " . $row?->father_name . " " . $row?->last_name . "";
                 $temp['name'] = $row?->first_name  . " " . $row?->last_name . " " . $row?->father_name .  "";

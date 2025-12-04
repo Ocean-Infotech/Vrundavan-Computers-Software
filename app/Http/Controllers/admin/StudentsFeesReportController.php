@@ -295,7 +295,8 @@ class StudentsFeesReportController extends Controller
             : 0;
 
         // Paid fees for this semester
-        $paidFee = FeesCollection::where('admission_id', $studentId)
+       $paidFee = FeesCollection::where('student_id', $studentId)   // FIXED
+
             ->where('course_id', $courseRegistration->course_id)
             ->where('year_semester', $semester)
             ->sum('fees');
@@ -327,10 +328,11 @@ class StudentsFeesReportController extends Controller
 
 
         // Get one fees record for student info
-        $feesData = FeesCollection::with(['admission', 'course'])
-            ->where('admission_id', $studentId)
-            ->where('year_semester', $semester)
-            ->first();
+      $feesData = FeesCollection::with(['admission', 'course'])
+    ->where('student_id', $studentId)   // FIXED
+    ->where('year_semester', $semester)
+    ->first();
+
 
         if (!$feesData) {
             abort(404, 'No fees paid yet for this semester');

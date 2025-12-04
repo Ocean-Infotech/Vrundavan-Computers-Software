@@ -283,7 +283,7 @@
         'department-list'
         ])
         <li
-            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable', 'student-requests', 'fees', 'department']) ? 'active open' : '' }}">
+            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable', 'student-requests', 'fees', 'department','university']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
                 <div data-i18n="Course Masters">Course Masters</div>

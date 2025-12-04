@@ -238,7 +238,8 @@ class AttedanceController extends Controller
             // Apply filters if present
 
             if ($request->filled('filter_admission') && $request->filter_admission) {
-                $CourceRegistration = CourceRegistration::where('id', $request->filter_admission)->first();
+              $CourceRegistration = CourceRegistration::where('register_id', $request->filter_admission)->first();
+
                 if ($CourceRegistration) {
                     $data->where('course_id', $CourceRegistration?->course_id);
                     $data->where('batch_id', $CourceRegistration?->batch_id);
@@ -295,7 +296,7 @@ class AttedanceController extends Controller
         if ($request->ajax()) {
             try {
                 if ($request?->admissionId) {
-                    $studenCurceRegistration = CourceRegistration::where('id', $request->admissionId)->first();
+                    $studenCurceRegistration = CourceRegistration::where('register_id', $request->admissionId)->first();
                     if (!$studenCurceRegistration) {
                         return $this->sendError("Student course not found.");
                     }
@@ -371,7 +372,7 @@ class AttedanceController extends Controller
         if ($request->ajax()) {
             try {
                 if ($request?->admissionId) {
-                    $studenCurceRegistration = CourceRegistration::where('id', $request->admissionId)->first();
+                    $studenCurceRegistration = CourceRegistration::where('register_id', $request->admissionId)->first();
                     if (!$studenCurceRegistration) {
                         return $this->sendError("Student course not found.");
                     }

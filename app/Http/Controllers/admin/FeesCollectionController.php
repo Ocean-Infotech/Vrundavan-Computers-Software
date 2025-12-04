@@ -77,7 +77,47 @@ class FeesCollectionController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = FeesCollection::select('*')->where('admission_id', $request?->search);
+             if ($request->ajax()) {
+
+    $search = trim($request->search);
+
+    $data = FeesCollection::query()
+        ->with(['course','admission'])
+        ->withTrashed();
+
+    if ($search != '') {
+
+        // 🔍 1. find matching admission IDs by name OR id
+        $matchedAdmissions = Admission::where('id', $search)
+            ->orWhere('first_name', 'LIKE', "%$search%")
+            ->orWhere('last_name', 'LIKE', "%$search%")
+            ->orWhere('father_name', 'LIKE', "%$search%")
+            ->pluck('id');   // EX: [84, 92]
+
+        // 🔍 2. Convert student ID → registration IDs
+        $courseRegIds = CourceRegistration::whereIn('register_id', $matchedAdmissions)
+            ->pluck('id');   // EX: [86, 119]
+
+        // 🔍 3. Final FeesCollection Filter
+        $data->whereIn('admission_id', $courseRegIds);
+    } else {
+        // No filter → show 0 records
+        $data->whereRaw('1=0');
+    }
+
+    return DataTables::of($data)
+        ->addIndexColumn()
+        ->editColumn('student_name', function ($row) {
+            return trim(($row->admission->last_name ?? '') . ' ' .
+                        ($row->admission->first_name ?? '') . ' ' .
+                        ($row->admission->father_name ?? ''));
+        })
+        ->editColumn('date', function ($row) {
+            return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-';
+        })
+        ->make(true);
+}
+
                 $data = $data->withTrashed();
                 $data = $data->with(['course','admission']);
                 // dd("L-75", $data->get());
@@ -229,8 +269,8 @@ class FeesCollectionController extends Controller
 
         try {
             // Get course registration with related course, admission, batch
-            $getcource = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->get();
-            $getcourceSingle = CourceRegistration::where('id', $id)->with(['course', 'admission', 'batch'])->first();
+            $getcource = CourceRegistration::where('register_id', $id)->with(['course', 'admission', 'batch'])->get();
+            $getcourceSingle = CourceRegistration::where('register_id', $id)->with(['course', 'admission', 'batch'])->first();
 
             if (!$getcourceSingle || !$getcourceSingle->course) {
                 throw new \Exception('Course registration or course not found.');
@@ -242,7 +282,10 @@ class FeesCollectionController extends Controller
                 : 0;
             //dd($semester_fee);
             // Get fees collection entries
-            $feesCollections = FeesCollection::where('admission_id', $id)->orderBy('id', 'desc')->get();
+         $feesCollections = FeesCollection::where('admission_id', $getcourceSingle->id)
+    ->orderBy('id', 'desc')
+    ->get();
+
 
             // Track total fees paid per semester
             $semesterPaid = [];

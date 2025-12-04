@@ -411,7 +411,7 @@ class FeescollectionpendingController extends Controller
                 : 0;
 
             // Get fees paid grouped by semester
-            $feesCollections = FeesCollection::where('admission_id', $id)
+            $feesCollections = FeesCollection::where('student_id', $id)
                 ->where('course_id', $courseReg->course_id)
                 ->get();
 

@@ -47,7 +47,7 @@ class TestreportController extends Controller
 
         // Columns for datatable
         $columns = [
-            // (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
+            (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
             // (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
             // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
             (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
@@ -66,73 +66,87 @@ class TestreportController extends Controller
 
         View::share('subjects', $subjects);
 
-        if ($request->ajax()) {
+     if ($request->ajax()) {
 
+        /** -------------------------------------------
+         * 🟢 FETCH STUDENT DETAILS FOR TOP SECTION
+         --------------------------------------------*/
+        $studentSearch = trim($request->student_search ?? '');
+        $student_details = null;
 
-            $query = DB::table('test')
-                ->select(
-                    'test.*',
-                    'cource_registration.fee',
-                    'cource_registration.date as cr_date',
-                    'cource_registration.register_id',
-                    'cource_registration.id as admission_id',
-                    DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
-
-                    // 'master_batch.batch_name',
-                    // 'master_course.course_name',
-                    'student_test_marks.marks as student_mark',
-                    'student_test_marks.id as student_mark_id'
-                )
-                ->join('cource_registration', function ($join) {
-                    $join->on('test.course_id', '=', 'cource_registration.course_id')
-                        ->on('test.batch_id', '=', 'cource_registration.batch_id');
-                })
+        if (!empty($studentSearch)) {
+            $student_details = DB::table('cource_registration')
                 ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
-                ->leftJoin('master_batch', 'test.batch_id', '=', 'master_batch.id')
-                ->leftJoin('master_course', 'test.course_id', '=', 'master_course.id')
-                ->leftJoin('student_test_marks', function ($join) {
-                    $join->on('test.id', '=', 'student_test_marks.test_id')
-                        ->on('cource_registration.register_id', '=', 'student_test_marks.register_id');
+                ->leftJoin('master_course', 'cource_registration.course_id', '=', 'master_course.id')
+                ->select(
+                    'admission.id as admission_id',
+                    'cource_registration.id as student_id',
+                    DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name) as student_name"),
+                    'master_course.course_name'
+                )
+                ->where(function ($q) use ($studentSearch) {
+                    if (is_numeric($studentSearch)) {
+                        $q->where('cource_registration.id', $studentSearch)
+                          ->orWhere('admission.id', $studentSearch);
+                    } else {
+                        $q->where(DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name)"),
+                            'like', "%{$studentSearch}%");
+                    }
                 })
-                ->whereNull('test.deleted_at')
-                ->orderBy('test.id', 'desc');
+                ->first();
+        }
 
-            return DataTables::of($query)
-                ->addIndexColumn()
-                ->filter(function ($query) use ($request) {
+
+        /** -------------------------------------------
+         * 🟢 MAIN QUERY FOR DATATABLE
+         --------------------------------------------*/
+        $query = DB::table('test')
+            ->select(
+                'test.*',
+                'cource_registration.fee',
+                'cource_registration.date as cr_date',
+                'cource_registration.register_id',
+                'cource_registration.id as admission_id',
+                DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
+                'student_test_marks.marks as student_mark',
+                'student_test_marks.id as student_mark_id'
+            )
+            ->join('cource_registration', function ($join) {
+                $join->on('test.course_id', '=', 'cource_registration.course_id')
+                     ->on('test.batch_id', '=', 'cource_registration.batch_id');
+            })
+            ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
+            ->leftJoin('master_batch', 'test.batch_id', '=', 'master_batch.id')
+            ->leftJoin('master_course', 'test.course_id', '=', 'master_course.id')
+            ->leftJoin('student_test_marks', function ($join) {
+                $join->on('test.id', '=', 'student_test_marks.test_id')
+                     ->on('cource_registration.register_id', '=', 'student_test_marks.register_id');
+            })
+            ->whereNull('test.deleted_at')
+            ->orderBy('test.id', 'desc');
+
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->filter(function ($query) use ($request) {
 
                 $studentSearch = trim($request->student_search ?? '');
                 $searchValue = $request->search['value'] ?? null;
 
-                // ----------------------------------------
-                // CASE 1: Student Search → Show only his data
-                // ----------------------------------------
                 if (!empty($studentSearch)) {
-
                     $query->where(function ($q) use ($studentSearch) {
-
                         if (is_numeric($studentSearch)) {
-
-                            // 🟢 Typed ID → Exact match
                             $q->where('cource_registration.id', $studentSearch)
                               ->orWhere('admission.id', $studentSearch);
-
                         } else {
-
-                            // 🟢 Typed Name → LIKE match
-                            $q->where(DB::raw("
-                                CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name)
-                            "), 'like', "%{$studentSearch}%");
+                            $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name)"),
+                                'like', "%{$studentSearch}%");
                         }
-
                     });
 
-                    return; // IMPORTANT
+                    return;
                 }
 
-                // ----------------------------------------
-                // CASE 2: Normal datatable search
-                // ----------------------------------------
                 if (!empty($searchValue)) {
                     $query->where(function ($q) use ($searchValue) {
                         $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
@@ -142,28 +156,26 @@ class TestreportController extends Controller
                 }
             })
 
+            ->editColumn('cr_date', function ($row) {
+                return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';
+            })
 
-                ->editColumn('cr_date', function ($row) {
-                    return $row->cr_date ? date('d-m-Y', strtotime($row->cr_date)) : '-';
-                })
-                ->editColumn('subject_name', function ($row) {
-                    return $row->subject_name ?? '-';
-                })
-                ->addColumn('input', function ($row) {
-                    $value = htmlspecialchars($row->student_mark ?? 0, ENT_QUOTES, 'UTF-8'); // ✅ default 0
-                    if ($value === '' || $value === null) {
-                        $value = 0; // ✅ handles empty string also
-                    }
-                    return '<span>' . $value . '</span>';
-                })
+            ->addColumn('input', function ($row) {
+                $value = htmlspecialchars($row->student_mark ?? 0, ENT_QUOTES, 'UTF-8');
+                return '<span>' . ($value ?: 0) . '</span>';
+            })
 
+            ->rawColumns(['input'])
 
-                ->rawColumns(['input'])
-                ->make(true);
-        }
+            /** 🟢 SEND STUDENT DETAILS TO FRONTEND */
+            ->with('student_details', $student_details)
 
-        return view($modules['folder_path'] . '.index');
+            ->make(true);
     }
+
+
+    return view($modules['folder_path'] . '.index');
+}
 
     /**
      * Show the form for creating a new resource.

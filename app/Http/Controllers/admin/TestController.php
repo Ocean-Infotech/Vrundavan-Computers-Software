@@ -129,10 +129,17 @@ class TestController extends Controller
                                         <i class="fa-solid fa-trash"></i>
                                      </a>';
                             }
+                                          $btn .= '<a href="javascript:void(0)"
+                data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
+                class="btn btn-danger btn-icon permanentDeleteButton mx-1"
+                title="Permanent Delete">
+                <i class="fa-solid fa-ban"></i>
+             </a>';
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" title="Restore Data">
                                     <i class="ti ti-history"></i>
                                  </a>';
+
                         }
 
                         return $btn ?: '-';
@@ -401,4 +408,31 @@ class TestController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+    public function permanentDelete($id)
+{
+    try {
+        $modules = $this->modules;
+
+        $test = Test::withTrashed()->findOrFail($id);
+
+        // 🔥 Delete all student marks first
+        StudentTestMark::where('test_id', $test->id)->delete();
+
+        // 🔥 Permanently delete test
+        $test->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => $modules['title'] . ' and its student marks permanently deleted successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }
