@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 18px;
             margin: 0;
             padding: 10px;
             background: white;
@@ -177,138 +177,139 @@
     <div class="receipt-container">
         @for ($i = 0; $i < 2; $i++)
             <div class="receipt">
-                <!-- Watermark -->
-                <div class="watermark">
-                    <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
-                </div>
-
-                <!-- Header -->
-                <div class="header">
-                    <table>
-                        <tr>
-                            <td style="width: 80px; text-align: left;">
-                                <img src="{{ asset('uploads/logo/logo.png') }}" style="width: 120px; height: 100px;"
-                                    alt="College Logo">
-                            </td>
-                            <td style="text-align: center;">
-                                Shree Patel Vidhyarthi Ashram Sanchalit<br>
-                                <strong>Shree Patel Vidhya Mandir Computer Science College</strong><br>
-                                Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
-                                Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-                <!-- Student Information -->
-                <table class="info-table">
-                    <tr>
-                        <td>Receipt No.</td>
-                        <td>{{ $receipt->receipt_no }}</td>
-                    </tr>
-                    {{-- <tr>
-                        <td>Student Name</td>
-                        <td>
-                            {{ trim(
-                                ($feesData->admission->first_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->father_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->last_name ?? ''),
-                            ) ?:
-                                '____________' }}
-                        </td>
-                    </tr> --}}
-                    <tr>
-                        <td>Student Name</td>
-                        <td>
-                            {{ trim(
-                                ($feesData->admission->first_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->father_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->last_name ?? ''),
-                            ) ?:
-                                '____________' }}
-
-                            ({{ $courseRegistration->register_id ?? 'N/A' }})
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>Class</td>
-                        <td>
-                            {{ $feesData->course->course_name ?? '____________' }}
-                            -
-                            {{ $courseRegistration->batch->batch_name ?? '____________' }}
-                        </td>
-                    </tr>
-
-
-
-                    <tr>
-                        <td>Semester</td>
-                        <td>{{ $feesData->year_semester ?? '____________' }}</td>
-                    </tr>
-                </table>
-
-                <!-- Fee Details Section Title -->
-                <div class="section-title">
-                    Fee Details ({{ $i == 0 ? 'Student Copy' : 'College Copy' }})
-                </div>
-
-                <!-- Fee Details Table -->
-                <table class="fees-table">
-                    <thead>
-                        <tr>
-                            <th>Fee Name</th>
-                            <th>Amount (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($feesDetails as $fee)
-                            <tr>
-                                <td>{{ $fee['name'] }}</td>
-                                <td>{{ number_format($fee['amount']) }}/-</td>
-                            </tr>
-                        @endforeach
-                        <tr class="total-row">
-                            <td><strong>Total Fees</strong></td>
-                            <td><strong>{{ number_format($paidFee) }}/-</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- Payment Information -->
-                <table class="info-table">
-                    <tr>
-                        <td>Rs. In Words</td>
-                        <td id="amountWords{{ $i }}"></td>
-                    </tr>
-                    <tr>
-                        <td>Payment Mode</td>
-                        <td>{{ $feesData->mode ?? '__________' }}</td>
-                    </tr>
-                </table>
-
-                <!-- Signature Section -->
-                <div class="signature">
-                    <div class="signature-left" style="margin-top:15px;">
-                        Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
-                    </div>
-                    <div class="signature-right" style="text-align:right;">
-                        <div style="border-top:1px solid #000; width:150px; margin-left:auto; margin-top:25px;"></div>
-                        <br> PVM BCA COLLEGE
-                    </div>
-                    <div class="clear"></div>
-                </div>
-
-                <!-- Footer Note -->
-                <div class="footer">
-                    Note: Submitted Fees For Above Course Is Not Refundable Even If You Cancel Your Admission.
-                </div>
+            <!-- Watermark -->
+            <div class="watermark">
+                <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
             </div>
-        @endfor
+
+            <!-- Header -->
+            <div class="header">
+                <table>
+                    <tr>
+                        <td style="width: 80px; text-align: left;">
+                            <img src="{{ asset('uploads/logo/logo.png') }}" style="width: 120px; height: 100px;"
+                                alt="College Logo">
+                        </td>
+                        <td style="text-align: center;">
+                            Shree Patel Vidhyarthi Ashram Sanchalit<br>
+                            <strong>Shree Patel Vidhya Mandir Science College</strong><br>
+                            Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
+                            Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Student Information -->
+            <table class="info-table">
+                <tr>
+                    <td>Receipt No.</td>
+                    <td>{{ $receipt->receipt_no }}</td>
+                </tr>
+                {{-- <tr>
+                        <td>Student Name <br> (GR NO)</td>
+                        <td>
+                            {{ trim(
+                                ($feesData->admission->first_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->father_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->last_name ?? ''),
+                            ) ?:
+                                '____________' }}
+                </td>
+                </tr> --}}
+                <tr>
+                    <td>Student Name <br> (GR NO)</td>
+                    <td>
+                        {{ trim(
+                                ($feesData->admission->first_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->father_name ?? '') .
+                                    ' ' .
+                                    ($feesData->admission->last_name ?? ''),
+                            ) ?:
+                                '____________' }}
+
+                        ({{ $courseRegistration->register_id ?? 'N/A' }})
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Class - Batch</td>
+                    <td>
+                        {{ $feesData->course->course_name ?? '____________' }}
+                        -
+                        {{ $courseRegistration->batch->batch_name ?? '____________' }}
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <td>Semester</td>
+                    <td>{{ $feesData->year_semester ?? '____________' }}</td>
+                </tr>
+            </table>
+
+            <!-- Fee Details Section Title -->
+            <div class="section-title">
+                Fee Details ({{ $i == 0 ? 'Student Copy' : 'College Copy' }})
+            </div>
+
+            <!-- Fee Details Table -->
+            <table class="fees-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;">Fee Name</th>
+                        <th style="text-align: center;">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($feesDetails as $fee)
+                    <tr>
+                        <td>{{ $fee['name'] }}</td>
+                        <td style="text-align: right;">{{ number_format($fee['amount']) }}/-</td>
+                    </tr>
+                    @endforeach
+                    <tr class="total-row">
+                        <td><strong>Total Fees</strong></td>
+                        <td style="text-align: right;"><strong>{{ number_format($paidFee) }}/-</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <!-- Payment Information -->
+            <table class="info-table">
+                <tr>
+                    <td>Rs. In Words</td>
+                    <td id="amountWords{{ $i }}"></td>
+                </tr>
+                <tr>
+                    <td>Payment Mode</td>
+                    <td>{{ $feesData->mode ?? '__________' }}</td>
+                </tr>
+            </table>
+
+            <!-- Signature Section -->
+            <div class="signature">
+                <div class="signature-left" style="margin-top:35px;">
+                    Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
+                </div>
+                <div class="signature-right" style="text-align:right;">
+                    <div style="border-top:1px solid #000; width:150px; margin-left:auto; margin-top:44px;"></div>
+                    <br> PVM BCA COLLEGE
+                </div>
+                <div class="clear"></div>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="footer">
+                Note: Submitted Fees For Above Course Is Not Refundable Even If You Cancel Your Admission.
+            </div>
+    </div>
+    @endfor
     </div>
 
     <script>
@@ -354,7 +355,11 @@
 
         // Set amount in words for both receipts
         document.addEventListener("DOMContentLoaded", function() {
-            const total = {{ $paidFee }}; // Dynamic amount from PHP
+            const total = {
+                {
+                    $paidFee
+                }
+            }; // Dynamic amount from PHP
             for (let i = 0; i < 2; i++) {
                 const element = document.getElementById("amountWords" + i);
                 if (element) {
