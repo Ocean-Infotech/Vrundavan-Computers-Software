@@ -262,7 +262,8 @@
                 <table class="info-table">
                     <tr>
                         <td>Rs. In Words</td>
-                        <td id="amountWords{{ $i }}"></td>
+                               <td id="amountWords{{ $i }}"></td>
+
                     </tr>
                     <tr>
                         <td>Payment Mode</td>
@@ -290,62 +291,57 @@
         @endfor
     </div>
 
-    <script>
-        function convertToWords(amount) {
-            var words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
-                'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
-                'Eighteen', 'Nineteen'
-            ];
-            var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  <script>
+    function convertToWords(amount) {
+        var words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+            'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
+            'Eighteen', 'Nineteen'];
+        var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
-            if (isNaN(amount) || amount === '') return 'Invalid amount';
-            if (parseInt(amount) === 0) return 'Zero Rupees Only';
+        if (isNaN(amount) || amount === '') return 'Invalid amount';
+        if (parseInt(amount) === 0) return 'Zero Rupees Only';
 
-            amount = amount.toString().replace(/[, ]/g, '');
-            if (amount.includes('.')) amount = amount.split('.')[0];
-            var num = parseInt(amount);
-            var result = '';
+        amount = amount.toString().replace(/[, ]/g, '');
+        if (amount.includes('.')) amount = amount.split('.')[0];
 
-            function numToWords(n, label) {
-                let str = '';
-                if (n > 19) str += tens[Math.floor(n / 10)] + ' ' + words[n % 10];
-                else str += words[n];
-                return str ? str + ' ' + label + ' ' : '';
-            }
+        var num = parseInt(amount);
+        var result = '';
 
-            var crore = Math.floor(num / 10000000);
-            num %= 10000000;
-            var lakh = Math.floor(num / 100000);
-            num %= 100000;
-            var thousand = Math.floor(num / 1000);
-            num %= 1000;
-            var hundred = Math.floor(num / 100);
-            var remainder = num % 100;
-
-            if (crore) result += numToWords(crore, 'Crore');
-            if (lakh) result += numToWords(lakh, 'Lakh');
-            if (thousand) result += numToWords(thousand, 'Thousand');
-            if (hundred) result += words[hundred] + ' Hundred ';
-            if (remainder) result += (result !== '' ? 'and ' : '') + numToWords(remainder, '');
-
-            return result.trim() + ' Rupees Only';
+        function numToWords(n, label) {
+            let str = '';
+            if (n > 19) str += tens[Math.floor(n / 10)] + ' ' + words[n % 10];
+            else str += words[n];
+            return str ? str + ' ' + label + ' ' : '';
         }
 
-        // Set amount in words for both receipts
-        document.addEventListener("DOMContentLoaded", function() {
-            const total = {
-                {
-                    $paidFee
-                }
-            }; // Dynamic amount from PHP
-            for (let i = 0; i < 2; i++) {
-                const element = document.getElementById("amountWords" + i);
-                if (element) {
-                    element.innerText = convertToWords(total);
-                }
+        var crore = Math.floor(num / 10000000); num %= 10000000;
+        var lakh = Math.floor(num / 100000);   num %= 100000;
+        var thousand = Math.floor(num / 1000); num %= 1000;
+        var hundred = Math.floor(num / 100);
+        var remainder = num % 100;
+
+        if (crore) result += numToWords(crore, 'Crore');
+        if (lakh) result += numToWords(lakh, 'Lakh');
+        if (thousand) result += numToWords(thousand, 'Thousand');
+        if (hundred) result += words[hundred] + ' Hundred ';
+        if (remainder) result += (result !== '' ? 'and ' : '') + numToWords(remainder, '');
+
+        return result.trim() + ' Rupees Only';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const total = {{ $paidFee }}; // PHP dynamic amount
+
+        for (let i = 0; i < 2; i++) {
+            const element = document.getElementById("amountWords" + i);
+            if (element) {
+                element.innerText = convertToWords(total);
             }
-        });
-    </script>
+        }
+    });
+</script>
+
+
     <script>
         function printAndRedirect() {
             window.print();

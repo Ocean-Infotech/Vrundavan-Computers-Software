@@ -300,8 +300,8 @@
                                         '0');
                                     let ampm = in_dateTime.getHours() >= 12 ? 'pm' : 'am';
 
-                                    let formatted =
-                                        `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+                                   let formatted = `${day}-${month}-${year} ${hours}:${minutes}`;
+
 
                                     rows += '<td>' + formatted + '</td>';
                                 }
@@ -327,8 +327,8 @@
                                         '0');
                                     let ampm = out_dateTime.getHours() >= 12 ? 'pm' : 'am';
 
-                                    let formatted =
-                                        `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+                                  let formatted = `${day}-${month}-${year} ${hours}:${minutes}`;
+
 
                                     rows += '<td>' + formatted + '</td>';
                                 }
