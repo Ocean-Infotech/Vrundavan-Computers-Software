@@ -59,7 +59,7 @@
         .fees-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 30px;
+            margin-top: 8px;
             font-size: 12px;
         }
 
@@ -132,6 +132,26 @@
         .clear {
             clear: both;
         }
+        .header table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.header td {
+    vertical-align: middle;
+}
+@media screen {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .receipt-container {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+    }
+}
+
 
 
         @media print {
