@@ -131,6 +131,8 @@ Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMa
 
 
 /** Master Course Modules */
+Route::get('course/export-excel', [MasterCourseController::class, 'exportExcel'])->name('course.export-excel');
+Route::get('course/print', [MasterCourseController::class, 'printView'])->name('course.print');
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
@@ -145,11 +147,15 @@ Route::match(['get', 'post'], 'semester/restore/{id}', [MasterSemesterController
 Route::match(['get', 'post'], 'semester-update-status', [MasterSemesterController::class, 'status_update'])->name('semester.status-update');
 
 /** Master Shift Modules */
+Route::get('shift/export-excel', [MasterShiftController::class, 'exportExcel'])->name('shift.export-excel');
+Route::get('shift/print', [MasterShiftController::class, 'printView'])->name('shift.print');
 Route::resource('/shift', MasterShiftController::class);
 Route::match(['get', 'post'], 'shift/restore/{id}', [MasterShiftController::class, 'restore'])->name('shift.restore');
 Route::match(['get', 'post'], 'shift-update-status', [MasterShiftController::class, 'status_update'])->name('shift.status-update');
 
 /** Master Batch Modules */
+Route::get('batch/export-excel', [MasterBatchController::class, 'exportExcel'])->name('batch.export-excel');
+Route::get('batch/print', [MasterBatchController::class, 'printView'])->name('batch.print');
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
@@ -159,6 +165,8 @@ Route::delete('batch/permanent-delete/{id}',
 
 
 /** Master Department Modules */
+Route::get('department/export-excel', [MasterDepartmentController::class, 'exportExcel'])->name('department.export-excel');
+Route::get('department/print', [MasterDepartmentController::class, 'printView'])->name('department.print');
 Route::resource('/department', MasterDepartmentController::class);
 Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
 Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');
@@ -178,15 +186,15 @@ Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMaster
 Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
 
 
-Route::match(['get', 'post'], 'issued-book/status-update', [IssuedBook::class, 'status_update'])->name('issued-book.status-update');
-
 /** Issue Book Modules */
 Route::resource('/issued-book', IssuedBookController::class);
 Route::match(['get', 'post'], 'issued-book/return/{id}', [IssuedBookController::class, 'returnBook'])->name('issued-book.return');
 
 Route::match(['get', 'post'], 'issued-book/restore/{id}', [IssuedBookController::class, 'restore'])->name('issued-book.restore');
 /** Attedance Modules */
-Route::resource('/attedance', AttedanceController::class);
+Route::get('attedance/export-excel', [AttedanceController::class, 'exportExcel'])->name('attedance.export-excel');
+Route::get('attedance/print', [AttedanceController::class, 'printView'])->name('attedance.print');
+Route::resource('/attedance', AttedanceController::class)->except(['show']);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
 Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
 Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
@@ -237,7 +245,7 @@ Route::get('/cource-registration/{register_id}/edit/', [CourceRegistrationContro
 
 Route::resource('fees-collection', FeesCollectionController::class);
 Route::get('fees-collection/create/{id?}', [FeesCollectionController::class, 'create'])
-    ->name('fees-collection.create');
+    ->name('fees-collection.create_by_id');
 Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
 Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
 Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionController::class, 'search_fees_collection_details'])->name('fees-collection.search-fees-collection-details');
@@ -285,6 +293,8 @@ Route::delete('/subject/permanent-delete/{id}',
 
 
 /** Master Class Modules */
+Route::get('class/export-excel', [MasterClassController::class, 'exportExcel'])->name('class.export-excel');
+Route::get('class/print', [MasterClassController::class, 'printView'])->name('class.print');
 Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');
@@ -298,6 +308,8 @@ Route::resource('fees', MasterFeeDetailController::class);
 
 
 /** Test Modules */
+Route::get('test/export-excel', [TestController::class, 'exportExcel'])->name('test.export-excel');
+Route::get('test/print', [TestController::class, 'printView'])->name('test.print');
 Route::resource('/test', TestController::class);
 Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
 Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
@@ -310,6 +322,8 @@ Route::delete('test/permanent-delete/{id}',
 )->name('test.permanent-delete');
 
 
+Route::get('test_report/export-excel', [TestreportController::class, 'exportExcel'])->name('test_report.export-excel');
+Route::get('test_report/print', [TestreportController::class, 'printView'])->name('test_report.print');
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');

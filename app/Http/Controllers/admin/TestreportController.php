@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TestreportController extends Controller
 {
@@ -17,6 +19,21 @@ class TestreportController extends Controller
      * Display a listing of the resource.
      */
     public $modules = [];
+    protected array $exportableColumns = [
+        'subject_name' => 'Subject',
+        'unit_name'    => 'Unit',
+        'cr_date'      => 'Date',
+        'mark'         => 'Total Mark',
+        'student_mark' => 'Obtained Mark',
+    ];
+
+    protected array $defaultExportColumns = [
+        'subject_name',
+        'unit_name',
+        'cr_date',
+        'mark',
+        'student_mark',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -99,32 +116,8 @@ class TestreportController extends Controller
 
         /** -------------------------------------------
          * 🟢 MAIN QUERY FOR DATATABLE
-         --------------------------------------------*/
-        $query = DB::table('test')
-            ->select(
-                'test.*',
-                'cource_registration.fee',
-                'cource_registration.date as cr_date',
-                'cource_registration.register_id',
-                'cource_registration.id as admission_id',
-                DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
-                'student_test_marks.marks as student_mark',
-                'student_test_marks.id as student_mark_id'
-            )
-            ->join('cource_registration', function ($join) {
-                $join->on('test.course_id', '=', 'cource_registration.course_id')
-                     ->on('test.batch_id', '=', 'cource_registration.batch_id');
-            })
-            ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
-            ->leftJoin('master_batch', 'test.batch_id', '=', 'master_batch.id')
-            ->leftJoin('master_course', 'test.course_id', '=', 'master_course.id')
-            ->leftJoin('student_test_marks', function ($join) {
-                $join->on('test.id', '=', 'student_test_marks.test_id')
-                     ->on('cource_registration.register_id', '=', 'student_test_marks.register_id');
-            })
-            ->whereNull('test.deleted_at')
-            ->orderBy('test.id', 'desc');
-
+         * --------------------------------------------*/
+        $query = $this->buildTestReportBaseQuery();
 
         return DataTables::of($query)
             ->addIndexColumn()
@@ -173,8 +166,10 @@ class TestreportController extends Controller
             ->make(true);
     }
 
+    $availableExportColumns = $this->exportableColumns;
+    $defaultExportColumns = $this->defaultExportColumns;
 
-    return view($modules['folder_path'] . '.index');
+    return view($modules['folder_path'] . '.index', compact('availableExportColumns', 'defaultExportColumns'));
 }
 
     /**
@@ -271,5 +266,221 @@ class TestreportController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    /**
+     * Export test report data to Excel.
+     */
+    public function exportExcel(Request $request)
+    {
+        try {
+            $this->authorizeTestReportList();
+
+            $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+            $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+            $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+            $tests = $this->buildTestReportExportQuery($request, $scope)->get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Header row
+            foreach (array_values($columnLabels) as $index => $label) {
+                $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+            }
+
+            // Data rows
+            $rowNumber = 2;
+            foreach ($tests as $test) {
+                foreach ($selectedColumns as $columnIndex => $columnKey) {
+                    $sheet->setCellValueByColumnAndRow(
+                        $columnIndex + 1,
+                        $rowNumber,
+                        $this->formatColumnValueForExcel($test, $columnKey)
+                    );
+                }
+                $rowNumber++;
+            }
+
+            $fileName = 'test-report-' . now()->format('Ymd_His') . '.xlsx';
+
+            return response()->streamDownload(function () use ($spreadsheet) {
+                $writer = new Xlsx($spreadsheet);
+                $writer->save('php://output');
+            }, $fileName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Test Report Export Error: ' . $e->getMessage());
+            return back()->withErrors('Something went wrong while exporting the test report.');
+        }
+    }
+
+    /**
+     * Print view for test report.
+     */
+    public function printView(Request $request)
+    {
+        $this->authorizeTestReportList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $studentSearch = trim($request->student_search ?? '');
+        $student_details = null;
+
+        if (!empty($studentSearch)) {
+            $student_details = DB::table('cource_registration')
+                ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
+                ->leftJoin('master_course', 'cource_registration.course_id', '=', 'master_course.id')
+                ->select(
+                    'admission.id as admission_id',
+                    'cource_registration.id as student_id',
+                    DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name) as student_name"),
+                    'master_course.course_name'
+                )
+                ->where(function ($q) use ($studentSearch) {
+                    if (is_numeric($studentSearch)) {
+                        $q->where('cource_registration.id', $studentSearch)
+                          ->orWhere('admission.id', $studentSearch);
+                    } else {
+                        $q->where(DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name)"),
+                            'like', "%{$studentSearch}%");
+                    }
+                })
+                ->first();
+        }
+
+        $tests = $this->buildTestReportExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'tests' => $tests,
+            'studentDetails' => $student_details,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $studentSearch,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    /**
+     * Base query for test report (shared between DataTable and export/print).
+     */
+    protected function buildTestReportBaseQuery()
+    {
+        return DB::table('test')
+            ->select(
+                'test.*',
+                'cource_registration.fee',
+                'cource_registration.date as cr_date',
+                'cource_registration.register_id',
+                'cource_registration.id as admission_id',
+                DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
+                'master_course.course_name as course_name',
+                'student_test_marks.marks as student_mark',
+                'student_test_marks.id as student_mark_id'
+            )
+            ->join('cource_registration', function ($join) {
+                $join->on('test.course_id', '=', 'cource_registration.course_id')
+                     ->on('test.batch_id', '=', 'cource_registration.batch_id');
+            })
+            ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
+            ->leftJoin('master_batch', 'test.batch_id', '=', 'master_batch.id')
+            ->leftJoin('master_course', 'test.course_id', '=', 'master_course.id')
+            ->leftJoin('student_test_marks', function ($join) {
+                $join->on('test.id', '=', 'student_test_marks.test_id')
+                     ->on('cource_registration.register_id', '=', 'student_test_marks.register_id');
+            })
+            ->whereNull('test.deleted_at')
+            ->orderBy('test.id', 'desc');
+    }
+
+    /**
+     * Build filtered query for export/print.
+     */
+    protected function buildTestReportExportQuery(Request $request, string $scope = 'filtered')
+    {
+        $query = $this->buildTestReportBaseQuery();
+
+        if ($scope === 'filtered') {
+            $studentSearch = trim($request->student_search ?? '');
+            if (!empty($studentSearch)) {
+                $query->where(function ($q) use ($studentSearch) {
+                    if (is_numeric($studentSearch)) {
+                        $q->where('cource_registration.id', $studentSearch)
+                          ->orWhere('admission.id', $studentSearch);
+                    } else {
+                        $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name)"),
+                            'like', "%{$studentSearch}%");
+                    }
+                });
+            }
+
+            $searchValue = $request->get('search');
+            if (!empty($searchValue)) {
+                $query->where(function ($q) use ($searchValue) {
+                    $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
+                      ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
+                      ->orWhere('test.marks', 'like', "%{$searchValue}%");
+                });
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Permission check for test report list.
+     */
+    protected function authorizeTestReportList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel($test, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'subject_name':
+                return $test->subject_name ?? '-';
+            case 'unit_name':
+                return $test->unit_name ?? '-';
+            case 'cr_date':
+                return $test->cr_date ? date('d-m-Y', strtotime($test->cr_date)) : '-';
+            case 'mark':
+                return $test->mark ?? '-';
+            case 'student_mark':
+                return $test->student_mark ?? 0;
+            default:
+                return '';
+        }
     }
 }

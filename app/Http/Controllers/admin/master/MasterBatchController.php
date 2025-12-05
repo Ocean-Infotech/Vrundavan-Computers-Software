@@ -17,10 +17,26 @@ use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\StudentRequest;
 use App\Models\Timetable;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MasterBatchController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'course_name' => 'Course Name',
+        'batch_name' => 'Batch Name',
+        'status' => 'Status',
+    ];
+
+    protected array $defaultExportColumns = [
+        'course_name',
+        'batch_name',
+        'status',
+    ];
+
     public function __construct()
     {
         $this->modules = [
@@ -97,8 +113,8 @@ class MasterBatchController extends Controller
                         $status .= $dropdown;
                         return $status;
                     })->editColumn('course.course_name', function ($row) {
-    return $row->course->course_name ?? '-';
-})
+                        return $row->course->course_name ?? '-';
+                    })
 
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
@@ -110,7 +126,7 @@ class MasterBatchController extends Controller
                             if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                             }
-                             $btn .= '<a href="javascript:void(0)"
+                            $btn .= '<a href="javascript:void(0)"
                 data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
                 class="btn btn-danger btn-icon permanentDeleteButton mx-1"
                 data-bs-toggle="tooltip" title="Permanent Delete">
@@ -130,7 +146,9 @@ class MasterBatchController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -343,39 +361,179 @@ class MasterBatchController extends Controller
         }
     }
     public function permanentDelete($id)
-{
-    try {
-        $modules = $this->modules;
+    {
+        try {
+            $modules = $this->modules;
 
-        $batch = MasterBatch::withTrashed()->findOrFail($id);
+            $batch = MasterBatch::withTrashed()->findOrFail($id);
 
-        // Check dependencies before permanent delete
-        $isUsed =
-            CourceRegistration::where('batch_id', $batch->id)->exists() ||
-            Timetable::where('batch_id', $batch->id)->exists();
+            // Check dependencies before permanent delete
+            $isUsed =
+                CourceRegistration::where('batch_id', $batch->id)->exists() ||
+                Timetable::where('batch_id', $batch->id)->exists();
 
-        if ($isUsed) {
+            if ($isUsed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This batch cannot be permanently deleted because it is assigned in other modules.'
+                ], 400);
+            }
+
+            // Permanent delete
+            $batch->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => $modules['title'] . ' permanently deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+
             return response()->json([
                 'success' => false,
-                'message' => 'This batch cannot be permanently deleted because it is assigned in other modules.'
-            ], 400);
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeBatchList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $batches = $this->buildBatchExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
         }
 
-        // Permanent delete
-        $batch->forceDelete();
+        $rowNumber = 2;
+        foreach ($batches as $batch) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($batch, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => $modules['title'] . ' permanently deleted successfully.'
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'batch-master-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 500);
     }
-}
 
+    public function printView(Request $request)
+    {
+        $this->authorizeBatchList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $batches = $this->buildBatchExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'batches' => $batches,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeBatchList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildBatchExportQuery(Request $request, string $scope): Builder
+    {
+        $query = MasterBatch::query()
+            ->withTrashed()
+            ->with(['course'])
+            ->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('batch_name', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhereHas('course', function ($courseQuery) use ($search) {
+                        $courseQuery->where('course_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(MasterBatch $batch, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'course_name':
+                return $batch->course?->course_name ?? '-';
+            case 'batch_name':
+                return $batch->batch_name ?? '-';
+            case 'status':
+                return $batch->status ? ucfirst($batch->status) : '-';
+            default:
+                return data_get($batch, $columnKey, '-');
+        }
+    }
 }

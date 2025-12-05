@@ -275,7 +275,7 @@
                                         <td>{{ $row->fees }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->date)->format('d-m-Y') }}</td>
                                         <td>
-                                            <a href="{{ route('fees-collection.create', $row->id) }}"
+                                            <a href="{{ route('fees-collection.create_by_id', $row->id) }}"
                                                 class="btn btn-primary btn-sm" target="_blank">Print</a>
 
                                         </td>

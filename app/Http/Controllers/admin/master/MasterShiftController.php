@@ -14,10 +14,32 @@ use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\MasterShiftRequest;
 use App\Models\CourceRegistration;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MasterShiftController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'course_name' => 'Course Name',
+        'batch_name' => 'Batch Name',
+        'class_name' => 'Class',
+        'from_time' => 'From Time',
+        'to_time' => 'To Time',
+        'status' => 'Status',
+    ];
+
+    protected array $defaultExportColumns = [
+        'course_name',
+        'batch_name',
+        'class_name',
+        'from_time',
+        'to_time',
+        'status',
+    ];
+
     public function __construct()
     {
         $this->modules = [
@@ -51,13 +73,53 @@ class MasterShiftController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)['data' => "class.class", 'name' => 'class_id', 'td_label' => 'Class'],
-                (object)['data' => "from_time", 'name' => 'from_time', 'td_label' => 'From Time'],
-                (object)['data' => "to_time", 'name' => 'to_time', 'td_label' => 'To Time'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+                (object)[
+                    'data' => "course.course_name",
+                    'name' => 'course_id',
+                    'td_label' => 'Course Name',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "batch.batch_name",
+                    'name' => 'batch_id',
+                    'td_label' => 'Batch Name',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "class.class",
+                    'name' => 'class_id',
+                    'td_label' => 'Class',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "from_time",
+                    'name' => 'from_time',
+                    'td_label' => 'From Time',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "to_time",
+                    'name' => 'to_time',
+                    'td_label' => 'To Time',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "status",
+                    'name' => 'status',
+                    'td_label' => 'Status',
+                    'className' => 'w-5 text-center',
+                    'width' => '10%',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "action",
+                    'name' => 'action',
+                    'td_label' => 'Action',
+                    'orderable' => false,
+                    'searchable' => false,
+                    'className' => 'w-10 text-center',
+                    'defaultContent' => '-',
+                ],
             ];
             View::share("columns", $columns);
 
@@ -132,7 +194,9 @@ class MasterShiftController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -505,6 +569,164 @@ class MasterShiftController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeShiftList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $shifts = $this->buildShiftExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($shifts as $shift) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($shift, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'shift-master-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeShiftList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $shifts = $this->buildShiftExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'shifts' => $shifts,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeShiftList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildShiftExportQuery(Request $request, string $scope): Builder
+    {
+        $query = MasterShift::query()
+            ->withTrashed()
+            ->with(['course', 'batch', 'class'])
+            ->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('from_time', 'like', "%{$search}%")
+                    ->orWhere('to_time', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhereHas('course', function ($courseQuery) use ($search) {
+                        $courseQuery->where('course_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('batch', function ($batchQuery) use ($search) {
+                        $batchQuery->where('batch_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('class', function ($classQuery) use ($search) {
+                        $classQuery->where('class', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(MasterShift $shift, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'course_name':
+                return $shift->course?->course_name ?? '-';
+            case 'batch_name':
+                return $shift->batch?->batch_name ?? '-';
+            case 'class_name':
+                return $shift->class?->class ?? '-';
+            case 'from_time':
+                return $shift->from_time
+                    ? \Carbon\Carbon::parse($shift->from_time)->format('h:i A')
+                    : '-';
+            case 'to_time':
+                return $shift->to_time
+                    ? \Carbon\Carbon::parse($shift->to_time)->format('h:i A')
+                    : '-';
+            case 'status':
+                return $shift->status ? ucfirst($shift->status) : '-';
+            default:
+                return data_get($shift, $columnKey, '-');
         }
     }
 }
