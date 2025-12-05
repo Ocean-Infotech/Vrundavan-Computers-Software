@@ -83,6 +83,7 @@ class AttedanceController extends Controller
             }
             abort(403, 'User does not have the right permissions.');
         }
+        // return $modules;
         View::share('modules', $modules);
         try {
             $columns = [
