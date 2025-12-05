@@ -186,15 +186,15 @@ Route::match(['get', 'post'], 'library-book-master/restore/{id}', [LibraryMaster
 Route::match(['get', 'post'], 'library-book-master/status-update', [LibraryMasterBookController::class, 'status_update'])->name('library-book-master.status-update');
 
 
-Route::match(['get', 'post'], 'issued-book/status-update', [IssuedBook::class, 'status_update'])->name('issued-book.status-update');
-
 /** Issue Book Modules */
 Route::resource('/issued-book', IssuedBookController::class);
 Route::match(['get', 'post'], 'issued-book/return/{id}', [IssuedBookController::class, 'returnBook'])->name('issued-book.return');
 
 Route::match(['get', 'post'], 'issued-book/restore/{id}', [IssuedBookController::class, 'restore'])->name('issued-book.restore');
 /** Attedance Modules */
-Route::resource('/attedance', AttedanceController::class);
+Route::get('attedance/export-excel', [AttedanceController::class, 'exportExcel'])->name('attedance.export-excel');
+Route::get('attedance/print', [AttedanceController::class, 'printView'])->name('attedance.print');
+Route::resource('/attedance', AttedanceController::class)->except(['show']);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');
 Route::match(['get', 'post'], 'attedance-update-status', [AttedanceController::class, 'status_update'])->name('attedance.status-update');
 Route::match(['get', 'post'], 'attedance-filter-student-data', [AttedanceController::class, 'filter_student_data'])->name('attedance.filter-student-data');
@@ -245,7 +245,7 @@ Route::get('/cource-registration/{register_id}/edit/', [CourceRegistrationContro
 
 Route::resource('fees-collection', FeesCollectionController::class);
 Route::get('fees-collection/create/{id?}', [FeesCollectionController::class, 'create'])
-    ->name('fees-collection.create');
+    ->name('fees-collection.create_by_id');
 Route::match(['get', 'post'], 'fees-collection/restore/{id}', [FeesCollectionController::class, 'restore'])->name('fees-collection.restore');
 Route::match(['get', 'post'], 'fees-collection-update-status', [FeesCollectionController::class, 'update_status'])->name('fees-collection.status-update');
 Route::match(['get', 'post'], 'search-fees-collection-details', [FeesCollectionController::class, 'search_fees_collection_details'])->name('fees-collection.search-fees-collection-details');
@@ -308,6 +308,8 @@ Route::resource('fees', MasterFeeDetailController::class);
 
 
 /** Test Modules */
+Route::get('test/export-excel', [TestController::class, 'exportExcel'])->name('test.export-excel');
+Route::get('test/print', [TestController::class, 'printView'])->name('test.print');
 Route::resource('/test', TestController::class);
 Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'restore'])->name('test.restore');
 Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');

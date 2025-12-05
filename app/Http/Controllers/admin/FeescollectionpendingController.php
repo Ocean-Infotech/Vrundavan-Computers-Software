@@ -21,6 +21,27 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class FeescollectionpendingController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'register_id'   => 'Student ID',
+        'student_name'  => 'Student Name',
+        'contact_no'    => 'Contact No',
+        'course_name'   => 'Course Name',
+        'class_name'    => 'Class',
+        'semester'      => 'Semester',
+        'total_fee'     => 'Total Fee',
+        'paid_fee'      => 'Paid Fee',
+        'pending_fee'   => 'Pending Fee',
+    ];
+
+    protected array $defaultExportColumns = [
+        'register_id',
+        'student_name',
+        'contact_no',
+        'course_name',
+        'total_fee',
+        'paid_fee',
+        'pending_fee',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -173,7 +194,13 @@ class FeescollectionpendingController extends Controller
                     ->make(true);
             }
 
-            return view($modules['folder_path'] . '.index', compact('admissions', 'courses'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+
+            return view(
+                $modules['folder_path'] . '.index',
+                compact('admissions', 'courses', 'availableExportColumns', 'defaultExportColumns')
+            );
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
@@ -229,6 +256,10 @@ class FeescollectionpendingController extends Controller
     public function exportExcel(Request $request)
     {
         try {
+            $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+            $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+            $columnLabels = $this->mapColumnLabels($selectedColumns);
+
             $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
                 // ->where('status', 'active')
                 ->groupBy('register_id');
@@ -236,6 +267,100 @@ class FeescollectionpendingController extends Controller
             $dataQuery = CourceRegistration::whereIn('id', $sub)
                 ->with(['course', 'admission', 'feescollection']);
 
+            if ($scope === 'filtered') {
+                if ($request->filled('student_filter')) {
+                    $studentFilter = $request->student_filter;
+                    $dataQuery->where(function ($q) use ($studentFilter) {
+                        $q->where('register_id', $studentFilter)
+                            ->orWhereHas('admission', function ($q2) use ($studentFilter) {
+                                $q2->where(DB::raw("CONCAT(first_name,' ',father_name,' ',last_name)"), 'like', "%$studentFilter%")
+                                    ->orWhere('mobile_no', 'like', "%$studentFilter%");
+                            });
+                    });
+                }
+
+                if ($request->filled('course_id')) {
+                    $courseId = $request->course_id;
+                    $dataQuery->where('course_id', $courseId);
+                }
+
+                if ($request->filled('batch_id')) {
+                    $dataQuery->where('batch_id', $request->batch_id);
+                }
+
+                if ($request->filled('class_id')) {
+                    $dataQuery->where('class_id', $request->class_id);
+                }
+
+                if ($request->filled('semester_id')) {
+                    $dataQuery->whereHas('feescollection', function ($q) use ($request) {
+                        $q->where('year_semester', $request->semester_id);
+                    });
+                }
+            }
+
+            $data = $dataQuery->get();
+
+            $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
+                ->whereIn('register_id', $data->pluck('register_id'))
+                ->get()
+                ->groupBy('register_id');
+
+
+            $feesCollection = FeesCollection::select(
+                'student_id',
+                'year_semester',
+                DB::raw('SUM(fees) as total_paid')
+            )
+                ->whereIn('student_id', $data->pluck('register_id'))
+                ->groupBy('student_id', 'year_semester') // group by both fields
+                ->get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Dynamic headers based on selected columns
+            foreach (array_values($columnLabels) as $index => $label) {
+                $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+            }
+
+            $rowNumber = 2;
+            foreach ($data as $item) {
+                foreach ($selectedColumns as $columnIndex => $columnKey) {
+                    $sheet->setCellValueByColumnAndRow(
+                        $columnIndex + 1,
+                        $rowNumber,
+                        $this->formatColumnValueForExcel($item, $columnKey, $allRegistrations, $feesCollection)
+                    );
+                }
+                $rowNumber++;
+            }
+
+            $writer = new Xlsx($spreadsheet);
+            $fileName = 'Pending_Fees_Report_' . now()->format('Ymd_His') . '.xlsx';
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header("Content-Disposition: attachment; filename=\"$fileName\"");
+            $writer->save("php://output");
+            exit;
+        } catch (\Exception $e) {
+            return Redirect::back()->withErrors($e->getMessage());
+        }
+    }
+    public function printView(Request $request)
+    {
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('student_filter', '')) : null;
+
+        $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
+            ->groupBy('register_id');
+
+        $dataQuery = CourceRegistration::whereIn('id', $sub)
+            ->with(['course', 'admission', 'feescollection']);
+
+        if ($scope === 'filtered') {
             if ($request->filled('student_filter')) {
                 $studentFilter = $request->student_filter;
                 $dataQuery->where(function ($q) use ($studentFilter) {
@@ -265,113 +390,6 @@ class FeescollectionpendingController extends Controller
                     $q->where('year_semester', $request->semester_id);
                 });
             }
-
-            $data = $dataQuery->get();
-
-            $allRegistrations = CourceRegistration::with(['course', 'class', 'shift', 'batch'])
-                ->whereIn('register_id', $data->pluck('register_id'))
-                ->get()
-                ->groupBy('register_id');
-
-
-            $feesCollection = FeesCollection::select(
-                'student_id',
-                'year_semester',
-                DB::raw('SUM(fees) as total_paid')
-            )
-                ->whereIn('student_id', $data->pluck('register_id'))
-                ->groupBy('student_id', 'year_semester') // group by both fields
-                ->get();
-
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-
-            $sheet->setCellValue('A1', 'Course Name');
-            $sheet->setCellValue('B1', 'Semester');
-            $sheet->setCellValue('C1', 'Class');
-            $sheet->setCellValue('D1', 'Student Name');
-            $sheet->setCellValue('E1', 'Total Fee');
-            $sheet->setCellValue('F1', 'Pending Fee');
-
-            $row = 2;
-            foreach ($data as $item) {
-                $reg_id = $item->register_id;
-                $name = trim(($item->admission->first_name ?? '') . ' ' . ($item->admission->father_name ?? '') . ' ' . ($item->admission->last_name ?? ''));
-
-                $courses = $allRegistrations[$reg_id] ?? collect();
-                $course_names = $courses->map(fn($c) => $c->course->course_name ?? '')->implode(', ');
-
-                $total_fee = $courses->sum('fee');
-                // $paid_fee = $feesCollection[$reg_id] ?? 0;
-                // $pending_fee = $total_fee - $paid_fee;
-                // $year_semester = $feesCollection[$reg_id] ?? 0;
-
-                $paid_fee = $feesCollection->where('student_id', $reg_id)->sum('total_paid');
-                $pending_fee = $total_fee - $paid_fee;
-
-                $year_semester = optional($feesCollection->firstWhere('student_id', $reg_id))->year_semester ?? '-';
-
-
-                $class = $item->class->class ?? '-';
-
-
-                $sheet->setCellValue('A' . $row, $course_names);
-                $sheet->setCellValue('B' . $row, $year_semester);
-                $sheet->setCellValue('C' . $row, $class);
-                $sheet->setCellValue('D' . $row, $name);
-                $sheet->setCellValue('E' . $row, $total_fee);
-                $sheet->setCellValue('F' . $row, $pending_fee);
-                $row++;
-            }
-
-            $writer = new Xlsx($spreadsheet);
-            $fileName = 'Pending_Fees_Report_Filtered.xlsx';
-
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header("Content-Disposition: attachment; filename=\"$fileName\"");
-            $writer->save("php://output");
-            exit;
-        } catch (\Exception $e) {
-            return Redirect::back()->withErrors($e->getMessage());
-        }
-    }
-    public function printView(Request $request)
-    {
-        $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
-            // ->where('status', 'active')
-            ->groupBy('register_id');
-
-        $dataQuery = CourceRegistration::whereIn('id', $sub)
-            ->with(['course', 'admission', 'feescollection']);
-
-        if ($request->filled('student_filter')) {
-            $studentFilter = $request->student_filter;
-            $dataQuery->where(function ($q) use ($studentFilter) {
-                $q->where('register_id', $studentFilter)
-                    ->orWhereHas('admission', function ($q2) use ($studentFilter) {
-                        $q2->where(DB::raw("CONCAT(first_name,' ',father_name,' ',last_name)"), 'like', "%$studentFilter%")
-                            ->orWhere('mobile_no', 'like', "%$studentFilter%");
-                    });
-            });
-        }
-
-        if ($request->filled('course_id')) {
-            $courseId = $request->course_id;
-            $dataQuery->where('course_id', $courseId);
-        }
-
-        if ($request->filled('batch_id')) {
-            $dataQuery->where('batch_id', $request->batch_id);
-        }
-
-        if ($request->filled('class_id')) {
-            $dataQuery->where('class_id', $request->class_id);
-        }
-
-        if ($request->filled('semester_id')) {
-            $dataQuery->whereHas('feescollection', function ($q) use ($request) {
-                $q->where('year_semester', $request->semester_id);
-            });
         }
 
         $data = $dataQuery->get();
@@ -381,12 +399,25 @@ class FeescollectionpendingController extends Controller
             ->get()
             ->groupBy('register_id');
 
-        $feesCollection = FeesCollection::select('student_id', DB::raw('SUM(fees) as total_paid'))
+        $feesCollection = FeesCollection::select(
+            'student_id',
+            'year_semester',
+            DB::raw('SUM(fees) as total_paid')
+        )
             ->whereIn('student_id', $data->pluck('register_id'))
-            ->groupBy('student_id')
-            ->pluck('total_paid', 'student_id');
+            ->groupBy('student_id', 'year_semester')
+            ->get();
 
-        return view('software.module.fees-collection-pending.print', compact('data', 'allRegistrations', 'feesCollection'));
+        return view('software.module.fees-collection-pending.print', [
+            'data' => $data,
+            'allRegistrations' => $allRegistrations,
+            'feesCollection' => $feesCollection,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
     }
     public function viewFee($id)
     {
@@ -438,6 +469,69 @@ class FeescollectionpendingController extends Controller
             return view('software.module.fees-collection-pending.view-fee', compact('student', 'courseReg', 'feesData'));
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel($item, string $columnKey, $allRegistrations, $feesCollection)
+    {
+        $regId = $item->register_id;
+        $courses = $allRegistrations->get($regId, collect());
+
+        switch ($columnKey) {
+            case 'register_id':
+                return $regId;
+            case 'student_name':
+                $first = $item->admission->last_name ?? '';
+                $last = $item->admission->first_name ?? '';
+                $father = $item->admission->father_name ?? '';
+                $name = trim("{$first} {$last} {$father}");
+                return $name !== '' ? $name : '-';
+            case 'contact_no':
+                return $item->admission->mobile_no ?? '-';
+            case 'course_name':
+                $courseNames = $courses->map(function ($c) {
+                    return $c->course->course_name ?? '';
+                })->implode(', ');
+                return $courseNames !== '' ? $courseNames : '-';
+            case 'class_name':
+                $firstCourse = $courses->first();
+                return $firstCourse && $firstCourse->class ? $firstCourse->class->class : '-';
+            case 'semester':
+                $firstRecord = $feesCollection->firstWhere('student_id', $regId);
+                return $firstRecord->year_semester ?? '-';
+            case 'total_fee':
+                return (float) $courses->sum('fee');
+            case 'paid_fee':
+                return (float) $feesCollection->where('student_id', $regId)->sum('total_paid');
+            case 'pending_fee':
+                $total = (float) $courses->sum('fee');
+                $paid = (float) $feesCollection->where('student_id', $regId)->sum('total_paid');
+                return $total - $paid;
+            default:
+                return '';
         }
     }
 }

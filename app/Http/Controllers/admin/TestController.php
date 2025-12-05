@@ -14,10 +14,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\TestRequest;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TestController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'course_name'  => 'Course Name',
+        'batch_name'   => 'Batch Name',
+        'subject_name' => 'Subject Name',
+        'unit_name'    => 'Unit Name',
+        'mark'         => 'Mark',
+        'date'         => 'Date',
+        'status'       => 'Status',
+    ];
+
+    protected array $defaultExportColumns = [
+        'course_name',
+        'batch_name',
+        'subject_name',
+        'unit_name',
+        'mark',
+        'date',
+        'status',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -148,9 +171,157 @@ class TestController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeTestList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $tests = $this->buildTestExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($tests as $test) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($test, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'test-master-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeTestList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $tests = $this->buildTestExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'tests' => $tests,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeTestList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildTestExportQuery(Request $request, string $scope): Builder
+    {
+        $query = Test::query()
+            ->withTrashed()
+            ->with(['course', 'batch'])
+            ->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('subject_name', 'like', "%{$search}%")
+                    ->orWhere('unit_name', 'like', "%{$search}%")
+                    ->orWhere('mark', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(Test $test, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'course_name':
+                return $test->course?->course_name ?? '-';
+            case 'batch_name':
+                return $test->batch?->batch_name ?? '-';
+            case 'subject_name':
+                return $test->subject_name ?? '-';
+            case 'unit_name':
+                return $test->unit_name ?? '-';
+            case 'mark':
+                return $test->mark ?? '-';
+            case 'date':
+                return $test->date
+                    ? \Carbon\Carbon::parse($test->date)->format('d-m-Y')
+                    : '-';
+            case 'status':
+                return $test->status ? ucfirst($test->status) : '-';
+            default:
+                return data_get($test, $columnKey, '-');
         }
     }
 

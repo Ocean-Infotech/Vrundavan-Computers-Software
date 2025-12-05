@@ -45,7 +45,7 @@
                             </td>
                             <td>
                                 @if ($row['pending_fee'] > 0)
-                                    <a href="{{ route('fees-collection.create', [
+                                    <a href="{{ route('fees-collection.create_by_id', [
                                         'student_id' => $student->id,
                                         'semester' => $semesterNumber,
                                     ]) }}"

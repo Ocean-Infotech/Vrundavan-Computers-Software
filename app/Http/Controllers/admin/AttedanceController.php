@@ -23,10 +23,35 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AttedanceController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'admission_id' => 'Admission ID',
+        'student_name' => 'Student Name',
+        'course_name' => 'Course Name',
+        'batch_name' => 'Batch Name',
+        'date' => 'Date',
+        'in_time' => 'In Time',
+        'out_time' => 'Out Time',
+        'leave_status' => 'Leave Status',
+    ];
+
+    protected array $defaultExportColumns = [
+        'admission_id',
+        'student_name',
+        'course_name',
+        'batch_name',
+        'date',
+        'in_time',
+        'out_time',
+        'leave_status',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -205,7 +230,9 @@ class AttedanceController extends Controller
                     ->make(true);
                 return $returnData;
             }
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -824,9 +851,189 @@ class AttedanceController extends Controller
     //     }
     // }
 
+    public function exportExcel(Request $request)
+    {
+        try {
+            
+            $this->authorizeAttendanceList();
+    
+            $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+            $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+            $columnLabels = $this->mapColumnLabels($selectedColumns);
+    
+            $attendances = $this->buildAttendanceExportQuery($request, $scope)->get();
+    
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+    
+            foreach (array_values($columnLabels) as $index => $label) {
+                $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+            }
+    
+            $rowNumber = 2;
+            foreach ($attendances as $attendance) {
+                foreach ($selectedColumns as $columnIndex => $columnKey) {
+                    $sheet->setCellValueByColumnAndRow(
+                        $columnIndex + 1,
+                        $rowNumber,
+                        $this->formatColumnValueForExcel($attendance, $columnKey)
+                    );
+                }
+                $rowNumber++;
+            }
+    
+            if (!empty($selectedColumns)) {
+                for ($i = 1; $i <= count($selectedColumns); $i++) {
+                    $columnLetter = Coordinate::stringFromColumnIndex($i);
+                    $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+                }
+            }
+    
+            $fileName = 'attendance-' . now()->format('Ymd_His') . '.xlsx';
+    
+            return response()->streamDownload(function () use ($spreadsheet) {
+                $writer = new Xlsx($spreadsheet);
+                $writer->save('php://output');
+            }, $fileName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
 
+    public function printView(Request $request)
+    {
+        $this->authorizeAttendanceList();
 
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
 
+        $attendances = $this->buildAttendanceExportQuery($request, $scope)->get();
 
+        return view($this->modules['folder_path'] . '.print', [
+            'attendances' => $attendances,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
 
+    protected function authorizeAttendanceList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildAttendanceExportQuery(Request $request, string $scope): Builder
+    {
+        $query = Attedance::query()
+            ->withTrashed()
+            ->with(['course', 'admission', 'batch'])
+            ->orderByDesc('date')
+            ->orderByDesc('id');
+
+        $admissionId = $request->get('admission_id');
+        if (!empty($admissionId)) {
+            $query->where('admission_id', $admissionId);
+        }
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('admission_id', 'like', "%{$search}%")
+                    ->orWhere('date', 'like', "%{$search}%")
+                    ->orWhereHas('course', function ($courseQuery) use ($search) {
+                        $courseQuery->where('course_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('batch', function ($batchQuery) use ($search) {
+                        $batchQuery->where('batch_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('admission', function ($admissionQuery) use ($search) {
+                        $admissionQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('father_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(Attedance $attendance, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'admission_id':
+                return $attendance->admission_id ?? '-';
+            case 'student_name':
+                if (!empty($attendance->UserName)) {
+                    return $attendance->UserName;
+                }
+                $last = $attendance->admission->first_name ?? '';
+                $first = $attendance->admission->last_name ?? '';
+                $father = $attendance->admission->father_name ?? '';
+                $fullName = trim("{$last} {$first} {$father}");
+                return $fullName !== '' ? $fullName : '-';
+            case 'course_name':
+                return $attendance->course->course_name ?? '-';
+            case 'batch_name':
+                return $attendance->batch->batch_name ?? '-';
+            case 'date':
+                return $attendance->date
+                    ? Carbon::parse($attendance->date)->format('d-m-Y')
+                    : '-';
+            case 'in_time':
+                return $attendance->in_time
+                    ? Carbon::parse($attendance->in_time)->format('h:i A')
+                    : '-';
+            case 'out_time':
+                return $attendance->out_time
+                    ? Carbon::parse($attendance->out_time)->format('h:i A')
+                    : '-';
+            case 'leave_status':
+                $inTime = $attendance->in_time ?? '';
+                $outTime = $attendance->out_time ?? '';
+                $leave = $attendance->leave ?? '';
+                if ($inTime === '' && $outTime === '' && $leave !== '') {
+                    return 'Leave';
+                }
+                return '-';
+            default:
+                return data_get($attendance, $columnKey, '-');
+        }
+    }
 }
