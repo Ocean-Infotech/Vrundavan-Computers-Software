@@ -65,10 +65,10 @@
 
     <h1>Course Master Report</h1>
     <div class="meta">
-        <div><strong>Data Scope:</strong> {{ $scope === 'all' ? 'All records' : 'Filtered records' }}</div>
+        {{-- <div><strong>Data Scope:</strong> {{ $scope === 'all' ? 'All records' : 'Filtered records' }}</div>
         @if (!empty($searchTerm))
             <div><strong>Search Filter:</strong> "{{ $searchTerm }}"</div>
-        @endif
+        @endif --}}
         <div><strong>Generated On:</strong> {{ optional($generatedAt)->format('d-m-Y h:i A') }}</div>
     </div>
 

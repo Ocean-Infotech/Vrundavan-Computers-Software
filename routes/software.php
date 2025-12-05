@@ -165,6 +165,8 @@ Route::delete('batch/permanent-delete/{id}',
 
 
 /** Master Department Modules */
+Route::get('department/export-excel', [MasterDepartmentController::class, 'exportExcel'])->name('department.export-excel');
+Route::get('department/print', [MasterDepartmentController::class, 'printView'])->name('department.print');
 Route::resource('/department', MasterDepartmentController::class);
 Route::match(['get', 'post'], 'department/restore/{id}', [MasterDepartmentController::class, 'restore'])->name('department.restore');
 Route::match(['get', 'post'], 'department-update-status', [MasterDepartmentController::class, 'status_update'])->name('department.status-update');

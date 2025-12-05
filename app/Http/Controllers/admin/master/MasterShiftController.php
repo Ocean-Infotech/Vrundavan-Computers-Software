@@ -73,13 +73,53 @@ class MasterShiftController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)['data' => "class.class", 'name' => 'class_id', 'td_label' => 'Class'],
-                (object)['data' => "from_time", 'name' => 'from_time', 'td_label' => 'From Time'],
-                (object)['data' => "to_time", 'name' => 'to_time', 'td_label' => 'To Time'],
-                (object)['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' =>  'w-5 text-center', 'width' => '10%'],
-                (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
+                (object)[
+                    'data' => "course.course_name",
+                    'name' => 'course_id',
+                    'td_label' => 'Course Name',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "batch.batch_name",
+                    'name' => 'batch_id',
+                    'td_label' => 'Batch Name',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "class.class",
+                    'name' => 'class_id',
+                    'td_label' => 'Class',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "from_time",
+                    'name' => 'from_time',
+                    'td_label' => 'From Time',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "to_time",
+                    'name' => 'to_time',
+                    'td_label' => 'To Time',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "status",
+                    'name' => 'status',
+                    'td_label' => 'Status',
+                    'className' => 'w-5 text-center',
+                    'width' => '10%',
+                    'defaultContent' => '-',
+                ],
+                (object)[
+                    'data' => "action",
+                    'name' => 'action',
+                    'td_label' => 'Action',
+                    'orderable' => false,
+                    'searchable' => false,
+                    'className' => 'w-10 text-center',
+                    'defaultContent' => '-',
+                ],
             ];
             View::share("columns", $columns);
 
