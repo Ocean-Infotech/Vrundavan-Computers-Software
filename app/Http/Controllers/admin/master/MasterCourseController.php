@@ -109,26 +109,59 @@ class MasterCourseController extends Controller
                         $status .= $dropdown;
                         return $status;
                     })
-                    ->addColumn('action', function ($row) use ($modules) {
-                        $btn = '';
-                        if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ($modules['permission_edit']) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($modules['permission_delete']) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
-                        }
+                ->addColumn('action', function ($row) use ($modules) {
+    $btn = '';
 
-                        return $btn;
-                    })
+    // ===============================
+    // CASE 1: Not Deleted (Normal Row)
+    // ===============================
+    if (!$row?->deleted_at) {
+
+        // 🔹 Edit Button
+        if ($modules['permission_edit']) {
+            $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '"
+                        class="btn btn-light btn-icon mx-1">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>';
+        }
+
+        // 🔹 Soft Delete Button
+        if ($modules['permission_delete']) {
+            $btn .= '<a href="javascript:void(0)"
+                        data-id="' . $row->id . '"
+                        data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '"
+                        class="btn btn-danger btn-icon deletebutton mx-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>';
+
+            // 🔹 Permanent Delete Button
+            $btn .= '<a href="javascript:void(0)"
+                        data-id="' . $row->id . '"
+                        data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
+                        class="btn btn-dark btn-icon permanentDeleteButton mx-1"
+                        title="Permanent Delete">
+                        <i class="fa-solid fa-trash-arrow-up"></i>
+                    </a>';
+        }
+    }
+
+    // ===============================
+    // CASE 2: Deleted Row (Show Restore Only)
+    // ===============================
+    else {
+        $btn .= '<a href="javascript:void(0)"
+                    data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '"
+                    class="btn btn-light mx-1 record-restore"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    data-bs-original-title="Restore Data">
+                    <i class="ti ti-history"></i> Restore
+                </a>';
+    }
+
+    return $btn ?: '-';
+})
+
                     ->rawColumns(['status', 'action'])
                     ->make(true);
                 return $returnData;

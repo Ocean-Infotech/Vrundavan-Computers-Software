@@ -100,12 +100,18 @@ class SyllabusController extends Controller
                         $btn = '';
                         if (!$row?->deleted_at) {
                             // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
-                            if ( $modules['permission_edit']) {
+                            if ($modules['permission_edit']) {
                                 $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
                             }
                             if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                             }
+                        $btn .= '<a href="javascript:void(0)"
+            data-did="' . route("syllabus.permanent-delete", $row->id) . '"
+            class="btn btn-danger btn-icon permanentDeleteButton mx-1">
+            <i class="fa-solid fa-ban"></i>
+        </a>';
+
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
@@ -343,4 +349,22 @@ class SyllabusController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+   public function permanentDelete(Request $request, $id)
+{
+    try {
+        $data = Syllabus::withTrashed()->findOrFail($id);
+        $data->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Syllabus permanently deleted successfully.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
 }

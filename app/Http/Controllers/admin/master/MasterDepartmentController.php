@@ -84,19 +84,60 @@ class MasterDepartmentController extends Controller
                         return '';
                     })
                     ->addColumn('action', function ($row) use ($modules) {
-                        $btn = '';
-                        if (!$row->deleted_at) {
-                            if ($modules['permission_edit']) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row->id]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
-                            }
-                            if ($modules['permission_delete']) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
-                            }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore" title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        return $btn ?: '-';
-                    })
+    $btn = '';
+
+    // ================================
+    // CASE-1: Normal Row (Not Deleted)
+    // ================================
+    if (!$row->deleted_at) {
+
+        // 🔹 Edit Button
+        if ($modules['permission_edit']) {
+            $btn .= '
+                <a href="' . route($modules["route"] . ".edit", [$row->id]) . '"
+                   class="btn btn-light btn-icon mx-1">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </a>';
+        }
+
+        // 🔹 Soft Delete Button
+        if ($modules['permission_delete']) {
+            $btn .= '
+                <a href="javascript:void(0)"
+                   data-id="' . $row->id . '"
+                   data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '"
+                   class="btn btn-danger btn-icon deletebutton mx-1">
+                    <i class="fa-solid fa-trash"></i>
+                </a>';
+
+            // 🔹 Permanent Delete Button (ONLY SHOW WHEN NOT DELETED)
+            $btn .= '
+                <a href="javascript:void(0)"
+                   data-id="' . $row->id . '"
+                   data-did="' . route($modules["route"] . ".permanent-delete", [$row->id]) . '"
+                   class="btn btn-dark btn-icon permanentDeleteButton mx-1"
+                   title="Permanent Delete">
+                    <i class="fa-solid fa-trash-arrow-up"></i>
+                </a>';
+        }
+    }
+
+    // ================================
+    // CASE-2: Deleted Row (Show Restore Only)
+    // ================================
+    else {
+        $btn .= '
+            <a href="javascript:void(0)"
+               data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '"
+               class="btn btn-light mx-1 record-restore" title="Restore Data">
+                <i class="ti ti-history"></i> Restore
+            </a>';
+    }
+
+    return $btn ?: '-';
+})
+
+
                     ->rawColumns(['status', 'action'])
                     ->make(true);
             }
@@ -326,6 +367,45 @@ class MasterDepartmentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function permanentDelete(Request $request, $id)
+    {
+        $modules = $this->modules;
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
+        if (!$modules['permission_delete']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not have the right permissions.'
+            ], 403);
+        }
+
+        try {
+            $department = MasterDepartment::withTrashed()->findOrFail($id);
+
+            // Check if department is linked in other modules
+            $isUsed = CourceRegistration::where('department', $department->id)->exists();
+
+            if ($isUsed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This department cannot be permanently deleted because it is already assigned in other Data.'
+                ], 400);
+            }
+
+            // Permanent Delete
+            $department->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Department permanently deleted successfully!'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
                 'message' => $e->getMessage()
             ], 500);
         }

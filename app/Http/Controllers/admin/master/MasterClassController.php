@@ -99,24 +99,56 @@ class MasterClassController extends Controller
                     })
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
+
+                        // ================================
+                        // CASE-1: Record Not Deleted
+                        // ================================
                         if (!$row?->deleted_at) {
-                            // $btn .= '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">View</a>';
+
+                            // 🔹 Edit Button
                             if ($modules['permission_edit']) {
-                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1"><i class="fa-solid fa-pen-to-square"></i></a>';
+                                $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '"
+                        class="btn btn-light btn-icon mx-1">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>';
                             }
+
+                            // 🔹 Soft Delete Button
                             if ($modules['permission_delete']) {
-                                $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
+                                $btn .= '<a href="javascript:void(0)"
+                        data-id="' . $row->id . '"
+                        data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '"
+                        class="btn btn-danger btn-icon deletebutton mx-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>';
+
+                                // 🔹 Permanent Delete Button
+                                $btn .= '<a href="javascript:void(0)"
+                        data-id="' . $row->id . '"
+                        data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
+                        class="btn btn-dark btn-icon permanentDeleteButton mx-1"
+                        title="Permanent Delete">
+                        <i class="fa-solid fa-trash-arrow-up"></i>
+                    </a>';
                             }
-                        } else {
-                            $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
-                        }
-                        // $btn .= '<a href="javascript:void(0)" class="btn btn-info btn-icon mr-2"><i class="fa-solid fa-key"></i></a>';
-                        if ($btn == '') {
-                            $btn = '-';
                         }
 
-                        return $btn;
+                        // ================================
+                        // CASE-2: Soft Deleted Record
+                        // ================================
+                        else {
+                            $btn .= '<a href="javascript:void(0)"
+                    data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '"
+                    class="btn btn-light mx-1 record-restore"
+                    data-bs-toggle="tooltip"
+                    title="Restore Data">
+                    <i class="ti ti-history"></i> Restore
+                </a>';
+                        }
+
+                        return $btn ?: '-';
                     })
+
                     ->rawColumns(['status', 'action'])
                     ->make(true);
                 return $returnData;
@@ -330,4 +362,42 @@ class MasterClassController extends Controller
             ], 500);
         }
     }
+    public function permanent_delete(Request $request, $id)
+{
+    $modules = $this->modules;
+
+    try {
+
+        $class = MasterClass::withTrashed()->findOrFail($id);
+
+        // 🔍 Check if Class is used anywhere
+        $isUsed =
+            MasterShift::where('class_id', $class->id)->exists() ||
+            CourceRegistration::where('class_id', $class->id)->exists() ||
+            Timetable::where('class_id', $class->id)->exists();
+
+        if ($isUsed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This class cannot be permanently deleted because it is already assigned in others data.'
+            ], 400);
+        }
+
+        // 🔥 Permanent Delete (force delete)
+        $class->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Class permanently deleted successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

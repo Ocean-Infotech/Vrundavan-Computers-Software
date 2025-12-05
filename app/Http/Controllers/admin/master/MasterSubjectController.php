@@ -93,6 +93,11 @@ class MasterSubjectController extends Controller
                             if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                             }
+                            $btn .= '<a href="javascript:void(0)"
+                       data-did="' . route($modules["route"] . ".permanent-delete", [$row->id]) . '"
+                       class="btn btn-danger btn-icon permanentDeleteButton mx-1">
+                       <i class="fa-solid fa-ban"></i>
+                    </a>';
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore" title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
@@ -269,5 +274,29 @@ class MasterSubjectController extends Controller
             return redirect()->route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
     }
+    public function permanentDelete(Request $request, $id)
+{
+    $modules = $this->modules;
+
+    try {
+        // Find soft-deleted record
+        $data = MasterSubject::withTrashed()->findOrFail($id);
+
+        // Permanently delete
+        $data->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => $modules['title'] . ' permanently deleted successfully.'
+        ]);
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
 }

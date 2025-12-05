@@ -41,7 +41,7 @@ class TimeTableRequest extends FormRequest
                     ->ignore($id)
             ],
              'attachment' => [
-                'required',
+                'nullable',
                 // 'file',
                 'mimes:pdf,jpg,jpeg,png',
                 'max:5120'

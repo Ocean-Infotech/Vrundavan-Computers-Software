@@ -111,6 +111,11 @@ class TimetableController extends Controller
                         if ($modules['permission_delete']) {
                             $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                         }
+                          $btn .= '<a href="javascript:void(0)"
+                    data-did="' . route($modules["route"] . ".permanent-delete", [$row->id]) . '"
+                    class="btn btn-danger btn-icon permanentDeleteButton mx-1">
+                    <i class="fa-solid fa-ban"></i>
+                 </a>';
                         return $btn ?: '-';
                     })
                     ->rawColumns(['action', 'attachment'])
@@ -295,4 +300,31 @@ class TimetableController extends Controller
             ], 500);
         }
     }
+    public function permanentDelete($id)
+{
+    try {
+        $timetable = Timetable::withTrashed()->findOrFail($id);
+
+        // Delete attachment file permanently
+        if (!empty($timetable->attachment) && file_exists(public_path($timetable->attachment))) {
+            unlink(public_path($timetable->attachment));
+        }
+
+        // Permanently delete from DB
+        $timetable->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Timetable permanently deleted successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

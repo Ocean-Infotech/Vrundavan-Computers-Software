@@ -90,6 +90,12 @@ class SliderController extends Controller
                         if ($modules['permission_delete']) {
                             $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row->id]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></a>';
                         }
+                        $btn .= '<a href="javascript:void(0)"
+                data-did="' . route($modules["route"] . ".permanent-delete", [$row->id]) . '"
+                class="btn btn-danger btn-icon permanentDeleteButton mx-1"
+                title="Permanent Delete">
+                <i class="fa-solid fa-ban"></i>
+            </a>';
                     } else {
                         $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row->id]) . '" class="btn btn-light mx-1 record-restore" title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                     }
@@ -250,6 +256,67 @@ class SliderController extends Controller
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' deleted successfully.');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
+    }
+    public function restore($id)
+    {
+        $modules = $this->modules;
+
+        try {
+            // Fetch soft deleted record
+            $slider = Slider::withTrashed()->findOrFail($id);
+
+            // 🔍 Check if Slider is used anywhere
+            // (If not used anywhere, keep it false)
+            $isUsed = false;
+
+            if ($isUsed) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This slider cannot be restored because it is used in other data.'
+                ], 400);
+            }
+
+            // Restore slider
+            $slider->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Slider restored successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function permanentDelete($id)
+    {
+        try {
+            $modules = $this->modules;
+
+            // Fetch soft-deleted record
+            $slider = Slider::withTrashed()->findOrFail($id);
+
+            // Delete image file if exists
+            if ($slider->image && file_exists(public_path($slider->image))) {
+                unlink(public_path($slider->image));
+            }
+
+            // Hard delete
+            $slider->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => $modules['title'] . ' permanently deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

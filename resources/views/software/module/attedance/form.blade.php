@@ -332,29 +332,18 @@
 
                                     rows += '<td>' + formatted + '</td>';
                                 }
-                                if (leave == "") {
-                                    rows += '<td><button type="button" data-id="' + item.id +
-                                        '" data-course_id="' + item.course_id + '" data-url="' +
-                                        leave_url +
-                                        '"  class="btn btn-primary student_leave" ' + (
-                                            in_time != "" ? ' disabled' : '') +
-                                        '>Leave </button></td>';
-                                } else {
+                              if (leave == "") {
+    rows += '<td><button type="button" data-id="' + item.id +
+        '" data-course_id="' + item.course_id + '" data-url="' +
+        leave_url + '" class="btn btn-primary student_leave" ' +
+        (in_time != "" ? ' disabled' : '') +
+        '>Leave</button></td>';
+} else {
 
-                                    let date = new Date(leave.replace(' ', 'T'));
+   rows += '<td><span class="text-danger fw-bold">Leave</span></td>';
 
-                                    let day = String(date.getDate()).padStart(2, '0');
-                                    let month = String(date.getMonth() + 1).padStart(2, '0');
-                                    let year = date.getFullYear();
-                                    let hours = String(date.getHours()).padStart(2, '0');
-                                    let minutes = String(date.getMinutes()).padStart(2, '0');
-                                    let ampm = date.getHours() >= 12 ? 'pm' : 'am';
+}
 
-                                    let formatted =
-                                        `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
-
-                                    rows += '<td>' + formatted + '</td>';
-                                }
                                 rows += '</tr>';
                             });
 

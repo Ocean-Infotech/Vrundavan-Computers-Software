@@ -4,56 +4,31 @@
 <head>
     <title>Fee Receipt</title>
     <style>
+        /* Base layout */
         body {
             font-family: Arial, sans-serif;
-            font-size: 18px;
+            font-size: 14px;
             margin: 0;
-            padding: 10px;
-            background: white;
+            padding: 0;
+            background: #fff;
             -webkit-print-color-adjust: exact;
-            color-adjust: exact;
-        }
-
-        /* Print specific styles */
-        @media print {
-            body {
-                padding: 5px;
-                margin: 0;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .receipt-container {
-                display: flex !important;
-                justify-content: space-between !important;
-                width: 100% !important;
-                gap: 5px !important;
-            }
-
-            .receipt {
-                width: 48% !important;
-                margin: 0 !important;
-                border: 2px solid #000 !important;
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-            }
+            print-color-adjust: exact;
         }
 
         .receipt-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: flex-start;
-            gap: 10px;
-            margin: 0 auto;
-            max-width: 100%;
+            gap: 8px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
         }
 
         .receipt {
-            width: 48%;
+            width: 49%;
             border: 2px solid #000;
-            padding: 15px;
+            padding: 8px;
             box-sizing: border-box;
             position: relative;
             background: white;
@@ -62,84 +37,77 @@
 
         .watermark {
             position: absolute;
-            top: 56%;
+            top: 52%;
             left: 50%;
             transform: translate(-50%, -50%);
             opacity: 0.08;
             z-index: 0;
-            pointer-events: none;
         }
 
         .watermark img {
-            width: 250px;
-            height: auto;
+            width: 230px;
+            opacity: 0.1;
         }
 
         .receipt>*:not(.watermark) {
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
-        .header {
-            text-align: center;
-            font-size: 13px;
-            font-weight: bold;
-            line-height: 1.3;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .header table {
-            width: 100%;
-        }
-
-        .header img {
-            width: 70px;
-            height: auto;
-        }
-
+        /* Tables */
         .info-table,
         .fees-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 11px;
+            margin-top: 30px;
+            font-size: 12px;
         }
 
         .info-table td {
             padding: 4px 6px;
-            vertical-align: top;
-            border-bottom: 1px dotted #ccc;
-        }
-
-        .info-table td:first-child {
-            width: 35%;
-            font-weight: bold;
+            border-bottom: 1px dotted #aaa;
         }
 
         .fees-table th,
         .fees-table td {
             border: 1px solid #000;
-            padding: 5px;
+            padding: 14px;
             text-align: left;
+            font-size: 15px
         }
 
         .fees-table th {
-            background-color: #f0f0f0;
+            text-align: center;
+            background: #f0f0f0;
+        }
+
+        .total-row {
             font-weight: bold;
+            background: #eaeaea !important;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .header img {
+            width: 100px;
+            height: auto;
         }
 
         .section-title {
             text-align: center;
             font-weight: bold;
-            margin: 12px 0 8px;
-            font-size: 12px;
+            margin: 10px 0 8px;
+            font-size: 13px;
             text-decoration: underline;
         }
 
         .signature {
-            margin-top: 15px;
+            margin-top: 30px;
             font-size: 11px;
         }
 
@@ -149,167 +117,177 @@
 
         .signature-right {
             float: right;
+            text-align: right;
+        }
+
+        .footer {
+            margin-top: 12px;
+            font-size: 10px;
+            text-align: center;
+            border-top: 1px dashed #000;
+            padding-top: 4px;
+            font-style: italic;
         }
 
         .clear {
             clear: both;
         }
 
-        .footer {
-            margin-top: 12px;
-            font-size: 10px;
-            font-style: italic;
-            text-align: center;
-            border-top: 1px dashed #000;
-            padding-top: 5px;
+
+        @media print {
+
+            html,
+            body {
+                margin: 10px !important;
+                padding: 0 !important;
+            }
+
+            .receipt-container {
+                padding: 10px !important;
+                margin: 0 auto !important;
+                gap: 10px !important;
+                width: calc(100% - 20px) !important;/
+            }
+
+            .receipt {
+                width: 49% !important;
+                padding: 10px !important;
+                margin: 0 !important;
+                border: 2px solid #000 !important;
+            }
+
         }
 
-        /* Total row highlighting */
-        .total-row {
-            font-weight: bold;
-            background-color: #f0f0f0 !important;
+        @page {
+            size: A4;
+            margin: 0;
         }
     </style>
+
 </head>
 
 <body onload="printAndRedirect();">
 
+
     <div class="receipt-container">
         @for ($i = 0; $i < 2; $i++)
             <div class="receipt">
-            <!-- Watermark -->
-            <div class="watermark">
-                <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
-            </div>
+                <!-- Watermark -->
+                <div class="watermark">
+                    <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
+                </div>
 
-            <!-- Header -->
-            <div class="header">
-                <table>
+                <!-- Header -->
+                <div class="header">
+                    <table>
+                        <tr>
+                            <td style="width: 80px; text-align: right;">
+                                <img src="{{ asset('uploads/logo/logo.png') }}" style="width: 120px; height: 100px;"
+                                    alt="College Logo">
+                            </td>
+                            <td style="text-align: center;">
+                                Shree Patel Vidhyarthi Ashram Sanchalit<br>
+                                <strong>Shree Patel Vidhya Mandir Science College</strong><br>
+                                Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Student Information -->
+             <table class="info-table">
+    <tr>
+        <td>Receipt No.:</td>
+        <td>{{ $receipt->receipt_no }}</td>
+    </tr>
+<tr>
+    <td>Date:</td>
+    <td>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</td>
+</tr>
+
+
+    <tr>
+        <td>Student Name <br>(GR NO)</td>
+        <td class="no-wrap">
+            {{ trim(($feesData->admission->first_name ?? '') . ' ' . ($feesData->admission->last_name ?? '') . ' ' . ($feesData->admission->father_name ?? '')) }}
+            ({{ $courseRegistration->register_id ?? 'N/A' }})
+        </td>
+    </tr>
+
+    <tr>
+        <td>Class - Batch</td>
+        <td>
+            {{ $feesData->course->course_name ?? '' }} -
+            {{ $courseRegistration->batch->batch_name ?? '' }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Semester</td>
+        <td>{{ $feesData->year_semester }}</td>
+    </tr>
+</table>
+
+
+                <!-- Fee Details Section Title -->
+                <div class="section-title">
+                    Fee Details ({{ $i == 0 ? 'Student Copy' : 'College Copy' }})
+                </div>
+
+                <!-- Fee Details Table -->
+                <table class="fees-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Fee Name</th>
+                            <th style="text-align: center;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($feesDetails as $fee)
+                            <tr>
+                                <td>{{ $fee['name'] }}</td>
+                                <td style="text-align: right;">{{ number_format($fee['amount']) }}/-</td>
+                            </tr>
+                        @endforeach
+                        <tr class="total-row">
+                            <td><strong>Total Fees</strong></td>
+                            <td style="text-align: right;"><strong>{{ number_format($paidFee) }}/-</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+                <!-- Payment Information -->
+                <table class="info-table">
                     <tr>
-                        <td style="width: 80px; text-align: left;">
-                            <img src="{{ asset('uploads/logo/logo.png') }}" style="width: 120px; height: 100px;"
-                                alt="College Logo">
-                        </td>
-                        <td style="text-align: center;">
-                            Shree Patel Vidhyarthi Ashram Sanchalit<br>
-                            <strong>Shree Patel Vidhya Mandir Science College</strong><br>
-                            Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
-                            Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
-                        </td>
+                        <td>Rs. In Words</td>
+                        <td id="amountWords{{ $i }}"></td>
+                    </tr>
+                    <tr>
+                        <td>Payment Mode</td>
+                        <td>{{ $feesData->mode ?? '__________' }}</td>
                     </tr>
                 </table>
-            </div>
 
-            <!-- Student Information -->
-            <table class="info-table">
-                <tr>
-                    <td>Receipt No.</td>
-                    <td>{{ $receipt->receipt_no }}</td>
-                </tr>
-                {{-- <tr>
-                        <td>Student Name <br> (GR NO)</td>
-                        <td>
-                            {{ trim(
-                                ($feesData->admission->first_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->father_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->last_name ?? ''),
-                            ) ?:
-                                '____________' }}
-                </td>
-                </tr> --}}
-                <tr>
-                    <td>Student Name <br> (GR NO)</td>
-                    <td>
-                        {{ trim(
-                                ($feesData->admission->first_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->father_name ?? '') .
-                                    ' ' .
-                                    ($feesData->admission->last_name ?? ''),
-                            ) ?:
-                                '____________' }}
-
-                        ({{ $courseRegistration->register_id ?? 'N/A' }})
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Class - Batch</td>
-                    <td>
-                        {{ $feesData->course->course_name ?? '____________' }}
-                        -
-                        {{ $courseRegistration->batch->batch_name ?? '____________' }}
-                    </td>
-                </tr>
-
-
-
-                <tr>
-                    <td>Semester</td>
-                    <td>{{ $feesData->year_semester ?? '____________' }}</td>
-                </tr>
-            </table>
-
-            <!-- Fee Details Section Title -->
-            <div class="section-title">
-                Fee Details ({{ $i == 0 ? 'Student Copy' : 'College Copy' }})
-            </div>
-
-            <!-- Fee Details Table -->
-            <table class="fees-table">
-                <thead>
-                    <tr>
-                        <th style="text-align: center;">Fee Name</th>
-                        <th style="text-align: center;">Amount (₹)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($feesDetails as $fee)
-                    <tr>
-                        <td>{{ $fee['name'] }}</td>
-                        <td style="text-align: right;">{{ number_format($fee['amount']) }}/-</td>
-                    </tr>
-                    @endforeach
-                    <tr class="total-row">
-                        <td><strong>Total Fees</strong></td>
-                        <td style="text-align: right;"><strong>{{ number_format($paidFee) }}/-</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-
-
-            <!-- Payment Information -->
-            <table class="info-table">
-                <tr>
-                    <td>Rs. In Words</td>
-                    <td id="amountWords{{ $i }}"></td>
-                </tr>
-                <tr>
-                    <td>Payment Mode</td>
-                    <td>{{ $feesData->mode ?? '__________' }}</td>
-                </tr>
-            </table>
-
-            <!-- Signature Section -->
-            <div class="signature">
-                <div class="signature-left" style="margin-top:35px;">
-                    Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
+                <!-- Signature Section -->
+                <div class="signature">
+                    <div class="signature-left" style="margin-top:35px;">
+                        Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
+                    </div>
+                    <div class="signature-right" style="text-align:right;">
+                        <div style="border-top:1px solid #000; width:150px; margin-left:auto; margin-top:44px;"></div>
+                        <br> PVM BCA COLLEGE
+                    </div>
+                    <div class="clear"></div>
                 </div>
-                <div class="signature-right" style="text-align:right;">
-                    <div style="border-top:1px solid #000; width:150px; margin-left:auto; margin-top:44px;"></div>
-                    <br> PVM BCA COLLEGE
-                </div>
-                <div class="clear"></div>
-            </div>
 
-            <!-- Footer Note -->
-            <div class="footer">
-                Note: Submitted Fees For Above Course Is Not Refundable Even If You Cancel Your Admission.
+                <!-- Footer Note -->
+                <div class="footer">
+                    Note: Submitted Fees For Above Course Is Not Refundable Even If You Cancel Your Admission.
+                </div>
             </div>
-    </div>
-    @endfor
+        @endfor
     </div>
 
     <script>
@@ -367,30 +345,14 @@
                 }
             }
         });
-
+    </script>
+    <script>
         function printAndRedirect() {
-            // Small delay to ensure page is fully loaded
-            setTimeout(function() {
-                window.print();
+            window.print();
 
-                // Handle after print
-                window.onafterprint = function() {
-                    setTimeout(function() {
-                        // Redirect back to the index page
-                        // window.location.href = "{{ route($modules['route'] . '.index') }}";
-                    }, 100);
-                };
 
-                // Fallback for browsers that don't support onafterprint
-                setTimeout(function() {
-                    if (!window.matchMedia('print').matches) {
-                        // window.location.href = "{{ route($modules['route'] . '.index') }}";
-                    }
-                }, 2000);
-            }, 500);
         }
     </script>
-
 </body>
 
 </html>

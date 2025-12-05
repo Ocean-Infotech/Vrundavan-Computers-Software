@@ -122,6 +122,7 @@
             event.preventDefault();
             dtable.draw();
         });
+
     </script>
 
 

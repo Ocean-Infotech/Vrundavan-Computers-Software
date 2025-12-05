@@ -69,7 +69,7 @@
         }
 
         .signature {
-            margin-top: 35px;
+            margin-top: 72px;
             font-size: 12px;
         }
 
@@ -129,20 +129,20 @@
     @for ($i = 0; $i < 2; $i++)
         <div class="receipt">
             <div class="watermark">
-                <img src="{{ asset('uploads/logo/logo.jpg') }}" alt="Logo Watermark">
+                <img src="{{ asset('uploads/logo/logo.png') }}" alt="Logo Watermark">
             </div>
             <div class="header">
                 <table style="width: 100%;">
                     <tr>
                         <td style="width: 80px; text-align: left;">
-                            <img src="{{ asset('uploads/logo/logo.jpg') }}" alt="College Logo"
+                            <img src="{{ asset('uploads/logo/logo.png') }}" alt="College Logo"
                                 style="width:100px; height:auto;">
                         </td>
                         <td style="text-align: center;">
                             Shree Patel Vidhyarthi Ashram Sanchalit<br>
                             <strong>Shree Patel Vidhya Mandir Science College</strong><br>
                             Veraval Road, Keshod - 362 220. Mo. 96874 51774<br>
-                            Date: {{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}
+
                         </td>
                     </tr>
                 </table>
@@ -151,17 +151,32 @@
 
             <table class="info-table">
                 <tr>
-                    <td>Receipt No.</td>
-                    <td>{{ $feesData->id }}</td>
+                    <td style="width: 50%;">
+                        Receipt No.: <strong>{{ $feesData->id }}</strong>
+                    </td>
+
+                    <td style="width: 50%; text-align: right;">
+                        Date: <strong>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</strong>
+                    </td>
                 </tr>
+
                 <tr>
-                    <td>Student Name <br> (GR NO)</td>
-                    <td>{{ $feesData->student_name }}</td>
+                    <td>Student Name (GR NO)</td>
+                    <td>
+                        {{ $feesData->student_name ?? '-' }}
+                        ({{ $feesData->student_id ?? '-' }})
+                    </td>
                 </tr>
-                <tr>
-                    <td>Class - Batch</td>
-                    <td>{{ $feesData->course->course_name ?? '-' }}</td>
-                </tr>
+
+             <tr>
+    <td>Class - Batch</td>
+    <td>
+        {{ $feesData->course->course_name ?? '-' }}
+        -
+        {{ $feesData->registration->batch->batch_name ?? '-' }}
+    </td>
+</tr>
+
                 <tr>
                     <td>Semester</td>
                     <td>{{ $feesData->year_semester ?? '-' }}</td>
@@ -181,14 +196,14 @@
                 </thead>
                 <tbody>
                     @foreach ($feesDetails as $fee)
-                    <tr>
-                        <td>{{ $fee['name'] }}</td>
-                        <td style="text-align: right;">{{ number_format($fee['amount']) }}/-</td>
-                    </tr>
+                        <tr>
+                            <td>{{ $fee['name'] }}</td>
+                            <td>{{ number_format($fee['amount'], 2) }}/-</td>
+                        </tr>
                     @endforeach
-                    <tr class="total-row">
-                        <td><strong>Total Fees</strong></td>
-                        <td style="text-align: right;"><strong>{{ number_format($paidFee) }}/-</strong></td>
+                    <tr>
+                        <th>Total Fee</th>
+                        <th>{{ number_format($totalFee, 2) }}/-</th>
                     </tr>
                 </tbody>
             </table>
@@ -300,12 +315,6 @@
 <script>
     function printAndRedirect() {
         window.print();
-
-        window.onafterprint = function() {
-            setTimeout(function() {
-                window.location.href = "{{ route($modules['route'] . '.create') }}";
-            }, 1);
-        };
     }
 </script>
 

@@ -238,7 +238,7 @@ class AttedanceController extends Controller
             // Apply filters if present
 
             if ($request->filled('filter_admission') && $request->filter_admission) {
-              $CourceRegistration = CourceRegistration::where('register_id', $request->filter_admission)->first();
+                $CourceRegistration = CourceRegistration::where('register_id', $request->filter_admission)->first();
 
                 if ($CourceRegistration) {
                     $data->where('course_id', $CourceRegistration?->course_id);
@@ -253,6 +253,7 @@ class AttedanceController extends Controller
             }
 
             $registrations = $data->get();
+            // dd("hello---------------------------------");
 
             $attedances = Attedance::where('date', Carbon::now()->toDateString())->get();
             // $combined = $registrations->merge($attedances);

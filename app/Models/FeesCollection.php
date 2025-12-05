@@ -41,4 +41,9 @@ class FeesCollection extends Model
     {
         return $this->belongsTo(Admission::class, 'student_id', 'id');
     }
+    public function registration()
+{
+    return $this->belongsTo(\App\Models\CourceRegistration::class, 'admission_id', 'id');
+}
+
 }

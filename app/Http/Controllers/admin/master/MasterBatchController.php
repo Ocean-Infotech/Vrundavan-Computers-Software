@@ -96,7 +96,10 @@ class MasterBatchController extends Controller
                         $dropdown .= '</ul>';
                         $status .= $dropdown;
                         return $status;
-                    })
+                    })->editColumn('course.course_name', function ($row) {
+    return $row->course->course_name ?? '-';
+})
+
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
                         if (!$row?->deleted_at) {
@@ -107,6 +110,12 @@ class MasterBatchController extends Controller
                             if ($modules['permission_delete']) {
                                 $btn .= '<a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton mx-1"><i class="fa-solid fa-trash"></i></i></a>';
                             }
+                             $btn .= '<a href="javascript:void(0)"
+                data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
+                class="btn btn-danger btn-icon permanentDeleteButton mx-1"
+                data-bs-toggle="tooltip" title="Permanent Delete">
+                <i class="fa-solid fa-ban"></i>
+            </a>';
                         } else {
                             $btn .= '<a href="javascript:void(0)" data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '" class="btn btn-light mx-1 record-restore" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Restore Data"><i class="ti ti-history"></i> Restore</a>';
                         }
@@ -333,4 +342,40 @@ class MasterBatchController extends Controller
             ], 500);
         }
     }
+    public function permanentDelete($id)
+{
+    try {
+        $modules = $this->modules;
+
+        $batch = MasterBatch::withTrashed()->findOrFail($id);
+
+        // Check dependencies before permanent delete
+        $isUsed =
+            CourceRegistration::where('batch_id', $batch->id)->exists() ||
+            Timetable::where('batch_id', $batch->id)->exists();
+
+        if ($isUsed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This batch cannot be permanently deleted because it is assigned in other modules.'
+            ], 400);
+        }
+
+        // Permanent delete
+        $batch->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => $modules['title'] . ' permanently deleted successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
 }

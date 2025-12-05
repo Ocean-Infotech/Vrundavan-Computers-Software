@@ -82,7 +82,7 @@ class FeesCollectionController extends Controller
     $search = trim($request->search);
 
     $data = FeesCollection::query()
-        ->with(['course','admission'])
+        ->with(['course','admission','batch'])
         ->withTrashed();
 
     if ($search != '') {
@@ -529,7 +529,9 @@ class FeesCollectionController extends Controller
         $modules['route'] = 'fees-collection';
         View::share('modules', $modules);
 
-        $feesData = FeesCollection::find($id);
+     $feesData = FeesCollection::with(['course','registration.batch'])
+    ->find($id);
+
 
         if (!$feesData) {
             abort(404, 'Receipt not found');
