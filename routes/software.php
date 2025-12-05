@@ -322,6 +322,8 @@ Route::delete('test/permanent-delete/{id}',
 )->name('test.permanent-delete');
 
 
+Route::get('test_report/export-excel', [TestreportController::class, 'exportExcel'])->name('test_report.export-excel');
+Route::get('test_report/print', [TestreportController::class, 'printView'])->name('test_report.print');
 Route::resource('/test_report', TestreportController::class);
 Route::match(['get', 'post'], 'test_report/restore/{id}', [TestreportController::class, 'restore'])->name('test_report.restore');
 Route::match(['get', 'post'], 'test_report-update-status', [TestreportController::class, 'status_update'])->name('test_report.status-update');
