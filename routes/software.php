@@ -147,11 +147,15 @@ Route::match(['get', 'post'], 'semester/restore/{id}', [MasterSemesterController
 Route::match(['get', 'post'], 'semester-update-status', [MasterSemesterController::class, 'status_update'])->name('semester.status-update');
 
 /** Master Shift Modules */
+Route::get('shift/export-excel', [MasterShiftController::class, 'exportExcel'])->name('shift.export-excel');
+Route::get('shift/print', [MasterShiftController::class, 'printView'])->name('shift.print');
 Route::resource('/shift', MasterShiftController::class);
 Route::match(['get', 'post'], 'shift/restore/{id}', [MasterShiftController::class, 'restore'])->name('shift.restore');
 Route::match(['get', 'post'], 'shift-update-status', [MasterShiftController::class, 'status_update'])->name('shift.status-update');
 
 /** Master Batch Modules */
+Route::get('batch/export-excel', [MasterBatchController::class, 'exportExcel'])->name('batch.export-excel');
+Route::get('batch/print', [MasterBatchController::class, 'printView'])->name('batch.print');
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
@@ -287,6 +291,8 @@ Route::delete('/subject/permanent-delete/{id}',
 
 
 /** Master Class Modules */
+Route::get('class/export-excel', [MasterClassController::class, 'exportExcel'])->name('class.export-excel');
+Route::get('class/print', [MasterClassController::class, 'printView'])->name('class.print');
 Route::resource('/class', MasterClassController::class);
 Route::match(['get', 'post'], 'class/restore/{id}', [MasterClassController::class, 'restore'])->name('class.restore');
 Route::match(['get', 'post'], 'class-update-status', [MasterClassController::class, 'status_update'])->name('class.status-update');

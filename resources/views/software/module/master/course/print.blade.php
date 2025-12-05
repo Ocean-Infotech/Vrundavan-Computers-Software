@@ -60,6 +60,7 @@
 
     <div class="no-print">
         <button onclick="window.print()">Print</button>
+        <button onclick="window.close()">Close</button>
     </div>
 
     <h1>Course Master Report</h1>
@@ -123,6 +124,9 @@
     <script>
         window.onload = function() {
             window.print();
+        };
+        window.onafterprint = function() {
+            window.close();
         };
     </script>
 </body>
