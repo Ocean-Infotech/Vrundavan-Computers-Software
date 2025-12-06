@@ -107,7 +107,7 @@
         }
 
         .signature {
-            margin-top: 30px;
+            margin-top: 4px;
             font-size: 11px;
         }
 
@@ -165,6 +165,7 @@
                 padding: 0 !important;
             }
 
+
             .receipt-container {
                 padding: 10px !important;
                 margin: 0 auto !important;
@@ -217,18 +218,25 @@
 
                 <!-- Student Information -->
                 <table class="info-table">
-                    <tr>
-                        <td>Receipt No.:</td>
-                        <td>{{ $receipt->receipt_no }}</td>
-                    </tr>
-                    <tr>
-                        <td>Date:</td>
-                        <td>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</td>
-                    </tr>
+               <tr>
+    <td colspan="2" style="
+        padding: 4px 6px;
+        border-bottom: 1px dotted #aaa;
+    ">
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        ">
+            <span>Receipt No.: <strong>{{ $receipt->receipt_no }}</strong></span>
+            <span>Date: <strong>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</strong></span>
+        </div>
+    </td>
+</tr>
 
 
                     <tr>
-                        <td>Student Name <br>(GR NO)</td>
+                        <td>Student Name (GR NO)</td>
                         <td class="no-wrap">
                             {{ trim(($feesData->admission->first_name ?? '') . ' ' . ($feesData->admission->last_name ?? '') . ' ' . ($feesData->admission->father_name ?? '')) }}
                             ({{ $courseRegistration->register_id ?? 'N/A' }})
@@ -367,11 +375,11 @@
 
 
     <script>
-        function printAndRedirect() {
-            window.print();
+            function printAndRedirect() {
+                window.print();
 
 
-        }
+            }
     </script>
 </body>
 
