@@ -300,17 +300,17 @@
                     </div>
 
                     <div class="mt-4">
-                      <table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th width="70%">Semester</th>
-            <th width="30%">Action</th>
-        </tr>
-    </thead>
-    <tbody id="semesterPrintRows">
-        <!-- JS will append rows here -->
-    </tbody>
-</table>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="70%">Semester</th>
+                                    <th width="30%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="semesterPrintRows">
+                                <!-- JS will append rows here -->
+                            </tbody>
+                        </table>
 
                     </div>
                 </div>
@@ -964,55 +964,60 @@
             });
         });
     </script>
-    <script>
-$(document).ready(function () {
+   <script>
+    $(document).ready(function () {
 
-    // After searchData success – build semester print rows
-   function renderSemesterPrintRows() {
+        // After searchData success – build semester print rows
+        function renderSemesterPrintRows() {
 
-    let student = window.currentStudentDetails;
-    if (!student) return;
+            let student = window.currentStudentDetails;
+            if (!student) return;
 
-    let totalSem = student.course.semester;
-    let admissionId = student.id;
+            let totalSem = student.course.semester;
 
-    let paidSemesters = window.paidSemesters || [];
+            // ✅ Use Student Id instead of Admission Id
+            let studentId = student.admission.id;
 
-    let rows = "";
+            let paidSemesters = window.paidSemesters || [];
 
-    paidSemesters.forEach(function (sem) {
+            let rows = "";
 
-        rows += `
-            <tr>
-                <td>Semester ${sem}</td>
-                <td>
-                    <a href="/software/students-fees-report/print?student_id=${admissionId}&semester=${sem}"
-                        class="btn btn-primary btn-sm" target="_blank">
-                        Print
-                    </a>
-                </td>
-            </tr>
-        `;
+            paidSemesters.forEach(function (sem) {
+
+                rows += `
+                    <tr>
+                        <td>Semester ${sem}</td>
+                        <td>
+                            <a
+                                href="/software/students-fees-report/print?student_id=${studentId}&semester=${sem}"
+                                class="btn btn-primary btn-sm"
+                                target="_blank"
+                            >
+                                Print
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // If no paid semesters → show message
+            if (paidSemesters.length === 0) {
+                rows = `
+                    <tr>
+                        <td colspan="2" class="text-center text-danger">No paid semesters</td>
+                    </tr>
+                `;
+            }
+
+            $("#semesterPrintRows").html(rows);
+        }
+
+        // Register the function globally
+        window.buildSemesterTable = renderSemesterPrintRows;
+
     });
-
-    // If no paid semesters → show message
-    if (paidSemesters.length === 0) {
-        rows = `
-            <tr>
-                <td colspan="2" class="text-center text-danger">No paid semesters</td>
-            </tr>
-        `;
-    }
-
-    $("#semesterPrintRows").html(rows);
-}
-
-
-    // Hook renderSemesterPrintRows() after searchData() success
-    window.buildSemesterTable = renderSemesterPrintRows;
-
-});
 </script>
+
 
     @include('software.utils.getCourceRegistration')
 @endsection
