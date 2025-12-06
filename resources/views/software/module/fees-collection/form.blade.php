@@ -298,7 +298,25 @@
                             <input type="hidden" name="pandingfeesinput" id="pandingfeesinput" value="">
                         </div>
                     </div>
+
+                    <div class="mt-4">
+                      <table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th width="70%">Semester</th>
+            <th width="30%">Action</th>
+        </tr>
+    </thead>
+    <tbody id="semesterPrintRows">
+        <!-- JS will append rows here -->
+    </tbody>
+</table>
+
+                    </div>
                 </div>
+
+
+
         </div>
         </form>
     </div>
@@ -526,6 +544,7 @@
 
                             window.paidSemesters = response.paid_semesters.map(Number);
                             window.unpaidSemesters = response.unpaid_semesters;
+                            buildSemesterTable();
 
                             // Disable fully paid semesters
                             $('#year_semester option').each(function() {
@@ -945,5 +964,55 @@
             });
         });
     </script>
+    <script>
+$(document).ready(function () {
+
+    // After searchData success – build semester print rows
+   function renderSemesterPrintRows() {
+
+    let student = window.currentStudentDetails;
+    if (!student) return;
+
+    let totalSem = student.course.semester;
+    let admissionId = student.id;
+
+    let paidSemesters = window.paidSemesters || [];
+
+    let rows = "";
+
+    paidSemesters.forEach(function (sem) {
+
+        rows += `
+            <tr>
+                <td>Semester ${sem}</td>
+                <td>
+                    <a href="/software/students-fees-report/print?student_id=${admissionId}&semester=${sem}"
+                        class="btn btn-primary btn-sm" target="_blank">
+                        Print
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+
+    // If no paid semesters → show message
+    if (paidSemesters.length === 0) {
+        rows = `
+            <tr>
+                <td colspan="2" class="text-center text-danger">No paid semesters</td>
+            </tr>
+        `;
+    }
+
+    $("#semesterPrintRows").html(rows);
+}
+
+
+    // Hook renderSemesterPrintRows() after searchData() success
+    window.buildSemesterTable = renderSemesterPrintRows;
+
+});
+</script>
+
     @include('software.utils.getCourceRegistration')
 @endsection
