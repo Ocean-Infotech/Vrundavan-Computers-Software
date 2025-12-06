@@ -33,12 +33,74 @@ use Illuminate\Container\Attributes\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class AdmissionController extends Controller
 {
     use BioMetricTrait;
 
     public $modules = [];
+    protected array $exportableColumns = [
+        'id' => 'REG No.',
+        // 'biometric_id' => 'Biometric ID',
+        'aadhar_card_no' => 'Aadhaar No',
+        'first_name' => 'First Name',
+        'last_name' => 'Last Name',
+        'father_name' => "Father's Name",
+        'mother_name' => "Mother's Name",
+        'full_name' => 'Full Name',
+        'date_of_birth' => 'Date of Birth',
+        'gender' => 'Gender',
+        'cast' => 'Caste',
+        'category' => 'Category',
+        'occupation' => "Father's Occupation",
+        'temporary_address' => 'Temporary Address',
+        'permanent_address' => 'Permanent Address',
+        'mobile_no' => 'Mobile No',
+        'parent_mobile_no' => "Parent's Mobile No",
+        'other_mobile_no' => 'Other Mobile No',
+        'whatsapp_no' => 'Whatsapp No',
+        'email_address' => 'Email Address',
+        'apaar_id_abc_id' => 'APAAR ID / ABC ID',
+        'udise' => 'UDISE No',
+        'enrolment_no' => 'Enrollment No',
+        'spid' => 'SPID',
+        'gdrivefolderurl' => 'Google Drive Folder URL',
+        'status' => 'Status',
+        'created_at' => 'Admission Date',
+    ];
+
+    protected array $defaultExportColumns = [
+        'id',
+        // 'biometric_id',
+        'aadhar_card_no',
+        'first_name',
+        'last_name',
+        'father_name',
+        'mother_name',
+        'full_name',
+        'date_of_birth',
+        'gender',
+        'cast',
+        'category',
+        'occupation',
+        'temporary_address',
+        'permanent_address',
+        'mobile_no',
+        'parent_mobile_no',
+        'other_mobile_no',
+        'whatsapp_no',
+        'email_address',
+        'apaar_id_abc_id',
+        'udise',
+        'enrolment_no',
+        'spid',
+        'gdrivefolderurl',
+        'status',
+        'created_at',
+    ];
     public function __construct()
     {
         $this->modules = [
@@ -130,7 +192,6 @@ class AdmissionController extends Controller
                             $query->orWhere('first_name', 'like', "%" . $request->search . "%");
                         }
                     })
-
                     ->editColumn('admission_name', function ($row) {
                         $first  = $row->first_name ?? '';
                         $last   = $row->last_name ?? '';
@@ -138,11 +199,9 @@ class AdmissionController extends Controller
 
                         // Create LastName FirstName FatherName
                         $fullName = trim("$first $last  $father");
-// dd($fullName);
+                        // dd($fullName);
                         return $fullName ?: '____________';
                     })
-
-
                     // ->editColumn('gdrivefolderurl', function ($row) {
                     //     $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
                     //     return '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Doucuments</a>';
@@ -216,7 +275,10 @@ class AdmissionController extends Controller
                     ->make(true);
             }
 
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -290,7 +352,7 @@ class AdmissionController extends Controller
 
             $admission_id = $admission->id;
             try {
-             $folderName = $admission->id . '- ' . $admission->last_name . ' ' . $admission->first_name . ' ' . $admission->father_name;
+                $folderName = $admission->id . '- ' . $admission->last_name . ' ' . $admission->first_name . ' ' . $admission->father_name;
 
                 $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI'; // Main Student Folder ID
 
@@ -1117,6 +1179,184 @@ class AdmissionController extends Controller
             return back()->with('success', $message);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
+        }
+    }
+
+    /**
+     * Export admissions to Excel.
+     */
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeAdmissionList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $admissions = $this->buildAdmissionExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($admissions as $admission) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($admission, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'admission-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
+     * Print view for admissions.
+     */
+    public function printView(Request $request)
+    {
+        $this->authorizeAdmissionList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $admissions = $this->buildAdmissionExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'admissions' => $admissions,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    /**
+     * Permission check for admission list.
+     */
+    protected function authorizeAdmissionList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    /**
+     * Build filtered query for export/print.
+     */
+    protected function buildAdmissionExportQuery(Request $request, string $scope)
+    {
+        $query = Admission::query()->withTrashed()->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('father_name', 'like', "%{$search}%")
+                    ->orWhere('mobile_no', 'like', "%{$search}%")
+                    ->orWhere('aadhar_card_no', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query;
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(Admission $admission, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'id':
+                return $admission->id;
+            case 'biometric_id':
+                return $admission->biometric_id ?? '-';
+            case 'full_name':
+                $first = $admission->first_name ?? '';
+                $last = $admission->last_name ?? '';
+                $father = $admission->father_name ?? '';
+                $fullName = trim("{$first} {$last} {$father}");
+                return $fullName !== '' ? $fullName : '-';
+            case 'date_of_birth':
+                return $admission->date_of_birth
+                    ? \Carbon\Carbon::parse($admission->date_of_birth)->format('d-m-Y')
+                    : '-';
+            case 'gender':
+                return $admission->gender ?? '-';
+            case 'mobile_no':
+                return $admission->mobile_no ?? '-';
+            case 'parent_mobile_no':
+                return $admission->parent_mobile_no ?? '-';
+            case 'other_mobile_no':
+                return $admission->other_mobile_no ?? '-';
+            case 'whatsapp_no':
+                return $admission->whatsapp_no ?? '-';
+            case 'email_address':
+                return $admission->email_address ?? '-';
+            case 'aadhar_card_no':
+                return $admission->aadhar_card_no ?? '-';
+            case 'status':
+                return $admission->status ? ucfirst($admission->status) : '-';
+            case 'created_at':
+                return $admission->created_at
+                    ? $admission->created_at->format('d-m-Y')
+                    : '-';
+            default:
+                return data_get($admission, $columnKey, '-');
         }
     }
 }

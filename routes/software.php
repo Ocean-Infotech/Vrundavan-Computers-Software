@@ -88,6 +88,8 @@ Route::delete('/slider/permanent-delete/{id}',
 )->name('slider.permanent-delete');
 
 
+Route::get('admission/export-excel', [AdmissionController::class, 'exportExcel'])->name('admission.export-excel');
+Route::get('admission/print', [AdmissionController::class, 'printView'])->name('admission.print');
 Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
