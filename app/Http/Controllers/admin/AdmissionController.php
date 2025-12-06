@@ -44,7 +44,7 @@ class AdmissionController extends Controller
     public $modules = [];
     protected array $exportableColumns = [
         'id' => 'REG No.',
-        'biometric_id' => 'Biometric ID',
+        // 'biometric_id' => 'Biometric ID',
         'aadhar_card_no' => 'Aadhaar No',
         'first_name' => 'First Name',
         'last_name' => 'Last Name',
@@ -74,7 +74,7 @@ class AdmissionController extends Controller
 
     protected array $defaultExportColumns = [
         'id',
-        'biometric_id',
+        // 'biometric_id',
         'aadhar_card_no',
         'first_name',
         'last_name',

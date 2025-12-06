@@ -38,7 +38,7 @@
             'show_filter_btn' => false,
             'show_export_btns' => true,
             'show_excal_btn' => true,
-            'show_print_btn' => true,
+            'show_print_btn' => false,
             'show_back_btn' => false,
         ])
     </div>
