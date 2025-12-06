@@ -71,7 +71,7 @@
         .fees-table th,
         .fees-table td {
             border: 1px solid #000;
-            padding: 14px;
+            padding: 2px;
             text-align: left;
             font-size: 15px
         }
@@ -132,25 +132,28 @@
         .clear {
             clear: both;
         }
-        .header table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-.header td {
-    vertical-align: middle;
-}
-@media screen {
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .receipt-container {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: flex-start !important;
-    }
-}
+        .header table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header td {
+            vertical-align: middle;
+        }
+
+        @media screen {
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .receipt-container {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+            }
+        }
 
 
 
@@ -166,7 +169,7 @@
                 padding: 10px !important;
                 margin: 0 auto !important;
                 gap: 10px !important;
-                width: calc(100% - 20px) !important;/
+                width: calc(100% - 20px) !important;
             }
 
             .receipt {
@@ -178,10 +181,7 @@
 
         }
 
-        @page {
-            size: A4;
-            margin: 0;
-        }
+
     </style>
 
 </head>
@@ -216,38 +216,38 @@
                 </div>
 
                 <!-- Student Information -->
-             <table class="info-table">
-    <tr>
-        <td>Receipt No.:</td>
-        <td>{{ $receipt->receipt_no }}</td>
-    </tr>
-<tr>
-    <td>Date:</td>
-    <td>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</td>
-</tr>
+                <table class="info-table">
+                    <tr>
+                        <td>Receipt No.:</td>
+                        <td>{{ $receipt->receipt_no }}</td>
+                    </tr>
+                    <tr>
+                        <td>Date:</td>
+                        <td>{{ \Carbon\Carbon::parse($feesData->date)->format('d-m-Y') }}</td>
+                    </tr>
 
 
-    <tr>
-        <td>Student Name <br>(GR NO)</td>
-        <td class="no-wrap">
-            {{ trim(($feesData->admission->first_name ?? '') . ' ' . ($feesData->admission->last_name ?? '') . ' ' . ($feesData->admission->father_name ?? '')) }}
-            ({{ $courseRegistration->register_id ?? 'N/A' }})
-        </td>
-    </tr>
+                    <tr>
+                        <td>Student Name <br>(GR NO)</td>
+                        <td class="no-wrap">
+                            {{ trim(($feesData->admission->first_name ?? '') . ' ' . ($feesData->admission->last_name ?? '') . ' ' . ($feesData->admission->father_name ?? '')) }}
+                            ({{ $courseRegistration->register_id ?? 'N/A' }})
+                        </td>
+                    </tr>
 
-    <tr>
-        <td>Class - Batch</td>
-        <td>
-            {{ $feesData->course->course_name ?? '' }} -
-            {{ $courseRegistration->batch->batch_name ?? '' }}
-        </td>
-    </tr>
+                    <tr>
+                        <td>Class - Batch</td>
+                        <td>
+                            {{ $feesData->course->course_name ?? '' }} -
+                            {{ $courseRegistration->batch->batch_name ?? '' }}
+                        </td>
+                    </tr>
 
-    <tr>
-        <td>Semester</td>
-        <td>{{ $feesData->year_semester }}</td>
-    </tr>
-</table>
+                    <tr>
+                        <td>Semester</td>
+                        <td>{{ $feesData->year_semester }}</td>
+                    </tr>
+                </table>
 
 
                 <!-- Fee Details Section Title -->
@@ -282,7 +282,7 @@
                 <table class="info-table">
                     <tr>
                         <td>Rs. In Words</td>
-                               <td id="amountWords{{ $i }}"></td>
+                        <td id="amountWords{{ $i }}"></td>
 
                     </tr>
                     <tr>
@@ -311,55 +311,59 @@
         @endfor
     </div>
 
-  <script>
-    function convertToWords(amount) {
-        var words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
-            'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
-            'Eighteen', 'Nineteen'];
-        var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    <script>
+        function convertToWords(amount) {
+            var words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
+                'Eighteen', 'Nineteen'
+            ];
+            var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
-        if (isNaN(amount) || amount === '') return 'Invalid amount';
-        if (parseInt(amount) === 0) return 'Zero Rupees Only';
+            if (isNaN(amount) || amount === '') return 'Invalid amount';
+            if (parseInt(amount) === 0) return 'Zero Rupees Only';
 
-        amount = amount.toString().replace(/[, ]/g, '');
-        if (amount.includes('.')) amount = amount.split('.')[0];
+            amount = amount.toString().replace(/[, ]/g, '');
+            if (amount.includes('.')) amount = amount.split('.')[0];
 
-        var num = parseInt(amount);
-        var result = '';
+            var num = parseInt(amount);
+            var result = '';
 
-        function numToWords(n, label) {
-            let str = '';
-            if (n > 19) str += tens[Math.floor(n / 10)] + ' ' + words[n % 10];
-            else str += words[n];
-            return str ? str + ' ' + label + ' ' : '';
-        }
-
-        var crore = Math.floor(num / 10000000); num %= 10000000;
-        var lakh = Math.floor(num / 100000);   num %= 100000;
-        var thousand = Math.floor(num / 1000); num %= 1000;
-        var hundred = Math.floor(num / 100);
-        var remainder = num % 100;
-
-        if (crore) result += numToWords(crore, 'Crore');
-        if (lakh) result += numToWords(lakh, 'Lakh');
-        if (thousand) result += numToWords(thousand, 'Thousand');
-        if (hundred) result += words[hundred] + ' Hundred ';
-        if (remainder) result += (result !== '' ? 'and ' : '') + numToWords(remainder, '');
-
-        return result.trim() + ' Rupees Only';
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const total = {{ $paidFee }}; // PHP dynamic amount
-
-        for (let i = 0; i < 2; i++) {
-            const element = document.getElementById("amountWords" + i);
-            if (element) {
-                element.innerText = convertToWords(total);
+            function numToWords(n, label) {
+                let str = '';
+                if (n > 19) str += tens[Math.floor(n / 10)] + ' ' + words[n % 10];
+                else str += words[n];
+                return str ? str + ' ' + label + ' ' : '';
             }
+
+            var crore = Math.floor(num / 10000000);
+            num %= 10000000;
+            var lakh = Math.floor(num / 100000);
+            num %= 100000;
+            var thousand = Math.floor(num / 1000);
+            num %= 1000;
+            var hundred = Math.floor(num / 100);
+            var remainder = num % 100;
+
+            if (crore) result += numToWords(crore, 'Crore');
+            if (lakh) result += numToWords(lakh, 'Lakh');
+            if (thousand) result += numToWords(thousand, 'Thousand');
+            if (hundred) result += words[hundred] + ' Hundred ';
+            if (remainder) result += (result !== '' ? 'and ' : '') + numToWords(remainder, '');
+
+            return result.trim() + ' Rupees Only';
         }
-    });
-</script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const total = {{ $paidFee }}; // PHP dynamic amount
+
+            for (let i = 0; i < 2; i++) {
+                const element = document.getElementById("amountWords" + i);
+                if (element) {
+                    element.innerText = convertToWords(total);
+                }
+            }
+        });
+    </script>
 
 
     <script>
