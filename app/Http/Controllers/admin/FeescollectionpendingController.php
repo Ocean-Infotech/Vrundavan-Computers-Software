@@ -152,9 +152,9 @@ class FeescollectionpendingController extends Controller
                 return Datatables::of($data)
                     ->addIndexColumn()
                     ->editColumn('student_name', function ($row) {
-                        $first = $row->admission->last_name ?? '';
+                        $first = $row->admission->first_name ?? '';
 
-                        $last = $row->admission->first_name ?? '';
+                        $last = $row->admission->last_name ?? '';
                         $father = $row->admission->father_name ?? '';
                         return trim("{$first}  {$last} {$father}");
                     })
