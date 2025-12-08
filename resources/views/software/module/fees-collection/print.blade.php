@@ -168,14 +168,14 @@
                     </td>
                 </tr>
 
-             <tr>
-    <td>Class - Batch</td>
-    <td>
-        {{ $feesData->course->course_name ?? '-' }}
-        -
-        {{ $feesData->registration->batch->batch_name ?? '-' }}
-    </td>
-</tr>
+                <tr>
+                    <td>Class - Batch</td>
+                    <td>
+                        {{ $feesData->course->course_name ?? '-' }}
+                        -
+                        {{ $feesData->registration->batch->batch_name ?? '-' }}
+                    </td>
+                </tr>
 
                 <tr>
                     <td>Semester</td>
@@ -235,7 +235,8 @@
             </table>
 
             <div class="signature">
-                <div style="float: left;">Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
+                
+                <div style="float: left;">Received By: <strong>{{ $feesData->createdByUser->name ?? '__________' }}</strong>
                 </div>
                 <div style="float: right;"><strong>PVM BCA COLLEGE</strong></div>
                 <div style="clear: both;"></div>

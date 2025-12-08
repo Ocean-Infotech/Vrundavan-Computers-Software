@@ -438,7 +438,7 @@ class FeesCollectionController extends Controller
             $validated['created_by'] = $loginUserId;
             // return $validated;
             $feesCollection = FeesCollection::create($validated);
-
+// dd($request->all(),$validated);
             return Redirect::route('software.fees-collection.print', $feesCollection->id);
         } catch (\Exception $e) {
             return Redirect::back()->withErrors($e->getMessage());

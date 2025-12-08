@@ -26,6 +26,8 @@ class FeesCollection extends Model
         'password',
         'checked_status',
         'status',
+        'created_by',
+
     ];
 
     public function course()
@@ -42,8 +44,11 @@ class FeesCollection extends Model
         return $this->belongsTo(Admission::class, 'student_id', 'id');
     }
     public function registration()
-{
-    return $this->belongsTo(\App\Models\CourceRegistration::class, 'admission_id', 'id');
-}
-
+    {
+        return $this->belongsTo(\App\Models\CourceRegistration::class, 'admission_id', 'id');
+    }
+        public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

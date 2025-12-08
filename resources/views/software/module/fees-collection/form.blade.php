@@ -964,27 +964,27 @@
             });
         });
     </script>
-   <script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function() {
 
-        // After searchData success – build semester print rows
-        function renderSemesterPrintRows() {
+            // After searchData success – build semester print rows
+            function renderSemesterPrintRows() {
 
-            let student = window.currentStudentDetails;
-            if (!student) return;
+                let student = window.currentStudentDetails;
+                if (!student) return;
 
-            let totalSem = student.course.semester;
+                let totalSem = student.course.semester;
 
-            // ✅ Use Student Id instead of Admission Id
-            let studentId = student.admission.id;
+                // ✅ Use Student Id instead of Admission Id
+                let studentId = student.admission.id;
 
-            let paidSemesters = window.paidSemesters || [];
+                let paidSemesters = window.paidSemesters || [];
 
-            let rows = "";
+                let rows = "";
 
-            paidSemesters.forEach(function (sem) {
+                paidSemesters.forEach(function(sem) {
 
-                rows += `
+                    rows += `
                     <tr>
                         <td>Semester ${sem}</td>
                         <td>
@@ -998,25 +998,25 @@
                         </td>
                     </tr>
                 `;
-            });
+                });
 
-            // If no paid semesters → show message
-            if (paidSemesters.length === 0) {
-                rows = `
+                // If no paid semesters → show message
+                if (paidSemesters.length === 0) {
+                    rows = `
                     <tr>
                         <td colspan="2" class="text-center text-danger">No paid semesters</td>
                     </tr>
                 `;
+                }
+
+                $("#semesterPrintRows").html(rows);
             }
 
-            $("#semesterPrintRows").html(rows);
-        }
+            // Register the function globally
+            window.buildSemesterTable = renderSemesterPrintRows;
 
-        // Register the function globally
-        window.buildSemesterTable = renderSemesterPrintRows;
-
-    });
-</script>
+        });
+    </script>
 
 
     @include('software.utils.getCourceRegistration')

@@ -302,7 +302,7 @@
                 <!-- Signature Section -->
                 <div class="signature">
                     <div class="signature-left" style="margin-top:35px;">
-                        Received By: <strong>{{ $feesData->received_by ?? '__________' }}</strong>
+                        Received By: <strong>{{ $feesData->createdByUser->name ?? '__________' }}</strong>
                     </div>
                     <div class="signature-right" style="text-align:right;">
                         <div style="border-top:1px solid #000; width:150px; margin-left:auto; margin-top:44px;"></div>
