@@ -32,10 +32,10 @@ class ApiStudentController extends Controller
             $courseRegistered = CourceRegistration::where('register_id', $student->id)
                 ->with(['batch', 'course', 'class', 'shift', 'admission'])
                 ->first();
-
+// dd($courseRegistered);
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            } elseif ($courseRegistered?->status != "Running") {
+            } elseif ($courseRegistered?->status != "active") {
                 return $this->sendError('Academic detail not active.', [], [], 422);
             } else {
 
