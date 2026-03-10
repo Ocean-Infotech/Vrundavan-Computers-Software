@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
+// Public pages
+Route::view('/software/privacy-policy', 'software.privacy-policy')->name('software.privacy-policy');
 
 Route::get('optimize', function () {
     Artisan::call('optimize:clear');

@@ -50,6 +50,12 @@
                         </div>
                         <button class="btn btn-primary d-grid w-100">Sign in</button>
                     </form>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ route('software.privacy-policy') }}" target="_blank" class="">
+                            Privacy Policy
+                        </a>
+                    </div>
                 </div>
             </div>
             <!-- /Login -->
