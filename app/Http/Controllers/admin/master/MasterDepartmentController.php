@@ -424,6 +424,8 @@ class MasterDepartmentController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
 
     public function exportExcel(Request $request)
     {
