@@ -148,7 +148,7 @@ class ApiStudentController extends Controller
                     [
                         'name'    => 'BCA College',
                         'address' => 'PVM Campus, Veraval Road, Keshod',
-                        'email'   => 'pvmbcacollege@gmail.com',
+                        'email'   => 'pvmsciencecollagekeshod@gmail.com',
                     ]
                 ],
                 'contacts' => [
