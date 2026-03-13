@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @group Slider
+ *
+ * APIs for managing sliders shown in the application.
+ */
 class SliderController extends Controller
 {
     public $modules = [];
+
     public function __construct()
     {
         $this->modules = [
@@ -21,7 +27,14 @@ class SliderController extends Controller
         ];
     }
 
-    // All Sliders (Admin use)
+    /**
+     * List all sliders (admin)
+     *
+     * Returns every slider in the system (active and inactive). Intended for internal admin use.
+     *
+     * @authenticated
+     * @hideFromAPIDocumentation
+     */
     public function index()
     {
         $sliders = Slider::orderBy('id', 'desc')->get()->map(function ($slider) {
@@ -33,7 +46,39 @@ class SliderController extends Controller
         return response()->json(['status' => true, 'data' => $sliders]);
     }
 
-    // Add Slider
+    /**
+     * Add a new slider
+     *
+     * Uploads a new slider image with a title and an optional link. The image will be stored under
+     * `uploads/sliders` and its full URL will be returned in the response.
+     *
+     * @authenticated
+     *
+     * @bodyParam title string required The slider title to display on the UI. Example: Summer Offers
+     * @bodyParam image file required The image file (jpeg, png, jpg, gif or webp; max 2MB).
+     * @bodyParam link string A URL to open when the slider is tapped. Example: https://example.com/offers
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Slider added successfully.",
+     *   "data": {
+     *     "id": 1,
+     *     "title": "Summer Offers",
+     *     "image": "uploads/sliders/1710300000_banner.webp",
+     *     "link": "https://example.com/offers"
+     *   }
+     * }
+     *
+     * @response 422 scenario="Validation failed" {
+     *   "status": "false",
+     *   "message": "The title field is required.",
+     *   "messages": {
+     *     "title": [
+     *       "The title field is required."
+     *     ]
+     *   }
+     * }
+     */
     public function slider_add(Request $request)
     {
         try {
@@ -73,7 +118,33 @@ class SliderController extends Controller
         }
     }
 
-    // List Active Sliders
+    /**
+     * List active sliders
+     *
+     * Returns all active sliders in reverse creation order. Each slider includes the absolute image URL.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Sliders retrieved successfully.",
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "title": "Summer Offers",
+     *       "image": "https://example.com/uploads/sliders/1710300000_banner.webp",
+     *       "link": "https://example.com/offers",
+     *       "status": "active"
+     *     }
+     *   ]
+     * }
+     *
+     * @response 404 scenario="No sliders" {
+     *   "status": "false",
+     *   "message": "No sliders found.",
+     *   "data": []
+     * }
+     */
     public function slider_list()
     {
         $sliders = Slider::where('status', 'active')
@@ -99,7 +170,36 @@ class SliderController extends Controller
         return $this->sendResponse($sliders, 'Sliders retrieved successfully.');
     }
 
-    // Update Slider
+    /**
+     * Update an existing slider
+     *
+     * Updates the title, link and (optionally) the image for a specific slider.
+     * If a new image is uploaded, the previous image file will be deleted.
+     *
+     * @authenticated
+     *
+     * @bodyParam id integer required The ID of the slider to update. Example: 1
+     * @bodyParam title string required The new title for the slider. Example: Updated Summer Offers
+     * @bodyParam image file The new image file to replace the old one (jpeg, png, jpg, gif or webp; max 2MB).
+     * @bodyParam link string The new URL to open when the slider is tapped. Example: https://example.com/new-offers
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Slider updated successfully.",
+     *   "data": {
+     *     "id": 1,
+     *     "title": "Updated Summer Offers",
+     *     "image": "uploads/sliders/1710301000_banner.webp",
+     *     "link": "https://example.com/new-offers"
+     *   }
+     * }
+     *
+     * @response 404 scenario="Slider not found" {
+     *   "status": "false",
+     *   "message": "Slider not found.",
+     *   "data": []
+     * }
+     */
     public function slider_update(Request $request)
     {
         try {
@@ -156,7 +256,27 @@ class SliderController extends Controller
         }
     }
 
-    // Delete Slider
+    /**
+     * Delete a slider
+     *
+     * Deletes a slider by its ID and removes its image file from storage.
+     *
+     * @authenticated
+     *
+     * @urlParam id integer required The ID of the slider to delete. Example: 1
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Slider deleted successfully.",
+     *   "data": null
+     * }
+     *
+     * @response 404 scenario="Slider not found" {
+     *   "status": "false",
+     *   "message": "Slider not found.",
+     *   "data": []
+     * }
+     */
     public function slider_destroy($id)
     {
         $slider = Slider::find($id);

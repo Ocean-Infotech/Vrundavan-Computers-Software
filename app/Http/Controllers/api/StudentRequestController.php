@@ -13,6 +13,16 @@ use Illuminate\Validation\Rule;
 class StudentRequestController extends Controller
 {
 
+    /**
+     * @OA\Post(
+     *     path="/request-form",
+     *     tags={"Student Request"},
+     *     summary="Create new student request",
+     *     security={{"passport":{}}},
+     *     @OA\Response(response=200, description="Request submitted"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function request_form(Request $request)
     {
         try {
@@ -63,6 +73,16 @@ class StudentRequestController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    /**
+     * @OA\Post(
+     *     path="/request-list",
+     *     tags={"Student Request"},
+     *     summary="Get list of student requests",
+     *     security={{"passport":{}}},
+     *     @OA\Response(response=200, description="Request list fetched"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function request_list()
 {
     try {
@@ -93,7 +113,16 @@ class StudentRequestController extends Controller
     }
 }
 
-
+    /**
+     * @OA\Post(
+     *     path="/request-subject-list",
+     *     tags={"Student Request"},
+     *     summary="Get list of subjects for student requests",
+     *     security={{"passport":{}}},
+     *     @OA\Response(response=200, description="Subjects list fetched"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
+     */
     public function request_subject_list()
     {
         try {

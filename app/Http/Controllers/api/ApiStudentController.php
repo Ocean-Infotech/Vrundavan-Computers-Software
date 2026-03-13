@@ -17,9 +17,47 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
+/**
+ * @group Student
+ *
+ * APIs for student academic data, fees, attendance, tests and notifications.
+ */
 class ApiStudentController extends Controller
 {
 
+    /**
+     * Get academic details of logged-in student
+     *
+     * Returns the academic information (university, course, batch, class, shift timings and timetable attachment)
+     * for the currently authenticated student.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Academic details fetched successfully.",
+     *   "data": {
+     *     "university": "Saurashtra University",
+     *     "department": "Computer Science",
+     *     "course": "BCA",
+     *     "batch": "2024-2027",
+     *     "class": "TYBCA",
+     *     "shift": "09:00 AM To 12:00 PM",
+     *     "gr_no": 123,
+     *     "enrollment_no": "ENR2024001",
+     *     "spid": "SPID12345",
+     *     "udise": "UDISE1234",
+     *     "apaar_id_abc_id": "APAR123456",
+     *     "attachment": "https://example.com/storage/timetable.pdf"
+     *   }
+     * }
+     *
+     * @response 401 scenario="Not authenticated" {
+     *   "status": "false",
+     *   "message": "Unauthorization.",
+     *   "data": []
+     * }
+     */
     public function academic_details(Request $request)
     {
         try {
@@ -74,10 +112,40 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-
-
-
-
+    /**
+     * Get fee details of logged-in student
+     *
+     * Returns the total course fees, total paid and pending amount, along with a list of paid fee records
+     * (semester-wise) for the currently authenticated student.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Fee details fetched successfully.",
+     *   "data": {
+     *     "total": 45000,
+     *     "paid": 30000,
+     *     "pending": 15000,
+     *     "details": [
+     *       {
+     *         "course": "BCA",
+     *         "semester": "Semester 1",
+     *         "receipt_no": 10,
+     *         "amount": 15000,
+     *         "date": "2025-06-01",
+     *         "status": "Paid"
+     *       }
+     *     ]
+     *   }
+     * }
+     *
+     * @response 404 scenario="No fee records" {
+     *   "status": "false",
+     *   "message": "No fee records found.",
+     *   "data": []
+     * }
+     */
     public function fee_details(Request $request)
     {
         try {
@@ -124,6 +192,34 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    /**
+     * Get institute contact details
+     *
+     * Returns static contact information (branches and phone numbers) for the institute.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Contact Us Information fetched successfully.",
+     *   "data": {
+     *     "branches": [
+     *       {
+     *         "name": "Keshod Branch",
+     *         "address": "Amrut nagar road, Keshod",
+     *         "email": "vrundavancomputerkeshod@gmail.com"
+     *       }
+     *     ],
+     *     "contacts": {
+     *       "Vrundavan Computer": {
+     *         "College mobile": "96874 51774",
+     *         "Phone": "02871-231059",
+     *         "Distance": "93752 21111"
+     *       }
+     *     }
+     *   }
+     * }
+     */
     public function contact_details(Request $request)
     {
         try {
@@ -167,6 +263,42 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    /**
+     * Get attendance details
+     *
+     * Returns attendance for a single date or for an entire month for the logged‑in student.
+     * If `date` is provided, returns a single record; otherwise, returns a monthly summary and daily records.
+     *
+     * @authenticated
+     *
+     * @bodyParam date string The specific date to check (format: d-m-Y). Example: 01-07-2025
+     * @bodyParam month integer The month number (1–12) for which to fetch attendance. Example: 7
+     * @bodyParam year integer The year for which to fetch attendance. Example: 2025
+     *
+     * @response 200 scenario="Single date" {
+     *   "status": "true",
+     *   "message": "Attendance records fetched successfully.",
+     *   "data": {
+     *     "summary": {
+     *       "total_lectures": 1,
+     *       "present_lectures": 1,
+     *       "absent_lectures": 0,
+     *       "average_percent": 100,
+     *       "date": "01-July-2025"
+     *     },
+     *     "records": [
+     *       {
+     *         "date": "2025-07-01",
+     *         "day": "Tuesday",
+     *         "in_time": "09:05 AM",
+     *         "out_time": "12:00 PM",
+     *         "status": "Present",
+     *         "status_code": "P"
+     *       }
+     *     ]
+     *   }
+     * }
+     */
     public function attendance_details(Request $request)
     {
         try {
@@ -307,6 +439,27 @@ class ApiStudentController extends Controller
     }
 
 
+    /**
+     * Get Google Drive document folder URL
+     *
+     * Returns the Google Drive folder URL associated with the logged‑in student (if configured).
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Google Drive folder link fetched successfully.",
+     *   "data": {
+     *     "gdrive_url": "https://drive.google.com/drive/folders/abc123"
+     *   }
+     * }
+     *
+     * @response 422 scenario="No folder configured" {
+     *   "status": "false",
+     *   "message": "No Google Drive folder found.",
+     *   "data": []
+     * }
+     */
     public function document_details(Request $request)
     {
         try {
@@ -331,6 +484,30 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    /**
+     * Get test subjects
+     *
+     * Returns the list of subjects for which the logged‑in student has test records.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Subjects List.",
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "Mathematics"
+     *     }
+     *   ]
+     * }
+     *
+     * @response 404 scenario="No subjects" {
+     *   "status": "false",
+     *   "message": "No subjects found.",
+     *   "data": []
+     * }
+     */
     public function test_subjects(Request $request)
     {
         try {
@@ -344,10 +521,11 @@ class ApiStudentController extends Controller
                 ->whereHas('test', function ($q) {
                     $q->whereNull('deleted_at');
                 })
-                ->with('test:id,subject_name') // only required fields
+                ->with('test:id,subject_name')
                 ->get()
                 ->pluck('test')
-                ->unique('id')
+                ->filter() // Remove nulls if any (incomplete relations)
+                ->unique('subject_name') // Unique by subject_name
                 ->map(function ($test) {
                     return [
                         'id'   => $test->id,
@@ -365,6 +543,35 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    
+    /**
+     * Get test details
+     *
+     * Returns detailed test results (subject, unit, course, batch, date, marks and percentage) for the logged‑in student.
+     * You can optionally filter by subject or search by subject name.
+     *
+     * @authenticated
+     *
+     * @bodyParam subject_id integer The subject ID to filter tests by. Example: 1
+     * @bodyParam subject_name string The exact subject name to filter tests by. Example: Mathematics
+     * @bodyParam search string A text to search in subject names (partial match). Example: Maths
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Test details fetched successfully.",
+     *   "data": [
+     *     {
+     *       "subject": "Mathematics",
+     *       "unit": "Unit 1",
+     *       "course": "BCA",
+     *       "batch": "2024-2027",
+     *       "date": "01-07-2025",
+     *       "marks": "18/20",
+     *       "percentage": "90%"
+     *     }
+     *   ]
+     * }
+     */
     public function test_details(Request $request)
     {
         try {
@@ -375,9 +582,9 @@ class ApiStudentController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'subject_id' => 'nullable|integer|exists:test,id',
-                'search'     => 'nullable|string|max:255',
-
+                'subject_id'    => 'nullable|integer|exists:test,id',
+                'subject_name'  => 'nullable|string|max:255',
+                'search'        => 'nullable|string|max:255',
             ]);
 
             if ($validator->fails()) {
@@ -394,6 +601,9 @@ class ApiStudentController extends Controller
 
                     if ($request->filled('subject_id')) {
                         $q->where('id', $request->subject_id);
+                    }
+                    if ($request->filled('subject_name')) {
+                        $q->where('subject_name', $request->subject_name);
                     }
                     if ($request->filled('search')) {
                         $q->where('subject_name', 'like', '%' . $request->search . '%');
@@ -428,6 +638,29 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
+    /**
+     * Get notifications list
+     *
+     * Returns all notifications visible to the logged‑in student (personal, course‑level and general).
+     *
+     * @group Notifications
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Notifications List.",
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "title": "Exam schedule",
+     *       "body": "Your mid‑semester exams start next week.",
+     *       "is_read": false,
+     *       "date_time": "2025-07-01 10:00:00"
+     *     }
+     *   ]
+     * }
+     */
     public function notifications_list(Request $request)
     {
         try {
@@ -474,6 +707,31 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    /**
+     * Mark notifications as read
+     *
+     * Marks specific notifications as read for the logged‑in student. If no IDs are provided,
+     * all unread notifications for the student are marked as read.
+     *
+     * @group Notifications
+     * @authenticated
+     *
+     * @bodyParam notification_ids array The IDs of notifications to mark as read. Example: [1, 2, 3]
+     * @bodyParam notification_ids.* integer A single notification ID.
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Notifications marked as read successfully.",
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "title": "Exam schedule",
+     *       "body": "Your mid‑semester exams start next week.",
+     *       "is_read": true
+     *     }
+     *   ]
+     * }
+     */
     public function notifications_mark_read(Request $request)
     {
         try {
