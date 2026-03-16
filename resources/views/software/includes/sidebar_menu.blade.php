@@ -60,9 +60,8 @@
         @directCanAny(['slider-list', 'slider-create', 'slider-edit', 'slider-delete'])
         <li class="menu-item {{ $sidebar_active == 'slider' ? 'active' : '' }}">
             <a href="{{ route('slider.index') }}" class="menu-link">
-
                 <i class="menu-icon tf-icons bx bx-image"></i>
-                <div data-i18n="Slider">Slider</div>
+                <div data-i18n="Slider" class="ms-1">Slider</div>
             </a>
         </li>
         @enddirectCanAny
