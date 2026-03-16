@@ -234,12 +234,12 @@ class ApiStudentController extends Controller
                     [
                         'name'    => 'Keshod Branch',
                         'address' => 'Amrut nagar road, Keshod',
-                        'email'   => 'vrundavancomputerkeshod@gmail.com',
+                        'email'   => 'vrundavancomputerskeshod@gmail.com',
                     ],
                     [
                         'name'    => 'Vapi Branch',
                         'address' => '134, Tirupati Plaza, Daman Rd, Chala, Vapi, Gujarat - 396191',
-                        'email'   => 'vrundavancomputervapi@gmail.com',
+                        'email'   => 'vrundavancomputersvapi@gmail.com',
                     ],
                     [
                         'name'    => 'BCA College',
