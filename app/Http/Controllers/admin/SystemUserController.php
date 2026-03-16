@@ -207,6 +207,11 @@ class SystemUserController extends Controller
             $user = User::create($input);
             $user->assignRole($request->input('role'));
 
+            // Save only selected permissions for this user (if any are chosen)
+            if ($request->directPermission) {
+                $user->syncPermissions($request->directPermission);
+            }
+
             return Redirect::route($modules['route'] . '.index')->with('success', $modules['title'] . ' create successfully.');
         } catch (\InvalidArgumentException $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage())->withInput();
