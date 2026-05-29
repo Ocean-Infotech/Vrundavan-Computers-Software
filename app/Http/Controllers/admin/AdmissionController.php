@@ -573,6 +573,8 @@ class AdmissionController extends Controller
                 }
 
                 $filename = time() . '_' . $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.' . $extension;
                 $file->move($destinationPath, $filename);
 
                 $validated['profile_pic'] = 'uploads/profile_pics/' . $folderName . '/' . $filename;

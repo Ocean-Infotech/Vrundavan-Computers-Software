@@ -31,6 +31,14 @@ class CommonController extends Controller
 {
     public function __construct(Request $request) {}
 
+    /**
+     * @OA\Post(
+     *     path="/get-courceregistration",
+     *     operationId="get_courceregistration",
+     *     tags={"Open Source"},
+     *     @OA\Response(response=200, description="Course registration list"),
+     * )
+     */
     public function get_courceregistration(Request $request)
     {
         try {
@@ -67,6 +75,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-class-bybatch",
+     *      operationId="get_classbybatch",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Class list by batch"),
+     * )
+     */
     public function get_classbybatch(Request $request)
     {
         $validator =  Validator::make($request->all(), [
@@ -108,6 +124,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-shift",
+     *      operationId="get_shift",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Shift list"),
+     * )
+     */
     public function get_shift(Request $request)
     {
         $validator =  Validator::make($request->all(), [
@@ -148,6 +172,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-class",
+     *      operationId="get_class",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Class list"),
+     * )
+     */
     public function get_class(Request $request)
     {
         try {
@@ -166,6 +198,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-department",
+     *      operationId="get_department",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Department list"),
+     * )
+     */
     public function get_department(Request $request)
     {
         try {
@@ -187,6 +227,14 @@ class CommonController extends Controller
 
         return $this->sendError("Something went wrong in Department API");
     }
+    /**
+     * @OA\Get(
+     *      path="/get-university",
+     *      operationId="get_university",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="University list"),
+     * )
+     */
     public function get_university(Request $request)
     {
         try {
@@ -210,6 +258,14 @@ class CommonController extends Controller
     }
 
 
+    /**
+     * @OA\Post(
+     *      path="/get-admission",
+     *      operationId="get_admission",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Admission list"),
+     * )
+     */
     public function get_admission(Request $request)
     {
         try {
@@ -228,6 +284,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-course",
+     *      operationId="get_course",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Course list"),
+     * )
+     */
     public function get_course(Request $request)
     {
         try {
@@ -296,6 +360,14 @@ class CommonController extends Controller
     //     return $this->sendError("Something want to wrong in register API");
     // }
 
+    /**
+     * @OA\Post(
+     *      path="/get-semester",
+     *      operationId="get_semester",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Semester list"),
+     * )
+     */
     public function get_semester(Request $request)
     {
         try {
@@ -335,6 +407,14 @@ class CommonController extends Controller
         return $this->sendError("Something went wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/get-batch",
+     *      operationId="get_batch",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Batch list"),
+     * )
+     */
     public function get_batch(Request $request)
     {
         try {
@@ -501,6 +581,14 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    /**
+     * @OA\Post(
+     *      path="/documents",
+     *      operationId="documents",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Document list"),
+     * )
+     */
     public function documents(Request $request)
     {
         try {
@@ -556,6 +644,14 @@ class CommonController extends Controller
         }
         return $this->sendError("Something want to wrong in register API");
     }
+    /**
+     * @OA\Get(
+     *      path="/get-books",
+     *      operationId="get_books",
+     *      tags={"Open Source"},
+     *      @OA\Response(response=200, description="Books datalist HTML"),
+     * )
+     */
     public function get_books(Request $request)
     {
         $search = $request->get('search', '');

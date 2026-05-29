@@ -29,6 +29,40 @@ class AuthenticationController extends Controller
 {
     public function __construct(Request $request) {}
 
+    /**
+     * Register a new user
+     *
+     * Creates a new application user with phone number, password and optional referral code.
+     * If `add_pincode` is true and the pincode does not yet exist, it will also create a pending pincode record.
+     *
+     * @group Authentication
+     *
+     * @bodyParam name string required The full name of the user. Example: Ramesh Parmar
+     * @bodyParam phone string required The 10‑digit mobile number (must be unique). Example: 9876543210
+     * @bodyParam password string required The login password (minimum 4 characters). Example: secret123
+     * @bodyParam pincode string required The 6‑digit pincode. Example: 395006
+     * @bodyParam add_pincode boolean Whether to also create a new pincode record (when it doesn’t exist). Example: true
+     * @bodyParam country_id integer required when add_pincode=true The country ID for the pincode. Example: 101
+     * @bodyParam state_id integer required when add_pincode=true The state ID for the pincode. Example: 4030
+     * @bodyParam city_id integer required when add_pincode=true The city ID for the pincode. Example: 51234
+     * @bodyParam referral_code string The referral code of an existing user. Example: ABCD1234
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "User register successfully.",
+     *   "data": []
+     * }
+     *
+     * @response 403 scenario="Validation failed" {
+     *   "status": "false",
+     *   "message": "Validation Error.",
+     *   "messages": {
+     *     "phone": [
+     *       "The phone has already been taken."
+     *     ]
+     *   }
+     * }
+     */
     public function register(Request $request)
     {
         DB::beginTransaction();
@@ -227,6 +261,54 @@ class AuthenticationController extends Controller
     //     }
     // }
 
+    /**
+     * Student login via birth year or OTP
+     *
+     * If the submitted birth year matches the student’s date of birth, this endpoint logs the student in directly and
+     * returns an access token and profile. If it doesn’t match, it sends a 4‑digit OTP to the registered mobile number
+     * so the student can complete login using the `/student/verify-otp` endpoint.
+     *
+     * @group Authentication
+     *
+     * @bodyParam admission_id integer required The student admission ID. Example: 123
+     * @bodyParam mobile_no string required The registered mobile number (10–15 digits). Example: 9876543210
+     * @bodyParam birth_year integer required The student birth year (YYYY). Example: 2005
+     * @bodyParam device_token string The FCM device token for push notifications. Example: fcm_token_123
+     * @bodyParam device_details string Additional information about the device (model, OS, etc). Example: Android 14; OnePlus 11
+     *
+     * @response 200 scenario="Birth year matched (direct login)" {
+     *   "status": "true",
+     *   "message": "Login successful.",
+     *   "data": {
+     *     "id": "123",
+     *     "first_name": "Raj",
+     *     "last_name": "Patel",
+     *     "mobile_no": "9876543210",
+     *     "token": "eyJ0eXAiOiJKV1QiLCJh...",
+     *     "expiresAt": "2026-03-13T10:00:00Z",
+     *     "login_type": "birth_year"
+     *   }
+     * }
+     *
+     * @response 200 scenario="Birth year did not match (OTP sent)" {
+     *   "status": "true",
+     *   "message": "Please try again. Birth year does not match.",
+     *   "data": {
+     *     "admission_id": 123,
+     *     "mobile_no": "9876543210"
+     *   }
+     * }
+     *
+     * @response 422 scenario="Validation failed" {
+     *   "status": "false",
+     *   "message": "The admission id field is required.",
+     *   "messages": {
+     *     "admission_id": [
+     *       "The admission id field is required."
+     *     ]
+     *   }
+     * }
+     */
     public function studentSendOtp(Request $request)
     {
         try {
@@ -358,6 +440,43 @@ class AuthenticationController extends Controller
         }
     }
 
+    /**
+     * Verify OTP and log student in
+     *
+     * Verifies the 4‑digit OTP previously sent to the student’s mobile number. On success, it revokes any previous
+     * tokens, issues a new Passport access token, stores device information (if provided) and returns the student
+     * profile along with the token.
+     *
+     * @group Authentication
+     *
+     * @bodyParam mobile_no string required The registered mobile number that received the OTP. Example: 9876543210
+     * @bodyParam otp string required The 4‑digit OTP sent to the mobile number. Example: 1234
+     * @bodyParam device_token string The FCM device token for push notifications. Example: fcm_token_123
+     * @bodyParam device_details string Additional information about the device (model, OS, etc). Example: Android 14; OnePlus 11
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "OTP verified successfully.",
+     *   "data": {
+     *     "id": "123",
+     *     "first_name": "Raj",
+     *     "last_name": "Patel",
+     *     "mobile_no": "9876543210",
+     *     "token": "eyJ0eXAiOiJKV1QiLCJh...",
+     *     "expiresAt": "2026-03-13T10:00:00Z"
+     *   }
+     * }
+     *
+     * @response 422 scenario="Invalid or expired OTP" {
+     *   "status": "false",
+     *   "message": "OTP not matched.",
+     *   "messages": {
+     *     "otp": [
+     *       "OTP not matched."
+     *     ]
+     *   }
+     * }
+     */
     public function studentVerifyOtp(Request $request)
     {
         try {
@@ -458,6 +577,27 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+    
+    /**
+     * Logout current student
+     *
+     * Revokes the currently authenticated student’s access token and deletes all stored device tokens for that student.
+     *
+     * @group Authentication
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Logged out successfully.",
+     *   "data": []
+     * }
+     *
+     * @response 401 scenario="Not authenticated" {
+     *   "status": "false",
+     *   "message": "User not authenticated.",
+     *   "data": []
+     * }
+     */
     public function studentLogout(Request $request)
     {
         try {

@@ -93,4 +93,17 @@ class Admission extends Authenticatable
         $last = $this?->last_name ?? '';
         return trim("{$last} {$father} {$first}");
     }
+
+    public function getProfilePicUrlAttribute()
+    {
+        # profile_pic_url
+        if (!$this?->profile_pic) {
+            return "";
+        }
+        $profilePic = $this?->profile_pic;
+        if (strpos($profilePic, 'http') === 0) {
+            return $profilePic;
+        }
+        return asset($profilePic);
+    }
 }

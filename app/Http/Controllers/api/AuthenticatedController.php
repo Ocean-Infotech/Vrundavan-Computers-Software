@@ -14,6 +14,35 @@ class AuthenticatedController extends Controller
 
     // public function __construct(Request $request) {}
 
+    /**
+     * Get logged-in student profile
+     *
+     * Returns the complete profile of the currently authenticated student, including personal details,
+     * contact information and status.
+     *
+     * @group Student
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Login user profile get successfully.",
+     *   "data": {
+     *     "id": "123",
+     *     "first_name": "Raj",
+     *     "last_name": "Patel",
+     *     "father_name": "Mahesh",
+     *     "mobile_no": "9876543210",
+     *     "email_address": "raj@example.com",
+     *     "status": "active"
+     *   }
+     * }
+     *
+     * @response 401 scenario="Not authenticated" {
+     *   "status": "false",
+     *   "message": "Unauthorization.",
+     *   "data": []
+     * }
+     */
     public function student_profile_detail(Request $request)
     {
         try {
@@ -36,6 +65,13 @@ class AuthenticatedController extends Controller
         return $this->sendError('Something went wrong.', [], [], 500);
     }
 
+    /**
+     * Build student profile response
+     *
+     * Internal helper that assembles the student profile object from an admission id.
+     *
+     * @hideFromAPIDocumentation
+     */
     public function student_profile_response(Request $request)
     {
         try {
@@ -75,6 +111,7 @@ class AuthenticatedController extends Controller
             $responseData['gdrivefolderid'] = $studentDetail?->gdrivefolderid . '';
             $responseData['gdrivefoldername'] = $studentDetail?->gdrivefoldername . '';
             $responseData['status'] = $studentDetail?->status . '';
+            $responseData['profile_url'] = $studentDetail?->profile_pic_url . '';
 
             return (object)$responseData;
         } catch (\Exception $e) {
@@ -82,8 +119,41 @@ class AuthenticatedController extends Controller
         }
         return (object)[];
     }
-
-
+    /**
+     * Update logged-in student profile
+     *
+     * Updates key contact and identification fields (mobile numbers, Aadhaar and addresses) for the
+     * currently authenticated student. Returns the fresh profile after update.
+     *
+     * @group Student
+     * @authenticated
+     *
+     * @bodyParam mobile_no string required Primary mobile number (must be unique). Example: 9876543210
+     * @bodyParam other_mobile_no string required Alternate mobile number (must be unique). Example: 9123456780
+     * @bodyParam whatsapp_no string WhatsApp number (must be unique if provided). Example: 9876543210
+     * @bodyParam aadhar_card_no string required 12‑digit Aadhaar number. Example: 234567890123
+     * @bodyParam temporary_address string required Current/temporary address. Example: 12, Shree Nagar Society, Surat
+     * @bodyParam permanent_address string required Permanent address. Example: 45, Patel Street, Junagadh
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Update student profile successfully.",
+     *   "data": {
+     *     "id": "123",
+     *     "mobile_no": "9876543210",
+     *     "other_mobile_no": "9123456780",
+     *     "whatsapp_no": "9876543210",
+     *     "temporary_address": "12, Shree Nagar Society, Surat",
+     *     "permanent_address": "45, Patel Street, Junagadh"
+     *   }
+     * }
+     *
+     * @response 401 scenario="Not authenticated" {
+     *   "status": "false",
+     *   "message": "Unauthorization",
+     *   "data": []
+     * }
+     */
    public function student_update_profile(Request $request)
 {
     try {
