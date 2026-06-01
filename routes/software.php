@@ -83,7 +83,8 @@ Route::resource('permissions', PermissionController::class);
 Route::resource('slider', SliderController::class);
 Route::match(['get', 'post'], 'slider/restore/{id}', [SliderController::class, 'restore'])->name('slider.restore');
 Route::match(['get', 'post'], 'slider-update-status', [SliderController::class, 'update_status'])->name('slider.status-update');
-Route::delete('/slider/permanent-delete/{id}',
+Route::delete(
+    '/slider/permanent-delete/{id}',
     [SliderController::class, 'permanentDelete']
 )->name('slider.permanent-delete');
 
@@ -138,7 +139,8 @@ Route::get('course/print', [MasterCourseController::class, 'printView'])->name('
 Route::resource('/course', MasterCourseController::class);
 Route::match(['get', 'post'], 'course/restore/{id}', [MasterCourseController::class, 'restore'])->name('course.restore');
 Route::match(['get', 'post'], 'course-update-status', [MasterCourseController::class, 'status_update'])->name('course.status-update');
-Route::delete('/course/permanent-delete/{id}',
+Route::delete(
+    '/course/permanent-delete/{id}',
     [MasterCourseController::class, 'permanent_delete']
 )->name('course.permanent-delete');
 
@@ -161,7 +163,8 @@ Route::get('batch/print', [MasterBatchController::class, 'printView'])->name('ba
 Route::resource('/batch', MasterBatchController::class);
 Route::match(['get', 'post'], 'batch/restore/{id}', [MasterBatchController::class, 'restore'])->name('batch.restore');
 Route::match(['get', 'post'], 'batch-update-status', [MasterBatchController::class, 'status_update'])->name('batch.status-update');
-Route::delete('batch/permanent-delete/{id}',
+Route::delete(
+    'batch/permanent-delete/{id}',
     [MasterBatchController::class, 'permanentDelete']
 )->name('batch.permanent-delete');
 
@@ -280,7 +283,8 @@ Route::resource('students-fees-report', StudentsFeesReportController::class);
 Route::resource('syllabus', SyllabusController::class);
 Route::match(['get', 'post'], 'syllabus/restore/{id}', [SyllabusController::class, 'restore'])->name('syllabus.restore');
 Route::match(['get', 'post'], 'syllabus-update-status', [SyllabusController::class, 'update_status'])->name('syllabus.status-update');
-Route::delete('/syllabus/permanent-delete/{id}',
+Route::delete(
+    '/syllabus/permanent-delete/{id}',
     [SyllabusController::class, 'permanentDelete']
 )->name('syllabus.permanent-delete');
 
@@ -289,7 +293,8 @@ Route::delete('/syllabus/permanent-delete/{id}',
 Route::resource('/subject', MasterSubjectController::class);
 Route::match(['get', 'post'], 'subject/restore/{id}', [MasterSubjectController::class, 'restore'])->name('subject.restore');
 Route::match(['get', 'post'], 'subject-update-status', [MasterSubjectController::class, 'update_status'])->name('subject.status-update');
-Route::delete('/subject/permanent-delete/{id}',
+Route::delete(
+    '/subject/permanent-delete/{id}',
     [MasterSubjectController::class, 'permanentDelete']
 )->name('subject.permanent-delete');
 
@@ -319,7 +324,8 @@ Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStu
 Route::get('/add-marks/{id}', [TestController::class, 'addMarks'])->name('test.add-marks');
 Route::post('/save-marks', [TestController::class, 'saveMarks'])->name('test.save-marks');
 Route::post('/test/save-marks-ajax', [TestController::class, 'saveMarksAjax'])->name('test.save-marks-ajax');
-Route::delete('test/permanent-delete/{id}',
+Route::delete(
+    'test/permanent-delete/{id}',
     [TestController::class, 'permanentDelete']
 )->name('test.permanent-delete');
 
@@ -343,11 +349,14 @@ Route::get('get-students-by-course/{course_id}', [NotificationSettingController:
 /** Timetable Routes */
 Route::resource('timetable', TimetableController::class);
 
-Route::match(['get', 'post'], 'timetable/restore/{id}',
+Route::match(
+    ['get', 'post'],
+    'timetable/restore/{id}',
     [TimetableController::class, 'restore']
 )->name('timetable.restore');
 
-Route::delete('timetable/permanent-delete/{id}',
+Route::delete(
+    'timetable/permanent-delete/{id}',
     [TimetableController::class, 'permanentDelete']
 )->name('timetable.permanent-delete');
 
@@ -365,3 +374,15 @@ Route::match(['get', 'post'], 'system-user-status', [SystemUserController::class
 
 
 Route::post('/push-test', [PushController::class, 'sendStatic']);
+
+// Device Shield Management
+Route::get('/device-shield', [App\Http\Controllers\DeviceBindingController::class, 'dashboard'])->name('device-shield.dashboard');
+Route::get('/device-shield/devices', [App\Http\Controllers\DeviceBindingController::class, 'index'])->name('device-shield.index');
+Route::post('/device-shield/devices/{id}/approve', [App\Http\Controllers\DeviceBindingController::class, 'approve'])->name('device-shield.approve');
+Route::post('/device-shield/devices/{id}/reject', [App\Http\Controllers\DeviceBindingController::class, 'reject'])->name('device-shield.reject');
+Route::post('/device-shield/devices/{id}/suspend', [App\Http\Controllers\DeviceBindingController::class, 'suspend'])->name('device-shield.suspend');
+Route::post('/device-shield/devices/{id}/reactivate', [App\Http\Controllers\DeviceBindingController::class, 'reactivate'])->name('device-shield.reactivate');
+Route::post('/device-shield/devices/{id}/force-rebind', [App\Http\Controllers\DeviceBindingController::class, 'forceRebind'])->name('device-shield.force-rebind');
+Route::post('/device-shield/devices/{id}/update-name', [App\Http\Controllers\DeviceBindingController::class, 'updateDeviceName'])->name('device-shield.update-name');
+Route::get('/device-shield/logs', [App\Http\Controllers\DeviceBindingController::class, 'logs'])->name('device-shield.logs');
+Route::post('/device-shield/users/{id}/toggle-check', [App\Http\Controllers\DeviceBindingController::class, 'toggleDeviceCheck'])->name('device-shield.users.toggle-check');

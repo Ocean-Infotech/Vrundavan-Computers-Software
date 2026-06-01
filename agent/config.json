@@ -1,0 +1,6 @@
+{
+    "secret_key": "base64:H0naO/XQbCIIp4wRCFsLY9qHcGyNpJiogSwbkNYyotE=",
+    "backend_url": "http://localhost:8000",
+    "local_port": 9988,
+    "pc_name": "Workplace Windows PC"
+}
