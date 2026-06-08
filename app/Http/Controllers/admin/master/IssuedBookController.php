@@ -72,10 +72,7 @@ class IssuedBookController extends Controller
 
             if ($request->ajax()) {
                 $data = LibraryIssuedBooks::with(['book', 'student'])
-                    ->where(function ($query) {
-                        $query->whereNull('return_date')
-                            ->orWhere('return_date', '');
-                    });
+                    ->whereNull('return_date');
 
                 // 🔹 Filter by Book
                 if ($request->book_id) {

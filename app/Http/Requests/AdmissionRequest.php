@@ -87,7 +87,7 @@ class AdmissionRequest extends FormRequest
             ],
 
             'profile_pic' => [
-                'nullable',
+                $id ? 'nullable' : 'required',
                 'image',
                 'mimes:jpeg,png,jpg,gif',
                 'max:2048',
@@ -180,6 +180,7 @@ class AdmissionRequest extends FormRequest
             'email_address.required' => 'The Email Address is required.',
             'gender.required' => 'The Gender is required.',
             'category.required' => 'The Category is required.',
+            'profile_pic.required' => 'The Profile Picture is required.',
         ];
     }
 }
