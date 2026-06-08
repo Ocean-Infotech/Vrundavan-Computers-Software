@@ -107,13 +107,35 @@ class LoginController extends Controller
                 return Redirect::back()->withErrors(["Contact admin. Your account is inactive."]);
             }
 
-            //  check for token alraday store to direct login for user
-            // $existingToken = ApiToken::latest()->first();
-            // if ($existingToken && !empty($existingToken->token)) {
-            //     Session::put('external_api_token', $existingToken->token);
-            //     return Redirect::route('software.dashboard')
-            //         ->with('success', 'Login successful! Token loaded from database.');
-            // }
+            if (config('device_security.enabled', true) && $user->check_device && !$user->is_admin && !(method_exists($user, 'hasRole') && $user->hasRole('super-admin'))) {
+                $deviceData = [
+                    'user_id'            => $user->id,
+                    'hardware_id'        => $request->input('hardware_id'),
+                    'motherboard_serial' => $request->input('motherboard_serial'),
+                    'bios_serial'        => $request->input('bios_serial'),
+                    'cpu_id'             => $request->input('cpu_id'),
+                    'timestamp'          => $request->input('timestamp'),
+                    'nonce'              => $request->input('nonce'),
+                    'signature'          => $request->input('signature'),
+                    'pc_name'            => $request->input('pc_name', 'Web Browser'),
+                    'latitude'           => $request->input('latitude'),
+                    'longitude'          => $request->input('longitude'),
+                ];
+
+                $verificationService = app(\App\Services\DeviceVerificationService::class);
+                $verification = $verificationService->verifyDevice($deviceData, [
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+
+                if (!$verification['success']) {
+                    Auth::logout();
+                    return Redirect::back()->withInput($request->only('email', 'remember'))->withErrors(['device' => $verification['message']]);
+                }
+
+                session(['authorized_device_id' => $deviceData['hardware_id']]);
+            }
+
             return Redirect::route('software.dashboard')->with('success', 'Login successful!');
 
             try {
