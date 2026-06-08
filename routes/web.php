@@ -20,15 +20,16 @@ Route::get('optimize', function () {
 Route::get('/software/login', [LoginController::class, 'showLoginForm'])->name('software.login');
 
 /** Software Routes */
-Route::group(['prefix' => 'software', 'middleware' => [SoftwareAuthMiddleware::class]], function () {
-    include  base_path("routes/software.php");
+Route::group(['prefix' => 'software', 'middleware' => [SoftwareAuthMiddleware::class, 'device.authorized']], function () {
+    Route::get('/download-agent', [\App\Http\Controllers\DeviceBindingController::class, 'downloadAgent'])->name('download.agent');
+    include base_path("routes/software.php");
 });
 // Route::get('/gd-test', function(){
 //     $res = \App\Helpers\GoogleDriveHelper::createFolder('test-'.time(), '1Zccw9vC6d4rfBvoLAe3tPWCRNDWE9gk7');
 //     return $res;
 // });
 
-Route::get('/gd-test', function(){
+Route::get('/gd-test', function () {
     $parentFolderId = '1pG7EV04G2A0fR7M9AF0ZppiY_gBhjsxI';
     $res = \App\Helpers\GoogleDriveHelper::createFolder('student_' . time(), $parentFolderId);
     return response()->json($res);

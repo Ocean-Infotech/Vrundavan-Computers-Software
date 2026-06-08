@@ -35,10 +35,31 @@
                     <!-- Login Form -->
                     <form id="formAuthentication" class="mb-3" action="{{ route('login') }}" method="post">
                         @csrf
+                        <input type="hidden" name="hardware_id" id="hardware_id">
+                        <input type="hidden" name="motherboard_serial" id="motherboard_serial">
+                        <input type="hidden" name="bios_serial" id="bios_serial">
+                        <input type="hidden" name="cpu_id" id="cpu_id">
+                        <input type="hidden" name="timestamp" id="timestamp">
+                        <input type="hidden" name="nonce" id="nonce">
+                        <input type="hidden" name="signature" id="signature">
+                        <input type="hidden" name="pc_name" id="pc_name">
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger p-2 mb-3" style="font-size: 0.85rem;">
+                                <ul class="mb-0 ps-3">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="text" class="form-control" id="email" name="email"
-                                placeholder="Enter your email" autofocus value="{{ old('email') }}" />
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email"
+                                autofocus value="{{ old('email') }}" />
                         </div>
                         <div class="mb-3 form-password-toggle">
                             <label class="form-label" for="password">Password</label>
@@ -48,6 +69,13 @@
                                 <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                             </div>
                         </div>
+
+                        <!-- Shield Status Indicator -->
+                        <div id="shield-status-container" class="mb-3 p-2 rounded text-center"
+                            style="font-size: 0.85rem; display: none;">
+                            <span id="shield-status-text">Detecting Vrundavan Shield...</span>
+                        </div>
+
                         <button class="btn btn-primary d-grid w-100">Sign in</button>
                     </form>
 
@@ -71,5 +99,78 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const statusContainer = document.getElementById('shield-status-container');
+            const statusText = document.getElementById('shield-status-text');
+            const submitBtn = document.querySelector('#formAuthentication button[type="submit"]') || document.querySelector('#formAuthentication button');
+
+            if (statusContainer) {
+                statusContainer.style.display = 'block';
+                statusContainer.style.backgroundColor = '#f8f9fa';
+                statusContainer.style.color = '#6c757d';
+                statusContainer.style.border = '1px solid #dee2e6';
+            }
+
+            function checkShieldAgent() {
+                fetch('http://127.0.0.1:9988/hardware')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Agent response not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.hardware_id && data.signature) {
+                            document.getElementById('hardware_id').value = data.hardware_id;
+                            document.getElementById('motherboard_serial').value = data.motherboard_serial;
+                            document.getElementById('bios_serial').value = data.bios_serial;
+                            document.getElementById('cpu_id').value = data.cpu_id;
+                            document.getElementById('timestamp').value = data.timestamp;
+                            document.getElementById('nonce').value = data.nonce;
+                            document.getElementById('signature').value = data.signature;
+                            document.getElementById('pc_name').value = data.pc_name || '';
+                            // Try to get highly accurate location from the browser first
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(
+                                    (position) => {
+                                        document.getElementById('latitude').value = position.coords.latitude;
+                                        document.getElementById('longitude').value = position.coords.longitude;
+                                        console.log('Browser high-accuracy Geolocation captured:', position.coords.latitude, position.coords.longitude);
+                                    },
+                                    (error) => {
+                                        console.warn('Browser Geolocation failed or denied. Falling back to IP-based location:', error.message);
+                                        document.getElementById('latitude').value = data.latitude || '';
+                                        document.getElementById('longitude').value = data.longitude || '';
+                                    },
+                                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                                );
+                            } else {
+                                document.getElementById('latitude').value = data.latitude || '';
+                                document.getElementById('longitude').value = data.longitude || '';
+                            }
+
+                            statusContainer.style.backgroundColor = '#d4edda';
+                            statusContainer.style.color = '#155724';
+                            statusContainer.style.border = '1px solid #c3e6cb';
+                            statusText.innerHTML = '<i class="ti ti-shield-check me-1"></i> Vrundavan Shield Active';
+                            if (submitBtn) submitBtn.disabled = false;
+                        } else {
+                            throw new Error('Invalid agent payload');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Shield Agent is not running on this PC.');
+                        statusContainer.style.backgroundColor = '#fff3cd';
+                        statusContainer.style.color = '#856404';
+                        statusContainer.style.border = '1px solid #ffeeba';
+                        statusText.innerHTML = '<i class="ti ti-shield-off me-1"></i> Vrundavan Shield: Agent Offline (Only required for lock-enforced employees)';
+                    });
+            }
+
+            checkShieldAgent();
+        });
     </script>
 @endsection
