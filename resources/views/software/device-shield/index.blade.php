@@ -25,7 +25,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>User / Employee</th>
+                        <th>First Registered By <small class="text-muted">(Registrant)</small></th>
                         <th>PC Alias / Hostname</th>
                         <th>Hardware Specs</th>
                         <th>Status Badge</th>

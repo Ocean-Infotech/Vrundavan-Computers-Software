@@ -90,31 +90,32 @@ class DeviceVerificationService
             return ['success' => false, 'message' => 'Device parameters mismatch. Hardware spoofing detected.'];
         }
 
-        // 6. DB Lookup — Find or Auto-Create Pending Record
-        $binding = $this->bindingRepository->findByUserAndHardware($userId, $hardwareId);
+        // 6. DB Lookup — Find by hardware_id alone (device-level approval, not user-specific)
+        $binding = $this->bindingRepository->findByHardwareId($hardwareId);
 
         if (!$binding) {
+            // First time this device is seen — register it as pending (store first user who triggered it)
             $newBinding = $this->bindingRepository->create([
-                'user_id' => $userId,
-                'hardware_id' => $hardwareId,
-                'pc_name' => $data['pc_name'] ?? 'Unknown PC',
-                'bios_serial' => $biosSerial,
+                'user_id'            => $userId,
+                'hardware_id'        => $hardwareId,
+                'pc_name'            => $data['pc_name'] ?? 'Unknown PC',
+                'bios_serial'        => $biosSerial,
                 'motherboard_serial' => $motherboardSerial,
-                'cpu_id' => $cpuId,
-                'raw_hardware_string' => trim($motherboardSerial) . trim($biosSerial) . trim($cpuId),
-                'status' => 'pending',
-                'latitude' => $latitude,
-                'longitude' => $longitude,
+                'cpu_id'             => $cpuId,
+                'raw_hardware_string'=> trim($motherboardSerial) . trim($biosSerial) . trim($cpuId),
+                'status'             => 'pending',
+                'latitude'           => $latitude,
+                'longitude'          => $longitude,
             ]);
 
             $this->logRepository->log(array_merge($logData, [
                 'login_status' => 'pending_approval',
-                'remarks' => 'First login from this PC. Device registered for approval.',
+                'remarks'      => 'New device detected. Registered for admin approval. Any user login blocked until approved.',
             ]));
 
             return [
                 'success' => false,
-                'message' => 'Device Approval Required. Your request is pending admin authorization.',
+                'message' => 'New Device Detected! Admin approval is required before any user can login from this device.',
                 'binding' => $newBinding,
             ];
         }
