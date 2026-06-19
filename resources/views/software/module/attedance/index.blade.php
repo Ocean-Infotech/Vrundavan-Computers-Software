@@ -36,6 +36,7 @@
             'show_export_btns' => true,
             'show_excal_btn' => true,
             'show_print_btn' => true,
+            'show_classwise_attendance_btn' => true,
             'show_back_btn' => false,
         ])
     </div>
@@ -65,6 +66,70 @@
         </div>
     </div>
     <input type="hidden" id="admission_id" value="{{ $admission_id ?? '' }}">
+
+    <div class="modal fade" id="classwiseAttendanceModal" tabindex="-1" aria-labelledby="classwiseAttendanceModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="classwiseAttendanceModalLabel">Classwise Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="classwiseAttendanceForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Course <span class="text-danger">*</span></label>
+                            <select id="classwise_course_id" name="filter_course"
+                                class="form-control select2" required>
+                                <option value="">Select Course</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Batch <span class="text-danger">*</span></label>
+                            <select id="classwise_batch_id" name="filter_batch"
+                                class="form-control select2" required disabled>
+                                <option value="">Select Batch</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Class <span class="text-danger">*</span></label>
+                            <select id="classwise_class_id" name="filter_class"
+                                class="form-control select2" required disabled>
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Month <span class="text-danger">*</span></label>
+                                <select id="classwise_month" name="month" class="form-control select2" required>
+                                    @for ($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ now()->month == $m ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::createFromDate(now()->year, $m, 1)->format('F') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Year <span class="text-danger">*</span></label>
+                                <select id="classwise_year" name="year" class="form-control select2" required>
+                                    @for ($y = now()->year - 2; $y <= now()->year + 1; $y++)
+                                        <option value="{{ $y }}" {{ now()->year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" id="classwiseAttendanceReset">Reset</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" id="classwiseExportExcelBtn">
+                            <i class="fa fa-file-excel me-1"></i> Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -180,7 +245,10 @@
                     type: "GET",
                     data: function(data) {
                         data.search = $('input[type="search"]').val();
-                         data.admission_id = admission_id;
+                        data.admission_id = admission_id;
+                        data.filter_course = $('#classwise_course_id').val();
+                        data.filter_batch = $('#classwise_batch_id').val();
+                        data.filter_class = $('#classwise_class_id').val();
                     },
                     beforeSend: function(request) {
                         request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
@@ -195,11 +263,6 @@
         });
 
         $('input[name="search"]').keyup(function() {
-            dtable.draw();
-        });
-
-        jQuery(document).on('change', 'select', function(event) {
-            event.preventDefault();
             dtable.draw();
         });
 
@@ -317,6 +380,286 @@
                 }
 
                 hideExportModal();
+            });
+
+            const classwiseModalElement = document.getElementById('classwiseAttendanceModal');
+            let classwiseModalInstance = null;
+
+            if (classwiseModalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                classwiseModalInstance = new bootstrap.Modal(classwiseModalElement);
+            }
+
+            const showClasswiseModal = () => {
+                if (classwiseModalInstance) {
+                    classwiseModalInstance.show();
+                } else {
+                    $('#classwiseAttendanceModal').modal('show');
+                }
+            };
+
+            const hideClasswiseModal = () => {
+                if (classwiseModalInstance) {
+                    classwiseModalInstance.hide();
+                } else {
+                    $('#classwiseAttendanceModal').modal('hide');
+                }
+            };
+
+            $('#classwiseAttendanceBtn').on('click', function(e) {
+                e.preventDefault();
+                showClasswiseModal();
+            });
+
+            function initClasswiseSelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                $('#classwise_course_id, #classwise_batch_id, #classwise_class_id, #classwise_month, #classwise_year').each(function() {
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        $(this).select2('destroy');
+                    }
+                    $(this).select2({
+                        dropdownParent: $('#classwiseAttendanceModal'),
+                        width: '100%'
+                    });
+                });
+            }
+
+            function resetClasswiseClass() {
+                $('#classwise_class_id')
+                    .html('<option value="">Select Class</option>')
+                    .prop('disabled', true)
+                    .val('')
+                    .trigger('change');
+            }
+
+            function resetClasswiseBatch() {
+                resetClasswiseClass();
+                $('#classwise_batch_id')
+                    .html('<option value="">Select Batch</option>')
+                    .prop('disabled', true)
+                    .val('')
+                    .trigger('change');
+            }
+
+            function refreshClasswiseSelect2(selector) {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $select = $(selector);
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+                $select.select2({
+                    dropdownParent: $('#classwiseAttendanceModal'),
+                    width: '100%'
+                });
+            }
+
+            function loadClasswiseClasses(batchId) {
+                resetClasswiseClass();
+
+                if (!batchId) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('get-class-bybatch') }}",
+                    beforeSend: function(request) {
+                        request.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                    },
+                    data: {
+                        batch_id: batchId
+                    },
+                    success: function(response) {
+                        if (!response.status) {
+                            return;
+                        }
+
+                        let options = '<option value="">Select Class</option>';
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(i, item) {
+                                options += '<option value="' + item.id + '">' + item.name + '</option>';
+                            });
+                        }
+
+                        $('#classwise_class_id')
+                            .html(options)
+                            .prop('disabled', false)
+                            .trigger('change');
+
+                        refreshClasswiseSelect2('#classwise_class_id');
+                    }
+                });
+            }
+
+            function loadClasswiseBatches(courseId) {
+                resetClasswiseBatch();
+
+                if (!courseId) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('get-batch') }}",
+                    beforeSend: function(request) {
+                        request.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                    },
+                    data: {
+                        course_id: courseId
+                    },
+                    success: function(response) {
+                        if (!response.status) {
+                            return;
+                        }
+
+                        let options = '<option value="">Select Batch</option>';
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(i, item) {
+                                options += '<option value="' + item.id + '">' + item.name + '</option>';
+                            });
+                        }
+
+                        $('#classwise_batch_id')
+                            .html(options)
+                            .prop('disabled', false)
+                            .trigger('change');
+
+                        refreshClasswiseSelect2('#classwise_batch_id');
+                    }
+                });
+            }
+
+            function loadClasswiseCourses() {
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('get-course') }}",
+                    beforeSend: function(request) {
+                        request.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                    },
+                    success: function(response) {
+                        if (!response.status) {
+                            return;
+                        }
+
+                        let options = '<option value="">Select Course</option>';
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(i, item) {
+                                options += '<option value="' + item.id + '">' + item.name + '</option>';
+                            });
+                        }
+
+                        $('#classwise_course_id').html(options).trigger('change');
+                    }
+                });
+            }
+
+            $('#classwiseAttendanceModal').on('shown.bs.modal', function() {
+                resetClasswiseBatch();
+                loadClasswiseCourses();
+                initClasswiseSelect2();
+            });
+
+            $('#classwise_course_id').on('change', function() {
+                loadClasswiseBatches($(this).val());
+            });
+
+            $('#classwise_batch_id').on('change', function() {
+                loadClasswiseClasses($(this).val());
+            });
+
+            function checkClasswiseStudents(showSuccessToast = false) {
+                const courseId = $('#classwise_course_id').val();
+                const batchId = $('#classwise_batch_id').val();
+                const classId = $('#classwise_class_id').val();
+
+                if (!courseId || !batchId || !classId) {
+                    return $.Deferred().resolve({ has_students: true }).promise();
+                }
+
+                return $.ajax({
+                    type: 'GET',
+                    url: "{{ route($route . '.classwise-check-students') }}",
+                    data: {
+                        filter_course: courseId,
+                        filter_batch: batchId,
+                        filter_class: classId,
+                    },
+                    success: function(response) {
+                        if (!response.has_students) {
+                            toastr.warning(response.message || 'No students found for selected Course, Batch and Class.');
+                        } else if (showSuccessToast) {
+                            toastr.success(response.message || 'Students found successfully.');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Unable to check students. Please try again.');
+                    }
+                });
+            }
+
+            $('#classwise_class_id').on('change', function() {
+                if ($(this).val()) {
+                    checkClasswiseStudents(false);
+                }
+            });
+
+            $('#classwiseExportExcelBtn').on('click', function() {
+                if (!$('#classwise_course_id').val()) {
+                    toastr.warning('Please select Course.');
+                    return;
+                }
+
+                if (!$('#classwise_batch_id').val()) {
+                    toastr.warning('Please select Batch.');
+                    return;
+                }
+
+                if (!$('#classwise_class_id').val()) {
+                    toastr.warning('Please select Class.');
+                    return;
+                }
+
+                if (!$('#classwise_month').val()) {
+                    toastr.warning('Please select Month.');
+                    return;
+                }
+
+                if (!$('#classwise_year').val()) {
+                    toastr.warning('Please select Year.');
+                    return;
+                }
+
+                checkClasswiseStudents(false).done(function(response) {
+                    if (response && !response.has_students) {
+                        return;
+                    }
+
+                    const params = new URLSearchParams({
+                        filter_course: $('#classwise_course_id').val(),
+                        filter_batch: $('#classwise_batch_id').val(),
+                        filter_class: $('#classwise_class_id').val(),
+                        month: $('#classwise_month').val(),
+                        year: $('#classwise_year').val(),
+                    });
+
+                    window.location.href = "{{ route($route . '.classwise-export-excel') }}?" + params.toString();
+                });
+            });
+
+            $('#classwiseAttendanceReset').on('click', function() {
+                $('#classwise_course_id').val('').trigger('change');
+                resetClasswiseBatch();
+                $('#classwise_month').val('{{ now()->month }}');
+                $('#classwise_year').val('{{ now()->year }}');
+                if ($.fn.select2) {
+                    $('#classwise_course_id, #classwise_batch_id, #classwise_class_id, #classwise_month, #classwise_year').trigger('change.select2');
+                }
+                dtable.draw();
             });
         });
     </script>

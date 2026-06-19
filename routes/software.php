@@ -131,6 +131,8 @@ Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class,
 
 Route::get('admission/attendance/{id}', [AdmissionController::class, 'viewAttendance'])->name('admission.view-attendance');
 Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMarks'])->name('admission.view-test-marks');
+Route::get('admission/bonafide-certificate/{id}', [AdmissionController::class, 'bonafideCertificate'])->name('admission.bonafide-certificate');
+Route::get('admission/transfer-certificate/{id}', [AdmissionController::class, 'transferCertificate'])->name('admission.transfer-certificate');
 
 
 /** Master Course Modules */
@@ -198,6 +200,8 @@ Route::match(['get', 'post'], 'issued-book/return/{id}', [IssuedBookController::
 Route::match(['get', 'post'], 'issued-book/restore/{id}', [IssuedBookController::class, 'restore'])->name('issued-book.restore');
 /** Attedance Modules */
 Route::get('attedance/export-excel', [AttedanceController::class, 'exportExcel'])->name('attedance.export-excel');
+Route::get('attedance/classwise-check-students', [AttedanceController::class, 'checkClasswiseStudents'])->name('attedance.classwise-check-students');
+Route::get('attedance/classwise-export-excel', [AttedanceController::class, 'exportClasswiseMonthlyExcel'])->name('attedance.classwise-export-excel');
 Route::get('attedance/print', [AttedanceController::class, 'printView'])->name('attedance.print');
 Route::resource('/attedance', AttedanceController::class)->except(['show']);
 Route::match(['get', 'post'], 'attedance/restore/{id}', [AttedanceController::class, 'restore'])->name('attedance.restore');

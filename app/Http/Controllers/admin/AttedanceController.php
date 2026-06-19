@@ -26,7 +26,11 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\Builder;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\Master\MasterCourse;
 
 class AttedanceController extends Controller
 {
@@ -114,6 +118,28 @@ class AttedanceController extends Controller
                 // ✅ Filter only this student's attendance if admission_id is given
                 if (!empty($admission_id)) {
                     $data->where('admission_id', $admission_id);
+                }
+
+                if ($request->filled('filter_course')) {
+                    $data->where('course_id', $request->filter_course);
+                }
+
+                if ($request->filled('filter_batch')) {
+                    $data->where('batch_id', $request->filter_batch);
+                }
+
+                if ($request->filled('filter_class')) {
+                    $admissionIds = CourceRegistration::query()
+                        ->where('class_id', $request->filter_class)
+                        ->when($request->filled('filter_course'), function ($query) use ($request) {
+                            $query->where('course_id', $request->filter_course);
+                        })
+                        ->when($request->filled('filter_batch'), function ($query) use ($request) {
+                            $query->where('batch_id', $request->filter_batch);
+                        })
+                        ->pluck('admission_id');
+
+                    $data->whereIn('admission_id', $admissionIds);
                 }
 
                 $editPermission = true;
@@ -1037,5 +1063,411 @@ class AttedanceController extends Controller
             default:
                 return data_get($attendance, $columnKey, '-');
         }
+    }
+
+    public function checkClasswiseStudents(Request $request)
+    {
+        $this->authorizeAttendanceList();
+
+        $request->validate([
+            'filter_course' => 'required|integer',
+            'filter_batch' => 'required|integer',
+            'filter_class' => 'required|integer',
+        ]);
+
+        $count = CourceRegistration::query()
+            ->where('course_id', $request->filter_course)
+            ->where('batch_id', $request->filter_batch)
+            ->where('class_id', $request->filter_class)
+            ->count();
+
+        return response()->json([
+            'status' => true,
+            'count' => $count,
+            'has_students' => $count > 0,
+            'message' => $count > 0
+                ? 'Students found successfully.'
+                : 'No students found for selected Course, Batch and Class.',
+        ]);
+    }
+
+    public function exportClasswiseMonthlyExcel(Request $request)
+    {
+        $this->authorizeAttendanceList();
+
+        $request->validate([
+            'filter_course' => 'required|integer',
+            'filter_batch' => 'required|integer',
+            'filter_class' => 'required|integer',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2000|max:2100',
+        ]);
+
+        $courseId = (int) $request->filter_course;
+        $batchId = (int) $request->filter_batch;
+        $classId = (int) $request->filter_class;
+        $month = (int) $request->month;
+        $year = (int) $request->year;
+
+        $course = MasterCourse::find($courseId);
+        $masterClass = MasterClass::find($classId);
+
+        $students = CourceRegistration::with(['admission'])
+            ->where('course_id', $courseId)
+            ->where('batch_id', $batchId)
+            ->where('class_id', $classId)
+            ->orderBy('id')
+            ->get();
+
+        $admissionIds = $students->pluck('register_id')->filter()->unique()->values();
+
+        $monthStart = Carbon::create($year, $month, 1)->startOfDay();
+        $monthEnd = $monthStart->copy()->endOfMonth();
+        $daysInMonth = $monthStart->daysInMonth;
+
+        $attendanceRows = Attedance::query()
+            ->whereIn('admission_id', $admissionIds)
+            ->where('course_id', $courseId)
+            ->where('batch_id', $batchId)
+            ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+            ->get();
+
+        $attendanceMap = [];
+        foreach ($attendanceRows as $row) {
+            $day = Carbon::parse($row->date)->day;
+            $attendanceMap[$row->admission_id][$day] = $row;
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Monthly Attendance');
+
+        $dayAbbr = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+        $dayColumnCount = $daysInMonth;
+        $firstDayCol = 4;
+        $lastDayCol = $firstDayCol + $dayColumnCount - 1;
+        $totalStartCol = $lastDayCol + 1;
+        $lastCol = $totalStartCol + 2;
+
+        $titleLeftEndCol = 20;
+        $titleRightStartCol = 21;
+        $teacherNameStartCol = 2;
+        $teacherNameEndCol = 4;
+        $courseLabelStartCol = 5;
+        $courseLabelEndCol = 11;
+        $courseValueStartCol = 12;
+        $courseValueEndCol = 20;
+        $monthLabelStartCol = 21;
+        $monthLabelEndCol = 25;
+        $monthValueStartCol = 26;
+
+        $col = fn (int $index) => Coordinate::stringFromColumnIndex($index);
+
+        $sheet->mergeCells('A1:' . $col($titleLeftEndCol) . '1');
+        $sheet->setCellValue('A1', 'Monthly Class Attendance');
+        $sheet->mergeCells($col($titleRightStartCol) . '1:' . $col($lastCol) . '1');
+        $sheet->setCellValue($col($titleRightStartCol) . '1', 'PVM BCA COLLEGE - KESHOD');
+
+        $teacherName = Auth::user()->name ?? '';
+        $courseLabel = trim(($course->course_name ?? '') . ' ' . ($masterClass->class ?? ''));
+
+        $metaRowStart = 2;
+        $metaRowEnd = 4;
+        $monthRowEnd = 3;
+        $yearRow = 4;
+
+        $sheet->mergeCells('A' . $metaRowStart . ':A' . $metaRowEnd);
+        $sheet->setCellValue('A' . $metaRowStart, 'Teacher');
+        $sheet->mergeCells($col($teacherNameStartCol) . $metaRowStart . ':' . $col($teacherNameEndCol) . $metaRowEnd);
+        $sheet->setCellValue($col($teacherNameStartCol) . $metaRowStart, $teacherName);
+        $sheet->mergeCells($col($courseLabelStartCol) . $metaRowStart . ':' . $col($courseLabelEndCol) . $metaRowEnd);
+        $sheet->setCellValue($col($courseLabelStartCol) . $metaRowStart, 'Course');
+        $sheet->mergeCells($col($courseValueStartCol) . $metaRowStart . ':' . $col($courseValueEndCol) . $metaRowEnd);
+        $sheet->setCellValue($col($courseValueStartCol) . $metaRowStart, $courseLabel);
+
+        $sheet->mergeCells($col($monthLabelStartCol) . $metaRowStart . ':' . $col($monthLabelEndCol) . $monthRowEnd);
+        $sheet->setCellValue($col($monthLabelStartCol) . $metaRowStart, 'Month');
+        $sheet->mergeCells($col($monthValueStartCol) . $metaRowStart . ':' . $col($lastCol) . $monthRowEnd);
+        $sheet->setCellValue($col($monthValueStartCol) . $metaRowStart, $monthStart->format('F'));
+        $sheet->mergeCells($col($monthLabelStartCol) . $yearRow . ':' . $col($monthLabelEndCol) . $yearRow);
+        $sheet->setCellValue($col($monthLabelStartCol) . $yearRow, 'Year');
+        $sheet->mergeCells($col($monthValueStartCol) . $yearRow . ':' . $col($lastCol) . $yearRow);
+        $sheet->setCellValue($col($monthValueStartCol) . $yearRow, $year);
+
+        $headerRowTop = 6;
+        $headerRowBottom = 7;
+        $dataStartRow = 8;
+
+        $sheet->mergeCells('A' . $headerRowTop . ':C' . $headerRowTop);
+        $sheet->setCellValue('A' . $headerRowTop, 'Student');
+        $sheet->setCellValue('A' . $headerRowBottom, 'ID');
+        $sheet->mergeCells('B' . $headerRowBottom . ':C' . $headerRowBottom);
+        $sheet->setCellValue('B' . $headerRowBottom, 'Name');
+
+        for ($day = 1; $day <= $dayColumnCount; $day++) {
+            $dayCol = $firstDayCol + $day - 1;
+            $cellCol = $col($dayCol);
+            if ($day <= $daysInMonth) {
+                $date = Carbon::create($year, $month, $day);
+                $sheet->setCellValue($cellCol . $headerRowTop, $dayAbbr[$date->dayOfWeek]);
+                $sheet->setCellValue($cellCol . $headerRowBottom, $day);
+            } else {
+                $sheet->setCellValue($cellCol . $headerRowTop, '');
+                $sheet->setCellValue($cellCol . $headerRowBottom, '');
+            }
+        }
+
+        $sheet->mergeCells($col($totalStartCol) . $headerRowTop . ':' . $col($lastCol) . $headerRowTop);
+        $sheet->setCellValue($col($totalStartCol) . $headerRowTop, 'Totals');
+        $sheet->setCellValue($col($totalStartCol) . $headerRowBottom, 'P');
+        $sheet->setCellValue($col($totalStartCol + 1) . $headerRowBottom, 'L');
+        $sheet->setCellValue($col($totalStartCol + 2) . $headerRowBottom, 'TLR');
+
+        $rowNumber = $dataStartRow;
+        $serial = 1;
+        $studentRows = [];
+
+        foreach ($students as $registration) {
+            $admission = $registration->admission;
+            $admissionId = $registration->register_id;
+            $studentName = trim(
+                ($admission->first_name ?? '') . ' ' .
+                ($admission->last_name ?? '') . ' ' .
+                ($admission->father_name ?? '')
+            );
+
+            $presentCount = 0;
+            $leaveCount = 0;
+            $dayMarks = [];
+
+            for ($day = 1; $day <= $dayColumnCount; $day++) {
+                $mark = '';
+                if ($day <= $daysInMonth) {
+                    $record = $attendanceMap[$admissionId][$day] ?? null;
+                    if ($record) {
+                        $inTime = trim((string) ($record->in_time ?? ''));
+                        $outTime = trim((string) ($record->out_time ?? ''));
+                        $leave = trim((string) ($record->leave ?? ''));
+
+                        if ($inTime !== '') {
+                            $mark = 'P';
+                            $presentCount++;
+                        } elseif ($leave !== '' && $outTime === '') {
+                            $mark = 'L';
+                            $leaveCount++;
+                        }
+                    }
+                }
+                $dayMarks[$day] = $mark;
+            }
+
+            $studentRows[] = [
+                'serial' => $serial,
+                'name' => $studentName ?: '-',
+                'marks' => $dayMarks,
+                'present' => $presentCount > 0 ? $presentCount : '',
+                'leave' => $leaveCount > 0 ? $leaveCount : '',
+                'tlr' => ($presentCount + $leaveCount) > 0 ? ($presentCount + $leaveCount) : '',
+            ];
+            $serial++;
+        }
+
+        foreach ($studentRows as $studentRow) {
+            $sheet->setCellValue('A' . $rowNumber, $studentRow['serial']);
+            $sheet->mergeCells('B' . $rowNumber . ':C' . $rowNumber);
+            $sheet->setCellValue('B' . $rowNumber, $studentRow['name']);
+
+            for ($day = 1; $day <= $dayColumnCount; $day++) {
+                $sheet->setCellValue($col($firstDayCol + $day - 1) . $rowNumber, $studentRow['marks'][$day]);
+            }
+
+            $sheet->setCellValue($col($totalStartCol) . $rowNumber, $studentRow['present']);
+            $sheet->setCellValue($col($totalStartCol + 1) . $rowNumber, $studentRow['leave']);
+            $sheet->setCellValue($col($totalStartCol + 2) . $rowNumber, $studentRow['tlr']);
+
+            $rowNumber++;
+        }
+
+        $lastDataRow = $rowNumber - 1;
+        $footerRow1 = $lastDataRow + 1;
+        $footerRow2 = $lastDataRow + 2;
+
+        $footer1MergedRange = 'A' . $footerRow1 . ':' . $col($lastDayCol) . $footerRow1;
+        $footer1TotalsRange = $col($totalStartCol) . $footerRow1 . ':' . $col($lastCol) . $footerRow1;
+        $footer2MergedRange = 'A' . $footerRow2 . ':' . $col($lastDayCol) . $footerRow2;
+        $footer2TotalsRange = $col($totalStartCol) . $footerRow2 . ':' . $col($lastCol) . $footerRow2;
+        $sheet->mergeCells($footer1MergedRange);
+        $sheet->mergeCells($footer2MergedRange);
+
+        $tableRange = 'A' . $headerRowTop . ':' . $col($lastCol) . $lastDataRow;
+        $totalsRange = $col($totalStartCol) . $headerRowTop . ':' . $col($lastCol) . $lastDataRow;
+        $lastReportRow = $footerRow2;
+        $titleLeftRange = 'A1:' . $col($titleLeftEndCol) . '1';
+        $titleRightRange = $col($titleRightStartCol) . '1:' . $col($lastCol) . '1';
+        $metaRanges = [
+            'A' . $metaRowStart . ':A' . $metaRowEnd,
+            $col($teacherNameStartCol) . $metaRowStart . ':' . $col($teacherNameEndCol) . $metaRowEnd,
+            $col($courseLabelStartCol) . $metaRowStart . ':' . $col($courseLabelEndCol) . $metaRowEnd,
+            $col($courseValueStartCol) . $metaRowStart . ':' . $col($courseValueEndCol) . $metaRowEnd,
+            $col($monthLabelStartCol) . $metaRowStart . ':' . $col($monthLabelEndCol) . $monthRowEnd,
+            $col($monthValueStartCol) . $metaRowStart . ':' . $col($lastCol) . $monthRowEnd,
+            $col($monthLabelStartCol) . $yearRow . ':' . $col($monthLabelEndCol) . $yearRow,
+            $col($monthValueStartCol) . $yearRow . ':' . $col($lastCol) . $yearRow,
+        ];
+        $tableHeaderMergedRanges = [
+            'A' . $headerRowTop . ':C' . $headerRowTop,
+            'A' . $headerRowBottom,
+            'B' . $headerRowBottom . ':C' . $headerRowBottom,
+            $col($totalStartCol) . $headerRowTop . ':' . $col($lastCol) . $headerRowTop,
+        ];
+
+        $thinBorder = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ];
+
+        $totalsFill = [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FFDCBEAF'],
+        ];
+        $footerFill = [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FFDCBEAF'],
+        ];
+        $sundayFill = [
+            'fillType' => Fill::FILL_SOLID,
+            'startColor' => ['argb' => 'FFD9D9D9'],
+        ];
+
+        $tableHeaderRange = 'A' . $headerRowTop . ':' . $col($lastCol) . $headerRowBottom;
+
+        $sheet->getStyle($tableHeaderRange)->applyFromArray([
+            'fill' => $totalsFill,
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $sheet->getStyle($totalsRange)->applyFromArray([
+            'fill' => $totalsFill,
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $sheet->getStyle($footer1MergedRange)->applyFromArray(['fill' => $footerFill]);
+        $sheet->getStyle($footer1TotalsRange)->applyFromArray(['fill' => $footerFill]);
+        $sheet->getStyle($footer2MergedRange)->applyFromArray(['fill' => $footerFill]);
+        $sheet->getStyle($footer2TotalsRange)->applyFromArray(['fill' => $footerFill]);
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($year, $month, $day);
+            if ($date->dayOfWeek === Carbon::SUNDAY) {
+                $dayCol = $firstDayCol + $day - 1;
+                $sundayDateCell = $col($dayCol) . $headerRowBottom;
+                $sheet->getStyle($sundayDateCell)->applyFromArray(['fill' => $sundayFill]);
+            }
+        }
+
+        $sheet->getStyle($titleLeftRange)->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle($titleLeftRange)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle($titleRightRange)->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle($titleRightRange)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle('A' . $metaRowStart)->getFont()->setBold(true);
+        $sheet->getStyle($col($courseLabelStartCol) . $metaRowStart)->getFont()->setBold(true);
+        $sheet->getStyle($col($monthLabelStartCol) . $metaRowStart)->getFont()->setBold(true);
+        $sheet->getStyle($col($monthLabelStartCol) . $yearRow)->getFont()->setBold(true);
+        foreach ($metaRanges as $metaRange) {
+            $sheet->getStyle($metaRange)->applyFromArray($thinBorder);
+        }
+        $sheet->getStyle($titleLeftRange)->applyFromArray($thinBorder);
+        $sheet->getStyle($titleRightRange)->applyFromArray($thinBorder);
+
+        $sheet->getStyle('B' . $dataStartRow . ':C' . $lastDataRow)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A' . $headerRowBottom . ':A' . $lastDataRow)
+            ->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A' . $dataStartRow . ':' . $col($lastCol) . $lastDataRow)
+            ->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle($col($firstDayCol) . $dataStartRow . ':' . $col($lastDayCol) . $lastDataRow)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $borderStyle = [
+            'borderStyle' => Border::BORDER_THIN,
+            'color' => ['argb' => 'FF000000'],
+        ];
+        $allBordersStyle = ['borders' => ['allBorders' => $borderStyle]];
+        $outlineStyle = [
+            'borders' => [
+                'outline' => [
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ];
+
+        $borderedRanges = array_merge(
+            [$titleLeftRange, $titleRightRange, $tableRange, $footer1MergedRange, $footer1TotalsRange, $footer2MergedRange, $footer2TotalsRange],
+            $metaRanges,
+            $tableHeaderMergedRanges
+        );
+        foreach ($borderedRanges as $borderedRange) {
+            $sheet->getStyle($borderedRange)->applyFromArray($allBordersStyle);
+        }
+
+        $reportRange = 'A1:' . $col($lastCol) . $lastReportRow;
+        $sheet->getStyle($reportRange)->applyFromArray($outlineStyle);
+
+        $tableTopBorder = $sheet->getStyle('A' . $headerRowTop . ':' . $col($lastCol) . $headerRowTop)->getBorders()->getTop();
+        $tableTopBorder->setBorderStyle(Border::BORDER_THIN);
+        $tableTopBorder->getColor()->setARGB('FF000000');
+
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(20);
+        for ($c = $firstDayCol; $c <= $lastDayCol; $c++) {
+            $sheet->getColumnDimension($col($c))->setWidth(3.5);
+        }
+        $sheet->getColumnDimension($col($totalStartCol))->setWidth(5);
+        $sheet->getColumnDimension($col($totalStartCol + 1))->setWidth(5);
+        $sheet->getColumnDimension($col($totalStartCol + 2))->setWidth(6);
+
+        $sheet->getRowDimension(1)->setRowHeight(24);
+        $sheet->getRowDimension(2)->setRowHeight(18);
+        $sheet->getRowDimension(3)->setRowHeight(18);
+        $sheet->getRowDimension(4)->setRowHeight(18);
+        $sheet->getRowDimension($headerRowTop)->setRowHeight(18);
+        $sheet->getRowDimension($headerRowBottom)->setRowHeight(18);
+
+        $sheet->getRowDimension($footerRow1)->setRowHeight(18);
+        $sheet->getRowDimension($footerRow2)->setRowHeight(18);
+
+        $fileName = 'monthly-class-attendance-' . $year . '-' . str_pad((string) $month, 2, '0', STR_PAD_LEFT) . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }

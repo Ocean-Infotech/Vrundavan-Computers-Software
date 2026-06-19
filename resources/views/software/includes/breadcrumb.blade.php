@@ -67,6 +67,14 @@
                     </a>
                 </li>
             @endif
+
+            @if (isset($show_classwise_attendance_btn) && $show_classwise_attendance_btn)
+                <li>
+                    <a href="#" class="dropdown-item" id="classwiseAttendanceBtn">
+                        <i class="fa fa-users me-2 text-warning"></i>Classwise Attendance
+                    </a>
+                </li>
+            @endif
         </ul>
     @endif
 

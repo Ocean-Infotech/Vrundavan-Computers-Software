@@ -46,7 +46,7 @@
         <div class="card-body mt-4">
             <form id="FeesCollection"
                 action="{{ isset($edit) && $edit?->id ? route($route . '.update', [$edit?->id]) : route($route . '.store') }}"
-                method="POST" enctype="multipart/form-data">
+                method="POST" enctype="multipart/form-data" autocomplete="off">
                 @csrf
                 @isset($edit)
                     @method('PUT')
@@ -393,6 +393,53 @@
     <script>
         $(document).ready(function() {
             editId = "{{ isset($edit) && $edit?->id ? $edit?->id : '' }}";
+            const clearCreateFormKey = 'feesCollectionCreateSubmitted';
+
+            function clearFeesCollectionCreateForm() {
+                if (editId) {
+                    return;
+                }
+
+                const form = document.getElementById('FeesCollection');
+                if (form) {
+                    form.reset();
+                }
+
+                $('#FeesCollectionDetails').hide();
+                $('#search_id').val('');
+                $('span#student_name, span#student_id, span#admission_id, span#course_id').text('---');
+                $('input[name="student_name"], input[name="student_id"], input[name="admission_id"], input[name="course_id"]').val('');
+                $('#year_semester').html('<option value="">Select Semester</option>').val('').removeClass('is-invalid');
+                $('#date').val('{{ \Carbon\Carbon::now()->format('Y-m-d') }}');
+                $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
+                $('#mode').val('').removeClass('is-invalid');
+                $('#upi_id, #cheque_no, #confirm_password, #pandingfeesinput').val('');
+                $('#password_error').addClass('d-none').text('Password is required.');
+                $('#CourseFees, #DepositeFees, #PendingFees').text('00');
+                $('#ReceiptTable tbody').html('<tr><td class="text-center" colspan="5">No data available</td></tr>');
+                $('#semesterPrintRows').html('<tr><td class="text-center" colspan="2">No paid semesters</td></tr>');
+                $('#semErrorMsg, #feeError, #feeErrorZero, #feeErrorCourse').remove();
+                window.currentStudentDetails = null;
+                window.paidSemesters = [];
+                window.unpaidSemesters = [];
+
+                if ($.fn.select2) {
+                    $('#year_semester, #mode').trigger('change.select2');
+                }
+                $('#mode').trigger('change');
+            }
+
+            window.addEventListener('pageshow', function(event) {
+                if (!editId && (event.persisted || sessionStorage.getItem(clearCreateFormKey) === '1')) {
+                    sessionStorage.removeItem(clearCreateFormKey);
+                    clearFeesCollectionCreateForm();
+                }
+            });
+
+            if (!editId && sessionStorage.getItem(clearCreateFormKey) === '1') {
+                sessionStorage.removeItem(clearCreateFormKey);
+                clearFeesCollectionCreateForm();
+            }
 
             // Open Password Modal button click - Validate required fields before opening modal
             $('#openPasswordModal').on('click', function(e) {
@@ -441,6 +488,9 @@
 
                                 showMessage("Password Match", "success");
                                 $('#passwordModal').modal('hide');
+                                if (!editId) {
+                                    sessionStorage.setItem(clearCreateFormKey, '1');
+                                }
                                 $('#FeesCollection').submit();
                             } else {
                                 $('#password_error').removeClass('d-none').text(
