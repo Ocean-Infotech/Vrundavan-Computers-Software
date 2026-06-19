@@ -21,7 +21,7 @@
             font-family: 'Times New Roman', Times, serif;
             color: #000;
             background: #fff;
-            font-size: 13px;
+            font-size: 15px;
             line-height: 1.6;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -64,12 +64,12 @@
 
         .header-center {
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             line-height: 1.45;
         }
 
         .header-center .college-name {
-            font-size: 16px;
+            font-size: 21px;
             font-weight: 700;
             margin: 3px 0;
         }
@@ -79,7 +79,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            font-size: 11px;
+            font-size: 13px;
             margin-top: 4px;
         }
 
@@ -100,14 +100,14 @@
             top: 6px;
             right: 0;
             padding: 5px 14px 6px;
-            font-size: 11px;
+            font-size: 13px;
             line-height: 1.65;
             min-width: 190px;
         }
 
         .cert-title {
             text-align: center;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 700;
             margin: 40px 0 50px;
             letter-spacing: 1px;
@@ -115,7 +115,7 @@
         }
 
         .cert-body {
-            font-size: 14px;
+            font-size: 18px;
             line-height: 2;
             text-align: justify;
             margin: 30px 0 80px;
@@ -135,7 +135,7 @@
             justify-content: space-between;
             align-items: flex-end;
             margin-top: 60px;
-            font-size: 14px;
+            font-size: 17px;
         }
 
         @media print {

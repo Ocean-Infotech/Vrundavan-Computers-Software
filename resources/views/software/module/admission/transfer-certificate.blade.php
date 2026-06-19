@@ -22,7 +22,7 @@
             font-family: 'Noto Sans Gujarati', 'Shruti', 'Nirmala UI', sans-serif;
             color: #000;
             background: #fff;
-            font-size: 12px;
+            font-size: 15px;
             line-height: 1.55;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -65,12 +65,12 @@
 
         .header-center {
             text-align: center;
-            font-size: 11px;
+            font-size: 13px;
             line-height: 1.45;
         }
 
         .header-center .college-name {
-            font-size: 16px;
+            font-size: 21px;
             font-weight: 700;
             margin: 3px 0;
         }
@@ -80,7 +80,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            font-size: 11px;
+            font-size: 13px;
             margin-top: 4px;
         }
 
@@ -109,7 +109,7 @@
             top: 6px;
             right: 0;
             padding: 5px 14px 6px;
-            font-size: 11px;
+            font-size: 13px;
             line-height: 1.65;
             min-width: 190px;
         }
@@ -123,14 +123,14 @@
 
         .cert-title {
             text-align: center;
-            font-size: 15px;
+            font-size: 22px;
             font-weight: 700;
             margin: 8px 0 12px;
             text-decoration: underline;
         }
 
         .intro {
-            font-size: 12px;
+            font-size: 16px;
             margin-bottom: 10px;
             text-align: justify;
         }
@@ -157,25 +157,27 @@
         }
 
         .points {
-            font-size: 12px;
+            font-size: 15px;
         }
 
         .point {
-            margin-bottom: 7px;
+            margin-bottom: 9px;
             text-align: justify;
             padding-left: 2px;
+            line-height: 1.6;
         }
 
         .sub-point {
-            margin: 2px 0 2px 22px;
+            margin: 3px 0 3px 22px;
             text-align: justify;
+            line-height: 1.6;
         }
 
         .blank {
             display: inline-block;
             border-bottom: 1px solid #000;
             min-width: 70px;
-            height: 13px;
+            height: 15px;
             vertical-align: bottom;
             margin: 0 1px;
         }
@@ -202,8 +204,8 @@
         }
 
         .footer-section {
-            margin-top: 20px;
-            font-size: 12px;
+            margin-top: 25px;
+            font-size: 15px;
         }
 
         .footer-row {
@@ -223,7 +225,7 @@
             flex-shrink: 0;
             text-align: right;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 17px;
             min-width: 100px;
             padding-bottom: 2px;
         }
