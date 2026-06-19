@@ -166,6 +166,8 @@ class AdmissionController extends Controller
                 (object) ['data' => "gdrivefolderurl", 'name' => 'gdrivefolderurl', 'td_label' => '<i class="fab fa-google-drive" style="font-size:18px;color:#4285F4;"></i>', 'className' => 'w-5 text-center'],
                 // (object) ['data' => "status", 'name' => 'status', 'td_label' => 'Status', 'className' => 'w-5 text-center', 'width' => '10%'],
                 (object) ['data' => "book_button", 'name' => 'book_button', 'td_label' => 'Book'],
+                (object) ['data' => "bonafide_button", 'name' => 'bonafide_button', 'td_label' => '<i class="ti ti-certificate" title="Bonafide Certificate"></i>', 'className' => 'w-5 text-center'],
+                (object) ['data' => "transfer_button", 'name' => 'transfer_button', 'td_label' => '<i class="ti ti-transfer-out" title="Transfer Certificate"></i>', 'className' => 'w-5 text-center'],
                 (object) ['data' => "action", 'name' => 'action', 'td_label' => 'Update', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
             ];
             if (!$modules['permission_edit'] && !$modules['permission_delete']) {
@@ -242,6 +244,14 @@ class AdmissionController extends Controller
                         return '<button class="btn btn-info btn-sm book-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '"> Book </button>';
                     })
 
+                    ->addColumn('bonafide_button', function ($row) {
+                        return '<a href="' . route('admission.bonafide-certificate', $row->id) . '" target="_blank" class="btn btn-secondary btn-sm" title="Bonafide Certificate"> <i class="ti ti-certificate"></i> </a>';
+                    })
+
+                    ->addColumn('transfer_button', function ($row) {
+                        return '<a href="' . route('admission.transfer-certificate', $row->id) . '" target="_blank" class="btn btn-dark btn-sm" title="Transfer Certificate"> <i class="ti ti-transfer-out"></i> </a>';
+                    })
+
                     ->addColumn('view_button', function ($row) {
                         return '<button class="btn btn-success btn-sm view-btn" data-id="' . $row->id . '" data-name="' . $row->first_name . '" data-mobile="' . $row->mobile_no . '">View</button>';
                     })
@@ -271,7 +281,7 @@ class AdmissionController extends Controller
                         return $btn ?: '-';
                     })
 
-                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button', 'attendance_button', 'test_button'])
+                    ->rawColumns(['status', 'action', 'gdrivefolderurl', 'admission_name', 'course_button', 'view_button', 'book_button', 'bonafide_button', 'transfer_button', 'attendance_button', 'test_button'])
                     ->make(true);
             }
 
@@ -1081,6 +1091,32 @@ class AdmissionController extends Controller
 
         return $this->sendResponse($course, 'Status updated successfully.');
     }
+    public function bonafideCertificate($id)
+    {
+        $this->authorizeAdmissionList();
+
+        $admission = Admission::findOrFail($id);
+        $courseRegistration = CourceRegistration::where('register_id', $id)
+            ->with('course')
+            ->latest('id')
+            ->first();
+
+        return view($this->modules['folder_path'] . '.bonafide-certificate', compact('admission', 'courseRegistration'));
+    }
+
+    public function transferCertificate($id)
+    {
+        $this->authorizeAdmissionList();
+
+        $admission = Admission::findOrFail($id);
+        $courseRegistration = CourceRegistration::where('register_id', $id)
+            ->with(['course', 'class'])
+            ->latest('id')
+            ->first();
+
+        return view($this->modules['folder_path'] . '.transfer-certificate', compact('admission', 'courseRegistration'));
+    }
+
     public function view($register_id, $course_id)
     {
         $modules = $this->modules;
