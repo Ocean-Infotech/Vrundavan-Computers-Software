@@ -109,7 +109,7 @@ class LoginController extends Controller
 
             if (config('device_security.enabled', true) && $user->check_device && !$user->is_admin && !(method_exists($user, 'hasRole') && $user->hasRole('super-admin'))) {
                 $deviceData = [
-                    'user_id'            => $user->id,
+                    'user_id'            => $user->id,  // stored for audit log only
                     'hardware_id'        => $request->input('hardware_id'),
                     'motherboard_serial' => $request->input('motherboard_serial'),
                     'bios_serial'        => $request->input('bios_serial'),
@@ -130,9 +130,15 @@ class LoginController extends Controller
 
                 if (!$verification['success']) {
                     Auth::logout();
-                    return Redirect::back()->withInput($request->only('email', 'remember'))->withErrors(['device' => $verification['message']]);
+                    // If this is a new device (pending), show specific message
+                    $errorMsg = $verification['message'];
+                    if (isset($verification['binding']) && $verification['binding']->status === 'pending') {
+                        $errorMsg = 'This device is not yet authorized. An admin approval request has been submitted. Please contact your administrator.';
+                    }
+                    return Redirect::back()->withInput($request->only('email', 'remember'))->withErrors(['device' => $errorMsg]);
                 }
 
+                // Device is approved for this hardware — allow any user
                 session(['authorized_device_id' => $deviceData['hardware_id']]);
             }
 

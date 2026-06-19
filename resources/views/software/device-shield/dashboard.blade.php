@@ -73,11 +73,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>User</th>
+                                <th>First Login User <small class="text-muted">(Device Registrant)</small></th>
                                 <th>PC Name</th>
                                 <th>Hardware ID</th>
                                 <th>Registered</th>
-                                <th>Actions</th>
+                                <th>Actions <small class="text-muted">(Approves for ALL users)</small></th>
                             </tr>
                         </thead>
                         <tbody>

@@ -78,7 +78,7 @@
                             </div>
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <div class="form-group">
-                                    <label class="form-label">Profile Picture</label>
+                                    <label class="form-label">Profile Picture <span class="text-danger">*</span></label>
                                     <input type="file" class="form-control @error('profile_pic') is-invalid @enderror"
                                         name="profile_pic" accept="image/*">
                                     @error('profile_pic')

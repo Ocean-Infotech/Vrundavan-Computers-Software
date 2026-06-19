@@ -87,7 +87,7 @@ class CheckAuthorizedDevice
             ]);
         }
 
-        $binding = $this->bindingRepository->findByUserAndHardware($user->id, $authorizedHardwareId);
+        $binding = $this->bindingRepository->findByHardwareId($authorizedHardwareId);
 
         if (!$binding || $binding->status !== 'approved') {
             Auth::logout();
