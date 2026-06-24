@@ -1168,7 +1168,7 @@ class AttedanceController extends Controller
         $sheet->mergeCells($col($titleRightStartCol) . '1:' . $col($lastCol) . '1');
         $sheet->setCellValue($col($titleRightStartCol) . '1', 'PVM BCA COLLEGE - KESHOD');
 
-        $teacherName = Auth::user()->name ?? '';
+        $teacherName = '';
         $courseLabel = trim(($course->course_name ?? '') . ' ' . ($masterClass->class ?? ''));
 
         $metaRowStart = 2;
@@ -1375,8 +1375,8 @@ class AttedanceController extends Controller
             $date = Carbon::create($year, $month, $day);
             if ($date->dayOfWeek === Carbon::SUNDAY) {
                 $dayCol = $firstDayCol + $day - 1;
-                $sundayDateCell = $col($dayCol) . $headerRowBottom;
-                $sheet->getStyle($sundayDateCell)->applyFromArray(['fill' => $sundayFill]);
+                $sundayColRange = $col($dayCol) . $headerRowTop . ':' . $col($dayCol) . $lastDataRow;
+                $sheet->getStyle($sundayColRange)->applyFromArray(['fill' => $sundayFill]);
             }
         }
 
