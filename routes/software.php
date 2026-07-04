@@ -37,6 +37,8 @@ use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
+use App\Http\Controllers\admin\OtherListSelectionController;
+use App\Http\Controllers\admin\StudentBillListController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
@@ -262,6 +264,26 @@ Route::match(['get', 'post'], 'check-master-password', [FeesCollectionController
 Route::get('/fees-collection/get-details/{id}', [FeesCollectionController::class, 'getDetails'])->name('fees-collection.getDetails');
 Route::get('/fees-collection/print/{id}', [FeesCollectionController::class, 'print'])->name('software.fees-collection.print');
 Route::get('fees-collection/{register_id}/semester-report', [FeesCollectionController::class, 'semesterReport'])->name('fees-collection.semester-report');
+
+// Fees Pending Report (Menu 1)
+Route::get('fees-pending-report', [\App\Http\Controllers\admin\FeesPendingReportController::class, 'index'])->name('fees-pending-report.index');
+Route::get('fees-pending-report/print-list', [\App\Http\Controllers\admin\FeesPendingReportController::class, 'printList'])->name('fees-pending-report.print-list');
+
+// Fees Collection Report (Menu 2)
+Route::get('fees-collection-report', [\App\Http\Controllers\admin\FeesCollectionReportController::class, 'index'])->name('fees-collection-report.index');
+Route::get('fees-collection-report/print-list', [\App\Http\Controllers\admin\FeesCollectionReportController::class, 'printList'])->name('fees-collection-report.print-list');
+
+// Other List
+Route::get('other-list', [StudentBillListController::class, 'index'])->name('other-list.index');
+Route::get('other-list/print-list', [StudentBillListController::class, 'printList'])->name('other-list.print-list');
+Route::get('other-list/export-excel', [StudentBillListController::class, 'exportExcel'])->name('other-list.export-excel');
+
+// Other List Selection
+Route::get('other-list-selection', [OtherListSelectionController::class, 'index'])->name('other-list-selection.index');
+Route::get('other-list-selection/student-options', [OtherListSelectionController::class, 'getStudentOptions'])->name('other-list-selection.student-options');
+Route::get('other-list-selection/print-list', [OtherListSelectionController::class, 'printList'])->name('other-list-selection.print-list');
+Route::get('other-list-selection/export-excel', [OtherListSelectionController::class, 'exportExcel'])->name('other-list-selection.export-excel');
+
 // Fee History
 Route::resource('fee-history', FeeHistoryController::class)
     ->only(['index']);

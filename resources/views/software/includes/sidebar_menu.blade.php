@@ -194,7 +194,7 @@
             'fee-history-list'
         ])
         <li
-            class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list' || $sidebar_active == 'fees-collection-create' || $sidebar_active == 'fees-collection-pending' || $sidebar_active == 'fee-history' ? 'active open' : '' }}">
+            class="menu-item {{ $sidebar_active == 'fees-collection' || $sidebar_active == 'fees-collection-list' || $sidebar_active == 'fees-collection-create' || $sidebar_active == 'fees-collection-pending' || $sidebar_active == 'fee-history' || $sidebar_active == 'fees-pending-report' || $sidebar_active == 'fees-collection-report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-receipt me-2"></i>
                 <div data-i18n="Fees Collection">Fees Collection</div>
@@ -233,6 +233,18 @@
                     </a>
                 </li>
                 @enddirectCan
+
+                <li class="menu-item {{ Route::current()->getName() == 'fees-pending-report.index' ? 'active' : '' }}">
+                    <a href="{{ route('fees-pending-report.index') }}" class="menu-link">
+                        <div data-i18n="Fees Pending Report">Fees Pending Report</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Route::current()->getName() == 'fees-collection-report.index' ? 'active' : '' }}">
+                    <a href="{{ route('fees-collection-report.index') }}" class="menu-link">
+                        <div data-i18n="Fees Collection Report">Fees Collection Report</div>
+                    </a>
+                </li>
 
             </ul>
         </li>
@@ -471,6 +483,26 @@
             </ul>
         </li>
         @enddirectCanAny
+
+        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection']) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-list-ul me-2"></i>
+                <div data-i18n="Other">Other</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ Route::is('other-list.index') ? 'active' : '' }}">
+                    <a href="{{ route('other-list.index') }}" class="menu-link">
+                        <div data-i18n="Other List">Other List</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Route::is('other-list-selection.index') ? 'active' : '' }}">
+                    <a href="{{ route('other-list-selection.index') }}" class="menu-link">
+                        <div data-i18n="Other List Selection">Other List Selection</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
 
         @if(method_exists($loginUser, 'hasRole') && ($loginUser->hasRole('super-admin') || $loginUser->hasRole('developer')))
