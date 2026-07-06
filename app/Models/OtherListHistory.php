@@ -6,7 +6,7 @@ use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterCourse;
 use Illuminate\Database\Eloquent\Model;
 
-class StudentBillListHistory extends Model
+class OtherListHistory extends Model
 {
     protected $table = 'other_list_histories';
 

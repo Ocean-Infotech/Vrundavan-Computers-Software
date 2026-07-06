@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterCourse;
-use App\Models\StudentBillListHistory;
+use App\Models\OtherListHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\Facades\DataTables;
 
-class StudentBillListController extends Controller
+class OtherListController extends Controller
 {
     public $modules = [];
 
@@ -26,7 +26,7 @@ class StudentBillListController extends Controller
     {
         $this->modules = [
             'title' => 'Other List',
-            'folder_path' => 'software.module.student-bill-list',
+            'folder_path' => 'software.module.other-list',
             'route' => 'other-list',
         ];
     }
@@ -72,20 +72,7 @@ class StudentBillListController extends Controller
             (object) ['data' => 'note', 'name' => 'note', 'td_label' => 'Note', 'orderable' => false, 'searchable' => false],
         ];
 
-        $histories = collect();
-
-        if (Schema::hasTable('other_list_histories')) {
-            $histories = StudentBillListHistory::with(['course', 'batch'])
-                ->where(function ($query) {
-                    $query->where('module_code', 'other-list')
-                        ->orWhereNull('module_code');
-                })
-                ->latest()
-                ->take(50)
-                ->get();
-        }
-
-        return view($modules['folder_path'] . '.index', compact('columns', 'histories'));
+        return view($modules['folder_path'] . '.index', compact('columns'));
     }
 
     public function printList(Request $request)
@@ -107,7 +94,7 @@ class StudentBillListController extends Controller
 
         $blankRows = max(5, 10 - $students->count());
 
-        return view('software.module.student-bill-list.print', compact(
+        return view('software.module.other-list.print', compact(
             'students',
             'course',
             'batch',
@@ -225,7 +212,7 @@ class StudentBillListController extends Controller
             return;
         }
 
-        StudentBillListHistory::create([
+        OtherListHistory::create([
             'module_code' => $moduleCode,
             'page_heading' => trim((string) $request->page_heading),
             'course_id' => $request->course_id,

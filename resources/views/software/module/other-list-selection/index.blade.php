@@ -67,14 +67,6 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Student Selection</label>
-                            <select id="student_ids" name="student_ids[]" class="form-control select2" multiple form="filterForm">
-                                <option value="all">All Students</option>
-                            </select>
-                        </div>
-                    </div>
                     <div class="table-responsive">
                         <table id="yajra-datatables" class="table table-hover dt-responsive" style="width: 100%">
                             @if (isset($columns))
@@ -82,60 +74,12 @@
                                     <tr>
                                         @foreach ($columns as $item)
                                             <th class="{{ $item?->className ?? '' }}">
-                                                {{ ucfirst($item?->td_label ?? $item?->name) ?? '' }}
+                                                {!! $item?->td_label ?: $item?->name !!}
                                             </th>
                                         @endforeach
                                     </tr>
                                 </thead>
                             @endif
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-12 mt-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">List History</h5>
-                        <small class="text-muted">Shows when each heading was exported.</small>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Heading</th>
-                                    <th>Course</th>
-                                    <th>Batch</th>
-                                    <th>Semester</th>
-                                    <th>Type</th>
-                                    <th>Students</th>
-                                    <th>Date Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse(($histories ?? collect()) as $index => $history)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $history->page_heading ?: 'Other List Selection' }}</td>
-                                        <td>{{ $history->course->course_name ?? '-' }}</td>
-                                        <td>{{ $history->batch->batch_name ?? '-' }}</td>
-                                        <td>{{ $history->semester_id ?? '-' }}</td>
-                                        <td class="text-uppercase">{{ $history->action_type ?? '-' }}</td>
-                                        <td>{{ $history->student_count ?? 0 }}</td>
-                                        <td>{{ optional($history->created_at)->format('d-m-Y h:i A') ?? '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-danger">
-                                            No history found yet. Export a list to create history.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -164,12 +108,14 @@
             return Boolean($('#course_id').val() && $('#batch_id').val() && $('#semester_id').val());
         }
 
-        function hasStudentSelection() {
-            return ($('#student_ids').val() || []).length > 0;
-        }
-
         function hasPageHeading() {
             return Boolean($.trim($('#page_heading').val()));
+        }
+
+        function getSelectedStudentIds() {
+            return $('.student-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
         }
 
         function showWarning(message) {
@@ -181,53 +127,9 @@
             alert(message);
         }
 
-        function refreshHistorySoon() {
-            window.setTimeout(function() {
-                window.location.reload();
-            }, 1200);
-        }
-
-        function resetStudentOptions() {
-            $('#student_ids').html('<option value="all">All Students</option>').val(null).trigger('change');
-        }
-
-        function loadStudentOptions() {
-            const courseId = $('#course_id').val();
-            const batchId = $('#batch_id').val();
-
-            resetStudentOptions();
-
-            if (!courseId || !batchId) {
-                return;
-            }
-
-            $.ajax({
-                url: "{{ route($route . '.student-options') }}",
-                type: "GET",
-                data: {
-                    course_id: courseId,
-                    batch_id: batchId
-                },
-                success: function(response) {
-                    let options = "<option value='all'>All Students</option>";
-
-                    if (response.status && response.data && response.data.length > 0) {
-                        $.each(response.data, function(index, student) {
-                            options += "<option value='" + student.id + "'>" + student.name + "</option>";
-                        });
-                    }
-
-                    $('#student_ids').html(options).val(null).trigger('change');
-                }
-            });
-        }
-
         $(document).ready(function() {
             $('.select2').select2({
-                width: '100%',
-                placeholder: 'All Students or Select Student',
-                allowClear: true,
-                closeOnSelect: false
+                width: '100%'
             });
 
             dtable = $('#yajra-datatables').DataTable({
@@ -242,9 +144,8 @@
                     data.course_id = $('#course_id').val();
                     data.batch_id = $('#batch_id').val();
                     data.semester_id = $('#semester_id').val();
-                    data.student_ids = $('#student_ids').val();
 
-                    if (!hasRequiredFilters() || !hasStudentSelection()) {
+                    if (!hasRequiredFilters()) {
                         callback({
                             draw: data.draw,
                             recordsTotal: 0,
@@ -267,6 +168,14 @@
                     });
                 },
                 columns: {!! json_encode($columns) !!},
+                columnDefs: [
+                    {
+                        targets: 0,
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    }
+                ],
                 language: {
                     searchPlaceholder: 'Search...',
                     emptyTable: ""
@@ -275,7 +184,9 @@
                     let api = this.api();
                     let data = api.rows({ page: 'current' }).data();
 
-                    if (!hasRequiredFilters() || !hasStudentSelection()) {
+                    $('#selectAllStudents').prop('checked', false);
+
+                    if (!hasRequiredFilters()) {
                         $('#yajra-datatables tbody').empty();
                         return;
                     }
@@ -292,44 +203,19 @@
                 }
             });
 
-            $('#course_id, #batch_id').on('change', function() {
-                loadStudentOptions();
+            $('#course_id, #batch_id, #semester_id').on('change', function() {
+                $('#selectAllStudents').prop('checked', false);
                 dtable.draw();
             });
 
-            $('#semester_id, #student_ids').on('change', function() {
-                dtable.draw();
+            $(document).on('change', '#selectAllStudents', function() {
+                $('.student-checkbox').prop('checked', $(this).prop('checked'));
             });
 
-            $('#student_ids').on('select2:select', function(e) {
-                let selectedId = e.params.data.id;
-                let values = $(this).val() || [];
-
-                if (selectedId === 'all') {
-                    $(this).val(['all']).trigger('change');
-                    return;
-                }
-
-                if (values.includes('all')) {
-                    values = values.filter(function(value) {
-                        return value !== 'all';
-                    });
-                    $(this).val(values).trigger('change');
-                }
-            });
-
-            $('#student_ids').on('select2:unselect', function(e) {
-                let unselectedId = e.params.data.id;
-                let values = $(this).val() || [];
-
-                if (unselectedId === 'all') {
-                    $(this).val(null).trigger('change');
-                    return;
-                }
-
-                if (values.length === 0) {
-                    $(this).val(null).trigger('change');
-                }
+            $(document).on('change', '.student-checkbox', function() {
+                const total = $('.student-checkbox').length;
+                const checked = $('.student-checkbox:checked').length;
+                $('#selectAllStudents').prop('checked', total > 0 && total === checked);
             });
 
             $("#exportExcelBtn").click(function(e) {
@@ -345,8 +231,9 @@
                     return;
                 }
 
-                if (!hasStudentSelection()) {
-                    showWarning('Please select All Students or particular student.');
+                const studentIds = getSelectedStudentIds();
+                if (!studentIds.length) {
+                    showWarning('Please select at least one student.');
                     return;
                 }
 
@@ -357,13 +244,11 @@
                     semester_id: $('#semester_id').val()
                 });
 
-                const studentIds = $('#student_ids').val() || [];
                 studentIds.forEach(function(studentId) {
                     params.append('student_ids[]', studentId);
                 });
 
                 window.location.href = "{{ route($route . '.export-excel') }}?" + params.toString();
-                refreshHistorySoon();
             });
 
             $('#filterForm').on('submit', function(e) {

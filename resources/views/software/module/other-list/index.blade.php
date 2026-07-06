@@ -85,54 +85,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-12 mt-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">List History</h5>
-                        <small class="text-muted">Shows when each heading was printed or exported.</small>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Heading</th>
-                                    <th>Course</th>
-                                    <th>Batch</th>
-                                    <th>Semester</th>
-                                    <th>Type</th>
-                                    <th>Students</th>
-                                    <th>Date Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse(($histories ?? collect()) as $index => $history)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $history->page_heading ?: 'Other List' }}</td>
-                                        <td>{{ $history->course->course_name ?? '-' }}</td>
-                                        <td>{{ $history->batch->batch_name ?? '-' }}</td>
-                                        <td>{{ $history->semester_id ?? '-' }}</td>
-                                        <td class="text-uppercase">{{ $history->action_type ?? '-' }}</td>
-                                        <td>{{ $history->student_count ?? 0 }}</td>
-                                        <td>{{ optional($history->created_at)->format('d-m-Y h:i A') ?? '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-danger">
-                                            No history found yet. Print or export a list to create history.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
@@ -167,12 +119,6 @@
             }
 
             alert(message);
-        }
-
-        function refreshHistorySoon() {
-            window.setTimeout(function() {
-                window.location.reload();
-            }, 1200);
         }
 
         $(document).ready(function() {
@@ -266,7 +212,6 @@
                 });
 
                 window.location.href = "{{ route($route . '.export-excel') }}?" + params.toString();
-                refreshHistorySoon();
             });
 
             $('#filterForm').on('submit', function(e) {

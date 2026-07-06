@@ -62,6 +62,72 @@
             min-height: 980px;
         }
 
+        .report-header {
+            margin-bottom: 8px;
+        }
+
+        .report-header-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .report-logo {
+            flex: 0 0 95px;
+        }
+
+        .report-logo img {
+            width: 95px;
+            height: 95px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .report-header-text {
+            flex: 1;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.35;
+        }
+
+        .report-header-text .affiliation-line {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .report-header-text .college-name {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 4px 0;
+        }
+
+        .report-header-text .managed-line,
+        .report-header-text .address-line {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .report-contact-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .report-contact-row a {
+            color: #1155cc;
+            text-decoration: underline;
+        }
+
+        .contact-separator {
+            color: #000;
+            font-weight: 400;
+        }
+
         .header-center {
             text-align: center;
             font-size: 13px;
@@ -153,6 +219,7 @@
 
 <body>
     @php
+        $certificateData = $certificateData ?? [];
         $studentName = trim(
             ($admission->first_name ?? '') . ' ' .
             ($admission->last_name ?? '') . ' ' .
@@ -161,7 +228,7 @@
         $studentName = mb_strtoupper($studentName);
         $isFemale = strtolower(trim($admission->gender ?? '')) === 'female';
         $nameTitle = $isFemale ? 'Miss' : 'Mr.';
-        $issueDate = now()->format('d-m-Y');
+        $issueDate = $certificateData['issue_date'] ?? now()->format('j-m-Y');
         $courseName = trim($courseRegistration?->course?->course_name ?? '');
 
         $dojRaw = $courseRegistration?->created_at ?? $courseRegistration?->date ?? null;
@@ -174,12 +241,12 @@
             $semester = intdiv($monthsFromDoj, 6) + 1;
         }
 
-        $academicYear = $dojDate ? $dojDate->format('Y') : ($courseRegistration?->date
+        $academicYear = $certificateData['academic_year'] ?? ($dojDate ? $dojDate->format('Y') : ($courseRegistration?->date
             ? \Carbon\Carbon::parse($courseRegistration->date)->format('Y')
-            : now()->format('Y'));
+            : now()->format('Y')));
 
-        $periodFrom = $todayDate->format('d-m-Y');
-        $periodTo = $todayDate->copy()->addMonths(3)->format('d-m-Y');
+        $periodFrom = $certificateData['period_from'] ?? '';
+        $periodTo = $certificateData['period_to'] ?? '';
     @endphp
 
     <div class="no-print">
@@ -188,20 +255,7 @@
     </div>
 
     <div class="certificate">
-        <div class="header-center">
-            <div>REG. NO. A-663 JND DATED: 26-10-1964</div>
-            <div>(Shree Patel Vidhyarthi Ashram – Keshod Sanchalit)</div>
-            <div class="college-name">Shree PVM Computer Science College</div>
-            <div>(Affiliated to Bhakta Kavi Narsinh Mehta University - Junagadh)</div>
-            <div>Behind Maruti Showroom, Veraval Road, Keshod – 362220</div>
-        </div>
-
-        <div class="header-contact-row">
-            <span>E-mail : pvmbcacollege@gmail.com</span>
-            <span>Mo. 96874 51774</span>
-        </div>
-
-        <hr class="header-divider">
+        @include('software.module.admission.partials.certificate-report-header')
 
         <div class="meta-row">
             <div class="header-meta-box">

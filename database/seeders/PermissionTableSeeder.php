@@ -79,6 +79,10 @@ class PermissionTableSeeder extends Seeder
                 'fees-collection-edit',
                 'fees-collection-delete',
             ],
+            'Issue-certificate' => [
+                'issue-certificate-bonafide-list',
+                'issue-certificate-tc-list',
+            ],
             'test' => [
                 'test-list',
                 'test-create',

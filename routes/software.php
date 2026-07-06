@@ -27,6 +27,7 @@ use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
+use App\Http\Controllers\admin\IssueCertificateController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\IssuedBookController;
 use App\Http\Controllers\admin\master\MasterClassController;
@@ -38,7 +39,7 @@ use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
-use App\Http\Controllers\admin\StudentBillListController;
+use App\Http\Controllers\admin\OtherListController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
@@ -133,8 +134,8 @@ Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class,
 
 Route::get('admission/attendance/{id}', [AdmissionController::class, 'viewAttendance'])->name('admission.view-attendance');
 Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMarks'])->name('admission.view-test-marks');
-Route::get('admission/bonafide-certificate/{id}', [AdmissionController::class, 'bonafideCertificate'])->name('admission.bonafide-certificate');
-Route::get('admission/transfer-certificate/{id}', [AdmissionController::class, 'transferCertificate'])->name('admission.transfer-certificate');
+Route::get('bonafide-certificate/{id}', [AdmissionController::class, 'bonafideCertificate'])->name('bonafide-certificate');
+Route::get('transfer-certificate/{id}', [AdmissionController::class, 'transferCertificate'])->name('transfer-certificate');
 
 
 /** Master Course Modules */
@@ -268,21 +269,28 @@ Route::get('fees-collection/{register_id}/semester-report', [FeesCollectionContr
 // Fees Pending Report (Menu 1)
 Route::get('fees-pending-report', [\App\Http\Controllers\admin\FeesPendingReportController::class, 'index'])->name('fees-pending-report.index');
 Route::get('fees-pending-report/print-list', [\App\Http\Controllers\admin\FeesPendingReportController::class, 'printList'])->name('fees-pending-report.print-list');
+Route::get('fees-pending-report/export-excel', [\App\Http\Controllers\admin\FeesPendingReportController::class, 'exportExcel'])->name('fees-pending-report.export-excel');
 
 // Fees Collection Report (Menu 2)
 Route::get('fees-collection-report', [\App\Http\Controllers\admin\FeesCollectionReportController::class, 'index'])->name('fees-collection-report.index');
 Route::get('fees-collection-report/print-list', [\App\Http\Controllers\admin\FeesCollectionReportController::class, 'printList'])->name('fees-collection-report.print-list');
+Route::get('fees-collection-report/export-excel', [\App\Http\Controllers\admin\FeesCollectionReportController::class, 'exportExcel'])->name('fees-collection-report.export-excel');
 
 // Other List
-Route::get('other-list', [StudentBillListController::class, 'index'])->name('other-list.index');
-Route::get('other-list/print-list', [StudentBillListController::class, 'printList'])->name('other-list.print-list');
-Route::get('other-list/export-excel', [StudentBillListController::class, 'exportExcel'])->name('other-list.export-excel');
+Route::get('other-list', [OtherListController::class, 'index'])->name('other-list.index');
+Route::get('other-list/print-list', [OtherListController::class, 'printList'])->name('other-list.print-list');
+Route::get('other-list/export-excel', [OtherListController::class, 'exportExcel'])->name('other-list.export-excel');
 
 // Other List Selection
 Route::get('other-list-selection', [OtherListSelectionController::class, 'index'])->name('other-list-selection.index');
 Route::get('other-list-selection/student-options', [OtherListSelectionController::class, 'getStudentOptions'])->name('other-list-selection.student-options');
 Route::get('other-list-selection/print-list', [OtherListSelectionController::class, 'printList'])->name('other-list-selection.print-list');
 Route::get('other-list-selection/export-excel', [OtherListSelectionController::class, 'exportExcel'])->name('other-list-selection.export-excel');
+
+// Issue Certificate
+Route::get('issue-certificate/bonafide', [IssueCertificateController::class, 'bonafideIndex'])->name('issue-certificate.bonafide');
+Route::get('issue-certificate/tc', [IssueCertificateController::class, 'tcIndex'])->name('issue-certificate.tc');
+Route::post('issue-certificate/history', [IssueCertificateController::class, 'storeHistory'])->name('issue-certificate.store-history');
 
 // Fee History
 Route::resource('fee-history', FeeHistoryController::class)

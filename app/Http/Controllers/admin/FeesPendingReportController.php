@@ -10,6 +10,11 @@ use App\Models\Master\MasterBatch;
 use App\Models\FeesCollection;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class FeesPendingReportController extends Controller
@@ -95,7 +100,7 @@ class FeesPendingReportController extends Controller
                     $first = $row->admission->first_name ?? '';
                     $last = $row->admission->last_name ?? '';
                     $father = $row->admission->father_name ?? '';
-                    return trim("{$last} {$first} {$father}");
+                    return trim("{$first} {$last} {$father}");
                 })
                 ->addColumn('pending_fees', function ($row) {
                     return $row->pending_fees ?? 0;
@@ -114,14 +119,116 @@ class FeesPendingReportController extends Controller
 
     public function printList(Request $request)
     {
-        $course_id = $request->course_id;
-        $batch_id = $request->batch_id;
+        $result = $this->getPendingStudents(
+            $request->course_id,
+            $request->batch_id,
+            $request->semester_id
+        );
+
+        return view('software.module.fees-pending-report.print', [
+            'students' => $result['students'],
+            'course' => $result['course'],
+            'batch' => $result['batch'],
+            'semester_id' => $request->semester_id,
+        ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $result = $this->getPendingStudents(
+            $request->course_id,
+            $request->batch_id,
+            $request->semester_id
+        );
+
+        $students = $result['students'];
+        $course = $result['course'];
+        $batch = $result['batch'];
         $semester_id = $request->semester_id;
 
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'Fees Pending Report');
+        $sheet->mergeCells('A1:C1');
+
+        $sheet->setCellValue(
+            'A2',
+            sprintf(
+                '%s - %s | Sem - %s',
+                $course?->course_name ?? 'Course',
+                $batch?->batch_name ?? 'Batch',
+                $semester_id ?? '-'
+            )
+        );
+        $sheet->mergeCells('A2:C2');
+
+        $sheet->setCellValue('A4', 'No');
+        $sheet->setCellValue('B4', 'Student Name');
+        $sheet->setCellValue('C4', 'Pending Fees');
+
+        $row = 5;
+        foreach ($students as $index => $student) {
+            $first = $student->admission->first_name ?? '';
+            $last = $student->admission->last_name ?? '';
+            $father = $student->admission->father_name ?? '';
+
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, trim("{$first} {$last} {$father}"));
+            $sheet->setCellValue('C' . $row, number_format($student->pending_fees ?? 0, 2));
+            $row++;
+        }
+
+        $lastRow = max($row - 1, 4);
+
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A2:C2')->getFont()->setBold(true)->setSize(12);
+        $sheet->getStyle('A4:C4')->getFont()->setBold(true);
+
+        $sheet->getStyle('A1:C2')->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle('A4:C' . $lastRow)->getAlignment()
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle('A4:A' . $lastRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $sheet->getStyle('C4:C' . $lastRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+        $sheet->getStyle('A4:C' . $lastRow)->getBorders()->getAllBorders()
+            ->setBorderStyle(Border::BORDER_THIN);
+
+        $sheet->getRowDimension(1)->setRowHeight(24);
+        $sheet->getRowDimension(2)->setRowHeight(22);
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(40);
+        $sheet->getColumnDimension('C')->setWidth(18);
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'Fees_Pending_Report.xlsx';
+
+        $response = new StreamedResponse(function () use ($writer) {
+            $writer->save('php://output');
+        });
+
+        $disposition = $response->headers->makeDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $fileName
+        );
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', $disposition);
+
+        return $response;
+    }
+
+    private function getPendingStudents($course_id, $batch_id, $semester_id): array
+    {
         $course = MasterCourse::find($course_id);
         $batch = MasterBatch::find($batch_id);
-
-        // removed required check
 
         $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
             ->groupBy('register_id');
@@ -185,10 +292,14 @@ class FeesPendingReportController extends Controller
             }
         }
 
-        $students = collect($students)->sortBy(function($reg) {
+        $students = collect($students)->sortBy(function ($reg) {
             return $reg->admission->first_name ?? '';
-        });
+        })->values();
 
-        return view('software.module.fees-pending-report.print', compact('students', 'course', 'batch', 'semester_id'));
+        return [
+            'students' => $students,
+            'course' => $course,
+            'batch' => $batch,
+        ];
     }
 }

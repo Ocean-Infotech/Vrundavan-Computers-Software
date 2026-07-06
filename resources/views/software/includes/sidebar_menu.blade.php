@@ -250,6 +250,26 @@
         </li>
         @enddirectCanAny
 
+        <li class="menu-item {{ $sidebar_active == 'issue-certificate' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="ti ti-certificate me-2"></i>
+                <div data-i18n="Issue Certificate">Issue Certificate</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ Route::is('issue-certificate.bonafide') ? 'active' : '' }}">
+                    <a href="{{ route('issue-certificate.bonafide') }}" class="menu-link">
+                        <div data-i18n="Bonafide">Bonafide</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Route::is('issue-certificate.tc') ? 'active' : '' }}">
+                    <a href="{{ route('issue-certificate.tc') }}" class="menu-link">
+                        <div data-i18n="TC">TC</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         @directCanAny(['test-list', 'test_report-list'])
         <li class="menu-item {{ $sidebar_active == 'test' || $sidebar_active == 'test_report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">

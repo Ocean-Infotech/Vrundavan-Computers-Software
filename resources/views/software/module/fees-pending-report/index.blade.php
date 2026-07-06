@@ -21,7 +21,7 @@
             'show_add_btn' => false,
             'show_filter_btn' => true,
             'show_export_btns' => true,
-            'show_excal_btn' => false,
+            'show_excal_btn' => true,
             'show_print_btn' => true,
             'show_back_btn' => false,
         ])
@@ -194,6 +194,23 @@
             $("#print_btn").click(function(e) {
                 e.preventDefault();
                 $('#filterForm').submit();
+            });
+
+            $("#exportExcelBtn").click(function(e) {
+                e.preventDefault();
+
+                if (!hasRequiredFilters()) {
+                    showFilterWarning();
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    course_id: $('#course_id').val(),
+                    batch_id: $('#batch_id').val(),
+                    semester_id: $('#semester_id').val()
+                });
+
+                window.location.href = "{{ route('fees-pending-report.export-excel') }}?" + params.toString();
             });
             
             $('#filterForm').on('submit', function(e) {

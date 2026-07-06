@@ -57,7 +57,7 @@
 
     <div class="header">
         <h2>Shree PVM Science College</h2>
-        <h3>{{ $course ? $course->course_name : 'Course' }} - {{ $batch ? $batch->batch : 'Batch' }} Sem - {{ $semester_id ?? '...' }} Fees Collection List</h3>
+        <h3>{{ $course ? $course->course_name : 'Course' }} - {{ $batch ? $batch->batch_name : 'Batch' }} Sem - {{ $semester_id ?? '...' }} Fees Collection List</h3>
     </div>
 
     <table>
@@ -65,29 +65,44 @@
             <tr>
                 <th width="5%" class="text-center">No</th>
                 <th width="35%">Student Name</th>
-                <th width="15%">Date</th>
-                <th width="15%">Amount</th>
-                <th width="15%">Date</th>
-                <th width="15%">Amount</th>
+                <th width="60%">Installment</th>
             </tr>
         </thead>
         <tbody>
             @forelse($students as $index => $student)
+                @php
+                    $installmentItems = $student->installments
+                        ->map(function ($installment) {
+                            $amount = number_format($installment->fees ?? 0, 2);
+                            $date = $installment->date
+                                ? \Carbon\Carbon::parse($installment->date)->format('d-m-Y')
+                                : '';
+
+                            if ($amount === '' && $date === '') {
+                                return '';
+                            }
+
+                            return '{Amount= ' . $amount . ' Date=' . $date . '}';
+                        })
+                        ->filter()
+                        ->values();
+
+                    $installmentText = $installmentItems->isEmpty()
+                        ? ''
+                        : 'Count=' . $installmentItems->count() . ' ' . $installmentItems->implode(' ,');
+                @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>
-                        {{ $student->admission->last_name ?? '' }} 
-                        {{ $student->admission->first_name ?? '' }} 
+                        {{ $student->admission->first_name ?? '' }}
+                        {{ $student->admission->last_name ?? '' }}
                         {{ $student->admission->father_name ?? '' }}
                     </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ $installmentText }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="text-center">No students found for this semester.</td>
+                    <td colspan="3" class="text-center">No students found for this semester.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -96,11 +111,5 @@
     <div class="footer-note">
         જે સેમેસ્ટર ની ફી કલેક્ટ કરવાની હોઈ તે સેમેસ્ટર પ્રમાણે વિદ્યાર્થીઓનું લીસ્ટ આવવું જોઈયે
     </div>
-    
-    <script>
-        window.onload = function() {
-            // window.print();
-        };
-    </script>
 </body>
 </html>

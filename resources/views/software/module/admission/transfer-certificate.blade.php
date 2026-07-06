@@ -63,6 +63,72 @@
             min-height: 980px;
         }
 
+        .report-header {
+            margin-bottom: 8px;
+        }
+
+        .report-header-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .report-logo {
+            flex: 0 0 95px;
+        }
+
+        .report-logo img {
+            width: 95px;
+            height: 95px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .report-header-text {
+            flex: 1;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.35;
+        }
+
+        .report-header-text .affiliation-line {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .report-header-text .college-name {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 4px 0;
+        }
+
+        .report-header-text .managed-line,
+        .report-header-text .address-line {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .report-contact-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .report-contact-row a {
+            color: #1155cc;
+            text-decoration: underline;
+        }
+
+        .contact-separator {
+            color: #000;
+            font-weight: 400;
+        }
+
         .header-center {
             text-align: center;
             font-size: 13px;
@@ -250,6 +316,7 @@
     </div>
 
     @php
+        $certificateData = $certificateData ?? [];
         $studentName = trim(
             ($admission->first_name ?? '') . ' ' .
             ($admission->last_name ?? '') . ' ' .
@@ -260,62 +327,133 @@
         $nameTitle = $isFemale ? 'કુમારી' : 'શ્રી';
         $studentType = $isFemale ? 'વિદ્યાર્થિની' : 'વિદ્યાર્થી';
         $enrollmentNo = trim($admission->enrolment_no ?? '');
-        $issueDate = now()->format('d-m-Y');
+        $issueDate = $certificateData['issue_date'] ?? now()->format('j-m-Y');
         $courseName = trim($courseRegistration?->course?->course_name ?? '');
-        $examYear = !empty($courseRegistration?->date)
+        $examYear = $certificateData['academic_year'] ?? (!empty($courseRegistration?->date)
             ? \Carbon\Carbon::parse($courseRegistration->date)->format('Y')
             : (!empty($courseRegistration?->created_at)
                 ? $courseRegistration->created_at->format('Y')
-                : '');
+                : ''));
         $currentClass = trim($courseRegistration?->class?->class ?? $courseName);
         $exemptSubject = $courseName;
 
-        // DOJ = course registration created_at (same as Course Details modal)
-        $dojRaw = $courseRegistration?->created_at ?? $courseRegistration?->date ?? null;
-        $dojDate = $dojRaw ? \Carbon\Carbon::parse($dojRaw)->startOfDay() : null;
-        $todayDate = now()->startOfDay();
+        $gujaratiMonths = [
+            1 => 'જાન્યુઆરી',
+            2 => 'ફેબ્રુઆરી',
+            3 => 'માર્ચ',
+            4 => 'એપ્રિલ',
+            5 => 'મે',
+            6 => 'જૂન',
+            7 => 'જુલાઈ',
+            8 => 'ઓગસ્ટ',
+            9 => 'સપ્ટેમ્બર',
+            10 => 'ઓક્ટો',
+            11 => 'નવે',
+            12 => 'ડિસેમ્બર',
+        ];
 
-        $dojDayMonth = $dojDate ? $dojDate->format('d-m') : '';
-        $dojYear = $dojDate ? $dojDate->format('Y') : '';
-        $todayDayMonth = $todayDate->format('d-m');
-        $todayYear = $todayDate->format('Y');
+        $periodFrom = trim((string) ($certificateData['period_from'] ?? ''));
+        $periodTo = trim((string) ($certificateData['period_to'] ?? ''));
 
-        $juneSessionDays = '';
-        if ($dojDate) {
-            $juneStart = \Carbon\Carbon::create($dojDate->year, 6, 1)->startOfDay();
-            $octEnd = \Carbon\Carbon::create($dojDate->year, 10, 31)->startOfDay();
-            if ($dojDate->between($juneStart, $octEnd)) {
-                $juneSessionDays = $dojDate->diffInDays($octEnd) + 1;
+        $row1FromDay = '';
+        $row1FromMonth = '';
+        $row1FromYear = '';
+        $row1ToMonth = '';
+        $row1ToYear = '';
+        $row1Days = '';
+
+        $row2FromDay = '';
+        $row2FromMonth = '';
+        $row2FromYear = '';
+        $row2ToMonth = '';
+        $row2ToYear = '';
+        $row2Days = '';
+
+        $useCustomSemesterPeriod = false;
+
+        if ($periodFrom !== '' && $periodTo !== '') {
+            try {
+                $semesterStartDate = null;
+                $semesterEndDate = null;
+
+                foreach (['d-m-Y', 'j-m-Y', 'Y-m-d'] as $dateFormat) {
+                    if (!$semesterStartDate) {
+                        try {
+                            $semesterStartDate = \Carbon\Carbon::createFromFormat($dateFormat, $periodFrom)->startOfDay();
+                        } catch (\Exception $e) {
+                        }
+                    }
+
+                    if (!$semesterEndDate) {
+                        try {
+                            $semesterEndDate = \Carbon\Carbon::createFromFormat($dateFormat, $periodTo)->startOfDay();
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+
+                if (!$semesterStartDate || !$semesterEndDate) {
+                    throw new \Exception('Invalid semester date');
+                }
+                $sessionDays = $semesterStartDate->diffInDays($semesterEndDate) + 1;
+
+                $row1FromDay = $semesterStartDate->format('j');
+                $row1FromMonth = $gujaratiMonths[(int) $semesterStartDate->format('n')] ?? '';
+                $row1FromYear = $semesterStartDate->format('Y');
+                $row1ToMonth = $gujaratiMonths[(int) $semesterEndDate->format('n')] ?? '';
+                $row1ToYear = $semesterEndDate->format('Y');
+                $row1Days = $sessionDays;
+
+                $row2FromDay = $semesterEndDate->format('j');
+                $row2FromMonth = $gujaratiMonths[(int) $semesterEndDate->format('n')] ?? '';
+                $row2FromYear = $semesterEndDate->format('Y');
+                $row2ToMonth = '';
+                $row2ToYear = '';
+                $row2Days = $sessionDays;
+                $useCustomSemesterPeriod = true;
+            } catch (\Exception $e) {
+                $periodFrom = '';
+                $periodTo = '';
             }
         }
 
-        $novSessionDays = '';
-        if ($dojDate) {
-            $novYear = $dojDate->month >= 11 ? $dojDate->year : $dojDate->year - 1;
-            $novStart = \Carbon\Carbon::create($novYear, 11, 1)->startOfDay();
-            $periodStart = $dojDate->gt($novStart) ? $dojDate : $novStart;
-            $periodEnd = $todayDate;
-            if ($periodStart->lte($periodEnd)) {
-                $novSessionDays = $periodStart->diffInDays($periodEnd) + 1;
+        if ($periodFrom === '' || $periodTo === '') {
+            $dojRaw = $courseRegistration?->created_at ?? $courseRegistration?->date ?? null;
+            $dojDate = $dojRaw ? \Carbon\Carbon::parse($dojRaw)->startOfDay() : null;
+            $todayDate = now()->startOfDay();
+
+            $row1FromDay = $dojDate ? $dojDate->format('j') : '';
+            $row1FromMonth = 'જૂન';
+            $row1FromYear = $dojDate ? $dojDate->format('Y') : '';
+            $row1ToMonth = 'ઓક્ટો';
+            $row1ToYear = $row1FromYear;
+            if ($dojDate) {
+                $juneStart = \Carbon\Carbon::create($dojDate->year, 6, 1)->startOfDay();
+                $octEnd = \Carbon\Carbon::create($dojDate->year, 10, 31)->startOfDay();
+                if ($dojDate->between($juneStart, $octEnd)) {
+                    $row1Days = $dojDate->diffInDays($octEnd) + 1;
+                }
+            }
+
+            $row2FromDay = $todayDate->format('j');
+            $row2FromMonth = 'નવે';
+            $row2FromYear = $todayDate->format('Y');
+            $row2ToMonth = 'માર્ચ';
+            $row2ToYear = $todayDate->format('Y');
+            if ($dojDate) {
+                $novYear = $dojDate->month >= 11 ? $dojDate->year : $dojDate->year - 1;
+                $novStart = \Carbon\Carbon::create($novYear, 11, 1)->startOfDay();
+                $periodStart = $dojDate->gt($novStart) ? $dojDate : $novStart;
+                $periodEnd = $todayDate;
+                if ($periodStart->lte($periodEnd)) {
+                    $row2Days = $periodStart->diffInDays($periodEnd) + 1;
+                }
             }
         }
     @endphp
 
     <div class="certificate">
-        <div class="header-center">
-            <div>REG. NO. A-663 JND DATED: 26-10-1964</div>
-            <div>(Shree Patel Vidhyarthi Ashram – Keshod Sanchalit)</div>
-            <div class="college-name">Shree Patel Vidhya Mandir Science College</div>
-            <div>(Affiliated to Bhakta Kavi Narsinh Mehta University - Junagadh)</div>
-            <div>Behind Maruti Showroom, Veraval Road, Keshod - 362220</div>
-        </div>
-
-        <div class="header-contact-row">
-            <span>E-mail : pvmsciencecollege@gmail.com</span>
-            <span>Mo. 96874 51774</span>
-        </div>
-
-        <hr class="header-divider">
+        @include('software.module.admission.partials.certificate-report-header')
 
         <div class="meta-row">
             <div class="header-meta-box">
@@ -345,20 +483,28 @@
                 ના વર્ષ માં પસાર કર્યા પછી એમણે કોલેજમાં નીચે મુજબના સત્રો ભર્યા છે.
             </div>
             <div class="sub-point">
-                <span class="dynamic-value">{{ $dojDayMonth ?: '________' }}</span>
-                જૂન
-                <span class="dynamic-value">{{ $dojYear ?: '________' }}</span>
-                થી ઓક્ટો,
-                <span class="dynamic-value">{{ $dojYear ?: '________' }}</span>
-                (<span class="dynamic-value">{{ $dojDayMonth ?: '________' }}</span> માંથી <span class="dynamic-value">{{ $juneSessionDays ?: '________' }}</span> દિવસો)
+                <span class="dynamic-value">{{ $row1FromDay ?: '________' }}</span>
+                {{ $row1FromMonth ?: '________' }}
+                <span class="dynamic-value">{{ $row1FromYear ?: '________' }}</span>
+                થી {{ $row1ToMonth ?: '________' }},
+                <span class="dynamic-value">{{ $row1ToYear ?: '________' }}</span>
+                (<span class="blank blank-sm"></span> માંથી <span class="blank blank-sm"></span> દિવસો)
             </div>
             <div class="sub-point">
-                <span class="dynamic-value">{{ $todayDayMonth }}</span>
-                નવે
-                <span class="dynamic-value">{{ $todayYear }}</span>
-                થી માર્ચ,
-                <span class="dynamic-value">{{ $todayYear }}</span>
-                (<span class="dynamic-value">{{ $todayDayMonth }}</span> માંથી <span class="dynamic-value">{{ $novSessionDays ?: '________' }}</span> દિવસો)
+                @if (!empty($useCustomSemesterPeriod))
+                    <span class="dynamic-value">{{ $row2FromDay ?: '________' }}</span>
+                    {{ $row2FromMonth ?: '________' }}
+                    <span class="dynamic-value">{{ $row2FromYear ?: '________' }}</span>
+                    સુધી
+                    (<span class="blank blank-sm"></span> માંથી <span class="blank blank-sm"></span> દિવસો)
+                @else
+                    <span class="dynamic-value">{{ $row2FromDay ?: '________' }}</span>
+                    {{ $row2FromMonth ?: '________' }}
+                    <span class="dynamic-value">{{ $row2FromYear ?: '________' }}</span>
+                    થી {{ $row2ToMonth ?: '________' }},
+                    <span class="dynamic-value">{{ $row2ToYear ?: '________' }}</span>
+                    (<span class="blank blank-sm"></span> માંથી <span class="blank blank-sm"></span> દિવસો)
+                @endif
             </div>
 
             <div class="point">

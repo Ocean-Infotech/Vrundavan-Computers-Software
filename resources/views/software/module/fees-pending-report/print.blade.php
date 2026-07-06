@@ -69,8 +69,8 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>
-                        {{ $student->admission->last_name ?? '' }} 
-                        {{ $student->admission->first_name ?? '' }} 
+                        {{ $student->admission->first_name ?? '' }}
+                        {{ $student->admission->last_name ?? '' }}
                         {{ $student->admission->father_name ?? '' }}
                     </td>
                     <td class="text-right">{{ number_format($student->pending_fees, 2) }}</td>

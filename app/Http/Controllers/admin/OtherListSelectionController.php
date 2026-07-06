@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterBatch;
 use App\Models\Master\MasterCourse;
-use App\Models\StudentBillListHistory;
+use App\Models\OtherListHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -40,50 +40,36 @@ class OtherListSelectionController extends Controller
             $course_id = $request->course_id;
             $batch_id = $request->batch_id;
             $semester_id = $request->semester_id;
-            $studentIds = $request->input('student_ids', []);
 
-            if (!$course_id || !$batch_id || !$semester_id || !$this->hasStudentSelection($studentIds)) {
+            if (!$course_id || !$batch_id || !$semester_id) {
                 return DataTables::of(collect())->make(true);
             }
 
-            $students = $this->getStudents($course_id, $batch_id, $studentIds);
+            $students = $this->getStudents($course_id, $batch_id);
 
             return DataTables::of($students)
                 ->addIndexColumn()
+                ->addColumn('select', function ($row) {
+                    return '<input type="checkbox" class="student-checkbox" value="' . $row->register_id . '">';
+                })
                 ->addColumn('student_name', function ($row) {
                     return $row->admission->full_name ?? '-';
                 })
                 ->addColumn('gender', function ($row) {
                     return $row->admission->gender ?? '-';
                 })
-                ->addColumn('fees', function ($row) {
-                    return '';
-                })
-                ->addColumn('note', function ($row) {
-                    return '';
-                })
+                ->rawColumns(['select'])
                 ->make(true);
         }
 
         $columns = [
+            (object) ['data' => 'select', 'name' => 'select', 'td_label' => '<input type="checkbox" id="selectAllStudents" title="Select All">', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
             (object) ['data' => 'DT_RowIndex', 'name' => 'id', 'td_label' => 'No', 'orderable' => false, 'searchable' => false],
             (object) ['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Name'],
             (object) ['data' => 'gender', 'name' => 'gender', 'td_label' => 'Gender'],
-            (object) ['data' => 'fees', 'name' => 'fees', 'td_label' => 'Fees', 'orderable' => false, 'searchable' => false],
-            (object) ['data' => 'note', 'name' => 'note', 'td_label' => 'Note', 'orderable' => false, 'searchable' => false],
         ];
 
-        $histories = collect();
-
-        if (Schema::hasTable('other_list_histories')) {
-            $histories = StudentBillListHistory::with(['course', 'batch'])
-                ->where('module_code', 'other-list-selection')
-                ->latest()
-                ->take(50)
-                ->get();
-        }
-
-        return view($modules['folder_path'] . '.index', compact('columns', 'histories'));
+        return view($modules['folder_path'] . '.index', compact('columns'));
     }
 
     public function getStudentOptions(Request $request)
@@ -252,7 +238,7 @@ class OtherListSelectionController extends Controller
             return;
         }
 
-        StudentBillListHistory::create([
+        OtherListHistory::create([
             'module_code' => $moduleCode,
             'page_heading' => trim((string) $request->page_heading),
             'course_id' => $request->course_id,
