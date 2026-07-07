@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
 use App\Models\IssueCertificateHistory;
@@ -22,23 +23,24 @@ class IssueCertificateController extends Controller
 
     public function bonafideIndex(Request $request)
     {
+        if (!Helper::directCan('issue-certificate-bonafide-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
+
         return $this->certificateIndex($request, 'bonafide');
     }
 
     public function tcIndex(Request $request)
     {
+        if (!Helper::directCan('issue-certificate-tc-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
+
         return $this->certificateIndex($request, 'tc');
     }
 
     public function storeHistory(Request $request)
     {
-        if (!Schema::hasTable('issue_certificate_histories')) {
-            return response()->json([
-                'status' => false,
-                'message' => 'History table not found.',
-            ], 422);
-        }
-
         $validated = $request->validate([
             'certificate_type' => 'required|in:bonafide,tc',
             'student_id' => 'required|exists:admission,id',
@@ -47,6 +49,24 @@ class IssueCertificateController extends Controller
             'semester_start' => 'nullable|string',
             'semester_end' => 'nullable|string',
         ]);
+
+        $permission = $validated['certificate_type'] === 'tc'
+            ? 'issue-certificate-tc-list'
+            : 'issue-certificate-bonafide-list';
+
+        if (!Helper::directCan($permission)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User does not have the right permissions.',
+            ], 403);
+        }
+
+        if (!Schema::hasTable('issue_certificate_histories')) {
+            return response()->json([
+                'status' => false,
+                'message' => 'History table not found.',
+            ], 422);
+        }
 
         $admission = Admission::findOrFail($validated['student_id']);
         $studentName = trim(

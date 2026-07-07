@@ -83,6 +83,12 @@ class PermissionTableSeeder extends Seeder
                 'issue-certificate-bonafide-list',
                 'issue-certificate-tc-list',
             ],
+            'Other-list' => [
+                'other-list-list',
+            ],
+            'Other-list-selection' => [
+                'other-list-selection-list',
+            ],
             'test' => [
                 'test-list',
                 'test-create',

@@ -58,8 +58,17 @@ class PermissionController extends Controller
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->where('name', 'like', "%" . $request->search . "%");
+                        $searchValue = $request->input('search.value', $request->search);
+                        if (is_array($searchValue)) {
+                            $searchValue = $searchValue['value'] ?? '';
+                        }
+                        $searchValue = trim((string) $searchValue);
+
+                        if ($searchValue !== '') {
+                            $query->where(function ($subQuery) use ($searchValue) {
+                                $subQuery->where('name', 'like', '%' . $searchValue . '%')
+                                    ->orWhere('group', 'like', '%' . $searchValue . '%');
+                            });
                         }
                     })
                     ->addColumn('action', function ($row) use ($modules, $editPermisstion, $deletePermisstion) {

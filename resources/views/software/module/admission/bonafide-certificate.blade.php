@@ -196,12 +196,41 @@
             vertical-align: baseline;
         }
 
+        .footer-section {
+            margin-top: 60px;
+            font-size: 17px;
+        }
+
         .footer-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 60px;
+            align-items: flex-start;
+        }
+
+        .footer-signature-space {
+            min-height: 52px;
+            margin-top: 12px;
+        }
+
+        .footer-signatory-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 40px;
+            margin-top: 8px;
+        }
+
+        .principal-label {
+            font-weight: 700;
             font-size: 17px;
+            white-space: nowrap;
+        }
+
+        .college-stamp-name {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+            text-align: right;
         }
 
         @media print {
@@ -286,9 +315,16 @@
             Period and is our bonafied student.
         </div>
 
-        <div class="footer-row">
-            <div>Thanking you,</div>
-            <div>Your faithfully.</div>
+        <div class="footer-section">
+            <div class="footer-row">
+                <div>Thanking you,</div>
+                <div>Your faithfully,</div>
+            </div>
+            <div class="footer-signature-space"></div>
+            <div class="footer-signatory-line">
+                <div class="principal-label">Principal</div>
+                <div class="college-stamp-name">Shree Patel Vidhya Mandir Science College</div>
+            </div>
         </div>
     </div>
 </body>

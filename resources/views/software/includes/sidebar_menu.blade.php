@@ -250,25 +250,31 @@
         </li>
         @enddirectCanAny
 
+        @directCanAny(['issue-certificate-bonafide-list'])
         <li class="menu-item {{ $sidebar_active == 'issue-certificate' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
                 <div data-i18n="Issue Certificate">Issue Certificate</div>
             </a>
             <ul class="menu-sub">
+                @directCan('issue-certificate-bonafide-list')
                 <li class="menu-item {{ Route::is('issue-certificate.bonafide') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.bonafide') }}" class="menu-link">
                         <div data-i18n="Bonafide">Bonafide</div>
                     </a>
                 </li>
+                @enddirectCan
 
+                {{-- @directCan('issue-certificate-tc-list')
                 <li class="menu-item {{ Route::is('issue-certificate.tc') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.tc') }}" class="menu-link">
                         <div data-i18n="TC">TC</div>
                     </a>
                 </li>
+                @enddirectCan --}}
             </ul>
         </li>
+        @enddirectCanAny
 
         @directCanAny(['test-list', 'test_report-list'])
         <li class="menu-item {{ $sidebar_active == 'test' || $sidebar_active == 'test_report' ? 'active open' : '' }}">
@@ -504,25 +510,32 @@
         </li>
         @enddirectCanAny
 
+        @directCanAny(['other-list-selection-list'])
         <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-list-ul me-2"></i>
                 <div data-i18n="Other">Other</div>
             </a>
             <ul class="menu-sub">
+                {{-- Other List menu hidden --}}
+                {{-- @directCan('other-list-list')
                 <li class="menu-item {{ Route::is('other-list.index') ? 'active' : '' }}">
                     <a href="{{ route('other-list.index') }}" class="menu-link">
                         <div data-i18n="Other List">Other List</div>
                     </a>
                 </li>
+                @enddirectCan --}}
 
+                @directCan('other-list-selection-list')
                 <li class="menu-item {{ Route::is('other-list-selection.index') ? 'active' : '' }}">
                     <a href="{{ route('other-list-selection.index') }}" class="menu-link">
                         <div data-i18n="Other List Selection">Other List Selection</div>
                     </a>
                 </li>
+                @enddirectCan
             </ul>
         </li>
+        @enddirectCanAny
 
 
         @if(method_exists($loginUser, 'hasRole') && ($loginUser->hasRole('super-admin') || $loginUser->hasRole('developer')))

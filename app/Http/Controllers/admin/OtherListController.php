@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterBatch;
@@ -33,6 +34,8 @@ class OtherListController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorizeAccess();
+
         $modules = $this->modules;
         View::share('modules', $modules);
 
@@ -77,6 +80,8 @@ class OtherListController extends Controller
 
     public function printList(Request $request)
     {
+        $this->authorizeAccess();
+
         $course_id = $request->course_id;
         $batch_id = $request->batch_id;
         $semester_id = $request->semester_id;
@@ -106,6 +111,8 @@ class OtherListController extends Controller
 
     public function exportExcel(Request $request)
     {
+        $this->authorizeAccess();
+
         $course_id = $request->course_id;
         $batch_id = $request->batch_id;
         $semester_id = $request->semester_id;
@@ -200,6 +207,13 @@ class OtherListController extends Controller
         $response->headers->set('Content-Disposition', $disposition);
 
         return $response;
+    }
+
+    private function authorizeAccess(): void
+    {
+        if (!Helper::directCan('other-list-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
     }
 
     private function storeHistory(Request $request, string $actionType, int $studentCount, string $moduleCode): void

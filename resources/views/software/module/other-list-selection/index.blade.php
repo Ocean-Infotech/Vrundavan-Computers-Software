@@ -21,7 +21,7 @@
             'show_filter_btn' => false,
             'show_export_btns' => true,
             'show_excal_btn' => true,
-            'show_print_btn' => false,
+            'show_print_btn' => true,
             'show_back_btn' => false,
         ])
     </div>
@@ -216,6 +216,39 @@
                 const total = $('.student-checkbox').length;
                 const checked = $('.student-checkbox:checked').length;
                 $('#selectAllStudents').prop('checked', total > 0 && total === checked);
+            });
+
+            $("#print_btn").click(function(e) {
+                e.preventDefault();
+
+                if (!hasPageHeading()) {
+                    showWarning('Please enter Page Heading.');
+                    return;
+                }
+
+                if (!hasRequiredFilters()) {
+                    showWarning('Please select Course, Batch and Semester.');
+                    return;
+                }
+
+                const studentIds = getSelectedStudentIds();
+                if (!studentIds.length) {
+                    showWarning('Please select at least one student.');
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    page_heading: $('#page_heading').val(),
+                    course_id: $('#course_id').val(),
+                    batch_id: $('#batch_id').val(),
+                    semester_id: $('#semester_id').val()
+                });
+
+                studentIds.forEach(function(studentId) {
+                    params.append('student_ids[]', studentId);
+                });
+
+                window.open("{{ route($route . '.print-list') }}?" + params.toString(), '_blank');
             });
 
             $("#exportExcelBtn").click(function(e) {

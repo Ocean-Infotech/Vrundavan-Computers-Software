@@ -124,8 +124,8 @@
         </tbody>
     </table>
 
-    <div class="bottom-note">
+    {{-- <div class="bottom-note">
         સેમેસ્ટર પ્રમાણે બીલો નીચે લખવાના રહેશે (Ex. Exam Form, Tour List)
-    </div>
+    </div> --}}
 </body>
 </html>

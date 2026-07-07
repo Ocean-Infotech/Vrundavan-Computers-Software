@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\CourceRegistration;
 use App\Models\Master\MasterBatch;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\View;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\Facades\DataTables;
@@ -33,6 +35,8 @@ class OtherListSelectionController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorizeAccess();
+
         $modules = $this->modules;
         View::share('modules', $modules);
 
@@ -74,6 +78,8 @@ class OtherListSelectionController extends Controller
 
     public function getStudentOptions(Request $request)
     {
+        $this->authorizeAccess();
+
         $course_id = $request->course_id;
         $batch_id = $request->batch_id;
 
@@ -101,6 +107,8 @@ class OtherListSelectionController extends Controller
 
     public function printList(Request $request)
     {
+        $this->authorizeAccess();
+
         $course_id = $request->course_id;
         $batch_id = $request->batch_id;
         $semester_id = $request->semester_id;
@@ -131,6 +139,8 @@ class OtherListSelectionController extends Controller
 
     public function exportExcel(Request $request)
     {
+        $this->authorizeAccess();
+
         $course_id = $request->course_id;
         $batch_id = $request->batch_id;
         $semester_id = $request->semester_id;
@@ -147,63 +157,52 @@ class OtherListSelectionController extends Controller
 
         $this->storeHistory($request, 'excel', $students->count(), 'other-list-selection');
 
+        $reportSubtitle = sprintf(
+            '%s - %s | Sem - %s',
+            $course?->course_name ?? 'Course',
+            $batch?->batch_name ?? 'Batch',
+            $semester_id ?? '-'
+        );
+
+        $reportTitleLine = ($page_heading ?: 'Other List Selection') . ' | ' . $reportSubtitle;
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', $page_heading ?: 'Other List Selection');
-        $sheet->mergeCells('A1:E1');
+        $tableHeaderRow = $this->applyExcelReportHeader($sheet, $reportTitleLine);
 
-        $sheet->setCellValue(
-            'A2',
-            sprintf(
-                '%s - %s | Semester - %s',
-                $course?->course_name ?? 'Course',
-                $batch?->batch_name ?? 'Batch',
-                $semester_id ?? '-'
-            )
-        );
-        $sheet->mergeCells('A2:E2');
+        $sheet->setCellValue('A' . $tableHeaderRow, 'No');
+        $sheet->setCellValue('B' . $tableHeaderRow, 'Name');
+        $sheet->setCellValue('C' . $tableHeaderRow, 'Gender');
+        $sheet->setCellValue('D' . $tableHeaderRow, 'Fees');
+        $sheet->setCellValue('E' . $tableHeaderRow, 'Note');
 
-        $sheet->setCellValue('A4', 'No');
-        $sheet->setCellValue('B4', 'Name');
-        $sheet->setCellValue('C4', 'Gender');
-        $sheet->setCellValue('D4', 'Fees');
-        $sheet->setCellValue('E4', 'Note');
-
-        $row = 5;
+        $row = $tableHeaderRow + 1;
         foreach ($students as $index => $student) {
             $sheet->setCellValue('A' . $row, $index + 1);
-            $sheet->setCellValue('B' . $row, $student->admission->full_name ?? '-');
+            $sheet->setCellValue('B' . $row, strtoupper($student->admission->full_name ?? '-'));
             $sheet->setCellValue('C' . $row, $student->admission->gender ?? '-');
             $sheet->setCellValue('D' . $row, '');
             $sheet->setCellValue('E' . $row, '');
             $row++;
         }
 
-        $lastRow = $row - 1;
+        $lastRow = max($row - 1, $tableHeaderRow);
 
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A2:E2')->getFont()->setBold(true)->setSize(12);
-        $sheet->getStyle('A4:E4')->getFont()->setBold(true);
+        $sheet->getStyle('A' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFont()->setBold(true);
 
-        $sheet->getStyle('A1:E2')->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+        $sheet->getStyle('A' . $tableHeaderRow . ':E' . $lastRow)->getAlignment()
             ->setVertical(Alignment::VERTICAL_CENTER);
 
-        $sheet->getStyle('A4:E' . $lastRow)->getAlignment()
-            ->setVertical(Alignment::VERTICAL_CENTER);
-
-        $sheet->getStyle('A4:A' . $lastRow)->getAlignment()
+        $sheet->getStyle('A' . $tableHeaderRow . ':A' . $lastRow)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->getStyle('C4:E' . $lastRow)->getAlignment()
+        $sheet->getStyle('C' . $tableHeaderRow . ':E' . $lastRow)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->getStyle('A4:E' . $lastRow)->getBorders()->getAllBorders()
+        $sheet->getStyle('A' . $tableHeaderRow . ':E' . $lastRow)->getBorders()->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
 
-        $sheet->getRowDimension(1)->setRowHeight(24);
-        $sheet->getRowDimension(2)->setRowHeight(22);
         $sheet->getColumnDimension('A')->setWidth(8);
         $sheet->getColumnDimension('B')->setWidth(35);
         $sheet->getColumnDimension('C')->setWidth(15);
@@ -226,6 +225,13 @@ class OtherListSelectionController extends Controller
         $response->headers->set('Content-Disposition', $disposition);
 
         return $response;
+    }
+
+    private function authorizeAccess(): void
+    {
+        if (!Helper::directCan('other-list-selection-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
     }
 
     private function storeHistory(Request $request, string $actionType, int $studentCount, string $moduleCode): void
@@ -305,5 +311,70 @@ class OtherListSelectionController extends Controller
         }
 
         return $studentIds;
+    }
+
+    private function applyExcelReportHeader($sheet, string $reportTitleLine): int
+    {
+        $logoPath = public_path('uploads/logo/report_logo.png');
+        if (!is_file($logoPath)) {
+            $logoPath = public_path('admin/assets/images/report_logo.png');
+        }
+
+        $logoCol = 'A';
+        $textStartCol = 'B';
+        $headerEndCol = 'E';
+        $collegeRow = 1;
+        $reportTitleRow = 2;
+
+        $sheet->getColumnDimension($logoCol)->setWidth(13);
+        $sheet->getColumnDimension('B')->setWidth(35);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(30);
+
+        $sheet->mergeCells($logoCol . $collegeRow . ':' . $logoCol . $reportTitleRow);
+
+        $sheet->setCellValue($textStartCol . $collegeRow, 'Shree Patel Vidhya Mandir Science College');
+        $sheet->mergeCells($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow);
+
+        $sheet->setCellValue($textStartCol . $reportTitleRow, $reportTitleLine);
+        $sheet->mergeCells($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow);
+
+        $sheet->getRowDimension($collegeRow)->setRowHeight(34);
+        $sheet->getRowDimension($reportTitleRow)->setRowHeight(28);
+
+        $sheet->getStyle($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow)->getFont()
+            ->setBold(true)
+            ->setSize(16);
+        $sheet->getStyle($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow)->getFont()
+            ->setBold(true)
+            ->setSize(13);
+        $sheet->getStyle($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle($logoCol . $collegeRow . ':' . $logoCol . $reportTitleRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        if (is_file($logoPath)) {
+            $drawing = new Drawing();
+            $drawing->setName('College Logo');
+            $drawing->setDescription('College Logo');
+            $drawing->setPath($logoPath);
+            $drawing->setResizeProportional(true);
+            $drawing->setHeight(72);
+            $drawing->setWidth(72);
+            $drawing->setCoordinates($logoCol . '1');
+            $drawing->setOffsetX(8);
+            $drawing->setOffsetY(6);
+            $drawing->setWorksheet($sheet);
+        }
+
+        return $reportTitleRow + 1;
     }
 }

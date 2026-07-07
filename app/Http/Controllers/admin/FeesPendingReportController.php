@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\Facades\DataTables;
@@ -146,66 +147,59 @@ class FeesPendingReportController extends Controller
         $batch = $result['batch'];
         $semester_id = $request->semester_id;
 
+        $reportSubtitle = sprintf(
+            '%s - %s | Sem - %s',
+            $course?->course_name ?? 'Course',
+            $batch?->batch_name ?? 'Batch',
+            $semester_id ?? '-'
+        );
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $sheet->setCellValue('A1', 'Fees Pending Report');
-        $sheet->mergeCells('A1:C1');
-
-        $sheet->setCellValue(
-            'A2',
-            sprintf(
-                '%s - %s | Sem - %s',
-                $course?->course_name ?? 'Course',
-                $batch?->batch_name ?? 'Batch',
-                $semester_id ?? '-'
-            )
+        $tableHeaderRow = $this->applyExcelReportHeader(
+            $sheet,
+            'Fees Pending Report | ' . $reportSubtitle
         );
-        $sheet->mergeCells('A2:C2');
 
-        $sheet->setCellValue('A4', 'No');
-        $sheet->setCellValue('B4', 'Student Name');
-        $sheet->setCellValue('C4', 'Pending Fees');
+        $sheet->setCellValue('A' . $tableHeaderRow, 'No');
+        $sheet->setCellValue('B' . $tableHeaderRow, 'Student Name');
+        $sheet->mergeCells('B' . $tableHeaderRow . ':C' . $tableHeaderRow);
+        $sheet->setCellValue('D' . $tableHeaderRow, 'Pending Fees');
 
-        $row = 5;
+        $row = $tableHeaderRow + 1;
         foreach ($students as $index => $student) {
             $first = $student->admission->first_name ?? '';
             $last = $student->admission->last_name ?? '';
             $father = $student->admission->father_name ?? '';
 
             $sheet->setCellValue('A' . $row, $index + 1);
-            $sheet->setCellValue('B' . $row, trim("{$first} {$last} {$father}"));
-            $sheet->setCellValue('C' . $row, number_format($student->pending_fees ?? 0, 2));
+            $sheet->setCellValue('B' . $row, strtoupper(trim("{$first} {$last} {$father}")));
+            $sheet->mergeCells('B' . $row . ':C' . $row);
+            $sheet->setCellValue('D' . $row, number_format($student->pending_fees ?? 0, 2));
             $row++;
         }
 
-        $lastRow = max($row - 1, 4);
+        $lastRow = max($row - 1, $tableHeaderRow);
 
-        $sheet->getStyle('A1:C1')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A2:C2')->getFont()->setBold(true)->setSize(12);
-        $sheet->getStyle('A4:C4')->getFont()->setBold(true);
+        $sheet->getStyle('A' . $tableHeaderRow . ':D' . $tableHeaderRow)->getFont()->setBold(true);
 
-        $sheet->getStyle('A1:C2')->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+        $sheet->getStyle('A' . $tableHeaderRow . ':D' . $lastRow)->getAlignment()
             ->setVertical(Alignment::VERTICAL_CENTER);
 
-        $sheet->getStyle('A4:C' . $lastRow)->getAlignment()
-            ->setVertical(Alignment::VERTICAL_CENTER);
-
-        $sheet->getStyle('A4:A' . $lastRow)->getAlignment()
+        $sheet->getStyle('A' . $tableHeaderRow . ':A' . $lastRow)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->getStyle('C4:C' . $lastRow)->getAlignment()
+        $sheet->getStyle('D' . $tableHeaderRow . ':D' . $lastRow)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
-        $sheet->getStyle('A4:C' . $lastRow)->getBorders()->getAllBorders()
+        $sheet->getStyle('A' . $tableHeaderRow . ':D' . $lastRow)->getBorders()->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
 
-        $sheet->getRowDimension(1)->setRowHeight(24);
-        $sheet->getRowDimension(2)->setRowHeight(22);
-        $sheet->getColumnDimension('A')->setWidth(8);
-        $sheet->getColumnDimension('B')->setWidth(40);
-        $sheet->getColumnDimension('C')->setWidth(18);
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(24);
+        $sheet->getColumnDimension('C')->setWidth(24);
+        $sheet->getColumnDimension('D')->setWidth(16);
 
         $writer = new Xlsx($spreadsheet);
         $fileName = 'Fees_Pending_Report.xlsx';
@@ -301,5 +295,69 @@ class FeesPendingReportController extends Controller
             'course' => $course,
             'batch' => $batch,
         ];
+    }
+
+    private function applyExcelReportHeader($sheet, string $reportTitleLine): int
+    {
+        $logoPath = public_path('uploads/logo/report_logo.png');
+        if (!is_file($logoPath)) {
+            $logoPath = public_path('admin/assets/images/report_logo.png');
+        }
+
+        $logoCol = 'A';
+        $textStartCol = 'B';
+        $headerEndCol = 'D';
+        $collegeRow = 1;
+        $reportTitleRow = 2;
+
+        $sheet->getColumnDimension($logoCol)->setWidth(13);
+        $sheet->getColumnDimension('B')->setWidth(26);
+        $sheet->getColumnDimension('C')->setWidth(26);
+        $sheet->getColumnDimension('D')->setWidth(18);
+
+        $sheet->mergeCells($logoCol . $collegeRow . ':' . $logoCol . $reportTitleRow);
+
+        $sheet->setCellValue($textStartCol . $collegeRow, 'Shree Patel Vidhya Mandir Science College');
+        $sheet->mergeCells($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow);
+
+        $sheet->setCellValue($textStartCol . $reportTitleRow, $reportTitleLine);
+        $sheet->mergeCells($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow);
+
+        $sheet->getRowDimension($collegeRow)->setRowHeight(34);
+        $sheet->getRowDimension($reportTitleRow)->setRowHeight(28);
+
+        $sheet->getStyle($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow)->getFont()
+            ->setBold(true)
+            ->setSize(16);
+        $sheet->getStyle($textStartCol . $collegeRow . ':' . $headerEndCol . $collegeRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow)->getFont()
+            ->setBold(true)
+            ->setSize(13);
+        $sheet->getStyle($textStartCol . $reportTitleRow . ':' . $headerEndCol . $reportTitleRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $sheet->getStyle($logoCol . $collegeRow . ':' . $logoCol . $reportTitleRow)->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        if (is_file($logoPath)) {
+            $drawing = new Drawing();
+            $drawing->setName('College Logo');
+            $drawing->setDescription('College Logo');
+            $drawing->setPath($logoPath);
+            $drawing->setResizeProportional(true);
+            $drawing->setHeight(72);
+            $drawing->setWidth(72);
+            $drawing->setCoordinates($logoCol . '1');
+            $drawing->setOffsetX(8);
+            $drawing->setOffsetY(6);
+            $drawing->setWorksheet($sheet);
+        }
+
+        return $reportTitleRow + 1;
     }
 }
