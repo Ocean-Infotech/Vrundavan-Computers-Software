@@ -1117,6 +1117,32 @@ class AdmissionController extends Controller
         return view($this->modules['folder_path'] . '.transfer-certificate', compact('admission', 'courseRegistration', 'certificateData'));
     }
 
+    public function englishMediumCertificate(Request $request, $id)
+    {
+        $admission = Admission::findOrFail($id);
+        $courseRegistration = CourceRegistration::where('register_id', $id)
+            ->with('course')
+            ->latest('id')
+            ->first();
+
+        $certificateData = $this->resolveCertificateRequestData($request);
+
+        return view($this->modules['folder_path'] . '.english-medium-certificate', compact('admission', 'courseRegistration', 'certificateData'));
+    }
+
+    public function letterOfRecommendation(Request $request, $id)
+    {
+        $admission = Admission::findOrFail($id);
+        $courseRegistration = CourceRegistration::where('register_id', $id)
+            ->with('course')
+            ->latest('id')
+            ->first();
+
+        $certificateData = $this->resolveCertificateRequestData($request);
+
+        return view($this->modules['folder_path'] . '.letter-of-recommendation', compact('admission', 'courseRegistration', 'certificateData'));
+    }
+
     public function view($register_id, $course_id)
     {
         $modules = $this->modules;

@@ -4,6 +4,8 @@
     $page_title = $modules['title'] ?? 'Issue Certificate';
     $route = $modules['route'] ?? null;
     $certificateRoute = $modules['certificate_route'] ?? null;
+    $certificateType = $modules['certificate_type'] ?? 'bonafide';
+    $hideExtraColumns = in_array($certificateType, ['english-medium', 'letter-recommendation'], true);
 @endphp
 @section('title', $page_title)
 
@@ -47,6 +49,7 @@
                                     value="{{ $defaults['issue_date'] ?? now()->format('Y-m-d') }}">
                             </div>
 
+                            @if (!in_array(($modules['certificate_type'] ?? 'bonafide'), ['english-medium', 'letter-recommendation'], true))
                             <div class="col-md-3 col-sm-12 mb-3">
                                 <label class="form-label">Academic Year</label>
                                 <input type="text" id="academic_year" name="academic_year" class="form-control"
@@ -64,6 +67,7 @@
                                 <input type="text" id="semester_end" name="semester_end"
                                     class="form-control semester-date-picker" placeholder="dd-mm-yyyy" autocomplete="off">
                             </div>
+                            @endif
 
                             <div class="col-md-6 col-sm-12 mb-3">
                                 <button type="button" id="generate_certificate" class="btn btn-primary">
@@ -89,15 +93,20 @@
                                     <th class="text-center" style="width: 60px;">No</th>
                                     <th>Student Name</th>
                                     <th>Date</th>
-                                    <th>Academic Year</th>
-                                    <th>Semester Start</th>
-                                    <th>Semester End</th>
-                                    <th>Generated At</th>
+                                    @unless($hideExtraColumns)
+                                        <th>Academic Year</th>
+                                        <th>Semester Start</th>
+                                        <th>Semester End</th>
+                                        <th>Generated At</th>
+                                    @endunless
                                     <th class="text-center" style="width: 90px;">View</th>
                                 </tr>
                             </thead>
                             <tbody id="certificate-history-body">
-                                @include('software.module.issue-certificate.partials.history-rows', ['histories' => $histories ?? collect()])
+                                @include('software.module.issue-certificate.partials.history-rows', [
+                                    'histories' => $histories ?? collect(),
+                                    'hideExtraColumns' => $hideExtraColumns,
+                                ])
                             </tbody>
                         </table>
                     </div>
@@ -114,6 +123,7 @@
 @section('page_leavel_script')
     <script type="text/javascript">
         const certificateType = @json($modules['certificate_type'] ?? 'bonafide');
+        const hideExtraColumns = @json($hideExtraColumns);
 
         function prependHistoryRow(row) {
             $('#certificate-history-empty-row').remove();
@@ -123,10 +133,12 @@
                     <td class="text-center">1</td>
                     <td>${row.student_name || '-'}</td>
                     <td>${row.issue_date || '-'}</td>
-                    <td>${row.academic_year || '-'}</td>
-                    <td>${row.semester_start || '-'}</td>
-                    <td>${row.semester_end || '-'}</td>
-                    <td>${row.generated_at || '-'}</td>
+                    ${hideExtraColumns ? '' : `
+                        <td>${row.academic_year || '-'}</td>
+                        <td>${row.semester_start || '-'}</td>
+                        <td>${row.semester_end || '-'}</td>
+                        <td>${row.generated_at || '-'}</td>
+                    `}
                     <td class="text-center">
                         <a href="${row.certificate_url}" target="_blank" class="btn btn-sm btn-secondary" title="View Certificate">
                             <i class="ti ti-eye"></i>

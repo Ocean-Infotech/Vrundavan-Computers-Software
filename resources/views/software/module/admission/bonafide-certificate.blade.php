@@ -27,32 +27,6 @@
             print-color-adjust: exact;
         }
 
-        .no-print {
-            text-align: center;
-            padding: 10px;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .no-print button {
-            padding: 8px 18px;
-            margin: 0 6px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .btn-print {
-            background: #004aad;
-            color: #fff;
-        }
-
-        .btn-close {
-            background: #666;
-            color: #fff;
-        }
-
         .certificate {
             width: 100%;
             max-width: 780px;
@@ -277,11 +251,6 @@
         $periodFrom = $certificateData['period_from'] ?? '';
         $periodTo = $certificateData['period_to'] ?? '';
     @endphp
-
-    <div class="no-print">
-        <button class="btn-print" onclick="window.print()">Print</button>
-        <button class="btn-close" onclick="window.close()">Close</button>
-    </div>
 
     <div class="certificate">
         @include('software.module.admission.partials.certificate-report-header')

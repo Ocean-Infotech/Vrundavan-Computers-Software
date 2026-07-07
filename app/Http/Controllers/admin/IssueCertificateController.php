@@ -14,6 +14,11 @@ class IssueCertificateController extends Controller
 {
     public $modules = [];
 
+    private const TYPE_BONAFIDE = 'bonafide';
+    private const TYPE_TC = 'tc';
+    private const TYPE_ENGLISH_MEDIUM = 'english-medium';
+    private const TYPE_LETTER_RECOMMENDATION = 'letter-recommendation';
+
     public function __construct()
     {
         $this->modules = [
@@ -39,10 +44,28 @@ class IssueCertificateController extends Controller
         return $this->certificateIndex($request, 'tc');
     }
 
+    public function englishMediumIndex(Request $request)
+    {
+        if (!Helper::directCan('issue-certificate-english-medium-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
+
+        return $this->certificateIndex($request, self::TYPE_ENGLISH_MEDIUM);
+    }
+
+    public function letterRecommendationIndex(Request $request)
+    {
+        if (!Helper::directCan('issue-certificate-letter-recommendation-list')) {
+            abort(403, 'User does not have the right permissions.');
+        }
+
+        return $this->certificateIndex($request, self::TYPE_LETTER_RECOMMENDATION);
+    }
+
     public function storeHistory(Request $request)
     {
         $validated = $request->validate([
-            'certificate_type' => 'required|in:bonafide,tc',
+            'certificate_type' => 'required|in:bonafide,tc,english-medium,letter-recommendation',
             'student_id' => 'required|exists:admission,id',
             'issue_date' => 'nullable|string',
             'academic_year' => 'nullable|string',
@@ -50,9 +73,12 @@ class IssueCertificateController extends Controller
             'semester_end' => 'nullable|string',
         ]);
 
-        $permission = $validated['certificate_type'] === 'tc'
-            ? 'issue-certificate-tc-list'
-            : 'issue-certificate-bonafide-list';
+        $permission = match ($validated['certificate_type']) {
+            self::TYPE_TC => 'issue-certificate-tc-list',
+            self::TYPE_ENGLISH_MEDIUM => 'issue-certificate-english-medium-list',
+            self::TYPE_LETTER_RECOMMENDATION => 'issue-certificate-letter-recommendation-list',
+            default => 'issue-certificate-bonafide-list',
+        };
 
         if (!Helper::directCan($permission)) {
             return response()->json([
@@ -95,14 +121,24 @@ class IssueCertificateController extends Controller
 
     protected function certificateIndex(Request $request, string $type)
     {
+        $typeLabel = match ($type) {
+            self::TYPE_ENGLISH_MEDIUM => 'English Medium Certificate',
+            self::TYPE_LETTER_RECOMMENDATION => 'Letter of Recommendation',
+            self::TYPE_TC => 'TC Certificate',
+            default => 'Bonafide Certificate',
+        };
+
         $modules = [
-            'title' => $type === 'bonafide' ? 'Bonafide Certificate' : 'TC Certificate',
+            'title' => $typeLabel,
             'folder_path' => 'software.module.issue-certificate',
             'route' => 'issue-certificate.' . $type,
             'certificate_type' => $type,
-            'certificate_route' => $type === 'tc'
-                ? 'transfer-certificate'
-                : 'bonafide-certificate',
+            'certificate_route' => match ($type) {
+                self::TYPE_TC => 'transfer-certificate',
+                self::TYPE_ENGLISH_MEDIUM => 'english-medium-certificate',
+                self::TYPE_LETTER_RECOMMENDATION => 'letter-of-recommendation',
+                default => 'bonafide-certificate',
+            },
         ];
 
         View::share('modules', $modules);
@@ -160,7 +196,12 @@ class IssueCertificateController extends Controller
 
     private function formatHistoryRow(IssueCertificateHistory $history, string $type): array
     {
-        $certificateRoute = $type === 'tc' ? 'transfer-certificate' : 'bonafide-certificate';
+        $certificateRoute = match ($type) {
+            self::TYPE_TC => 'transfer-certificate',
+            self::TYPE_ENGLISH_MEDIUM => 'english-medium-certificate',
+            self::TYPE_LETTER_RECOMMENDATION => 'letter-of-recommendation',
+            default => 'bonafide-certificate',
+        };
 
         $params = http_build_query(array_filter([
             'issue_date' => $history->issue_date,

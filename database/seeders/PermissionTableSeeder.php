@@ -82,6 +82,7 @@ class PermissionTableSeeder extends Seeder
             'Issue-certificate' => [
                 'issue-certificate-bonafide-list',
                 'issue-certificate-tc-list',
+                'issue-certificate-english-medium-list',
             ],
             'Other-list' => [
                 'other-list-list',

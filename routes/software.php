@@ -135,6 +135,8 @@ Route::match(['get', 'post'], 'course-fees-update', [AdmissionController::class,
 Route::get('admission/attendance/{id}', [AdmissionController::class, 'viewAttendance'])->name('admission.view-attendance');
 Route::get('admission/test-marks/{id}', [AdmissionController::class, 'viewTestMarks'])->name('admission.view-test-marks');
 Route::get('bonafide-certificate/{id}', [AdmissionController::class, 'bonafideCertificate'])->name('bonafide-certificate');
+Route::get('english-medium-certificate/{id}', [AdmissionController::class, 'englishMediumCertificate'])->name('english-medium-certificate');
+Route::get('letter-of-recommendation/{id}', [AdmissionController::class, 'letterOfRecommendation'])->name('letter-of-recommendation');
 Route::get('transfer-certificate/{id}', [AdmissionController::class, 'transferCertificate'])->name('transfer-certificate');
 
 
@@ -289,6 +291,8 @@ Route::get('other-list-selection/export-excel', [OtherListSelectionController::c
 
 // Issue Certificate
 Route::get('issue-certificate/bonafide', [IssueCertificateController::class, 'bonafideIndex'])->name('issue-certificate.bonafide');
+Route::get('issue-certificate/english-medium', [IssueCertificateController::class, 'englishMediumIndex'])->name('issue-certificate.english-medium');
+Route::get('issue-certificate/letter-recommendation', [IssueCertificateController::class, 'letterRecommendationIndex'])->name('issue-certificate.letter-recommendation');
 Route::get('issue-certificate/tc', [IssueCertificateController::class, 'tcIndex'])->name('issue-certificate.tc');
 Route::post('issue-certificate/history', [IssueCertificateController::class, 'storeHistory'])->name('issue-certificate.store-history');
 
