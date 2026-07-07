@@ -269,7 +269,7 @@
         <div>Sincerely</div>
         <div class="sign-name">(Hitesh Vadalia)</div>
         <div class="designation">I/C. Principal</div>
-        <div class="designation">Shree Patel Vidhya Mandir Science College - Keshod</div>
+        <div class="designation">Shree Patel Vidhya Mandir <br> Science College - Keshod</div>
     </div>
 </div>
 </body>
