@@ -21,6 +21,7 @@ class Admission extends Authenticatable
 
     protected $fillable = [
         'biometric_id',
+        'gr_no',
         'aadhar_card_no',
         'first_name',
         'last_name',

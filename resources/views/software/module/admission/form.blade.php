@@ -97,6 +97,38 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">GR No.</label>
+                                    <input id="gr_no" type="text"
+                                        class="form-control @error('gr_no') is-invalid @enderror"
+                                        name="gr_no"
+                                        value="{{ isset($edit?->gr_no) ? $edit?->gr_no : old('gr_no') }}"
+                                        placeholder="Enter GR No." autocomplete="off">
+                                    @error('gr_no')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">Biometric ID</label>
+                                    <input id="biometric_id" type="text"
+                                        class="form-control @error('biometric_id') is-invalid @enderror"
+                                        name="biometric_id"
+                                        value="{{ isset($edit?->biometric_id) ? $edit?->biometric_id : old('biometric_id') }}"
+                                        placeholder="Enter Biometric ID" autocomplete="off">
+                                    @error('biometric_id')
+                                        <span class="invalid-feedback">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 

@@ -47,6 +47,19 @@ class AdmissionRequest extends FormRequest
                 // })->ignore($id),
             ],
 
+            'gr_no' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique((new Admission())->getTable(), 'gr_no')->ignore($id),
+            ],
+
+            'biometric_id' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
             'first_name' => [
                 'required'
             ],
