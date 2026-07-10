@@ -613,15 +613,6 @@ class AttedanceController extends Controller
 
             $token = Session::get('external_api_token');
 
-            // Fetch all employees
-            $employeeResponse = Http::withToken($token)->get($modules['api_ip'] . "api/Employees");
-
-            if (!$employeeResponse->successful()) {
-                return response()->json(['message' => 'Failed to fetch employee data.'], 500);
-            }
-
-            $employees = collect($employeeResponse->json());
-
             // Fetch device logs
             $logResponse = Http::withToken($token)->get($modules['api_ip'] . "api/DeviceLog/GetAllLogsByDate", [
                 'FromDate' => $fromDate,
@@ -633,53 +624,66 @@ class AttedanceController extends Controller
             }
 
             $logs = $logResponse->json();
+            $saved = 0;
+            $skipped = 0;
 
             foreach ($logs as $log) {
-                $date = \Carbon\Carbon::parse($log['IOTime'])->toDateString();
-                $time = \Carbon\Carbon::parse($log['IOTime'])->format('H:i:s');
+                // Machine punch fields
+                $biometricId = $log['UserId'] ?? $log['biometric_id'] ?? null;
+                $date = isset($log['IOTime'])
+                    ? Carbon::parse($log['IOTime'])->toDateString()
+                    : ($log['date'] ?? null);
+                $inTime = isset($log['IOTime'])
+                    ? Carbon::parse($log['IOTime'])->format('H:i:s')
+                    : ($log['in_time'] ?? null);
+                $deviceKey = $log['DeviceKey'] ?? null;
+                $deviceName = $log['DeviceName'] ?? null;
 
-                $employee = $employees->firstWhere('id', $log['UserId']);
-                $employeeName = $employee['name'] ?? $log['UserName'] ?? null;
-                $admissionId = null;
-
-                if ($employeeName) {
-                    $nameParts = explode(' ', $employeeName);
-                    $firstName = $nameParts[0] ?? '';
-                    $lastName = $nameParts[1] ?? '';
-
-                    $admission = DB::table('admission')
-                        ->whereRaw('LOWER(first_name) = ?', [strtolower($firstName)])
-                        ->whereRaw('LOWER(last_name) = ?', [strtolower($lastName)])
-                        ->first();
-
-                    if ($admission) {
-                        $admissionId = $admission->id;
-                    }
-                }
-
-                if (!$admissionId) {
+                if (!$biometricId || !$date || !$inTime) {
+                    $skipped++;
                     continue;
                 }
 
-                $alreadyExists = Attedance::where('admission_id', $admissionId)
+                // biometric_id → admission_id
+                $admission = Admission::findByBiometricId($biometricId);
+
+                if (!$admission) {
+                    Log::warning('Attendance punch skipped: biometric_id not mapped', [
+                        'biometric_id' => $biometricId,
+                        'date' => $date,
+                        'in_time' => $inTime,
+                    ]);
+                    $skipped++;
+                    continue;
+                }
+
+                $alreadyExists = Attedance::where('admission_id', $admission->id)
                     ->whereDate('date', $date)
-                    ->where('in_time', $time)
+                    ->where('in_time', $inTime)
                     ->exists();
 
                 if ($alreadyExists) {
+                    $skipped++;
                     continue;
                 }
 
                 Attedance::create([
-                    'admission_id' => $admissionId,
+                    'biometric_id' => $biometricId,
+                    'admission_id' => $admission->id,
                     'date' => $date,
-                    'in_time' => $time,
-                    'DeviceKey' => $log['DeviceKey'] ?? null,
-                    'DeviceName' => $log['DeviceName'] ?? null,
+                    'in_time' => $inTime,
+                    'DeviceKey' => $deviceKey,
+                    'DeviceName' => $deviceName,
                 ]);
+
+                $saved++;
             }
 
-            return response()->json(['message' => 'Attendance synced successfully.']);
+            return response()->json([
+                'message' => 'Attendance synced successfully.',
+                'saved' => $saved,
+                'skipped' => $skipped,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }

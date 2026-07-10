@@ -77,6 +77,24 @@ class Admission extends Authenticatable
     {
         return $this->belongsTo(MasterCourse::class, 'course_id');
     }
+
+    /**
+     * Machine punch biometric_id → admission_id
+     * Example: biometric_id 232 → VORA SHRUTI (admission id 61)
+     */
+    public static function findByBiometricId($biometricId): ?self
+    {
+        $biometricId = trim((string) $biometricId);
+
+        if ($biometricId === '') {
+            return null;
+        }
+
+        return static::query()
+            ->where('biometric_id', $biometricId)
+            ->first();
+    }
+
     public function educationDetails()
     {
         return $this->hasMany(EducationDetails::class, 'admission_id');

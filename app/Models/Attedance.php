@@ -12,6 +12,7 @@ class Attedance extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'biometric_id',
         'admission_id',
         'date',
         'in_time',
