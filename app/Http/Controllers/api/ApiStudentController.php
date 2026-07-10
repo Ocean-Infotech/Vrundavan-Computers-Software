@@ -319,9 +319,6 @@ class ApiStudentController extends Controller
                 return $this->sendError('Validation Error.', $validator->errors(), [], 422);
             }
 
-            $query = Attedance::where('admission_id', $student->id);
-
-
             if ($request->filled('date')) {
                 try {
                     $date = \Carbon\Carbon::createFromFormat('d-m-Y', $request->date);
@@ -329,28 +326,36 @@ class ApiStudentController extends Controller
                     return $this->sendError('Invalid date provided.', [], [], 422);
                 }
 
-                $attendanceRecord = Attedance::where('admission_id', $student->id)
-                    ->whereDate('date', $date->format('Y-m-d'))
-                    ->first();
-
-                $isPresent = $attendanceRecord && !empty($attendanceRecord->in_time);
+                $dayAttendance = Attedance::resolveDayAttendance(
+                    Attedance::sortedPunchesForDate($student->id, $date->format('Y-m-d'))
+                );
 
                 $dataList = [
                     [
                         'date'        => $date->format('Y-m-d'),
                         'day'         => $date->format('l'),
-                        'in_time'     => $isPresent ? date('h:i A', strtotime($attendanceRecord->in_time)) : null,
-                        'out_time'    => $isPresent ? date('h:i A', strtotime($attendanceRecord->out_time)) : null,
-                        'status'      => $isPresent ? 'Present' : 'Absent',
-                        'status_code' => $isPresent ? 'P' : 'A',
+                        'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
+                        'out_time'    => Attedance::formatTimeForApi($dayAttendance['out_time']),
+                        'status'      => $dayAttendance['is_present'] ? 'Present' : 'Absent',
+                        'status_code' => $dayAttendance['is_present'] ? 'P' : 'A',
+                        'punch_count' => $dayAttendance['punch_count'],
+                        'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
+                            return [
+                                'id' => $punch['id'],
+                                'time' => Attedance::formatTimeForApi($punch['time']),
+                                'type' => $punch['type'],
+                                'device_key' => $punch['device_key'],
+                                'device_name' => $punch['device_name'],
+                            ];
+                        })->values()->all(),
                     ]
                 ];
 
                 $summaryData = [
                     'total_lectures'   => 1,
-                    'present_lectures' => $isPresent ? 1 : 0,
-                    'absent_lectures'  => $isPresent ? 0 : 1,
-                    'average_percent'  => $isPresent ? 100 : 0,
+                    'present_lectures' => $dayAttendance['is_present'] ? 1 : 0,
+                    'absent_lectures'  => $dayAttendance['is_present'] ? 0 : 1,
+                    'average_percent'  => $dayAttendance['is_present'] ? 100 : 0,
                     'date'             => $date->format('d-F-Y')
                 ];
 
@@ -360,13 +365,17 @@ class ApiStudentController extends Controller
                 ], 'Attendance records fetched successfully.');
             }
 
-
-
             $month = $request->month ?? date('n');
             $year  = $request->year ?? date('Y');
 
-            $query->whereMonth('date', $month)->whereYear('date', $year);
-            $attendanceRecords = $query->orderBy('date', 'desc')->get();
+            $attendanceRecords = Attedance::where('admission_id', $student->id)
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->orderBy('date', 'desc')
+                ->orderBy('in_time')
+                ->orderBy('id')
+                ->get()
+                ->groupBy(fn ($att) => \Carbon\Carbon::parse($att->date)->format('Y-m-d'));
 
             $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
 
@@ -392,29 +401,34 @@ class ApiStudentController extends Controller
 
             $totalLectures = count($allDates);
 
-            // Map DB records by date
-            $recordsByDate = $attendanceRecords->keyBy(function ($att) {
-                return \Carbon\Carbon::parse($att->date)->format('Y-m-d');
-            });
-
             $presentCount = 0;
             $dataList = [];
 
             foreach ($allDates as $date) {
-                $record = $recordsByDate->get($date);
-                $isPresent = $record && !empty($record->in_time);
+                $dayPunches = $attendanceRecords->get($date, collect());
+                $dayAttendance = Attedance::resolveDayAttendance($dayPunches);
 
-                if ($isPresent) {
+                if ($dayAttendance['is_present']) {
                     $presentCount++;
                 }
 
                 $dataList[] = [
                     'date'        => $date,
                     'day'         => \Carbon\Carbon::parse($date)->format('l'),
-                    'in_time'     => $record && $record->in_time ? date('h:i A', strtotime($record->in_time)) : null,
-                    'out_time'    => $record && $record->out_time ? date('h:i A', strtotime($record->out_time)) : null,
-                    'status'      => $isPresent ? 'Present' : 'Absent',
-                    'status_code' => $isPresent ? 'P' : 'A',
+                    'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
+                    'out_time'    => Attedance::formatTimeForApi($dayAttendance['out_time']),
+                    'status'      => $dayAttendance['is_present'] ? 'Present' : 'Absent',
+                    'status_code' => $dayAttendance['is_present'] ? 'P' : 'A',
+                    'punch_count' => $dayAttendance['punch_count'],
+                    'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
+                        return [
+                            'id' => $punch['id'],
+                            'time' => Attedance::formatTimeForApi($punch['time']),
+                            'type' => $punch['type'],
+                            'device_key' => $punch['device_key'],
+                            'device_name' => $punch['device_name'],
+                        ];
+                    })->values()->all(),
                 ];
             }
 

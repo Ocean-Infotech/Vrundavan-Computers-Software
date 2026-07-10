@@ -38,23 +38,21 @@ class AttedanceController extends Controller
     protected array $exportableColumns = [
         'admission_id' => 'Admission ID',
         'student_name' => 'Student Name',
-        'course_name' => 'Course Name',
-        'batch_name' => 'Batch Name',
         'date' => 'Date',
-        'in_time' => 'In Time',
-        'out_time' => 'Out Time',
-        'leave_status' => 'Leave Status',
+        'in_time' => 'Punch Time',
+        'punch_type' => 'In / Out',
+        'device_key' => 'Device Key',
+        'device_name' => 'Device Name',
     ];
 
     protected array $defaultExportColumns = [
         'admission_id',
         'student_name',
-        'course_name',
-        'batch_name',
         'date',
         'in_time',
-        'out_time',
-        'leave_status',
+        'punch_type',
+        'device_key',
+        'device_name',
     ];
     public function __construct()
     {
@@ -91,15 +89,13 @@ class AttedanceController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => "admission_id", 'name' => 'admission_id', 'td_label' => 'Admission_id'],
-                (object)['data' => 'UserName', 'name' => 'UserName', 'td_label' => 'Student Name'],
-                (object)['data' => 'course_name', 'name' => 'course_id', 'td_label' => 'Course Name'],
-                (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
-                (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'In Time', 'orderable' => false, 'searchable' => false],
-                (object)['data' => 'out_time', 'name' => 'out_time', 'td_label' => 'Out Time', 'orderable' => false, 'searchable' => false],
-                (object)['data' => 'leve_status', 'name' => 'leve_status', 'td_label' => 'Leave Status', 'orderable' => false, 'searchable' => false],
-                // (object)['data' => 'in_and_out_and_leve_status', 'name' => 'in_and_out_and_leve_status', 'td_label' => 'In / Out / Leave Status'],
+                (object)['data' => 'admission_id', 'name' => 'admission_id', 'td_label' => 'Admission ID'],
+                (object)['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
+                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'Punch Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'punch_type', 'name' => 'punch_type', 'td_label' => 'In / Out', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'DeviceKey', 'name' => 'DeviceKey', 'td_label' => 'Device Key', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'DeviceName', 'name' => 'DeviceName', 'td_label' => 'Device Name', 'orderable' => false, 'searchable' => false],
             ];
             View::share("columns", $columns);
 
@@ -111,34 +107,34 @@ class AttedanceController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $data = Attedance::with(['course', 'admission', 'batch'])
-                    ->withTrashed()
-                    ->orderBy('created_at', 'desc');
+                $punchSubquery = DB::table('attedance')
+                    ->selectRaw('*, ROW_NUMBER() OVER (PARTITION BY admission_id, date ORDER BY in_time ASC, id ASC) as punch_number');
 
-                // ✅ Filter only this student's attendance if admission_id is given
+                $data = Attedance::fromSub($punchSubquery, 'attedance')
+                    ->with(['admission'])
+                    ->orderByDesc('date')
+                    ->orderByDesc('id');
+
                 if (!empty($admission_id)) {
                     $data->where('admission_id', $admission_id);
                 }
 
-                if ($request->filled('filter_course')) {
-                    $data->where('course_id', $request->filter_course);
-                }
+                if ($request->filled('filter_course') || $request->filled('filter_batch') || $request->filled('filter_class')) {
+                    $registrationQuery = CourceRegistration::query();
 
-                if ($request->filled('filter_batch')) {
-                    $data->where('batch_id', $request->filter_batch);
-                }
+                    if ($request->filled('filter_course')) {
+                        $registrationQuery->where('course_id', $request->filter_course);
+                    }
 
-                if ($request->filled('filter_class')) {
-                    $admissionIds = CourceRegistration::query()
-                        ->where('class_id', $request->filter_class)
-                        ->when($request->filled('filter_course'), function ($query) use ($request) {
-                            $query->where('course_id', $request->filter_course);
-                        })
-                        ->when($request->filled('filter_batch'), function ($query) use ($request) {
-                            $query->where('batch_id', $request->filter_batch);
-                        })
-                        ->pluck('admission_id');
+                    if ($request->filled('filter_batch')) {
+                        $registrationQuery->where('batch_id', $request->filter_batch);
+                    }
 
+                    if ($request->filled('filter_class')) {
+                        $registrationQuery->where('class_id', $request->filter_class);
+                    }
+
+                    $admissionIds = $registrationQuery->pluck('register_id');
                     $data->whereIn('admission_id', $admissionIds);
                 }
 
@@ -148,112 +144,55 @@ class AttedanceController extends Controller
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->where('admission_id', 'like', "%" . $request->search . "%");
-                            // $query->orWhere('subject_name', 'like',"%".$request->search."%");
+                        $search = trim((string) ($request->input('search.value') ?? $request->search ?? ''));
+                        if ($search === '') {
+                            return;
                         }
+
+                        $query->where(function ($q) use ($search) {
+                            $q->where('admission_id', 'like', "%{$search}%")
+                                ->orWhere('date', 'like', "%{$search}%")
+                                ->orWhere('DeviceKey', 'like', "%{$search}%")
+                                ->orWhere('DeviceName', 'like', "%{$search}%")
+                                ->orWhereHas('admission', function ($admissionQuery) use ($search) {
+                                    $admissionQuery->where('first_name', 'like', "%{$search}%")
+                                        ->orWhere('last_name', 'like', "%{$search}%")
+                                        ->orWhere('father_name', 'like', "%{$search}%");
+                                });
+                        });
                     })
-                    ->editColumn('UserName', function ($row) {
-
-                        // If username exists, return it
-                        if (!empty($row?->UserName)) {
-                            return $row->UserName;
-                        }
-
-                        // Otherwise use Admission full name in format:
-                        // LastName FirstName FatherName
-                        $last   = $row?->admission?->first_name ?? '';
-                        $first  = $row?->admission?->last_name ?? '';
+                    ->addColumn('student_name', function ($row) {
+                        $last = $row?->admission?->first_name ?? '';
+                        $first = $row?->admission?->last_name ?? '';
                         $father = $row?->admission?->father_name ?? '';
 
                         $fullName = trim("$last $first $father");
 
-                        return $fullName ?: "-";
-                    })
-
-                    ->addColumn('course_name', function ($row) {
-                        return $row?->course?->course_name ?? '-';
-                    })
-                    ->addColumn('batch_name', function ($row) {
-                        return $row?->batch?->batch_name ?? '-';
-                    })
-                    ->editColumn('in_time', function ($row) {
-                        if ($row?->in_time) {
-                            return \Carbon\Carbon::parse($row?->in_time)->format('h:i');
-                        }
-                        return "-";
-                    })
-                    ->editColumn('out_time', function ($row) {
-                        if ($row?->out_time) {
-                            return \Carbon\Carbon::parse($row?->out_time)->format('h:i');
-                        }
-                        return "-";
-                    })
-                    ->editColumn('leve_status', function ($row) {
-                        $in_time = $row->in_time ?? '';
-                        $out_time = $row->out_time ?? '';
-                        $leave = $row->leave ?? "";
-                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
-                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
-
-                        if ($in_time == "" && $out_time == "" && $leave != "") {
-                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
-                        } else {
-                            $status = '-';
-                        }
-
-                        return $status;
-                    })
-                    ->editColumn('in_and_out_and_leve_status', function ($row) {
-                        $in_time = $row->in_time ?? '';
-                        $out_time = $row->out_time ?? '';
-                        $leave = $row->leave ?? "";
-                        // $from_time = Carbon::parse($row->shift->from_time)->format('h:i A');
-                        // $to_time = Carbon::parse($row->shift->to_time)->format('h:i A');
-
-                        if ($in_time != "" && $out_time == "") {
-                            $status = '<span class="badge badge-center bg-warning bg-glow" style="width:4.5rem;">On Duty</span>';
-                        } else if ($in_time != "" && $out_time != "") {
-                            $status = '<span class="badge badge-center bg-success bg-glow" style="width:4.5rem;">Present</span>';
-                        } else if ($in_time == "" && $out_time == "") {
-                            $status = '<span class="badge badge-center bg-danger bg-glow" style="width:4.5rem;">Absent</span>';
-                        } else if ($in_time == "" && $out_time == "" && $leave != "") {
-                            $status = '<span class="badge badge-center bg-info bg-glow" style="width:4.5rem;">Leave</span>';
-                        }
-
-                        return $status;
+                        return $fullName ?: '-';
                     })
                     ->editColumn('date', function ($row) {
                         return Carbon::parse($row->date)->format('d-m-Y');
                     })
                     ->editColumn('in_time', function ($row) {
-                        if ($row->in_time == '') {
-                            $in_time = '<p class="text-center">-</p>';
-                        } else {
-                            $in_time = Carbon::parse($row->in_time)->format('h:i A');
-                        }
-                        return $in_time;
-                    })
-                    ->editColumn('out_time', function ($row) {
-                        if ($row->out_time == '') {
-                            $out_time = '<p class="text-center">-</p>';
-                        } else {
-                            $out_time = Carbon::parse($row->out_time)->format('h:i A');
+                        if (empty($row->in_time)) {
+                            return '<p class="text-center">-</p>';
                         }
 
-                        return $out_time;
+                        return Carbon::parse($row->in_time)->format('h:i A');
                     })
-                    ->editColumn('leave', function ($row) {
-                        if ($row->leave == '') {
-                            $leave = '<p class="text-center">-</p>';
-                        } else {
-                            $leave = '<p class="text-center text-danger"><strong>Leave</strong></p>';
-                        }
-                        return $leave;
+                    ->addColumn('punch_type', function ($row) {
+                        $badgeClass = ((int) ($row->punch_number ?? 1) % 2 === 1) ? 'bg-success' : 'bg-danger';
+                        $label = ((int) ($row->punch_number ?? 1) % 2 === 1) ? 'In' : 'Out';
+
+                        return '<span class="badge ' . $badgeClass . '">' . $label . '</span>';
                     })
-
-
-                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time', 'leave', 'leve_status'])
+                    ->editColumn('DeviceKey', function ($row) {
+                        return $row->DeviceKey ?: '-';
+                    })
+                    ->editColumn('DeviceName', function ($row) {
+                        return $row->DeviceName ?: '-';
+                    })
+                    ->rawColumns(['student_name', 'date', 'in_time', 'punch_type'])
                     ->make(true);
                 return $returnData;
             }
@@ -309,7 +248,10 @@ class AttedanceController extends Controller
             $registrations = $data->get();
             // dd("hello---------------------------------");
 
-            $attedances = Attedance::where('date', Carbon::now()->toDateString())->get();
+            $attedances = Attedance::where('date', Carbon::now()->toDateString())
+                ->orderBy('in_time')
+                ->orderBy('id')
+                ->get();
             // $combined = $registrations->merge($attedances);
             //dd('L-176', $combined); // Now you’ll see all values
             // return $returnData;
@@ -338,7 +280,6 @@ class AttedanceController extends Controller
         $validated = $request->validated();
 
         try {
-            $validated['created_by'] = Auth::user()->id;
             Attedance::create($validated);
             return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' Create Successfully');
         } catch (\Exception $e) {
@@ -356,26 +297,18 @@ class AttedanceController extends Controller
                         return $this->sendError("Student course not found.");
                     }
                     $admission_id = $studenCurceRegistration?->register_id;
-                    $course_id = $studenCurceRegistration?->course_id;
-                    $batch_id = $studenCurceRegistration?->batch_id;
                     $attedanceDate = Carbon::now()->toDateString();
+                    $punchCount = $this->countPunchesForDate($admission_id, $attedanceDate);
 
-                    $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
-
-                    /** If Record found return message */
-                    if ($checkAttedance) {
+                    if ($punchCount % 2 === 1) {
                         return $this->sendError("This student Attedance all ready In.");
                     }
-                    $coursereg = [
-                        'admission_id' => $admission_id,
-                        'course_id'    => $course_id,
-                        'batch_id'     => $batch_id,
-                        'date'         => Carbon::now()->toDateString(),
-                        'in_time'      => Carbon::now()->toTimeString(),
-                        'created_by'   => Auth::id(),
-                    ];
 
-                    Attedance::create($coursereg);
+                    Attedance::create([
+                        'admission_id' => $admission_id,
+                        'date'         => $attedanceDate,
+                        'in_time'      => Carbon::now()->toTimeString(),
+                    ]);
                     return $this->sendResponse([], 'Attendance marked successfully.');
                 } else if ($request?->studentid) {
                     $studentIds = explode(',', $request->studentid);
@@ -385,23 +318,15 @@ class AttedanceController extends Controller
                         $BatchRegistr = CourceRegistration::findOrFail($value);
 
                         $admission_id = $CourceRegistr?->register_id;
-                        $course_id = $CourceRegistr?->course_id;
-                        $batch_id = $CourceRegistr?->batch_id;
                         $attedanceDate = Carbon::now()->toDateString();
+                        $punchCount = $this->countPunchesForDate($admission_id, $attedanceDate);
 
-                        $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
-
-                        if (!$checkAttedance) {
-                            $coursereg = [
+                        if ($punchCount % 2 === 0) {
+                            Attedance::create([
                                 'admission_id' => $CourceRegistr->register_id,
-                                'course_id'    => $CourceRegistr->course_id,
-                                'batch_id'     => $BatchRegistr->batch_id,
-                                'date'         => Carbon::now()->toDateString(),
+                                'date'         => $attedanceDate,
                                 'in_time'      => Carbon::now()->toTimeString(),
-                                'created_by'   => Auth::id(),
-                            ];
-
-                            Attedance::create($coursereg);
+                            ]);
                         }
                     }
                     //dd('L-176', $coursereg); // Now you’ll see all values
@@ -432,41 +357,34 @@ class AttedanceController extends Controller
                         return $this->sendError("Student course not found.");
                     }
                     $admission_id = $studenCurceRegistration?->register_id;
-                    $course_id = $studenCurceRegistration?->course_id;
-                    $batch_id = $studenCurceRegistration?->batch_id;
                     $attedanceDate = Carbon::now()->toDateString();
+                    $punchCount = $this->countPunchesForDate($admission_id, $attedanceDate);
 
-                    $checkAttedance = Attedance::where('admission_id', $admission_id)->where('course_id', $course_id)->where('batch_id', $batch_id)->whereDate('date', $attedanceDate)->whereNotNull('in_time')->whereNull('out_time')->orderBy('id', 'DESC')->first();
-
-                    if (!$checkAttedance) {
+                    if ($punchCount % 2 === 0) {
                         return $this->sendError("This student attedance not in.");
                     }
 
-                    $checkAttedance->out_time = Carbon::now()->toTimeString();
-                    $checkAttedance->save();
+                    Attedance::create([
+                        'admission_id' => $admission_id,
+                        'date'         => $attedanceDate,
+                        'in_time'      => Carbon::now()->toTimeString(),
+                    ]);
 
                     return $this->sendResponse([], 'Attendance Out Marked successfully.');
                 } else if ($request?->studentid) {
-
                     $studentIds = explode(',', $request->studentid);
-                    $attendanceIds = explode(',', $request->attendanceid);
 
-                    foreach ($studentIds as $index => $studentId) {
-                        // Get the corresponding attendance ID
-                        $attId = $attendanceIds[$index] ?? null;
+                    foreach ($studentIds as $studentId) {
+                        $registration = CourceRegistration::findOrFail($studentId);
+                        $admissionId = $registration->register_id;
+                        $punchCount = $this->countPunchesForDate($admissionId, Carbon::today()->toDateString());
 
-                        if ($attId) {
-                            // Find the attendance record by ID and update it
-                            $attendance = Attedance::where('id', $attId)
-                                ->whereDate('date', Carbon::today())
-                                ->first();
-
-                            if ($attendance) {
-                                $attendance->update([
-                                    'out_time' => Carbon::now()->toTimeString(),
-                                    'updated_by' => Auth::id(),
-                                ]);
-                            }
+                        if ($punchCount % 2 === 1) {
+                            Attedance::create([
+                                'admission_id' => $admissionId,
+                                'date'         => Carbon::now()->toDateString(),
+                                'in_time'      => Carbon::now()->toTimeString(),
+                            ]);
                         }
                     }
                     return response()->json([
@@ -595,7 +513,7 @@ class AttedanceController extends Controller
         }
 
         try {
-            $designation = Attedance::withTrashed()->findOrFail($request?->id);
+            $designation = Attedance::findOrFail($request?->id);
 
             if ($designation) {
                 $designation->status = $request->update_status;
@@ -675,7 +593,7 @@ class AttedanceController extends Controller
 
         try {
 
-            $restore_data = Attedance::withTrashed()->findOrFail($id);
+            $restore_data = Attedance::findOrFail($id);
             $restore_data->restore();
 
             return Redirect::back()->withSuccess($modules['title'] . ' restored successfully!');
@@ -717,23 +635,15 @@ class AttedanceController extends Controller
             $logs = $logResponse->json();
 
             foreach ($logs as $log) {
-                $attendance = Attedance::where('biometric_id', $log['Id'])->first();
-
                 $date = \Carbon\Carbon::parse($log['IOTime'])->toDateString();
                 $time = \Carbon\Carbon::parse($log['IOTime'])->format('H:i:s');
-                $ioTime = \Carbon\Carbon::parse($log['IOTime'])->format('Y-m-d H:i:s');
 
-                // Get employee name
                 $employee = $employees->firstWhere('id', $log['UserId']);
                 $employeeName = $employee['name'] ?? $log['UserName'] ?? null;
-
-                $courseId = null;
-                $batchId = null;
                 $admissionId = null;
 
-
                 if ($employeeName) {
-                    $nameParts = explode(" ", $employeeName);
+                    $nameParts = explode(' ', $employeeName);
                     $firstName = $nameParts[0] ?? '';
                     $lastName = $nameParts[1] ?? '';
 
@@ -744,54 +654,29 @@ class AttedanceController extends Controller
 
                     if ($admission) {
                         $admissionId = $admission->id;
-
-                        $course = DB::table('cource_registration')
-                            ->where('register_id', $admissionId)
-                            ->orderByDesc('id') // In case multiple, get latest
-                            ->first();
-
-                        if ($course) {
-                            $courseId = $course->course_id;
-                            $batchId = $course->batch_id;
-
-                            // dd($admissionId, $courseId, $batchId);
-                        }
                     }
                 }
 
-                if ($attendance) {
-                    if ($log['IOMode'] === 'in') {
-                        $attendance->update([
-                            'in_time' => $time,
-                        ]);
-                    } elseif ($log['IOMode'] === 'out') {
-                        $attendance->update([
-                            'out_time' => $time,
-                        ]);
-                    }
-                } else {
-                    if ($admissionId) {
-                        Attedance::create([
-                            'biometric_id' => $log['Id'],
-                            'admission_id' => $admissionId,
-                            'course_id' => $courseId,
-                            'batch_id' => $batchId,
-                            'date' => $date,
-                            'in_time' => $log['IOMode'] === 'in' ? $time : null,
-                            'out_time' => $log['IOMode'] === 'out' ? $time : null,
-                            'DeviceKey' => $log['DeviceKey'] ?? null,
-                            'DeviceName' => $log['DeviceName'] ?? null,
-                            'UserId' => $log['UserId'] ?? null,
-                            'EmpCode' => $log['EmpCode'] ?? null,
-                            'UserName' => $employeeName,
-                            'IOTime' => $ioTime ?? null,
-                            'IOMode' => $log['IOMode'] ?? null,
-                            'VerifyMode' => $log['VerifyMode'] ?? null,
-                            'WorkCode' => $log['WorkCode'] ?? null,
-                            'ImagePath' => $log['ImagePath'] ?? null,
-                        ]);
-                    }
+                if (!$admissionId) {
+                    continue;
                 }
+
+                $alreadyExists = Attedance::where('admission_id', $admissionId)
+                    ->whereDate('date', $date)
+                    ->where('in_time', $time)
+                    ->exists();
+
+                if ($alreadyExists) {
+                    continue;
+                }
+
+                Attedance::create([
+                    'admission_id' => $admissionId,
+                    'date' => $date,
+                    'in_time' => $time,
+                    'DeviceKey' => $log['DeviceKey'] ?? null,
+                    'DeviceName' => $log['DeviceName'] ?? null,
+                ]);
             }
 
             return response()->json(['message' => 'Attendance synced successfully.']);
@@ -976,9 +861,11 @@ class AttedanceController extends Controller
 
     protected function buildAttendanceExportQuery(Request $request, string $scope): Builder
     {
-        $query = Attedance::query()
-            ->withTrashed()
-            ->with(['course', 'admission', 'batch'])
+        $punchSubquery = DB::table('attedance')
+            ->selectRaw('*, ROW_NUMBER() OVER (PARTITION BY admission_id, date ORDER BY in_time ASC, id ASC) as punch_number');
+
+        $query = Attedance::fromSub($punchSubquery, 'attedance')
+            ->with(['admission'])
             ->orderByDesc('date')
             ->orderByDesc('id');
 
@@ -996,12 +883,8 @@ class AttedanceController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('admission_id', 'like', "%{$search}%")
                     ->orWhere('date', 'like', "%{$search}%")
-                    ->orWhereHas('course', function ($courseQuery) use ($search) {
-                        $courseQuery->where('course_name', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('batch', function ($batchQuery) use ($search) {
-                        $batchQuery->where('batch_name', 'like', "%{$search}%");
-                    })
+                    ->orWhere('DeviceKey', 'like', "%{$search}%")
+                    ->orWhere('DeviceName', 'like', "%{$search}%")
                     ->orWhereHas('admission', function ($admissionQuery) use ($search) {
                         $admissionQuery->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
@@ -1028,18 +911,15 @@ class AttedanceController extends Controller
             case 'admission_id':
                 return $attendance->admission_id ?? '-';
             case 'student_name':
-                if (!empty($attendance->UserName)) {
-                    return $attendance->UserName;
-                }
                 $last = $attendance->admission->first_name ?? '';
                 $first = $attendance->admission->last_name ?? '';
                 $father = $attendance->admission->father_name ?? '';
                 $fullName = trim("{$last} {$first} {$father}");
                 return $fullName !== '' ? $fullName : '-';
-            case 'course_name':
-                return $attendance->course->course_name ?? '-';
-            case 'batch_name':
-                return $attendance->batch->batch_name ?? '-';
+            case 'device_key':
+                return $attendance->DeviceKey ?? '-';
+            case 'device_name':
+                return $attendance->DeviceName ?? '-';
             case 'date':
                 return $attendance->date
                     ? Carbon::parse($attendance->date)->format('d-m-Y')
@@ -1048,10 +928,8 @@ class AttedanceController extends Controller
                 return $attendance->in_time
                     ? Carbon::parse($attendance->in_time)->format('h:i A')
                     : '-';
-            case 'out_time':
-                return $attendance->out_time
-                    ? Carbon::parse($attendance->out_time)->format('h:i A')
-                    : '-';
+            case 'punch_type':
+                return ((int) ($attendance->punch_number ?? 1) % 2 === 1) ? 'In' : 'Out';
             case 'leave_status':
                 $inTime = $attendance->in_time ?? '';
                 $outTime = $attendance->out_time ?? '';
@@ -1469,5 +1347,12 @@ class AttedanceController extends Controller
         }, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
+    }
+
+    protected function countPunchesForDate($admissionId, string $date): int
+    {
+        return Attedance::where('admission_id', $admissionId)
+            ->whereDate('date', $date)
+            ->count();
     }
 }

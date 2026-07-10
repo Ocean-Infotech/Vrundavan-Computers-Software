@@ -246,17 +246,34 @@
                                 let out_time = '';
                                 let attendance_id = "";
                                 let leave = '';
+                                let punchCount = 0;
+                                let canPunchIn = true;
+                                let canPunchOut = false;
 
-                                // Find attendance by admission_id
+                                // Machine punches: each row stores time in in_time (1st=In, 2nd=Out, ...)
                                 if (response.attedances && response.attedances.length > 0) {
-                                    const attendanceRecord = response.attedances.find(att => att
-                                        .admission_id == item.register_id);
-                                    if (attendanceRecord) {
-                                        in_time = attendanceRecord.in_time || '';
-                                        date = attendanceRecord.date || '';
-                                        out_time = attendanceRecord.out_time || '';
-                                        leave = attendanceRecord.leave || '';
-                                        attendance_id = attendanceRecord.id || '';
+                                    const studentPunches = response.attedances
+                                        .filter(att => String(att.admission_id) === String(item.register_id))
+                                        .sort((a, b) => {
+                                            const timeA = a.in_time || '';
+                                            const timeB = b.in_time || '';
+                                            return timeA.localeCompare(timeB) || ((a.id || 0) - (b.id || 0));
+                                        });
+
+                                    punchCount = studentPunches.length;
+                                    date = studentPunches[0]?.date || '';
+                                    attendance_id = studentPunches[punchCount - 1]?.id || '';
+                                    canPunchIn = punchCount % 2 === 0;
+                                    canPunchOut = punchCount % 2 === 1;
+
+                                    if (punchCount > 0) {
+                                        in_time = punchCount % 2 === 1
+                                            ? studentPunches[punchCount - 1].in_time
+                                            : studentPunches[0].in_time;
+                                    }
+
+                                    if (punchCount >= 2) {
+                                        out_time = studentPunches[1].in_time;
                                     }
                                 }
 
@@ -267,7 +284,9 @@
 
                                 rows += '<tr>';
 
-                                if (in_time != "" && out_time != "") {
+                                const isDayComplete = punchCount >= 2 && punchCount % 2 === 0;
+
+                                if (isDayComplete) {
                                     rows += "<td></td>";
                                 } else {
                                     rows +=
@@ -279,7 +298,7 @@
                                 rows += '<td>' + item.admission.first_name + ' ' + item
                                     .admission.last_name + ' ' + item.admission.father_name +
                                     '</td>';
-                                if (in_time == "") {
+                                if (canPunchIn) {
                                     rows += '<td><button type="button" data-id="' + item.id +
                                         '" data-course_id="' + item.course_id + '" data-url="' +
                                         url +
@@ -305,13 +324,11 @@
 
                                     rows += '<td>' + formatted + '</td>';
                                 }
-                                if (out_time == "") {
+                                if (canPunchOut) {
                                     rows += '<td><button type="button" data-id="' +
                                         attendance_id + '"  data-url="' + out_url +
-                                        '" class="btn btn-danger btn-icon student_out"' + (
-                                            in_time == "" ? ' disabled' : '') +
-                                        '><i class="fa fa-sign-out"></i></button></td>';
-                                } else {
+                                        '" class="btn btn-danger btn-icon student_out"><i class="fa fa-sign-out"></i></button></td>';
+                                } else if (out_time != "") {
 
 
                                     let newout_time = date + ' ' + out_time;

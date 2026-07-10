@@ -238,7 +238,7 @@
                 processing: true,
                 serverSide: true,
                 order: [
-                    [1, 'desc']
+                    [2, 'desc']
                 ],
                 ajax: {
                     url: "{{ route($route . '.index') }}",
