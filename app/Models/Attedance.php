@@ -3,40 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Master\MasterCourse;
-use App\Models\Master\MasterBatch;
+use Illuminate\Support\Collection;
 
 class Attedance extends Model
 {
-    use SoftDeletes;
-
     public $table = 'attedance';
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'biometric_id',
         'admission_id',
-        'course_id',
-        'batch_id',
         'date',
         'in_time',
         'out_time',
-        'leave',
         'DeviceKey',
         'DeviceName',
-        'UserId',
-        'EmpCode',
-        'UserName',
-        'IOTime',
-        'IOMode',
-        'VerifyMode',
-        'WorkCode',
-        'ImagePath',
-        'status',
-        'created_by',
-        'updated_by',
-        'deleted_by',
-        'deleted_at',
     ];
 
     public function admission()
@@ -44,13 +25,45 @@ class Attedance extends Model
         return $this->belongsTo(Admission::class, 'admission_id', 'id');
     }
 
-    public function course()
+    public static function sortedPunchesForDate($admissionId, string $date): Collection
     {
-        return $this->belongsTo(MasterCourse::class, 'course_id', 'id');
+        return static::where('admission_id', $admissionId)
+            ->whereDate('date', $date)
+            ->orderBy('in_time')
+            ->orderBy('id')
+            ->get();
     }
 
-    public function batch()
+    public static function resolveDayAttendance(Collection $punches): array
     {
-        return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
+        $sorted = $punches->sortBy(fn ($punch) => $punch->in_time . '_' . $punch->id)->values();
+
+        $inTime = $sorted->first()?->in_time;
+        $outTime = $sorted->count() >= 2 ? $sorted->get(1)?->in_time : null;
+
+        return [
+            'in_time' => $inTime,
+            'out_time' => $outTime,
+            'is_present' => $sorted->isNotEmpty(),
+            'punch_count' => $sorted->count(),
+            'punches' => $sorted->map(function ($punch, $index) {
+                return [
+                    'id' => $punch->id,
+                    'time' => $punch->in_time,
+                    'type' => ($index % 2 === 0) ? 'In' : 'Out',
+                    'device_key' => $punch->DeviceKey,
+                    'device_name' => $punch->DeviceName,
+                ];
+            })->values()->all(),
+        ];
+    }
+
+    public static function formatTimeForApi(?string $time): ?string
+    {
+        if (empty($time)) {
+            return null;
+        }
+
+        return date('h:i A', strtotime($time));
     }
 }
