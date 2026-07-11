@@ -50,6 +50,7 @@ class Attedance extends Model
             'punches' => $sorted->map(function ($punch, $index) {
                 return [
                     'id' => $punch->id,
+                    'biometric_id' => $punch->biometric_id,
                     'time' => $punch->in_time,
                     'type' => ($index % 2 === 0) ? 'In' : 'Out',
                     'device_key' => $punch->DeviceKey,

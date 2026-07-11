@@ -284,16 +284,21 @@ class ApiStudentController extends Controller
      *       "present_lectures": 1,
      *       "absent_lectures": 0,
      *       "average_percent": 100,
-     *       "date": "01-July-2025"
+     *       "date": "10-July-2026"
      *     },
      *     "records": [
      *       {
-     *         "date": "2025-07-01",
-     *         "day": "Tuesday",
-     *         "in_time": "09:05 AM",
-     *         "out_time": "12:00 PM",
+     *         "date": "2026-07-10",
+     *         "day": "Friday",
+     *         "in_time": "09:35 AM",
+     *         "out_time": "12:30 PM",
      *         "status": "Present",
-     *         "status_code": "P"
+     *         "status_code": "P",
+     *         "punch_count": 2,
+     *         "punches": [
+     *           { "id": 9, "biometric_id": "232", "time": "09:35 AM", "type": "In", "device_name": "Face" },
+     *           { "id": 10, "biometric_id": "232", "time": "12:30 PM", "type": "Out", "device_name": "Face" }
+     *         ]
      *       }
      *     ]
      *   }
@@ -332,6 +337,8 @@ class ApiStudentController extends Controller
 
                 $dataList = [
                     [
+                        'admission_id' => $student->id,
+                        'biometric_id' => $student->biometric_id,
                         'date'        => $date->format('Y-m-d'),
                         'day'         => $date->format('l'),
                         'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
@@ -342,6 +349,7 @@ class ApiStudentController extends Controller
                         'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
                             return [
                                 'id' => $punch['id'],
+                                'biometric_id' => $punch['biometric_id'] ?? null,
                                 'time' => Attedance::formatTimeForApi($punch['time']),
                                 'type' => $punch['type'],
                                 'device_key' => $punch['device_key'],
@@ -413,6 +421,8 @@ class ApiStudentController extends Controller
                 }
 
                 $dataList[] = [
+                    'admission_id' => $student->id,
+                    'biometric_id' => $student->biometric_id,
                     'date'        => $date,
                     'day'         => \Carbon\Carbon::parse($date)->format('l'),
                     'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
@@ -423,6 +433,7 @@ class ApiStudentController extends Controller
                     'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
                         return [
                             'id' => $punch['id'],
+                            'biometric_id' => $punch['biometric_id'] ?? null,
                             'time' => Attedance::formatTimeForApi($punch['time']),
                             'type' => $punch['type'],
                             'device_key' => $punch['device_key'],
