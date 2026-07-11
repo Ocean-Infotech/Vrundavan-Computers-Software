@@ -74,6 +74,7 @@
                         <button type="button" class="btn btn-danger" id="single_attendance_out">OUT</button>
                     </div>
 
+                    {{-- Course / Batch filters hidden
                     <div class="col-sm-12 col-md-4 col-lg-4 col-xl-3 mb-3">
                         <div class="form-group">
                             <label class="form-label">Select Course <span class="text-danger">*</span></label>
@@ -110,6 +111,7 @@
                             @enderror
                         </div>
                     </div>
+                    --}}
 
                     <div class="col-md-4 col-sm-12 mb-3" id="allstudentinbtn">
                         <label class="form-label mb-5"></label>
