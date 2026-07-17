@@ -314,11 +314,15 @@
                             <div class="modal-body">
                                 <div class="form-group mb-3">
                                     <label for="from_time">From Time</label>
-                                    <input type="time" name="from_time" class="form-control" required>
+                                    <input type="text" name="from_time" id="shift_from_time"
+                                        class="form-control flatpickr-time-24" placeholder="HH:MM" required
+                                        autocomplete="off">
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="to_time">To Time</label>
-                                    <input type="time" name="to_time" class="form-control" required>
+                                    <input type="text" name="to_time" id="shift_to_time"
+                                        class="form-control flatpickr-time-24" placeholder="HH:MM" required
+                                        autocomplete="off">
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -408,6 +412,16 @@
     <script>
         $(document).ready(function() {
             $('.select2').select2();
+
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('.flatpickr-time-24', {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: 'H:i',
+                    time_24hr: true,
+                    allowInput: true,
+                });
+            }
 
             setTimeout(function() {
                 const dateInput = document.getElementById('flatpickr-date');
