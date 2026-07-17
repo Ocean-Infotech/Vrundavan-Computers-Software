@@ -393,7 +393,7 @@
     @include('software.utils.getDepartment')
     @include('software.utils.getUniversity')
     @include('software.utils.getBatchByCourseid')
-    @include('software.utils.getClassByBatch')
+    @include('software.utils.getClass')
     @include('software.utils.getShiftByBatchByCourseidByClass')
 
 
