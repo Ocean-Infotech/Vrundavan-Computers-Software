@@ -36,7 +36,7 @@ class AttedanceController extends Controller
 {
     public $modules = [];
     protected array $exportableColumns = [
-        'admission_id' => 'Admission ID',
+        'biometric_id' => 'Biometric ID',
         'student_name' => 'Student Name',
         'date' => 'Date',
         'in_time' => 'Punch Time',
@@ -46,7 +46,7 @@ class AttedanceController extends Controller
     ];
 
     protected array $defaultExportColumns = [
-        'admission_id',
+        'biometric_id',
         'student_name',
         'date',
         'in_time',
@@ -89,7 +89,7 @@ class AttedanceController extends Controller
         View::share('modules', $modules);
         try {
             $columns = [
-                (object)['data' => 'admission_id', 'name' => 'admission_id', 'td_label' => 'Admission ID'],
+                (object)['data' => 'biometric_id', 'name' => 'biometric_id', 'td_label' => 'Biometric ID'],
                 (object)['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name', 'orderable' => false, 'searchable' => false],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
                 (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'Punch Time', 'orderable' => false, 'searchable' => false],
@@ -150,7 +150,7 @@ class AttedanceController extends Controller
                         }
 
                         $query->where(function ($q) use ($search) {
-                            $q->where('admission_id', 'like', "%{$search}%")
+                            $q->where('biometric_id', 'like', "%{$search}%")
                                 ->orWhere('date', 'like', "%{$search}%")
                                 ->orWhere('DeviceKey', 'like', "%{$search}%")
                                 ->orWhere('DeviceName', 'like', "%{$search}%")
@@ -158,13 +158,34 @@ class AttedanceController extends Controller
                                     $admissionQuery->where('first_name', 'like', "%{$search}%")
                                         ->orWhere('last_name', 'like', "%{$search}%")
                                         ->orWhere('father_name', 'like', "%{$search}%");
+                                })
+                                ->orWhereIn('biometric_id', function ($subQuery) use ($search) {
+                                    $subQuery->select('biometric_id')
+                                        ->from('admission')
+                                        ->where('first_name', 'like', "%{$search}%")
+                                        ->orWhere('last_name', 'like', "%{$search}%")
+                                        ->orWhere('father_name', 'like', "%{$search}%");
                                 });
                         });
                     })
+                    ->editColumn('biometric_id', function ($row) {
+                        if ($row->biometric_id) {
+                            return $row->biometric_id;
+                        }
+                        if ($row->admission_id) {
+                            return $row->admission?->biometric_id ?? $row->admission_id;
+                        }
+                        return '-';
+                    })
                     ->addColumn('student_name', function ($row) {
-                        $last = $row?->admission?->first_name ?? '';
-                        $first = $row?->admission?->last_name ?? '';
-                        $father = $row?->admission?->father_name ?? '';
+                        $admission = $row->admission;
+                        if (!$admission && $row->biometric_id) {
+                            $admission = Admission::where('biometric_id', $row->biometric_id)->first();
+                        }
+
+                        $last = $admission?->first_name ?? '';
+                        $first = $admission?->last_name ?? '';
+                        $father = $admission?->father_name ?? '';
 
                         $fullName = trim("$last $first $father");
 
@@ -885,12 +906,19 @@ class AttedanceController extends Controller
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('admission_id', 'like', "%{$search}%")
+                $q->where('biometric_id', 'like', "%{$search}%")
                     ->orWhere('date', 'like', "%{$search}%")
                     ->orWhere('DeviceKey', 'like', "%{$search}%")
                     ->orWhere('DeviceName', 'like', "%{$search}%")
                     ->orWhereHas('admission', function ($admissionQuery) use ($search) {
                         $admissionQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('father_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereIn('biometric_id', function ($subQuery) use ($search) {
+                        $subQuery->select('biometric_id')
+                            ->from('admission')
+                            ->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
                             ->orWhere('father_name', 'like', "%{$search}%");
                     });
@@ -912,12 +940,22 @@ class AttedanceController extends Controller
     protected function formatColumnValueForExcel(Attedance $attendance, string $columnKey)
     {
         switch ($columnKey) {
-            case 'admission_id':
-                return $attendance->admission_id ?? '-';
+            case 'biometric_id':
+                if ($attendance->biometric_id) {
+                    return $attendance->biometric_id;
+                }
+                if ($attendance->admission_id) {
+                    return $attendance->admission?->biometric_id ?? $attendance->admission_id;
+                }
+                return '-';
             case 'student_name':
-                $last = $attendance->admission->first_name ?? '';
-                $first = $attendance->admission->last_name ?? '';
-                $father = $attendance->admission->father_name ?? '';
+                $admission = $attendance->admission;
+                if (!$admission && $attendance->biometric_id) {
+                    $admission = Admission::where('biometric_id', $attendance->biometric_id)->first();
+                }
+                $last = $admission?->first_name ?? '';
+                $first = $admission?->last_name ?? '';
+                $father = $admission?->father_name ?? '';
                 $fullName = trim("{$last} {$first} {$father}");
                 return $fullName !== '' ? $fullName : '-';
             case 'device_key':

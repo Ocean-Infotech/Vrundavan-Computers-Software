@@ -86,17 +86,27 @@
                     @foreach ($columnKeys as $columnKey)
                         <td>
                             @switch($columnKey)
-                                @case('admission_id')
-                                    {{ $attendance->admission_id ?? '-' }}
+                                @case('biometric_id')
+                                    @php
+                                        $biometricId = $attendance->biometric_id;
+                                        if (!$biometricId && $attendance->admission_id) {
+                                            $biometricId = $attendance->admission?->biometric_id ?? $attendance->admission_id;
+                                        }
+                                    @endphp
+                                    {{ $biometricId ?? '-' }}
                                 @break
 
                                 @case('student_name')
                                     @php
                                         $displayName = $attendance->UserName;
                                         if (empty($displayName)) {
-                                            $last = $attendance->admission->first_name ?? '';
-                                            $first = $attendance->admission->last_name ?? '';
-                                            $father = $attendance->admission->father_name ?? '';
+                                            $admission = $attendance->admission;
+                                            if (!$admission && $attendance->biometric_id) {
+                                                $admission = \App\Models\Admission::where('biometric_id', $attendance->biometric_id)->first();
+                                            }
+                                            $last = $admission?->first_name ?? '';
+                                            $first = $admission?->last_name ?? '';
+                                            $father = $admission?->father_name ?? '';
                                             $fullName = trim($last . ' ' . $first . ' ' . $father);
                                             $displayName = $fullName !== '' ? $fullName : '-';
                                         }

@@ -26,9 +26,14 @@ class Attedance extends Model
         return $this->belongsTo(Admission::class, 'admission_id', 'id');
     }
 
-    public static function sortedPunchesForDate($admissionId, string $date): Collection
+    public static function sortedPunchesForDate($admissionId, string $date, ?string $biometricId = null): Collection
     {
-        return static::where('admission_id', $admissionId)
+        return static::where(function ($query) use ($admissionId, $biometricId) {
+                $query->where('admission_id', $admissionId);
+                if (!empty($biometricId)) {
+                    $query->orWhere('biometric_id', $biometricId);
+                }
+            })
             ->whereDate('date', $date)
             ->orderBy('in_time')
             ->orderBy('id')

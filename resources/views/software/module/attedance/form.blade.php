@@ -53,11 +53,11 @@
                 @endisset
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Admission ID</label>
+                        <label class="form-label">Biometric ID</label>
                         <input list="searchAdmissionId" id="admission_id" type="text"
                             class="form-control @error('admission_id') is-invalid @enderror" name="admission_id"
                             value="{{ isset($edit?->admission_id) ? $edit?->admission_id : old('admission_id') }}"
-                            placeholder="Enter Roll No.">
+                            placeholder="Enter Biometric ID">
 
                         <datalist id="searchAdmissionId" class="search_by_courceregistration"
                             data-append="search_by_courceregistration"
@@ -140,7 +140,7 @@
                                     <input type="hidden" name="attendanceid" value="" id="attendanceid">
                                     <th><input class="form-check-input" type="checkbox" id="checkallstudent" value="">
                                     </th>
-                                    <th>Admission ID</th>
+                                    <th>Biometric ID</th>
                                     <th>Student Name</th>
                                     <th>IN</th>
                                     <!-- <th>Date And Time</th> -->
@@ -296,7 +296,7 @@
                                         attendance_id + '"  data-course_id="' + item.course_id +
                                         '" value="' + item.id + '"></td>';
                                 }
-                                rows += '<td>' + item.register_id + '</td>';
+                                rows += '<td>' + (item.admission?.biometric_id || '-') + '</td>';
                                 rows += '<td>' + item.admission.first_name + ' ' + item
                                     .admission.last_name + ' ' + item.admission.father_name +
                                     '</td>';
@@ -635,7 +635,7 @@
 
 
                         } else {
-                            toastr.error("Admission ID is wrong please add correct ID");
+                            toastr.error("Biometric ID is wrong please add correct ID");
                         }
                     },
                     error: function(xhr) {
@@ -654,7 +654,7 @@
                 let admissionId = $('#admission_id').val();
                 if (!admissionId) {
                     $('#admission_id').addClass('is-invalid').focus();
-                    toastr.error("Select any one admission id.");
+                    toastr.error("Select any one student/biometric id.");
                     return true;
                 }
                 $('#admission_id').removeClass('is-invalid');
@@ -696,7 +696,7 @@
                 let admissionId = $('#admission_id').val();
                 if (!admissionId) {
                     $('#admission_id').addClass('is-invalid').focus();
-                    toastr.error("Select any one admission id.");
+                    toastr.error("Select any one student/biometric id.");
                     return true;
                 }
                 $('#admission_id').removeClass('is-invalid');

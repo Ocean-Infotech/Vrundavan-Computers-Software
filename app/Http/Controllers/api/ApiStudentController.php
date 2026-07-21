@@ -332,7 +332,7 @@ class ApiStudentController extends Controller
                 }
 
                 $dayAttendance = Attedance::resolveDayAttendance(
-                    Attedance::sortedPunchesForDate($student->id, $date->format('Y-m-d'))
+                    Attedance::sortedPunchesForDate($student->id, $date->format('Y-m-d'), $student->biometric_id)
                 );
 
                 $dataList = [
@@ -376,7 +376,12 @@ class ApiStudentController extends Controller
             $month = $request->month ?? date('n');
             $year  = $request->year ?? date('Y');
 
-            $attendanceRecords = Attedance::where('admission_id', $student->id)
+            $attendanceRecords = Attedance::where(function ($query) use ($student) {
+                    $query->where('admission_id', $student->id);
+                    if (!empty($student->biometric_id)) {
+                        $query->orWhere('biometric_id', $student->biometric_id);
+                    }
+                })
                 ->whereMonth('date', $month)
                 ->whereYear('date', $year)
                 ->orderBy('date', 'desc')
