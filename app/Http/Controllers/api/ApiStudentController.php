@@ -98,6 +98,7 @@ class ApiStudentController extends Controller
                     'batch'             => $courseRegistered->batch?->batch_name ?? '',
                     'class'             => $courseRegistered->class?->class ?? '',
                     'shift'             => $shiftTiming,
+                    'gr_no'             => $student->gr_no ?? '',
                     'biometric_id'      => $student->biometric_id ?? '',
                     'enrollment_no'     => $student->enrolment_no ?? '',
                     'spid'              => $student->spid ?? '',
