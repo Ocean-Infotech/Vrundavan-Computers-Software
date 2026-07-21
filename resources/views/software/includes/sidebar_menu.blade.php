@@ -250,7 +250,7 @@
         </li>
         @enddirectCanAny
 
-        @directCanAny(['issue-certificate-bonafide-list', 'issue-certificate-english-medium-list', 'issue-certificate-letter-recommendation-list'])
+        @directCanAny(['issue-certificate-bonafide-list', 'issue-certificate-english-medium-list', 'issue-certificate-letter-recommendation-list', 'issue-certificate-tc-list'])
         <li class="menu-item {{ $sidebar_active == 'issue-certificate' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
@@ -261,6 +261,14 @@
                 <li class="menu-item {{ Route::is('issue-certificate.bonafide') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.bonafide') }}" class="menu-link">
                         <div data-i18n="Bonafide">Bonafide</div>
+                    </a>
+                </li>
+                @enddirectCan
+
+                @directCan('issue-certificate-tc-list')
+                <li class="menu-item {{ Route::is('issue-certificate.tc') ? 'active' : '' }}">
+                    <a href="{{ route('issue-certificate.tc') }}" class="menu-link">
+                        <div data-i18n="TC">TC</div>
                     </a>
                 </li>
                 @enddirectCan
@@ -280,14 +288,6 @@
                     </a>
                 </li>
                 @enddirectCan
-
-                {{-- @directCan('issue-certificate-tc-list')
-                <li class="menu-item {{ Route::is('issue-certificate.tc') ? 'active' : '' }}">
-                    <a href="{{ route('issue-certificate.tc') }}" class="menu-link">
-                        <div data-i18n="TC">TC</div>
-                    </a>
-                </li>
-                @enddirectCan --}}
             </ul>
         </li>
         @enddirectCanAny
