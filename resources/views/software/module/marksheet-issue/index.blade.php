@@ -82,7 +82,20 @@
         </div>
     </div>
 
-    <div class="row my-3">
+    {{-- Placeholder shown before any filter is selected --}}
+    <div id="no-filter-placeholder" class="row my-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body text-center py-5 text-muted">
+                    <i class="bx bx-filter-alt" style="font-size: 3rem;"></i>
+                    <p class="mt-2 mb-0 fs-6">Please select a filter (Course / Batch / Class / Semester) to view students.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- DataTable — hidden until filter selected --}}
+    <div id="datatable-wrapper" class="row my-3 d-none">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
@@ -127,30 +140,57 @@
         $(document).ready(function() {
             $('.select2').select2();
 
-            dtable = $('#yajra-datatables').DataTable({
-                processing: true,
-                serverSide: true,
-                searching: true,
-                ordering: false,
-                ajax: {
-                    url: "{{ route('marksheet-issue.index') }}",
-                    type: "GET",
-                    data: function(data) {
-                        data.course_id = $('#course_id').val();
-                        data.batch_id = $('#batch_id').val();
-                        data.class_id = $('#class_id').val();
-                        data.semester_id = $('#semester_id').val();
-                    }
-                },
-                columns: {!! json_encode($columns) !!},
-                language: {
-                    searchPlaceholder: 'Search...',
-                },
-            });
+            var isFilterActive = false;
+            var dtableInitialized = false;
+
+            function initOrReloadTable() {
+                isFilterActive = !!($('#course_id').val() || $('#batch_id').val() || $('#class_id').val() || $('#semester_id').val());
+
+                if (!isFilterActive) {
+                    // No filter — show placeholder, hide table
+                    $('#no-filter-placeholder').removeClass('d-none');
+                    $('#datatable-wrapper').addClass('d-none');
+                    return;
+                }
+
+                // Filter active — hide placeholder, show table
+                $('#no-filter-placeholder').addClass('d-none');
+                $('#datatable-wrapper').removeClass('d-none');
+
+                if (!dtableInitialized) {
+                    // First time: initialize DataTable
+                    dtableInitialized = true;
+                    dtable = $('#yajra-datatables').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        searching: true,
+                        ordering: false,
+                        ajax: {
+                            url: "{{ route('marksheet-issue.index') }}",
+                            type: "GET",
+                            data: function(d) {
+                                d.course_id   = $('#course_id').val();
+                                d.batch_id    = $('#batch_id').val();
+                                d.class_id    = $('#class_id').val();
+                                d.semester_id = $('#semester_id').val();
+                            }
+                        },
+                        columns: {!! json_encode($columns) !!},
+                        language: {
+                            searchPlaceholder: 'Search...',
+                            emptyTable: 'No students found for the selected filter.',
+                            zeroRecords: 'No students found for the selected filter.',
+                        },
+                    });
+                } else {
+                    // Already initialized — just redraw with new filters
+                    dtable.draw();
+                }
+            }
 
             // Redraw table on filter change
             $('.select_filter').on('change', function() {
-                dtable.draw();
+                initOrReloadTable();
             });
 
             // Handle checkbox toggles for marksheets

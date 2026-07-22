@@ -46,6 +46,20 @@ class MarksheetIssueController extends Controller
         View::share('columns', $columns);
 
         if ($request->ajax()) {
+            // If no filter is applied at all, return empty result
+            $hasFilter = $request->filled('course_id')
+                || $request->filled('batch_id')
+                || $request->filled('class_id')
+                || $request->filled('semester_id');
+
+            if (!$hasFilter) {
+                return Datatables::of(Admission::query()->whereRaw('0=1'))
+                    ->addIndexColumn()
+                    ->addColumn('marksheet_semesters', fn() => '')
+                    ->rawColumns(['marksheet_semesters'])
+                    ->make(true);
+            }
+
             $data = Admission::withTrashed();
 
             return Datatables::of($data)
