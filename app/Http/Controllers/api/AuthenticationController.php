@@ -619,4 +619,47 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
+    /**
+     * Store student device token for push notifications
+     */
+    public function storeDeviceToken(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'student_id' => [
+                    'required',
+                    'integer',
+                    Rule::exists(Admission::class, 'id'),
+                ],
+                'device_token' => ['required', 'string', 'max:255'],
+                'device_details' => ['nullable', 'string'],
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors()->first(), $validator->errors(), 422);
+            }
+
+            $studentId = $request->student_id;
+
+            // Check if token already exists
+            $existingToken = StudentDeviceToken::where('student_id', $studentId)
+                ->where('device_token', $request->device_token)
+                ->first();
+
+            if (!$existingToken) {
+                $deviceToken = new StudentDeviceToken();
+                $deviceToken->student_id = $studentId;
+                $deviceToken->device_token = $request->device_token;
+                $deviceToken->device_details = $request->device_details ?? null;
+                $deviceToken->created_by = $studentId;
+                $deviceToken->save();
+            }
+
+            return $this->sendResponse([], 'Device token stored successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
 }
+
