@@ -345,6 +345,26 @@ class AuthenticationController extends Controller
                 );
             }
 
+            // 🔹 STORE DEVICE TOKEN & DETAILS
+            if ($request->filled('device_token') || $request->filled('device_details')) {
+                if ($request->filled('device_token')) {
+                    StudentDeviceToken::where('device_token', $request->device_token)
+                        ->where('student_id', '!=', $student->id)
+                        ->delete();
+                }
+
+                StudentDeviceToken::updateOrCreate(
+                    [
+                        'student_id'   => $student->id,
+                        'device_token' => $request->device_token,
+                    ],
+                    [
+                        'device_details' => $request->device_details,
+                        'created_by'     => $student->id,
+                    ]
+                );
+            }
+
             // 🔹 CHECK BIRTH YEAR
             $dbYear = Carbon::parse($student->date_of_birth)->year;
 
@@ -373,6 +393,8 @@ class AuthenticationController extends Controller
                 $profile->token = $token;
                 $profile->expiresAt = $expiresAt;
                 $profile->login_type = 'birth_year';
+                $profile->device_token = $request->device_token ?? null;
+                $profile->device_details = $request->device_details ?? null;
 
                 return $this->sendResponse(
                     $profile,
