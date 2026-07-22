@@ -105,6 +105,8 @@ class ApiStudentController extends Controller
                     'udise'             => $student->udise,
                     'apaar_id_abc_id'   => $student->apaar_id_abc_id,
                     'attachment'        => $timetable?->attachment ? asset($timetable->attachment) : '',
+                    'is_marksheet_issued'=> (bool) (is_array($student->marksheet_semesters) && count($student->marksheet_semesters) > 0),
+                    'marksheet_semesters'=> $student->marksheet_semesters ?? [],
                 ];
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
@@ -823,6 +825,97 @@ class ApiStudentController extends Controller
                 $readNotifications,
                 "Notifications marked as read successfully."
             );
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get faculty complaint reports of student
+     *
+     * Returns list of faculty complaints for student.
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Faculty complaint reports fetched successfully.",
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "admission_id": 1,
+     *       "gr_no": "229",
+     *       "date": "21-07-2026",
+     *       "complaint": "Complaint text",
+     *       "faculty_id": 4,
+     *       "faculty_name": "Jignesh Parmar",
+     *       "faculty_email": "jignesh@gmail.com",
+     *       "created_at": "2026-07-21 15:30:00"
+     *     }
+     *   ]
+     * }
+     */
+    public function faculty_complaint_reports(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+            $studentId = $request->input('student_id') ?? $request->input('admission_id') ?? ($student ? $student->id : null);
+
+            if (!$studentId && !$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $query = \App\Models\FacultyComplaintReport::with(['faculty:id,name,email']);
+
+            if ($studentId) {
+                $query->where('admission_id', $studentId);
+            }
+
+            if ($request->has('gr_no') && !empty($request->gr_no)) {
+                $query->where('gr_no', $request->gr_no);
+            }
+
+            $reports = $query->orderBy('date', 'desc')
+                ->orderBy('id', 'desc')
+                ->get()
+                ->map(function ($report) {
+                    return [
+                        'id'           => $report->id,
+                        'admission_id' => $report->admission_id,
+                        'gr_no'        => $report->gr_no,
+                        'date'         => $report->date ? \App\Helpers\Helper::convert_date($report->date, 'Y-m-d', 'd-m-Y') : '',
+                        'complaint'    => $report->complaint,
+                        'faculty_id'   => $report->faculty_id,
+                        'faculty_name' => $report->faculty?->name ?? '',
+                    ];
+                });
+
+            return $this->sendResponse($reports, 'Faculty complaint reports fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get marksheet details of logged-in student
+     *
+     * @authenticated
+     */
+    public function marksheet_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $issuedSemesters = $student->marksheet_semesters ?? [];
+
+            $data = [
+                'is_marksheet_issued' => (bool) (count($issuedSemesters) > 0),
+                'marksheet_semesters' => $issuedSemesters,
+            ];
+
+            return $this->sendResponse($data, 'Marksheet details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

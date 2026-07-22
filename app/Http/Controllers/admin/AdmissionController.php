@@ -113,6 +113,7 @@ class AdmissionController extends Controller
         ];
     }
 
+
     public function index(Request $request)
     {
 

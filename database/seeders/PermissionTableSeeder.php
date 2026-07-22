@@ -84,6 +84,18 @@ class PermissionTableSeeder extends Seeder
                 'issue-certificate-tc-list',
                 'issue-certificate-english-medium-list',
             ],
+            'Faculty-complaint-report' => [
+                'faculty-complaint-report-list',
+                'faculty-complaint-report-create',
+                'faculty-complaint-report-edit',
+                'faculty-complaint-report-delete',
+            ],
+            'Supplier' => [
+                'supplier-list',
+                'supplier-create',
+                'supplier-edit',
+                'supplier-delete',
+            ],
             'Other-list' => [
                 'other-list-list',
             ],
@@ -157,7 +169,7 @@ class PermissionTableSeeder extends Seeder
         foreach ($permissions as $groupKey => $permissionGroup) {
             foreach ($permissionGroup as $key => $permission) {
                 // dd($groupKey, $permissionGroup, $key, $permission);
-                Permission::create(['group' => $groupKey, 'name' => $permission]);
+                Permission::firstOrCreate(['name' => $permission], ['group' => $groupKey]);
             }
         }
     }

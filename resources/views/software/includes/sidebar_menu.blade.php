@@ -132,7 +132,7 @@
 
                 {{-- Registered Students --}}
                 @directCan('admission-list')
-                <li class="menu-item {{ Route::current()->getName() == 'admission.index' ? 'active' : '' }}">
+                <li class="menu-item {{ Route::current()->getName() == 'admission.index' && request()->get('view') !== 'marksheet' ? 'active' : '' }}">
                     <a href="{{ route('admission.index') }}" class="menu-link">
                         <div data-i18n="Registered Student">Registered Student</div>
                     </a>
@@ -285,6 +285,41 @@
                 <li class="menu-item {{ Route::is('issue-certificate.letter-recommendation') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.letter-recommendation') }}" class="menu-link">
                         <div data-i18n="Letter of Recommendation">Letter of Recommendation</div>
+                    </a>
+                </li>
+                @enddirectCan
+            </ul>
+        </li>
+        @enddirectCanAny
+
+        @directCanAny(['faculty-complaint-report-list', 'faculty-complaint-report-create', 'supplier-list', 'supplier-create', 'admission-list'])
+        <li class="menu-item {{ $sidebar_active == 'faculty-complaint-report' || $sidebar_active == 'supplier' || $sidebar_active == 'marksheet-issue' ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="ti ti-messages me-2"></i>
+                <div data-i18n="Communication">Communication</div>
+            </a>
+            <ul class="menu-sub">
+                @directCan('faculty-complaint-report-list')
+                <li class="menu-item {{ $sidebar_active == 'faculty-complaint-report' ? 'active' : '' }}">
+                    <a href="{{ route('faculty-complaint-report.index') }}" class="menu-link">
+                        <div data-i18n="Faculty Complaint Report">Faculty Complaint Report</div>
+                    </a>
+                </li>
+                @enddirectCan
+
+                @directCan('supplier-list')
+                <li class="menu-item {{ $sidebar_active == 'supplier' ? 'active' : '' }}">
+                    <a href="{{ route('supplier.index') }}" class="menu-link">
+                        <div data-i18n="Supplier">Supplier</div>
+                    </a>
+                </li>
+                @enddirectCan
+
+                {{-- Marksheet Issue --}}
+                @directCan('admission-list')
+                <li class="menu-item {{ Route::currentRouteName() == 'marksheet-issue.index' ? 'active' : '' }}">
+                    <a href="{{ route('marksheet-issue.index') }}" class="menu-link">
+                        <div data-i18n="Marksheet Issue">Marksheet Issue</div>
                     </a>
                 </li>
                 @enddirectCan

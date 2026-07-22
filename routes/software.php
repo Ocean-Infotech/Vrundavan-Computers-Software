@@ -28,6 +28,8 @@ use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\IssueCertificateController;
+use App\Http\Controllers\admin\FacultyComplaintReportController;
+use App\Http\Controllers\admin\SupplierController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\IssuedBookController;
 use App\Http\Controllers\admin\master\MasterClassController;
@@ -36,6 +38,7 @@ use App\Http\Controllers\admin\master\MasterSemesterController;
 use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
+use App\Http\Controllers\admin\MarksheetIssueController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
@@ -51,7 +54,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'dashboard'])->name('software.dashboard');
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard.showUsers');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
 Route::get('/removeimage/{id}', [DashboardController::class, 'remove_image'])->name('remove_image');
 
@@ -94,6 +97,8 @@ Route::delete(
 
 Route::get('admission/export-excel', [AdmissionController::class, 'exportExcel'])->name('admission.export-excel');
 Route::get('admission/print', [AdmissionController::class, 'printView'])->name('admission.print');
+Route::get('marksheet-issue', [MarksheetIssueController::class, 'index'])->name('marksheet-issue.index');
+Route::post('marksheet-issue/toggle', [MarksheetIssueController::class, 'toggle'])->name('marksheet-issue.toggle');
 Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes
@@ -295,6 +300,8 @@ Route::get('issue-certificate/english-medium', [IssueCertificateController::clas
 Route::get('issue-certificate/letter-recommendation', [IssueCertificateController::class, 'letterRecommendationIndex'])->name('issue-certificate.letter-recommendation');
 Route::get('issue-certificate/tc', [IssueCertificateController::class, 'tcIndex'])->name('issue-certificate.tc');
 Route::post('issue-certificate/history', [IssueCertificateController::class, 'storeHistory'])->name('issue-certificate.store-history');
+Route::resource('faculty-complaint-report', FacultyComplaintReportController::class);
+Route::resource('supplier', SupplierController::class);
 
 // Fee History
 Route::resource('fee-history', FeeHistoryController::class)

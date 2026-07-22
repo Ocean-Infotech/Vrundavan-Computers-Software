@@ -112,6 +112,8 @@ class AuthenticatedController extends Controller
             $responseData['gdrivefoldername'] = $studentDetail?->gdrivefoldername . '';
             $responseData['status'] = $studentDetail?->status . '';
             $responseData['profile_url'] = $studentDetail?->profile_pic_url . '';
+            $responseData['is_marksheet_issued'] = (bool) (is_array($studentDetail?->marksheet_semesters) && count($studentDetail?->marksheet_semesters) > 0);
+            $responseData['marksheet_semesters'] = $studentDetail?->marksheet_semesters ?? [];
 
             return (object)$responseData;
         } catch (\Exception $e) {

@@ -52,6 +52,16 @@ class Admission extends Authenticatable
         'updated_by',
     ];
 
+    public function marksheetIssues()
+    {
+        return $this->hasMany(StudentMarksheetIssue::class, 'admission_id');
+    }
+
+    public function getMarksheetSemestersAttribute()
+    {
+        return $this->marksheetIssues()->pluck('semester')->toArray();
+    }
+
     // Admission.php
     // public function courseRegistrations()
     // {
