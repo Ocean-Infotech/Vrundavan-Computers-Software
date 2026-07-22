@@ -178,7 +178,8 @@ class NotificationSettingController extends Controller
             return Redirect::route($this->modules['route'] . '.index')
                 ->withSuccess($this->modules['title'] . ' created successfully');
         } catch (\Exception $e) {
-            return Redirect::route('dashboard')->withErrors($e->getMessage());
+            // return Redirect::route('dashboard')->withErrors($e->getMessage());
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
     }
 
