@@ -70,6 +70,7 @@ class AdmissionController extends Controller
         'gdrivefolderurl' => 'Google Drive Folder URL',
         'status' => 'Status',
         'created_at' => 'Admission Date',
+        'course_names' => 'Course(s)',
     ];
 
     protected array $defaultExportColumns = [
@@ -100,6 +101,7 @@ class AdmissionController extends Controller
         'gdrivefolderurl',
         'status',
         'created_at',
+        'course_names',
     ];
     public function __construct()
     {
@@ -1258,7 +1260,7 @@ class AdmissionController extends Controller
         $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
         $columnLabels = $this->mapColumnLabels($selectedColumns);
 
-        $admissions = $this->buildAdmissionExportQuery($request, $scope)->get();
+        $admissions = $this->buildAdmissionExportQuery($request, $scope)->with('courses.course')->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -1308,7 +1310,7 @@ class AdmissionController extends Controller
         $columnLabels = $this->mapColumnLabels($selectedColumns);
         $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
 
-        $admissions = $this->buildAdmissionExportQuery($request, $scope)->get();
+        $admissions = $this->buildAdmissionExportQuery($request, $scope)->with('courses.course')->get();
 
         return view($this->modules['folder_path'] . '.print', [
             'admissions' => $admissions,
@@ -1459,6 +1461,13 @@ class AdmissionController extends Controller
                 return $admission->created_at
                     ? $admission->created_at->format('d-m-Y')
                     : '-';
+            case 'course_names':
+                $courseNames = $admission->courses
+                    ->filter(fn($cr) => $cr->course)
+                    ->map(fn($cr) => $cr->course->course_name)
+                    ->unique()
+                    ->join(', ');
+                return $courseNames ?: '-';
             default:
                 return data_get($admission, $columnKey, '-');
         }
