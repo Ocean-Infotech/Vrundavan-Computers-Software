@@ -70,7 +70,7 @@ class AdmissionController extends Controller
         'gdrivefolderurl' => 'Google Drive Folder URL',
         'status' => 'Status',
         'created_at' => 'Admission Date',
-        'course_names' => 'Course(s)',
+        'course_names' => 'Course',
     ];
 
     protected array $defaultExportColumns = [
