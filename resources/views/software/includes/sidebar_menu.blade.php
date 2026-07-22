@@ -292,7 +292,7 @@
         </li>
         @enddirectCanAny
 
-        @directCanAny(['faculty-complaint-report-list', 'faculty-complaint-report-create', 'supplier-list', 'supplier-create', 'admission-list'])
+        @directCanAny(['faculty-complaint-report-list', 'faculty-complaint-report-create', 'supplier-list', 'supplier-create', 'marksheet-issue-list'])
         <li class="menu-item {{ $sidebar_active == 'faculty-complaint-report' || $sidebar_active == 'supplier' || $sidebar_active == 'marksheet-issue' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
@@ -316,7 +316,7 @@
                 @enddirectCan
 
                 {{-- Marksheet Issue --}}
-                @directCan('admission-list')
+                @directCan('marksheet-issue-list')
                 <li class="menu-item {{ Route::currentRouteName() == 'marksheet-issue.index' ? 'active' : '' }}">
                     <a href="{{ route('marksheet-issue.index') }}" class="menu-link">
                         <div data-i18n="Marksheet Issue">Marksheet Issue</div>
