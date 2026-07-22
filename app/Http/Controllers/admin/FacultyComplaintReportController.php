@@ -68,7 +68,10 @@ class FacultyComplaintReportController extends Controller
                     })
                     ->addColumn('student_name', function ($record) {
                         if ($record->admission) {
-                            return $record->admission->full_name;
+                            $first = $record->admission->first_name ?? '';
+                            $last = $record->admission->last_name ?? '';
+                            $father = $record->admission->father_name ?? '';
+                            return trim($first . ' ' . $last . ' ' . $father);
                         }
                         return '-';
                     })
