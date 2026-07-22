@@ -345,6 +345,26 @@ class AuthenticationController extends Controller
                 );
             }
 
+            // 🔹 Save device info immediately if provided
+            if ($request->filled('device_token') || $request->filled('device_details')) {
+                if ($request->filled('device_token')) {
+                    StudentDeviceToken::where('device_token', $request->device_token)
+                        ->where('student_id', '!=', $student->id)
+                        ->delete();
+                }
+
+                StudentDeviceToken::updateOrCreate(
+                    [
+                        'student_id'   => $student->id,
+                        'device_token' => $request->device_token,
+                    ],
+                    [
+                        'device_details' => $request->device_details,
+                        'created_by'     => $student->id,
+                    ]
+                );
+            }
+
             // 🔹 CHECK BIRTH YEAR
             $dbYear = Carbon::parse($student->date_of_birth)->year;
 
@@ -362,20 +382,6 @@ class AuthenticationController extends Controller
                 $tokenResult = $student->createToken('student-api');
                 $token = $tokenResult->accessToken;
                 $expiresAt = $tokenResult->token->expires_at;
-
-                // 🔹 Save device info
-                if ($request->filled('device_token') || $request->filled('device_details')) {
-                    StudentDeviceToken::updateOrCreate(
-                        [
-                            'student_id'   => $student->id,
-                            'device_token' => $request->device_token,
-                        ],
-                        [
-                            'device_details' => $request->device_details,
-                            'created_by'     => $student->id,
-                        ]
-                    );
-                }
 
                 // 🔹 Same login response as OTP verify
                 $profileRequest = new Request();
@@ -551,6 +557,12 @@ class AuthenticationController extends Controller
 
 
             if ($request->filled('device_token') || $request->filled('device_details')) {
+                if ($request->filled('device_token')) {
+                    StudentDeviceToken::where('device_token', $request->device_token)
+                        ->where('student_id', '!=', $student->id)
+                        ->delete();
+                }
+
                 StudentDeviceToken::updateOrCreate(
                     [
                         'student_id'   => $student->id,
@@ -641,6 +653,11 @@ class AuthenticationController extends Controller
             }
 
             $studentId = $request->student_id;
+
+            // Delete existing token if registered to another student to avoid Duplicate key crash
+            StudentDeviceToken::where('device_token', $request->device_token)
+                ->where('student_id', '!=', $studentId)
+                ->delete();
 
             // Check if token already exists
             $existingToken = StudentDeviceToken::where('student_id', $studentId)

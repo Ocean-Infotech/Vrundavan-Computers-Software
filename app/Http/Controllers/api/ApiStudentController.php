@@ -105,8 +105,6 @@ class ApiStudentController extends Controller
                     'udise'             => $student->udise,
                     'apaar_id_abc_id'   => $student->apaar_id_abc_id,
                     'attachment'        => $timetable?->attachment ? asset($timetable->attachment) : '',
-                    'is_marksheet_issued'=> (bool) (is_array($student->marksheet_semesters) && count($student->marksheet_semesters) > 0),
-                    'marksheet_semesters'=> $student->marksheet_semesters ?? [],
                 ];
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
