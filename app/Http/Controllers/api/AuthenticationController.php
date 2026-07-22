@@ -345,26 +345,6 @@ class AuthenticationController extends Controller
                 );
             }
 
-            // 🔹 Save device info immediately if provided
-            if ($request->filled('device_token') || $request->filled('device_details')) {
-                if ($request->filled('device_token')) {
-                    StudentDeviceToken::where('device_token', $request->device_token)
-                        ->where('student_id', '!=', $student->id)
-                        ->delete();
-                }
-
-                StudentDeviceToken::updateOrCreate(
-                    [
-                        'student_id'   => $student->id,
-                        'device_token' => $request->device_token,
-                    ],
-                    [
-                        'device_details' => $request->device_details,
-                        'created_by'     => $student->id,
-                    ]
-                );
-            }
-
             // 🔹 CHECK BIRTH YEAR
             $dbYear = Carbon::parse($student->date_of_birth)->year;
 
