@@ -59,7 +59,7 @@ class NotificationSettingController extends Controller
             (object)['data' => "title", 'name' => 'title', 'td_label' => 'Title'],
             (object)['data' => "body", 'name' => 'body', 'td_label' => 'Message'],
             (object)['data' => "course_id", 'name' => 'course_id', 'td_label' => 'Course'],
-            (object)['data' => "student_name", 'td_label' => 'Student'],
+            // (object)['data' => "student_name", 'td_label' => 'Student'],
             (object)['data' => "action", 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
         ];
         View::share("columns", $columns);
