@@ -11,7 +11,8 @@
 @section('page_style_file')
     <!--datatable css-->
     <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('admin/assets/cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap.min.css') }}">
 @endsection
 
 @section('content')
@@ -48,8 +49,8 @@
                             <div class="form-group">
                                 <label class="form-label">Filter by Batch</label>
                                 <select id="batch_id" name="batch_id"
-                                    class="form-control search_by_batch select2 select_filter" 
-                                    data-append="search_by_batch" autofocus>
+                                    class="form-control search_by_batch select2 select_filter" data-append="search_by_batch"
+                                    autofocus>
                                     <option value="">Filter by Batch</option>
                                 </select>
                             </div>
@@ -59,8 +60,8 @@
                             <div class="form-group">
                                 <label class="form-label">Filter by Class</label>
                                 <select id="class_id" name="class_id"
-                                    class="form-control search_by_class select2 select_filter" 
-                                    data-append="search_by_class" autofocus>
+                                    class="form-control search_by_class select2 select_filter" data-append="search_by_class"
+                                    autofocus>
                                     <option value="">Filter by Class</option>
                                 </select>
                             </div>
@@ -88,7 +89,8 @@
             <div class="card">
                 <div class="card-body text-center py-5 text-muted">
                     <i class="bx bx-filter-alt" style="font-size: 3rem;"></i>
-                    <p class="mt-2 mb-0 fs-6">Please select a filter (Course / Batch / Class / Semester) to view students.</p>
+                    <p class="mt-2 mb-0 fs-6">Please select a filter (Course / Batch / Class / Semester) to view students.
+                    </p>
                 </div>
             </div>
         </div>
@@ -100,7 +102,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="yajra-datatables" class="table table-striped table-hover dt-responsive" style="width:100%">
+                        <table id="yajra-datatables" class="table table-striped table-hover dt-responsive"
+                            style="width:100%">
                             <thead>
                                 <tr>
                                     @foreach ($columns as $item)
@@ -144,7 +147,8 @@
             var dtableInitialized = false;
 
             function initOrReloadTable() {
-                isFilterActive = !!($('#course_id').val() || $('#batch_id').val() || $('#class_id').val() || $('#semester_id').val());
+                isFilterActive = !!($('#course_id').val() || $('#batch_id').val() || $('#class_id').val() || $(
+                    '#semester_id').val());
 
                 if (!isFilterActive) {
                     // No filter — show placeholder, hide table
@@ -169,9 +173,9 @@
                             url: "{{ route('marksheet-issue.index') }}",
                             type: "GET",
                             data: function(d) {
-                                d.course_id   = $('#course_id').val();
-                                d.batch_id    = $('#batch_id').val();
-                                d.class_id    = $('#class_id').val();
+                                d.course_id = $('#course_id').val();
+                                d.batch_id = $('#batch_id').val();
+                                d.class_id = $('#class_id').val();
                                 d.semester_id = $('#semester_id').val();
                             }
                         },
@@ -231,9 +235,12 @@
                 let courseId = $(this).val();
 
                 // Reset Batch, Class, Semester selects
-                $('#batch_id').empty().append('<option value="">Filter by Batch</option>').val('').trigger('change');
-                $('#class_id').empty().append('<option value="">Filter by Class</option>').val('').trigger('change');
-                $('#semester_id').empty().append('<option value="">Filter by Semester</option>').val('').trigger('change');
+                $('#batch_id').empty().append('<option value="">Filter by Batch</option>').val('').trigger(
+                    'change');
+                $('#class_id').empty().append('<option value="">Filter by Class</option>').val('').trigger(
+                    'change');
+                $('#semester_id').empty().append('<option value="">Filter by Semester</option>').val('')
+                    .trigger('change');
 
                 if (courseId) {
                     // Fetch Batch list
@@ -245,10 +252,12 @@
                             course_id: courseId
                         },
                         success: function(response) {
-                            if ((response.status === true || response.status === "true") && response.data) {
+                            if ((response.status === true || response.status === "true") &&
+                                response.data) {
                                 let options = '<option value="">Filter by Batch</option>';
                                 response.data.forEach(function(item) {
-                                    options += `<option value="${item.id}">${item.name}</option>`;
+                                    options +=
+                                        `<option value="${item.id}">${item.name}</option>`;
                                 });
                                 $('#batch_id').html(options).trigger('change');
                             }
@@ -264,10 +273,12 @@
                             course_id: courseId
                         },
                         success: function(response) {
-                            if ((response.status === true || response.status === "true") && response.data) {
+                            if ((response.status === true || response.status === "true") &&
+                                response.data) {
                                 let options = '<option value="">Filter by Semester</option>';
                                 response.data.forEach(function(item) {
-                                    options += `<option value="${item.semester}">Sem ${item.semester}</option>`;
+                                    options +=
+                                        `<option value="${item.semester}">Sem ${item.semester}</option>`;
                                 });
                                 $('#semester_id').html(options).trigger('change');
                             }
@@ -278,9 +289,10 @@
 
             $(document).on('change', '#batch_id', function() {
                 let batchId = $(this).val();
-                
+
                 // Reset Class select
-                $('#class_id').empty().append('<option value="">Filter by Class</option>').val('').trigger('change');
+                $('#class_id').empty().append('<option value="">Filter by Class</option>').val('').trigger(
+                    'change');
 
                 if (batchId) {
                     // Fetch Class list
@@ -292,10 +304,12 @@
                             batch_id: batchId
                         },
                         success: function(response) {
-                            if ((response.status === true || response.status === "true") && response.data) {
+                            if ((response.status === true || response.status === "true") &&
+                                response.data) {
                                 let options = '<option value="">Filter by Class</option>';
                                 response.data.forEach(function(item) {
-                                    options += `<option value="${item.id}">${item.name}</option>`;
+                                    options +=
+                                        `<option value="${item.id}">${item.name}</option>`;
                                 });
                                 $('#class_id').html(options).trigger('change');
                             }

@@ -14,10 +14,29 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\DataTables;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class FacultyComplaintReportController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'gr_no' => 'GR No.',
+        'student_name' => 'Student Name',
+        'date' => 'Date',
+        'faculty_name' => 'Faculty Name',
+        'complaint' => 'Complaint',
+    ];
+
+    protected array $defaultExportColumns = [
+        'gr_no',
+        'student_name',
+        'date',
+        'faculty_name',
+        'complaint',
+    ];
 
     public function __construct()
     {
@@ -105,7 +124,9 @@ class FacultyComplaintReportController extends Controller
             ];
             View::share("columns", $columns);
 
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
@@ -239,6 +260,155 @@ class FacultyComplaintReportController extends Controller
             return response()->json(false);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeFacultyComplaintReportList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $records = $this->buildFacultyComplaintReportExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($records as $record) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($record, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'faculty-complaint-report-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeFacultyComplaintReportList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $records = $this->buildFacultyComplaintReportExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'records' => $records,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeFacultyComplaintReportList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildFacultyComplaintReportExportQuery(Request $request, string $scope): Builder
+    {
+        $query = FacultyComplaintReport::with(['admission', 'faculty'])->select('faculty_complaint_report.*');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('gr_no', 'like', "%{$search}%")
+                  ->orWhere('complaint', 'like', "%{$search}%")
+                  ->orWhereHas('admission', function ($sq) use ($search) {
+                      $sq->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%")
+                         ->orWhere('gr_no', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('faculty', function ($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(FacultyComplaintReport $record, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'gr_no':
+                return $record->gr_no ?? '-';
+            case 'student_name':
+                if ($record->admission) {
+                    $first = $record->admission->first_name ?? '';
+                    $last = $record->admission->last_name ?? '';
+                    $father = $record->admission->father_name ?? '';
+                    return trim($first . ' ' . $last . ' ' . $father);
+                }
+                return '-';
+            case 'date':
+                return $record->date ? Helper::convert_date($record->date, 'Y-m-d', 'd-m-Y') : '-';
+            case 'faculty_name':
+                return $record->faculty ? $record->faculty->name : '-';
+            case 'complaint':
+                return $record->complaint ?? '-';
+            default:
+                return '';
         }
     }
 }

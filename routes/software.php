@@ -300,7 +300,11 @@ Route::get('issue-certificate/english-medium', [IssueCertificateController::clas
 Route::get('issue-certificate/letter-recommendation', [IssueCertificateController::class, 'letterRecommendationIndex'])->name('issue-certificate.letter-recommendation');
 Route::get('issue-certificate/tc', [IssueCertificateController::class, 'tcIndex'])->name('issue-certificate.tc');
 Route::post('issue-certificate/history', [IssueCertificateController::class, 'storeHistory'])->name('issue-certificate.store-history');
+Route::get('faculty-complaint-report/export-excel', [FacultyComplaintReportController::class, 'exportExcel'])->name('faculty-complaint-report.export-excel');
+Route::get('faculty-complaint-report/print', [FacultyComplaintReportController::class, 'printView'])->name('faculty-complaint-report.print');
 Route::resource('faculty-complaint-report', FacultyComplaintReportController::class);
+Route::get('supplier/export-excel', [SupplierController::class, 'exportExcel'])->name('supplier.export-excel');
+Route::get('supplier/print', [SupplierController::class, 'printView'])->name('supplier.print');
 Route::resource('supplier', SupplierController::class);
 
 // Fee History

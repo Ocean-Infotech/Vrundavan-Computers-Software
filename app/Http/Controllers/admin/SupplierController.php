@@ -12,10 +12,27 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\DataTables;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class SupplierController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'name' => 'Name',
+        'category' => 'Category',
+        'city' => 'City',
+        'mobile' => 'Mobile',
+    ];
+
+    protected array $defaultExportColumns = [
+        'name',
+        'category',
+        'city',
+        'mobile',
+    ];
 
     public function __construct()
     {
@@ -81,7 +98,9 @@ class SupplierController extends Controller
             ];
             View::share("columns", $columns);
 
-            return view($modules['folder_path'] . '.index', compact('data'));
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
         } catch (\Exception $e) {
             return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
@@ -186,6 +205,141 @@ class SupplierController extends Controller
             return response()->json(false);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeSupplierList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $records = $this->buildSupplierExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($records as $record) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($record, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'supplier-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeSupplierList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $records = $this->buildSupplierExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'records' => $records,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeSupplierList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function buildSupplierExportQuery(Request $request, string $scope): Builder
+    {
+        $query = Supplier::query()->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%");
+            });
+        }
+
+        return $query;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(Supplier $record, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'name':
+                return $record->name ?? '-';
+            case 'category':
+                return $record->category ?? '-';
+            case 'city':
+                return $record->city ?? '-';
+            case 'mobile':
+                return $record->mobile ?? '-';
+            default:
+                return '';
         }
     }
 }
