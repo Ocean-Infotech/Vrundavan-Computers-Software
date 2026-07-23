@@ -906,8 +906,6 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-            $issuedSemesters = $student->marksheet_semesters ?? [];
-
             $marksheetDetails = [];
             $issues = $student->marksheetIssues()->orderBy('semester', 'asc')->get();
             foreach ($issues as $issue) {
@@ -918,12 +916,7 @@ class ApiStudentController extends Controller
                 ];
             }
 
-            $data = [
-                'is_marksheet_issued' => (bool) (count($issuedSemesters) > 0),
-                'marksheet_details'   => $marksheetDetails,
-            ];
-
-            return $this->sendResponse($data, 'Marksheet details fetched successfully.');
+            return $this->sendResponse($marksheetDetails, 'Marksheet details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
