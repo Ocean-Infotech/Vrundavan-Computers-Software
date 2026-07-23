@@ -20,7 +20,7 @@ class SupplierController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Supplier',
+            'title' => 'Supplier Contact',
             'folder_path' => 'software.module.supplier',
             'route' => 'supplier',
             'table_name' => (new Supplier())->getTable(),

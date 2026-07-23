@@ -310,7 +310,7 @@
                 @directCan('supplier-list')
                 <li class="menu-item {{ $sidebar_active == 'supplier' ? 'active' : '' }}">
                     <a href="{{ route('supplier.index') }}" class="menu-link">
-                        <div data-i18n="Supplier">Supplier</div>
+                        <div data-i18n="Supplier Contact">Supplier Contact</div>
                     </a>
                 </li>
                 @enddirectCan

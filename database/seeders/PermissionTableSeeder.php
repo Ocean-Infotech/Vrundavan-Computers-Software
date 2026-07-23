@@ -90,7 +90,7 @@ class PermissionTableSeeder extends Seeder
                 'faculty-complaint-report-edit',
                 'faculty-complaint-report-delete',
             ],
-            'Supplier' => [
+            'Supplier Contact' => [
                 'supplier-list',
                 'supplier-create',
                 'supplier-edit',
