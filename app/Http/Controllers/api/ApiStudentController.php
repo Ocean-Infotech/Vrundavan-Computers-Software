@@ -920,7 +920,6 @@ class ApiStudentController extends Controller
 
             $data = [
                 'is_marksheet_issued' => (bool) (count($issuedSemesters) > 0),
-                'marksheet_semesters' => $issuedSemesters,
                 'marksheet_details'   => $marksheetDetails,
             ];
 
