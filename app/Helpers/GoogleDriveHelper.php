@@ -37,11 +37,32 @@ class GoogleDriveHelper
 
     $folder = $service->files->create($fileMetadata, ['fields' => 'id, name, webViewLink']);
 
+    try {
+        $permission = new \Google_Service_Drive_Permission([
+            'type' => 'anyone',
+            'role' => 'writer',
+        ]);
+        $service->permissions->create($folder->id, $permission);
+    } catch (\Exception $e) {
+        \Log::error("Failed to set Google Drive permission on folder " . $folder->id . ": " . $e->getMessage());
+    }
+
     return [
         'id'   => $folder->id,
         'name' => $folder->name,
         'link' => $folder->webViewLink,
     ];
+}
+
+public static function shareFolder($folderId)
+{
+    $client = self::getClient();
+    $service = new \Google_Service_Drive($client);
+    $permission = new \Google_Service_Drive_Permission([
+        'type' => 'anyone',
+        'role' => 'writer',
+    ]);
+    return $service->permissions->create($folderId, $permission);
 }
 
 }
