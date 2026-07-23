@@ -908,9 +908,20 @@ class ApiStudentController extends Controller
 
             $issuedSemesters = $student->marksheet_semesters ?? [];
 
+            $marksheetDetails = [];
+            $issues = $student->marksheetIssues()->orderBy('semester', 'asc')->get();
+            foreach ($issues as $issue) {
+                $marksheetDetails[] = [
+                    'semester'  => (int) $issue->semester,
+                    'is_issued' => (bool) $issue->is_issued,
+                    'date'      => $issue->created_at ? $issue->created_at->format('d-m-Y') : null,
+                ];
+            }
+
             $data = [
                 'is_marksheet_issued' => (bool) (count($issuedSemesters) > 0),
                 'marksheet_semesters' => $issuedSemesters,
+                'marksheet_details'   => $marksheetDetails,
             ];
 
             return $this->sendResponse($data, 'Marksheet details fetched successfully.');
