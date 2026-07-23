@@ -17,6 +17,8 @@ class NotificationSetting extends Model
         'title',
         'body',
         'course_id',
+        'batch_id',
+        'class_id',
         'student_id',
         'created_by',
         'updated_by',
@@ -28,6 +30,14 @@ class NotificationSetting extends Model
     public function course()
     {
         return $this->belongsTo(MasterCourse::class, 'course_id', 'id');
+    }
+    public function batch()
+    {
+        return $this->belongsTo(\App\Models\Master\MasterBatch::class, 'batch_id', 'id');
+    }
+    public function class()
+    {
+        return $this->belongsTo(\App\Models\Master\MasterClass::class, 'class_id', 'id');
     }
     public function getStudentNamesAttribute()
     {

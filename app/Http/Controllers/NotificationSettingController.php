@@ -109,10 +109,14 @@ class NotificationSettingController extends Controller
         View::share('modules', $modules);
 
         $courses = MasterCourse::pluck('course_name', 'id');
+        $batches = [];
+        $classes = [];
         $students = [];
         $selectedStudents = [];
 
         View::share('courses', $courses);
+        View::share('batches', $batches);
+        View::share('classes', $classes);
         View::share('students', $students);
         View::share('selectedStudents', $selectedStudents);
 
@@ -197,14 +201,49 @@ class NotificationSettingController extends Controller
             $selectedStudents = $edit->student_id ? explode(',', $edit->student_id) : [];
 
             $students = [];
+            $batches = [];
+            $classes = [];
+
             if ($edit->course_id) {
-                $students = \App\Models\CourceRegistration::with('admission:id,first_name,last_name')
-                    ->where('course_id', $edit->course_id)
-                    ->get()
+                // Get batches for this course
+                $batches = \App\Models\Master\MasterBatch::where('course_id', $edit->course_id)
+                    ->where('status', 'active')
+                    ->pluck('batch_name', 'id')
+                    ->toArray();
+
+                // Get students for this course (with batch & class filter if they exist in DB)
+                $query = \App\Models\CourceRegistration::with('admission:id,first_name,last_name,father_name')
+                    ->where('course_id', $edit->course_id);
+
+                if ($edit->batch_id) {
+                    $query->where('batch_id', $edit->batch_id);
+
+                    // Get classes for this batch
+                    $shift = \App\Models\Master\MasterShift::select('class_id')
+                        ->where('status', 'active')
+                        ->where('batch_id', $edit->batch_id)
+                        ->groupBy('class_id')
+                        ->get();
+                    $classIds = $shift->pluck('class_id')->toArray();
+                    $classes = \App\Models\Master\MasterClass::where('status', 'active')
+                        ->whereIn('id', $classIds)
+                        ->pluck('class', 'id')
+                        ->toArray();
+                }
+
+                if ($edit->class_id) {
+                    $query->where('class_id', $edit->class_id);
+                }
+
+                $students = $query->get()
                     ->map(function ($reg) {
+                        $first  = $reg->admission->first_name ?? '';
+                        $last   = $reg->admission->last_name ?? '';
+                        $father = $reg->admission->father_name ?? '';
+                        $fullName = trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
                         return [
                             'id' => $reg->admission->id ?? null,
-                            'name' => ($reg->admission->first_name ?? '') . ' ' . ($reg->admission->last_name ?? ''),
+                            'name' => $fullName,
                         ];
                     })
                     ->filter(fn($s) => $s['id'] != null)
@@ -214,6 +253,8 @@ class NotificationSettingController extends Controller
 
             View::share('edit', $edit);
             View::share('courses', $courses);
+            View::share('batches', $batches);
+            View::share('classes', $classes);
             View::share('students', $students);
             View::share('selectedStudents', $selectedStudents);
 
@@ -278,16 +319,29 @@ class NotificationSettingController extends Controller
 
 
 
-    public function getStudentsByCourse($course_id)
+    public function getStudentsByCourse(Request $request, $course_id)
     {
         try {
-            $students = \App\Models\CourceRegistration::with('student', 'admission:id,first_name,last_name')
-                ->where('course_id', $course_id)
-                ->get()
+            $query = \App\Models\CourceRegistration::with('student', 'admission:id,first_name,last_name,father_name')
+                ->where('course_id', $course_id);
+
+            if ($request->filled('batch_id')) {
+                $query->where('batch_id', $request->batch_id);
+            }
+
+            if ($request->filled('class_id')) {
+                $query->where('class_id', $request->class_id);
+            }
+
+            $students = $query->get()
                 ->map(function ($reg) {
+                    $first  = $reg->admission->first_name ?? '';
+                    $last   = $reg->admission->last_name ?? '';
+                    $father = $reg->admission->father_name ?? '';
+                    $fullName = trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
                     return [
                         'id' => $reg->admission->id ?? null,
-                        'name' => ($reg->admission->first_name ?? '') . ' ' . ($reg->admission->last_name ?? ''),
+                        'name' => $fullName,
                     ];
                 })
                 ->filter(fn($s) => $s['id'] != null)

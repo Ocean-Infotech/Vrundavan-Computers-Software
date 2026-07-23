@@ -34,6 +34,8 @@ class NotificationSettingRequest extends FormRequest
             ],
             'body' => 'required|string',
             'course_id' => 'required|string',
+            'batch_id' => 'nullable|integer',
+            'class_id' => 'nullable|integer',
             'student_id' => 'required|array',
             'student_id.*' => 'integer|exists:admission,id',
         ];

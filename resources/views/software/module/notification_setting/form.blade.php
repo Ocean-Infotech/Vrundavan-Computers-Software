@@ -35,10 +35,10 @@
                 @endisset
 
                 <div class="row">
- <div class="col-md-4 col-sm-12">
+                    <div class="col-md-3 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Course <span class="text-danger">*</span></label>
-                            <select class="form-control select2 @error('course_id') is-invalid @enderror" name="course_id">
+                            <select class="form-control select2 @error('course_id') is-invalid @enderror" name="course_id" id="courseSelect">
                                 <option value="">Select Course</option>
                                 @foreach ($courses as $id => $course_name)
                                     <option value="{{ $id }}"
@@ -52,7 +52,38 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-12">
+
+                    <div class="col-md-3 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Batch</label>
+                            <select class="form-control select2" name="batch_id" id="batchSelect">
+                                <option value="">Select Batch</option>
+                                @foreach ($batches as $id => $batch_name)
+                                    <option value="{{ $id }}"
+                                        {{ (isset($edit) && $edit->batch_id == $id) || old('batch_id') == $id ? 'selected' : '' }}>
+                                        {{ $batch_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Class</label>
+                            <select class="form-control select2" name="class_id" id="classSelect">
+                                <option value="">Select Class</option>
+                                @foreach ($classes as $id => $class_name)
+                                    <option value="{{ $id }}"
+                                        {{ (isset($edit) && $edit->class_id == $id) || old('class_id') == $id ? 'selected' : '' }}>
+                                        {{ $class_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Student <span class="text-danger">*</span></label>
                             <select class="form-control select2 @error('student_id') is-invalid @enderror"
@@ -75,7 +106,7 @@
                     </div>
 
 
-                    <div class="col-md-4 col-sm-12">
+                    <div class="col-md-12 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Title <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('title') is-invalid @enderror" name="title"
@@ -142,32 +173,108 @@
         $(document).ready(function() {
 
             var studentDropdown = $('#studentDropdown');
+            var courseSelect = $('#courseSelect');
+            var batchSelect = $('#batchSelect');
+            var classSelect = $('#classSelect');
 
-            // Course change AJAX
-            $('select[name="course_id"]').on('change', function() {
-                let courseId = $(this).val();
+            function fetchStudents() {
+                let courseId = courseSelect.val();
+                let batchId = batchSelect.val();
+                let classId = classSelect.val();
+
+                if (!courseId) {
+                    studentDropdown.empty().append('<option value="">Select Student</option>');
+                    return;
+                }
+
                 studentDropdown.empty().append('<option value="">Loading...</option>');
 
+                $.ajax({
+                    url: "{{ url('software/get-students-by-course') }}/" + courseId,
+                    type: "GET",
+                    data: {
+                        batch_id: batchId,
+                        class_id: classId
+                    },
+                    success: function(data) {
+                        studentDropdown.empty().append('<option value="all">Select All</option>');
+                        $.each(data, function(key, student) {
+                            studentDropdown.append('<option value="' + student.id + '">' + student.name + '</option>');
+                        });
+                        studentDropdown.trigger('change.select2');
+                    },
+                    error: function(xhr) {
+                        studentDropdown.empty().append('<option value="">Error loading students</option>');
+                    }
+                });
+            }
+
+            // Course change AJAX
+            courseSelect.on('change', function() {
+                let courseId = $(this).val();
+                
+                // Reset batch, class and student dropdowns
+                batchSelect.empty().append('<option value="">Select Batch</option>').val('').trigger('change.select2');
+                classSelect.empty().append('<option value="">Select Class</option>').val('').trigger('change.select2');
+
                 if (courseId) {
+                    // Fetch Batch list
                     $.ajax({
-                        url: "{{ url('software/get-students-by-course') }}/" + courseId,
-                        type: "GET",
-                        success: function(data) {
-                            studentDropdown.empty().append(
-                                '<option value="all">Select All</option>');
-                            $.each(data, function(key, student) {
-                                studentDropdown.append('<option value="' + student.id +
-                                    '">' + student.name + '</option>');
-                            });
+                        type: 'POST',
+                        url: "{{ route('get-batch') }}",
+                        dataType: 'json',
+                        data: {
+                            course_id: courseId
                         },
-                        error: function(xhr) {
-                            studentDropdown.empty().append(
-                                '<option value="">Error loading students</option>');
+                        success: function(response) {
+                            if ((response.status === true || response.status === "true") && response.data) {
+                                let options = '<option value="">Select Batch</option>';
+                                response.data.forEach(function(item) {
+                                    options += `<option value="${item.id}">${item.name}</option>`;
+                                });
+                                batchSelect.html(options).trigger('change.select2');
+                            }
                         }
                     });
-                } else {
-                    studentDropdown.empty().append('<option value="">Select Student</option>');
                 }
+                
+                fetchStudents();
+            });
+
+            // Batch change AJAX
+            batchSelect.on('change', function() {
+                let batchId = $(this).val();
+
+                // Reset class dropdown
+                classSelect.empty().append('<option value="">Select Class</option>').val('').trigger('change.select2');
+
+                if (batchId) {
+                    // Fetch Class list
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-class-bybatch') }}",
+                        dataType: 'json',
+                        data: {
+                            batch_id: batchId
+                        },
+                        success: function(response) {
+                            if ((response.status === true || response.status === "true") && response.data) {
+                                let options = '<option value="">Select Class</option>';
+                                response.data.forEach(function(item) {
+                                    options += `<option value="${item.id}">${item.name}</option>`;
+                                });
+                                classSelect.html(options).trigger('change.select2');
+                            }
+                        }
+                    });
+                }
+
+                fetchStudents();
+            });
+
+            // Class change
+            classSelect.on('change', function() {
+                fetchStudents();
             });
 
             // Select All functionality

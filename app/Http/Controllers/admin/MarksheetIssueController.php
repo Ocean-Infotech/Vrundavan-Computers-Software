@@ -105,7 +105,7 @@ class MarksheetIssueController extends Controller
                     $first  = $row->first_name ?? '';
                     $last   = $row->last_name ?? '';
                     $father = $row->father_name ?? '';
-                    return trim($first . ' ' . $father . ' ' . $last);
+                    return trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
                 })
                 ->addColumn('marksheet_semesters', function ($row) use ($request) {
                     $html = '<div class="d-flex flex-wrap">';
