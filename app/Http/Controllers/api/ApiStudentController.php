@@ -939,12 +939,11 @@ class ApiStudentController extends Controller
 
 
     /**
-     * Mark faculty complaint reports as read for the logged-in student
+     * Get unread counts for faculty complaint reports and marksheet details
      *
      * @authenticated
-     * @bodyParam complaint_ids array The IDs of complaints to mark as read. Example: [1, 2]
      */
-    public function complaints_mark_read(Request $request)
+    public function unread_counts(Request $request)
     {
         try {
             $student = Auth::guard('student-api')->user();
@@ -953,46 +952,18 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-            $query = \App\Models\FacultyComplaintReport::where('admission_id', $student->id);
+            $unreadComplaints = \App\Models\FacultyComplaintReport::where('admission_id', $student->id)
+                ->where('is_read', false)
+                ->count();
 
-            $complaintIds = $request->input('complaint_ids', []);
-            if (!empty($complaintIds)) {
-                $query->whereIn('id', $complaintIds);
-            }
+            $unreadMarksheets = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
+                ->where('is_read', false)
+                ->count();
 
-            $query->update(['is_read' => true]);
-
-            return $this->sendResponse([], 'Faculty complaint reports marked as read successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
-        }
-    }
-
-    /**
-     * Mark marksheet issues as read for the logged-in student
-     *
-     * @authenticated
-     * @bodyParam marksheet_ids array The IDs of marksheet issues to mark as read. Example: [1, 2]
-     */
-    public function marksheet_mark_read(Request $request)
-    {
-        try {
-            $student = Auth::guard('student-api')->user();
-
-            if (!$student) {
-                return $this->sendError("Unauthorization.", [], [], 401);
-            }
-
-            $query = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id);
-
-            $marksheetIds = $request->input('marksheet_ids', []);
-            if (!empty($marksheetIds)) {
-                $query->whereIn('id', $marksheetIds);
-            }
-
-            $query->update(['is_read' => true]);
-
-            return $this->sendResponse([], 'Marksheet details marked as read successfully.');
+            return $this->sendResponse([
+                'unread_complaints' => $unreadComplaints,
+                'unread_marksheets' => $unreadMarksheets,
+            ], 'Unread counts fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
