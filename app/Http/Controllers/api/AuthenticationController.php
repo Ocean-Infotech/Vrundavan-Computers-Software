@@ -549,7 +549,6 @@ class AuthenticationController extends Controller
 
             // Revoke all previous tokens
             Token::where('user_id', $student->id)
-                ->where('name', get_class($student))
                 ->update(['revoked' => true]);
 
             // Create new Passport token
