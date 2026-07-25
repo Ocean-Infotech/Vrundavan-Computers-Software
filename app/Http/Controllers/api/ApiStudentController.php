@@ -960,10 +960,10 @@ class ApiStudentController extends Controller
                 ->where('is_read', false)
                 ->count();
 
-            return $this->sendResponse([
+            return $this->sendResponse([[
                 'unread_complaints' => $unreadComplaints,
                 'unread_marksheets' => $unreadMarksheets,
-            ], 'Unread counts fetched successfully.');
+            ]], 'Unread counts fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
