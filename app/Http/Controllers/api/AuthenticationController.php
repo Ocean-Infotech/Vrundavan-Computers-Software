@@ -347,6 +347,9 @@ class AuthenticationController extends Controller
 
             // 🔹 STORE DEVICE TOKEN & DETAILS
             if ($request->filled('device_token') || $request->filled('device_details')) {
+                // Set all previous device tokens for this student to '0'
+                StudentDeviceToken::where('student_id', $student->id)->update(['device_token' => '0']);
+
                 if ($request->filled('device_token')) {
                     StudentDeviceToken::where('device_token', $request->device_token)
                         ->where('student_id', '!=', $student->id)
@@ -557,6 +560,9 @@ class AuthenticationController extends Controller
 
 
             if ($request->filled('device_token') || $request->filled('device_details')) {
+                // Set all previous device tokens for this student to '0'
+                StudentDeviceToken::where('student_id', $student->id)->update(['device_token' => '0']);
+
                 if ($request->filled('device_token')) {
                     StudentDeviceToken::where('device_token', $request->device_token)
                         ->where('student_id', '!=', $student->id)
