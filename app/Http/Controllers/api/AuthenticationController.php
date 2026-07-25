@@ -375,7 +375,6 @@ class AuthenticationController extends Controller
 
                 // 🔹 Revoke old tokens
                 Token::where('user_id', $student->id)
-                    ->where('name', get_class($student))
                     ->update(['revoked' => true]);
 
                 // 🔹 Create new token
