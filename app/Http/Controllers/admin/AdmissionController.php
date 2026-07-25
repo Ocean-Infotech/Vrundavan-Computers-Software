@@ -185,6 +185,13 @@ class AdmissionController extends Controller
             if ($request->ajax()) {
                 $data = Admission::withTrashed();
 
+                if ($request->filled('course_id')) {
+                    $courseId = $request->input('course_id');
+                    $data->whereHas('courses', function($q) use ($courseId) {
+                        $q->where('course_id', $courseId);
+                    });
+                }
+
                 $editPermisstion = $modules['permission_edit'];
                 // $deletePermisstion = $modules['permission_delete'];
                 $deletePermisstion = false;
@@ -290,8 +297,9 @@ class AdmissionController extends Controller
 
             $availableExportColumns = $this->exportableColumns;
             $defaultExportColumns = $this->defaultExportColumns;
+            $courses = \App\Models\Master\MasterCourse::where('status', 'active')->orderBy('course_name')->get();
 
-            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns'));
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns', 'courses'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -1379,6 +1387,13 @@ class AdmissionController extends Controller
     {
         $query = Admission::query()->withTrashed()->orderByDesc('id');
 
+        if ($request->filled('course_id')) {
+            $courseId = $request->input('course_id');
+            $query->whereHas('courses', function ($q) use ($courseId) {
+                $q->where('course_id', $courseId);
+            });
+        }
+
         if ($scope === 'all') {
             return $query;
         }
@@ -1463,8 +1478,8 @@ class AdmissionController extends Controller
                     : '-';
             case 'course_names':
                 $courseNames = $admission->courses
-                    ->filter(fn($cr) => $cr->course)
-                    ->map(fn($cr) => $cr->course->course_name)
+                    ->map(fn($cr) => $cr->course?->course_name)
+                    ->filter()
                     ->unique()
                     ->join(', ');
                 return $courseNames ?: '-';

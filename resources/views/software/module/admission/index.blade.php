@@ -72,7 +72,7 @@
     </div>
  
     {{-- Export / Print Options Modal --}}
-    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exportModal" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -98,6 +98,15 @@
                                     Export complete Admission list
                                 </label>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="export_course_filter" class="form-label fw-bold">Filter By Course</label>
+                            <select id="export_course_filter" class="form-select select2">
+                                <option value="">All Courses</option>
+                                @foreach ($courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div>
                             <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
@@ -413,8 +422,7 @@
 @endsection
 
 @section('page_script_file')
-    <!-- jQuery (required by DataTables) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- jQuery (required by DataTables) - removed duplicate to prevent select2 override -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <!-- DataTables JS -->
@@ -1082,6 +1090,11 @@
                 const scope = $('input[name="export_scope"]:checked').val() || 'filtered';
                 const params = new URLSearchParams();
                 params.append('scope', scope);
+
+                const courseId = $('#export_course_filter').val();
+                if (courseId && selectedColumns.includes('course_names')) {
+                    params.append('course_id', courseId);
+                }
 
                 if (scope === 'filtered') {
                     const searchValue = $('#yajra-datatables_filter input[type="search"]').val();
