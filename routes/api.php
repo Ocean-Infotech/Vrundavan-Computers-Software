@@ -59,6 +59,8 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('notifications-mark-read', [ApiStudentController::class, 'notifications_mark_read']);
         Route::match(['get', 'post'], 'faculty-complaint-reports', [ApiStudentController::class, 'faculty_complaint_reports']);
         Route::match(['get', 'post'], 'marksheet-details', [ApiStudentController::class, 'marksheet_details']);
+        Route::post('complaints-mark-read', [ApiStudentController::class, 'complaints_mark_read']);
+        Route::post('marksheet-mark-read', [ApiStudentController::class, 'marksheet_mark_read']);
     });
 
     Route::match(['get', 'post'], 'get-faculty-complaint-reports', [ApiStudentController::class, 'faculty_complaint_reports']);

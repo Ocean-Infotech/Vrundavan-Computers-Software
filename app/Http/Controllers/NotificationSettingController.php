@@ -26,7 +26,7 @@ class NotificationSettingController extends Controller
     public function __construct()
     {
         $this->modules = [
-            'title' => 'Notification Setting',
+            'title' => 'Announcement',
             'folder_path' => 'software.module.notification_setting',
             'route' => 'notification_setting',
             'table_name' => (new NotificationSetting())->getTable(),

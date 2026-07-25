@@ -292,8 +292,16 @@
         </li>
         @enddirectCanAny
 
-        @directCanAny(['faculty-complaint-report-list', 'faculty-complaint-report-create', 'supplier-list', 'supplier-create', 'marksheet-issue-list'])
-        <li class="menu-item {{ $sidebar_active == 'faculty-complaint-report' || $sidebar_active == 'supplier' || $sidebar_active == 'marksheet-issue' ? 'active open' : '' }}">
+        @directCanAny([
+            'faculty-complaint-report-list',
+            'faculty-complaint-report-create',
+            'marksheet-issue-list',
+            'notification-setting-list',
+            'notification-setting-create',
+            'notification-setting-edit',
+            'notification-setting-delete'
+        ])
+        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
                 <div data-i18n="Communication">Communication</div>
@@ -307,14 +315,6 @@
                 </li>
                 @enddirectCan
 
-                @directCan('supplier-list')
-                <li class="menu-item {{ $sidebar_active == 'supplier' ? 'active' : '' }}">
-                    <a href="{{ route('supplier.index') }}" class="menu-link">
-                        <div data-i18n="Supplier Contact">Supplier Contact</div>
-                    </a>
-                </li>
-                @enddirectCan
-
                 {{-- Marksheet Issue --}}
                 @directCan('marksheet-issue-list')
                 <li class="menu-item {{ Route::currentRouteName() == 'marksheet-issue.index' ? 'active' : '' }}">
@@ -323,6 +323,20 @@
                     </a>
                 </li>
                 @enddirectCan
+
+                {{-- Notification Settings --}}
+                @directCanAny([
+                    'notification-setting-list',
+                    'notification-setting-create',
+                    'notification-setting-edit',
+                    'notification-setting-delete'
+                ])
+                <li class="menu-item {{ $sidebar_active == 'notification_setting' ? 'active' : '' }}">
+                    <a href="{{ route('notification_setting.index') }}" class="menu-link">
+                        <div data-i18n="Announcement">Announcement</div>
+                    </a>
+                </li>
+                @enddirectCanAny
             </ul>
         </li>
         @enddirectCanAny
@@ -478,28 +492,7 @@
         </li>
         @enddirectCanAny
 
-        <li class="menu-item {{ in_array($sidebar_active, ['notification_setting']) ? 'active open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="ti ti-bell me-2"></i>
-                <div data-i18n="Notification">Notification</div>
-            </a>
-            <ul class="menu-sub">
 
-                @directCanAny([
-                    'notification-setting-list',
-                    'notification-setting-create',
-                    'notification-setting-edit',
-                    'notification-setting-delete'
-                ])
-                <li class="menu-item {{ $sidebar_active == 'notification_setting' ? 'active' : '' }}">
-                    <a href="{{ route('notification_setting.index') }}" class="menu-link">
-                        <div data-i18n="Notification Settings">Notification Settings</div>
-                    </a>
-                </li>
-                @enddirectCanAny
-
-            </ul>
-        </li>
 
 
 
@@ -561,8 +554,8 @@
         </li>
         @enddirectCanAny
 
-        @directCanAny(['other-list-selection-list'])
-        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection']) ? 'active open' : '' }}">
+        @directCanAny(['other-list-selection-list', 'supplier-list'])
+        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection', 'supplier']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-list-ul me-2"></i>
                 <div data-i18n="Other">Other</div>
@@ -581,6 +574,14 @@
                 <li class="menu-item {{ Route::is('other-list-selection.index') ? 'active' : '' }}">
                     <a href="{{ route('other-list-selection.index') }}" class="menu-link">
                         <div data-i18n="Other List Selection">Other List Selection</div>
+                    </a>
+                </li>
+                @enddirectCan
+
+                @directCan('supplier-list')
+                <li class="menu-item {{ $sidebar_active == 'supplier' ? 'active' : '' }}">
+                    <a href="{{ route('supplier.index') }}" class="menu-link">
+                        <div data-i18n="Supplier Contact">Supplier Contact</div>
                     </a>
                 </li>
                 @enddirectCan

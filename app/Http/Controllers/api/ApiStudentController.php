@@ -861,6 +861,13 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
+            // Automatically mark all complaints for this student as read
+            if ($studentId) {
+                \App\Models\FacultyComplaintReport::where('admission_id', $studentId)
+                    ->where('is_read', false)
+                    ->update(['is_read' => true]);
+            }
+
             $query = \App\Models\FacultyComplaintReport::with(['faculty:id,name,email']);
 
             if ($studentId) {
@@ -883,6 +890,7 @@ class ApiStudentController extends Controller
                         'complaint'    => $report->complaint,
                         'faculty_id'   => $report->faculty_id,
                         'faculty_name' => $report->faculty?->name ?? '',
+                        'is_read'      => (bool) ($report->is_read ?? false),
                     ];
                 });
 
@@ -906,17 +914,85 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
+            // Automatically mark all marksheet issues for this student as read
+            \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
             $marksheetDetails = [];
             $issues = $student->marksheetIssues()->orderBy('semester', 'asc')->get();
             foreach ($issues as $issue) {
                 $marksheetDetails[] = [
+                    'id'        => $issue->id,
                     'semester'  => (int) $issue->semester,
                     'is_issued' => (bool) $issue->is_issued,
+                    'is_read'   => (bool) ($issue->is_read ?? false),
                     'date'      => $issue->created_at ? $issue->created_at->format('d-m-Y') : null,
                 ];
             }
 
             return $this->sendResponse($marksheetDetails, 'Marksheet details fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+
+    /**
+     * Mark faculty complaint reports as read for the logged-in student
+     *
+     * @authenticated
+     * @bodyParam complaint_ids array The IDs of complaints to mark as read. Example: [1, 2]
+     */
+    public function complaints_mark_read(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $query = \App\Models\FacultyComplaintReport::where('admission_id', $student->id);
+
+            $complaintIds = $request->input('complaint_ids', []);
+            if (!empty($complaintIds)) {
+                $query->whereIn('id', $complaintIds);
+            }
+
+            $query->update(['is_read' => true]);
+
+            return $this->sendResponse([], 'Faculty complaint reports marked as read successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Mark marksheet issues as read for the logged-in student
+     *
+     * @authenticated
+     * @bodyParam marksheet_ids array The IDs of marksheet issues to mark as read. Example: [1, 2]
+     */
+    public function marksheet_mark_read(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $query = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id);
+
+            $marksheetIds = $request->input('marksheet_ids', []);
+            if (!empty($marksheetIds)) {
+                $query->whereIn('id', $marksheetIds);
+            }
+
+            $query->update(['is_read' => true]);
+
+            return $this->sendResponse([], 'Marksheet details marked as read successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
