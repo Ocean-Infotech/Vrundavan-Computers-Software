@@ -14,10 +14,6 @@ return new class extends Migration
         Schema::table('faculty_complaint_report', function (Blueprint $table) {
             $table->boolean('is_read')->default(false)->after('faculty_id');
         });
-
-        Schema::table('student_marksheet_issues', function (Blueprint $table) {
-            $table->boolean('is_read')->default(false)->after('is_issued');
-        });
     }
 
     /**
@@ -26,10 +22,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('faculty_complaint_report', function (Blueprint $table) {
-            $table->dropColumn('is_read');
-        });
-
-        Schema::table('student_marksheet_issues', function (Blueprint $table) {
             $table->dropColumn('is_read');
         });
     }

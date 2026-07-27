@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentMarksheetIssue extends Model
 {
-    public $table = 'student_marksheet_issues';
+    protected $table = 'student_marksheet_issues';
 
     protected $fillable = [
         'admission_id',
+        'gr_no',
+        'date',
+        'series',
+        'note',
         'semester',
-        'is_issued',
         'created_by',
         'updated_by',
     ];

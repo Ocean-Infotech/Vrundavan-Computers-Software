@@ -914,20 +914,16 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-            // Automatically mark all marksheet issues for this student as read
-            \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
-                ->where('is_read', false)
-                ->update(['is_read' => true]);
-
             $marksheetDetails = [];
             $issues = $student->marksheetIssues()->orderBy('semester', 'asc')->get();
             foreach ($issues as $issue) {
                 $marksheetDetails[] = [
                     'id'        => $issue->id,
                     'semester'  => (int) $issue->semester,
-                    'is_issued' => (bool) $issue->is_issued,
-                    'is_read'   => (bool) ($issue->is_read ?? false),
-                    'date'      => $issue->created_at ? $issue->created_at->format('d-m-Y') : null,
+                    'gr_no'     => $issue->gr_no,
+                    'series'    => $issue->series,
+                    'note'      => $issue->note,
+                    'date'      => $issue->date ? \Carbon\Carbon::parse($issue->date)->format('d-m-Y') : null,
                 ];
             }
 
@@ -957,7 +953,6 @@ class ApiStudentController extends Controller
                 ->count();
 
             $unreadMarksheets = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
-                ->where('is_read', false)
                 ->count();
 
             return $this->sendResponse([[

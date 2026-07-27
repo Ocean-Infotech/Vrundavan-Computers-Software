@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('student_marksheet_issues', function (Blueprint $table) {
             $table->id();
             $table->integer('admission_id');
+            $table->string('gr_no')->nullable();
+            $table->date('date')->nullable();
+            $table->string('series')->nullable();
+            $table->text('note')->nullable();
             $table->integer('semester');
-            $table->boolean('is_issued')->default(true);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();

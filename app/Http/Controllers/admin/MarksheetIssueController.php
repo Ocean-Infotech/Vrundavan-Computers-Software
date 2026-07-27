@@ -2,16 +2,41 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admission;
 use App\Models\StudentMarksheetIssue;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Database\Eloquent\Builder;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class MarksheetIssueController extends Controller
 {
     public $modules = [];
+    protected array $exportableColumns = [
+        'gr_no' => 'GR No.',
+        'student_name' => 'Student Name',
+        'semester' => 'Semester',
+        'date' => 'Date',
+        'series' => 'Series',
+        'note' => 'Note',
+    ];
+
+    protected array $defaultExportColumns = [
+        'gr_no',
+        'student_name',
+        'semester',
+        'date',
+        'series',
+        'note',
+    ];
 
     public function __construct()
     {
@@ -19,7 +44,7 @@ class MarksheetIssueController extends Controller
             'title' => 'Marksheet Issue',
             'folder_path' => 'software.module.marksheet-issue',
             'route' => 'marksheet-issue',
-            'table_name' => (new Admission())->getTable(),
+            'table_name' => (new StudentMarksheetIssue())->getTable(),
             'permission_prefix' => 'admission',
         ];
     }
@@ -27,132 +52,196 @@ class MarksheetIssueController extends Controller
     public function index(Request $request)
     {
         $modules = $this->modules;
-        $modules['permission_add'] = false;
-        $modules['permission_edit'] = false;
-        $modules['permission_delete'] = false;
-        $modules['permission_view'] = false;
-        $modules['permission_status'] = false;
-
-        $page_title = 'Marksheet Issue';
-        $route = $modules['route'];
-        $folder_path = $modules['folder_path'];
-
-        $columns = [
-            (object) ['data' => 'admission_name', 'name' => 'first_name', 'td_label' => 'Name'],
-            (object) ['data' => "marksheet_semesters", 'name' => 'marksheet_semesters', 'td_label' => 'Issued Marksheets', 'orderable' => false, 'searchable' => false],
-        ];
-
         View::share('modules', $modules);
-        View::share('columns', $columns);
 
-        if ($request->ajax()) {
-            // If no filter is applied at all, return empty result
-            $hasFilter = $request->filled('course_id')
-                || $request->filled('batch_id')
-                || $request->filled('class_id')
-                || $request->filled('semester_id');
+        try {
+            if ($request->ajax()) {
+                $data = StudentMarksheetIssue::with('admission')->select('student_marksheet_issues.*');
 
-            if (!$hasFilter) {
-                return Datatables::of(Admission::query()->whereRaw('0=1'))
+                $editPermission = Auth::user()->hasDirectPermission($modules["permission_prefix"] . '-edit');
+                $deletePermission = Auth::user()->hasDirectPermission($modules["permission_prefix"] . '-delete');
+
+                return DataTables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('marksheet_semesters', fn() => '')
-                    ->rawColumns(['marksheet_semesters'])
+                    ->filter(function ($query) use ($request) {
+                        if ($request->has('search') && !empty($request->search['value'])) {
+                            $searchValue = $request->search['value'];
+                            $query->where(function ($q) use ($searchValue) {
+                                $q->where('admission_id', $searchValue)
+                                  ->orWhereHas('admission', function ($sub) use ($searchValue) {
+                                      $sub->where('first_name', 'like', "%{$searchValue}%")
+                                          ->orWhere('last_name', 'like', "%{$searchValue}%")
+                                          ->orWhere('father_name', 'like', "%{$searchValue}%");
+                                  });
+                            });
+                        }
+                    })
+                    ->addColumn('student_name', function ($row) {
+                        if ($row->admission) {
+                            $first  = $row->admission->first_name ?? '';
+                            $last   = $row->admission->last_name ?? '';
+                            $father = $row->admission->father_name ?? '';
+                            return trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
+                        }
+                        return '-';
+                    })
+                    ->editColumn('date', function ($row) {
+                        return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-';
+                    })
+                    ->addColumn('action', function ($row) use ($modules, $editPermission, $deletePermission) {
+                        $btn = '<div class="d-flex gap-2 justify-content-center">';
+                        if ($editPermission) {
+                            $btn .= '<div class="edit"><a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-info btn-icon mr-2"><i class="bx bx-edit-alt"></i></a></div>';
+                        }
+                        if ($deletePermission) {
+                            $btn .= '<div class="remove"><a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton"><i class="bx bx-trash"></i></a></div>';
+                        }
+                        $btn .= '</div>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
                     ->make(true);
             }
 
-            $data = Admission::withTrashed();
+            $columns = [
+                (object)['data' => 'gr_no', 'name' => 'gr_no', 'td_label' => 'GR No.'],
+                (object)['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name', 'orderable' => false],
+                (object)['data' => 'semester', 'name' => 'semester', 'td_label' => 'Semester'],
+                (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
+                (object)['data' => 'series', 'name' => 'series', 'td_label' => 'Series'],
+                (object)['data' => 'note', 'name' => 'note', 'td_label' => 'Note'],
+                (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'w-10 text-center'],
+            ];
+            View::share('columns', $columns);
 
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->filter(function ($query) use ($request) {
-                    $searchValue = '';
-                    if ($request->has('search')) {
-                        $search = $request->input('search');
-                        $searchValue = is_array($search) ? ($search['value'] ?? '') : $search;
-                    }
+            $availableExportColumns = $this->exportableColumns;
+            $defaultExportColumns = $this->defaultExportColumns;
 
-                    if (!empty($searchValue)) {
-                        $query->where(function($q) use ($searchValue) {
-                            $q->where('first_name', 'like', "%" . $searchValue . "%")
-                              ->orWhere('last_name', 'like', "%" . $searchValue . "%")
-                              ->orWhere('father_name', 'like', "%" . $searchValue . "%");
-                        });
-                    }
-
-                    // Filters: Course, Batch, Class, Semester
-                    if ($request->filled('course_id')) {
-                        $query->whereHas('courses', function ($q) use ($request) {
-                            $q->where('course_id', $request->course_id);
-                        });
-                    }
-                    if ($request->filled('batch_id')) {
-                        $query->whereHas('courses', function ($q) use ($request) {
-                            $q->where('batch_id', $request->batch_id);
-                        });
-                    }
-                    if ($request->filled('class_id')) {
-                        $query->whereHas('courses', function ($q) use ($request) {
-                            $q->where('class_id', $request->class_id);
-                        });
-                    }
-                    if ($request->filled('semester_id')) {
-                        $query->whereHas('feesCollections', function ($q) use ($request) {
-                            $q->where('year_semester', $request->semester_id);
-                        });
-                    }
-                })
-                ->editColumn('admission_name', function ($row) {
-                    $first  = $row->first_name ?? '';
-                    $last   = $row->last_name ?? '';
-                    $father = $row->father_name ?? '';
-                    return trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
-                })
-                ->addColumn('marksheet_semesters', function ($row) use ($request) {
-                    $html = '<div class="d-flex flex-wrap">';
-                    
-                    $activeSemester = $request->get('semester_id');
-                    $issuedSemesters = $row->marksheetIssues->pluck('semester')->toArray();
-
-                    // Get total semesters for the current student's course
-                    $totalSemesters = 0;
-                    $courseRegistration = $row->courses->first();
-                    if ($courseRegistration && $courseRegistration->course) {
-                        $totalSemesters = (int) $courseRegistration->course->semester;
-                    }
-
-                    if (!empty($activeSemester)) {
-                        // Show only the selected semester checkbox
-                        $checked = in_array($activeSemester, $issuedSemesters) ? 'checked' : '';
-                        $html .= '<div class="form-check me-3">
-                                    <input type="checkbox" class="form-check-input marksheet-toggle-checkbox" 
-                                           data-admission-id="' . $row->id . '" 
-                                           data-semester="' . $activeSemester . '" 
-                                           ' . $checked . ' 
-                                           id="marksheet_' . $row->id . '_' . $activeSemester . '">
-                                    <label class="form-check-label" for="marksheet_' . $row->id . '_' . $activeSemester . '">Sem ' . $activeSemester . '</label>
-                                  </div>';
-                    } else {
-                        // Show only the actual number of semesters for this course
-                        for ($sem = 1; $sem <= $totalSemesters; $sem++) {
-                            $checked = in_array($sem, $issuedSemesters) ? 'checked' : '';
-                            $html .= '<div class="form-check me-3">
-                                        <input type="checkbox" class="form-check-input marksheet-toggle-checkbox" 
-                                               data-admission-id="' . $row->id . '" 
-                                               data-semester="' . $sem . '" 
-                                               ' . $checked . ' 
-                                               id="marksheet_' . $row->id . '_' . $sem . '">
-                                        <label class="form-check-label" for="marksheet_' . $row->id . '_' . $sem . '">Sem ' . $sem . '</label>
-                                      </div>';
-                        }
-                    }
-                    $html .= '</div>';
-                    return $html;
-                })
-                ->rawColumns(['marksheet_semesters'])
-                ->make(true);
+            return view($modules['folder_path'] . '.index', compact('modules', 'availableExportColumns', 'defaultExportColumns'));
+        } catch (\Exception $e) {
+            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
         }
+    }
 
-        return view($folder_path . '.index', compact('page_title', 'route', 'folder_path'));
+    public function create()
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        $students = Admission::where('status', 'active')
+            ->with('courses.course')
+            ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'students'));
+    }
+
+    public function store(Request $request)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        $request->validate([
+            'admission_id' => 'required|exists:admission,id',
+            'semester'     => 'required|integer',
+            'date'         => 'required|date',
+            'gr_no'        => 'nullable|string|max:255',
+            'series'       => 'nullable|string|max:255',
+            'note'         => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $admission = Admission::find($request->admission_id);
+
+            StudentMarksheetIssue::create([
+                'admission_id' => $request->admission_id,
+                'gr_no'        => $request->gr_no ?: ($admission ? $admission->gr_no : null),
+                'date'         => $request->date,
+                'semester'     => $request->semester,
+                'series'       => $request->series,
+                'note'         => $request->note,
+                'created_by'   => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' created successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage())->withInput();
+        }
+    }
+
+    public function edit(string $id)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        try {
+            $edit = StudentMarksheetIssue::findOrFail($id);
+
+            $students = Admission::where('status', 'active')
+                ->with('courses.course')
+                ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'students'));
+        } catch (\Exception $e) {
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
+        }
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $modules = $this->modules;
+        View::share('modules', $modules);
+
+        $request->validate([
+            'admission_id' => 'required|exists:admission,id',
+            'semester'     => 'required|integer',
+            'date'         => 'required|date',
+            'gr_no'        => 'nullable|string|max:255',
+            'series'       => 'nullable|string|max:255',
+            'note'         => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $record = StudentMarksheetIssue::findOrFail($id);
+            $admission = Admission::find($request->admission_id);
+
+            $record->update([
+                'admission_id' => $request->admission_id,
+                'gr_no'        => $request->gr_no ?: ($admission ? $admission->gr_no : null),
+                'date'         => $request->date,
+                'semester'     => $request->semester,
+                'series'       => $request->series,
+                'note'         => $request->note,
+                'updated_by'   => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage())->withInput();
+        }
+    }
+
+    public function destroy(Request $request, string $id)
+    {
+        $modules = $this->modules;
+        try {
+            $record = StudentMarksheetIssue::findOrFail($id);
+            $record->delete();
+            return response()->json(['status' => true, 'message' => $modules['title'] . ' deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     public function toggle(Request $request)
@@ -166,7 +255,6 @@ class MarksheetIssueController extends Controller
                 'admission_id' => $admissionId,
                 'semester'     => $semester,
             ], [
-                'is_issued'    => true,
                 'created_by'   => \Illuminate\Support\Facades\Auth::user()->id ?? null,
             ]);
         } else {
@@ -176,5 +264,152 @@ class MarksheetIssueController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorizeMarksheetList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+
+        $records = $this->buildMarksheetExportQuery($request, $scope)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (array_values($columnLabels) as $index => $label) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
+        }
+
+        $rowNumber = 2;
+        foreach ($records as $record) {
+            foreach ($selectedColumns as $columnIndex => $columnKey) {
+                $sheet->setCellValueByColumnAndRow(
+                    $columnIndex + 1,
+                    $rowNumber,
+                    $this->formatColumnValueForExcel($record, $columnKey)
+                );
+            }
+            $rowNumber++;
+        }
+
+        if (!empty($selectedColumns)) {
+            for ($i = 1; $i <= count($selectedColumns); $i++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($i);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            }
+        }
+
+        $fileName = 'marksheet-issue-' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function printView(Request $request)
+    {
+        $this->authorizeMarksheetList();
+
+        $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
+        $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
+        $columnLabels = $this->mapColumnLabels($selectedColumns);
+        $searchTerm = $scope === 'filtered' ? trim((string) $request->get('search', '')) : null;
+
+        $records = $this->buildMarksheetExportQuery($request, $scope)->get();
+
+        return view($this->modules['folder_path'] . '.print', [
+            'records' => $records,
+            'columnLabels' => $columnLabels,
+            'columnKeys' => $selectedColumns,
+            'scope' => $scope,
+            'searchTerm' => $searchTerm,
+            'generatedAt' => now(),
+        ]);
+    }
+
+    protected function authorizeMarksheetList(): void
+    {
+        $canList = Helper::directCan($this->modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
+    }
+
+    protected function resolveSelectedColumns($columns): array
+    {
+        if (!is_array($columns) || empty($columns)) {
+            return $this->defaultExportColumns;
+        }
+
+        $validColumns = array_keys($this->exportableColumns);
+        $filtered = array_values(array_filter($columns, function ($column) use ($validColumns) {
+            return in_array($column, $validColumns, true);
+        }));
+
+        return !empty($filtered) ? $filtered : $this->defaultExportColumns;
+    }
+
+    protected function mapColumnLabels(array $selectedColumns): array
+    {
+        $labels = [];
+        foreach ($selectedColumns as $columnKey) {
+            $labels[$columnKey] = $this->exportableColumns[$columnKey] ?? ucfirst(str_replace('_', ' ', $columnKey));
+        }
+        return $labels;
+    }
+
+    protected function formatColumnValueForExcel(StudentMarksheetIssue $record, string $columnKey)
+    {
+        switch ($columnKey) {
+            case 'gr_no':
+                return $record->gr_no ?? '-';
+            case 'student_name':
+                if ($record->admission) {
+                    $first  = $record->admission->first_name ?? '';
+                    $last   = $record->admission->last_name ?? '';
+                    $father = $record->admission->father_name ?? '';
+                    return trim(preg_replace('/\s+/', ' ', $first . ' ' . $last . ' ' . $father));
+                }
+                return '-';
+            case 'semester':
+                return $record->semester ?? '-';
+            case 'date':
+                return $record->date ? \Carbon\Carbon::parse($record->date)->format('d-m-Y') : '-';
+            case 'series':
+                return $record->series ?? '-';
+            case 'note':
+                return $record->note ?? '-';
+            default:
+                return '';
+        }
+    }
+
+    protected function buildMarksheetExportQuery(Request $request, string $scope): Builder
+    {
+        $query = StudentMarksheetIssue::with('admission')->orderByDesc('id');
+
+        if ($scope === 'all') {
+            return $query;
+        }
+
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('admission_id', $search)
+                  ->orWhereHas('admission', function ($sub) use ($search) {
+                      $sub->where('first_name', 'like', "%{$search}%")
+                          ->orWhere('last_name', 'like', "%{$search}%")
+                          ->orWhere('father_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query;
     }
 }
