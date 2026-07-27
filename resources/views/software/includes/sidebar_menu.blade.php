@@ -301,7 +301,7 @@
             'notification-setting-edit',
             'notification-setting-delete'
         ])
-        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
                 <div data-i18n="Communication">Communication</div>
@@ -337,6 +337,15 @@
                     </a>
                 </li>
                 @enddirectCanAny
+
+                {{-- Assessment --}}
+                @directCan('admission-list')
+                <li class="menu-item {{ $sidebar_active == 'assessment' ? 'active' : '' }}">
+                    <a href="{{ route('assessment.index') }}" class="menu-link">
+                        <div data-i18n="Assessment">Assessment</div>
+                    </a>
+                </li>
+                @enddirectCan
             </ul>
         </li>
         @enddirectCanAny

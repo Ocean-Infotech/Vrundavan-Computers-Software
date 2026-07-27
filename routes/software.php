@@ -39,6 +39,7 @@ use App\Http\Controllers\admin\master\MasterShiftController;
 use App\Http\Controllers\admin\StudentsFeesReportController;
 use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\MarksheetIssueController;
+use App\Http\Controllers\admin\AssessmentController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
@@ -101,6 +102,9 @@ Route::get('marksheet-issue/export-excel', [MarksheetIssueController::class, 'ex
 Route::get('marksheet-issue/print', [MarksheetIssueController::class, 'printView'])->name('marksheet-issue.print');
 Route::post('marksheet-issue/toggle', [MarksheetIssueController::class, 'toggle'])->name('marksheet-issue.toggle');
 Route::resource('marksheet-issue', MarksheetIssueController::class);
+Route::get('assessment/export-excel', [AssessmentController::class, 'exportExcel'])->name('assessment.export-excel');
+Route::get('assessment/print', [AssessmentController::class, 'printView'])->name('assessment.print');
+Route::resource('assessment', AssessmentController::class);
 Route::resource('admission', AdmissionController::class)->except(['show']);
 
 // Additional routes

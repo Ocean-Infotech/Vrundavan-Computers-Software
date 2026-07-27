@@ -955,10 +955,55 @@ class ApiStudentController extends Controller
             $marksheetCount = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
                 ->count();
 
+            $assessmentCount = \App\Models\Assessment::where('admission_id', $student->id)
+                ->where('is_read', false)
+                ->count();
+
             return $this->sendResponse([[
                 'unread_complaints' => $unreadComplaints,
                 'marksheet_count' => $marksheetCount,
+                'unread_assessment' => $assessmentCount,
             ]], 'Unread counts fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get assessment details for the student
+     *
+     * @authenticated
+     */
+    public function assessment_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+             // Automatically mark all assessments for this student as read
+            \App\Models\Assessment::where('admission_id', $student->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            $assessments = \App\Models\Assessment::where('admission_id', $student->id)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $assessmentDetails = [];
+            foreach ($assessments as $assessment) {
+                $assessmentDetails[] = [
+                    'id'          => $assessment->id,
+                    'subject'     => $assessment->subject,
+                    'performance' => ucfirst($assessment->performance),
+                    'remarks'     => $assessment->remarks ?? '',
+                    'date'        => $assessment->created_at ? $assessment->created_at->format('d-m-Y') : null,
+                ];
+            }
+
+            return $this->sendResponse($assessmentDetails, 'Assessment details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
