@@ -952,12 +952,12 @@ class ApiStudentController extends Controller
                 ->where('is_read', false)
                 ->count();
 
-            $unreadMarksheets = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
+            $marksheetCount = \App\Models\StudentMarksheetIssue::where('admission_id', $student->id)
                 ->count();
 
             return $this->sendResponse([[
                 'unread_complaints' => $unreadComplaints,
-                'unread_marksheets' => $unreadMarksheets,
+                'marksheet_count' => $marksheetCount,
             ]], 'Unread counts fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);

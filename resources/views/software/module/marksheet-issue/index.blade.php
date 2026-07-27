@@ -35,7 +35,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <input list="search" id="search_id" name="search" class="form-control" placeholder="Search Name, GR No, Semester, Series, Note...">
+                    <input list="search" id="search_id" name="search" class="form-control" placeholder="Search Name, GR No">
                     <datalist id="search" class="search_by_courceregistration" data-append="search_by_courceregistration"></datalist>
                 </div>
             </div>
