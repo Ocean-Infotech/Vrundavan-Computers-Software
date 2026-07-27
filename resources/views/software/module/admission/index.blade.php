@@ -111,7 +111,13 @@
                         <div class="mb-3">
                             <label for="export_batch_filter" class="form-label fw-bold">Filter By Batch</label>
                             <select id="export_batch_filter" class="form-select select2">
-                                <option value="">Select Course First</option>
+                                <option value="">Filter By Batch</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="export_class_filter" class="form-label fw-bold">Filter By Class</label>
+                            <select id="export_class_filter" class="form-select select2">
+                                <option value="">Filter By Class</option>
                             </select>
                         </div>
                         <div>
@@ -1059,6 +1065,7 @@
                 // Initialize select2 inside the modal with the proper dropdown parent
                 $('#export_course_filter').select2({ dropdownParent: $('#exportModal') });
                 $('#export_batch_filter').select2({ dropdownParent: $('#exportModal') });
+                $('#export_class_filter').select2({ dropdownParent: $('#exportModal') });
             }
 
             $('#exportExcelBtn').on('click', function(e) {
@@ -1111,6 +1118,11 @@
                     params.append('batch_id', batchId);
                 }
 
+                const classId = $('#export_class_filter').val();
+                if (classId) {
+                    params.append('class_id', classId);
+                }
+
                 if (scope === 'filtered') {
                     const searchValue = $('#yajra-datatables_filter input[type="search"]').val();
                     if (searchValue) {
@@ -1151,10 +1163,46 @@
                         }
                     });
                 } else {
-                    optionsHtml += '<option value="">Select Course First</option>';
+                    optionsHtml += '<option value="">Filter By Batch</option>';
                 }
                 
                 $('#export_batch_filter').html(optionsHtml).val('').trigger('change').select2({ dropdownParent: $('#exportModal') });
+            });
+
+            $('#export_batch_filter').on('change', function() {
+                const batchId = $(this).val();
+                let optionsHtml = '';
+                
+                if (batchId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-class-bybatch') }}",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        data: {
+                            batch_id: batchId
+                        },
+                        success: function(response) {
+                            if (response.status) {
+                                optionsHtml += '<option value="">All Classes</option>';
+                                $.each(response.data, function(i, item) {
+                                    optionsHtml += `<option value="${item.id}">${item.name}</option>`;
+                                });
+                            } else {
+                                optionsHtml += '<option value="">Filter By Class</option>';
+                            }
+                            $('#export_class_filter').html(optionsHtml).val('').trigger('change').select2({ dropdownParent: $('#exportModal') });
+                        },
+                        error: function() {
+                            optionsHtml += '<option value="">Filter By Class</option>';
+                            $('#export_class_filter').html(optionsHtml).val('').trigger('change').select2({ dropdownParent: $('#exportModal') });
+                        }
+                    });
+                } else {
+                    optionsHtml += '<option value="">Filter By Class</option>';
+                    $('#export_class_filter').html(optionsHtml).val('').trigger('change').select2({ dropdownParent: $('#exportModal') });
+                }
             });
         });
     </script>

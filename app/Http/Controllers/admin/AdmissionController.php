@@ -1406,6 +1406,13 @@ class AdmissionController extends Controller
             });
         }
 
+        if ($request->filled('class_id')) {
+            $classId = $request->input('class_id');
+            $query->whereHas('courses', function ($q) use ($classId) {
+                $q->where('class_id', $classId);
+            });
+        }
+
         if ($scope === 'all') {
             return $query;
         }
