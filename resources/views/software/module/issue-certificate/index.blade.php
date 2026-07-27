@@ -5,7 +5,7 @@
     $route = $modules['route'] ?? null;
     $certificateRoute = $modules['certificate_route'] ?? null;
     $certificateType = $modules['certificate_type'] ?? 'bonafide';
-    $hideExtraColumns = in_array($certificateType, ['english-medium', 'letter-recommendation'], true);
+    $hideExtraColumns = in_array($certificateType, ['english-medium'], true);
 @endphp
 @section('title', $page_title)
 
@@ -69,11 +69,11 @@
                             </div>
                             @endif
 
-                            <div class="col-md-6 col-sm-12 mb-3">
-                                <button type="button" id="generate_certificate" class="btn btn-primary">
-                                    <i class="ti ti-certificate"></i> Generate 
-                                </button>
-                            </div>
+                             <div class="col-md-6 col-sm-12 mb-3">
+                                 <button type="button" id="generate_certificate" class="btn btn-primary">
+                                     <i class="ti ti-certificate"></i> Generate 
+                                 </button>
+                             </div>
                         </div>
                     </form>
                 </div>

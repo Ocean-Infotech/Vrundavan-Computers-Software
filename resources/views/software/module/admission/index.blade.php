@@ -108,6 +108,12 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="export_batch_filter" class="form-label fw-bold">Filter By Batch</label>
+                            <select id="export_batch_filter" class="form-select select2">
+                                <option value="">Select Course First</option>
+                            </select>
+                        </div>
                         <div>
                             <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
                                 <label class="form-label fw-bold mb-0">Columns</label>
@@ -1049,6 +1055,10 @@
                 $('#export_action').val(actionType);
                 $('#exportModalLabel').text(actionType === 'print' ? 'Print Preview' : 'Export to Excel');
                 showExportModal();
+                
+                // Initialize select2 inside the modal with the proper dropdown parent
+                $('#export_course_filter').select2({ dropdownParent: $('#exportModal') });
+                $('#export_batch_filter').select2({ dropdownParent: $('#exportModal') });
             }
 
             $('#exportExcelBtn').on('click', function(e) {
@@ -1092,8 +1102,13 @@
                 params.append('scope', scope);
 
                 const courseId = $('#export_course_filter').val();
-                if (courseId && selectedColumns.includes('course_names')) {
+                if (courseId) {
                     params.append('course_id', courseId);
+                }
+
+                const batchId = $('#export_batch_filter').val();
+                if (batchId) {
+                    params.append('batch_id', batchId);
                 }
 
                 if (scope === 'filtered') {
@@ -1119,6 +1134,27 @@
                 }
 
                 hideExportModal();
+            });
+
+            // Store all batches for dynamic filtering
+            const allBatches = @json($batches);
+
+            $('#export_course_filter').on('change', function() {
+                const courseId = $(this).val();
+                let optionsHtml = '';
+                
+                if (courseId) {
+                    optionsHtml += '<option value="">All Batches</option>';
+                    allBatches.forEach(function(batch) {
+                        if (batch.course_id == courseId) {
+                            optionsHtml += `<option value="${batch.id}">${batch.batch_name}</option>`;
+                        }
+                    });
+                } else {
+                    optionsHtml += '<option value="">Select Course First</option>';
+                }
+                
+                $('#export_batch_filter').html(optionsHtml).val('').trigger('change').select2({ dropdownParent: $('#exportModal') });
             });
         });
     </script>

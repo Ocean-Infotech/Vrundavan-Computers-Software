@@ -298,8 +298,9 @@ class AdmissionController extends Controller
             $availableExportColumns = $this->exportableColumns;
             $defaultExportColumns = $this->defaultExportColumns;
             $courses = \App\Models\Master\MasterCourse::where('status', 'active')->orderBy('course_name')->get();
+            $batches = \App\Models\Master\MasterBatch::where('status', 'active')->orderBy('batch_name')->get();
 
-            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns', 'courses'));
+            return view($modules['folder_path'] . '.index', compact('data', 'availableExportColumns', 'defaultExportColumns', 'courses', 'batches'));
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
@@ -1352,8 +1353,12 @@ class AdmissionController extends Controller
                 : $today->format('Y'),
             'period_from' => $this->formatCertificateDate($request->semester_start, ''),
             'period_to' => $this->formatCertificateDate($request->semester_end, ''),
+            'recommender_name' => $request->recommender_name ?? 'Hitesh Vadalia',
+            'recommender_designation' => $request->recommender_designation ?? 'I/C. Principal',
+            'recommender_type' => $request->recommender_type ?? 'principal',
+            'faculty_id' => $request->faculty_id ?? null,
         ];
-    }
+    }   
 
     protected function formatCertificateDate($value, string $default = ''): string
     {
@@ -1391,6 +1396,13 @@ class AdmissionController extends Controller
             $courseId = $request->input('course_id');
             $query->whereHas('courses', function ($q) use ($courseId) {
                 $q->where('course_id', $courseId);
+            });
+        }
+
+        if ($request->filled('batch_id')) {
+            $batchId = $request->input('batch_id');
+            $query->whereHas('courses', function ($q) use ($batchId) {
+                $q->where('batch_id', $batchId);
             });
         }
 

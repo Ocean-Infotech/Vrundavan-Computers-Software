@@ -162,7 +162,7 @@
         }
 
         .footer .sign-name {
-            margin-top: 34px;
+            margin-top: 70px;
             font-weight: 700;
         }
 
@@ -267,8 +267,8 @@
 
     <div class="footer">
         <div>Sincerely</div>
-        <div class="sign-name">(Hitesh Vadalia)</div>
-        <div class="designation">I/C. Principal</div>
+        <div class="sign-name">({{ $certificateData['recommender_name'] ?? 'Hitesh Vadalia' }})</div>
+        <div class="designation">{{ $certificateData['recommender_designation'] ?? 'I/C. Principal' }}</div>
         <div class="designation">Shree Patel Vidhya Mandir <br> Science College - Keshod</div>
     </div>
 </div>
