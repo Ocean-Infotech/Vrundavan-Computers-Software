@@ -122,9 +122,9 @@ class IssueCertificateController extends Controller
     protected function certificateIndex(Request $request, string $type)
     {
         $typeLabel = match ($type) {
-            self::TYPE_ENGLISH_MEDIUM => 'English Medium Certificate',
+            self::TYPE_ENGLISH_MEDIUM => 'Medium of Instruction',
             self::TYPE_LETTER_RECOMMENDATION => 'Letter of Recommendation',
-            self::TYPE_TC => 'TC Certificate',
+            self::TYPE_TC => 'Transfer Certificate',
             default => 'Bonafide Certificate',
         };
 

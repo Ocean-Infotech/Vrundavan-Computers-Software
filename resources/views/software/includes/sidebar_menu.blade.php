@@ -268,7 +268,7 @@
                 @directCan('issue-certificate-tc-list')
                 <li class="menu-item {{ Route::is('issue-certificate.tc') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.tc') }}" class="menu-link">
-                        <div data-i18n="TC">TC</div>
+                        <div data-i18n="Transfer Certificate">Transfer Certificate</div>
                     </a>
                 </li>
                 @enddirectCan
@@ -276,7 +276,7 @@
                 @directCan('issue-certificate-english-medium-list')
                 <li class="menu-item {{ Route::is('issue-certificate.english-medium') ? 'active' : '' }}">
                     <a href="{{ route('issue-certificate.english-medium') }}" class="menu-link">
-                        <div data-i18n="English Medium">English Medium</div>
+                        <div data-i18n="Medium of Instruction">Medium of Instruction</div>
                     </a>
                 </li>
                 @enddirectCan
@@ -299,7 +299,8 @@
             'notification-setting-list',
             'notification-setting-create',
             'notification-setting-edit',
-            'notification-setting-delete'
+            'notification-setting-delete',
+            'assessment-list'
         ])
         <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -339,7 +340,7 @@
                 @enddirectCanAny
 
                 {{-- Assessment --}}
-                @directCan('admission-list')
+                @directCan('assessment-list')
                 <li class="menu-item {{ $sidebar_active == 'assessment' ? 'active' : '' }}">
                     <a href="{{ route('assessment.index') }}" class="menu-link">
                         <div data-i18n="Assessment">Assessment</div>

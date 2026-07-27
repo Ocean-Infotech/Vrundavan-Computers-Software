@@ -161,6 +161,12 @@ class PermissionTableSeeder extends Seeder
             ],
             'Setting' => [
                 'generate-api-documents',
+            ],
+            'assessment' => [
+                'assessment-list',
+                'assessment-create',
+                'assessment-edit',
+                'assessment-delete',
             ]
         ];
 

@@ -43,7 +43,7 @@ class AssessmentController extends Controller
             'folder_path' => 'software.module.assessment',
             'route' => 'assessment',
             'table_name' => (new Assessment())->getTable(),
-            'permission_prefix' => 'admission',
+            'permission_prefix' => 'assessment',
         ];
     }
 
@@ -53,6 +53,11 @@ class AssessmentController extends Controller
         View::share('modules', $modules);
 
         try {
+            $canList = Helper::directCan($modules['permission_prefix'] . '-list');
+            if (!$canList) {
+                return Redirect::route('software.dashboard')->withErrors('User does not have the right permissions.');
+            }
+
             if ($request->ajax()) {
                 $data = Assessment::with('admission')->select('assessments.*');
 
@@ -128,6 +133,11 @@ class AssessmentController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         $students = Admission::where('status', 'active')
             ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
             ->orderBy('id', 'asc')
@@ -140,6 +150,11 @@ class AssessmentController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
 
         $request->validate([
             'admission_id' => 'required|exists:admission,id',
@@ -172,6 +187,11 @@ class AssessmentController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         try {
             $edit = Assessment::findOrFail($id);
 
@@ -190,6 +210,11 @@ class AssessmentController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
 
         $request->validate([
             'admission_id' => 'required|exists:admission,id',
@@ -222,6 +247,12 @@ class AssessmentController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+
+        $canDelete = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['status' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         try {
             $record = Assessment::findOrFail($id);
             $record->delete();
