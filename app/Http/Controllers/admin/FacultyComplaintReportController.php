@@ -69,16 +69,17 @@ class FacultyComplaintReportController extends Controller
                         if ($request->has('search') && !empty($request->search['value'])) {
                             $searchValue = $request->search['value'];
                             $query->where(function ($q) use ($searchValue) {
-                                $q->where('gr_no', 'like', "%{$searchValue}%")
-                                  ->orWhere('complaint', 'like', "%{$searchValue}%")
+                                $q->where('admission_id', $searchValue)
                                   ->orWhereHas('admission', function ($sq) use ($searchValue) {
                                       $sq->where('first_name', 'like', "%{$searchValue}%")
                                          ->orWhere('last_name', 'like', "%{$searchValue}%")
+                                         ->orWhere('father_name', 'like', "%{$searchValue}%")
                                          ->orWhere('gr_no', 'like', "%{$searchValue}%");
                                   })
                                   ->orWhereHas('faculty', function ($sq) use ($searchValue) {
                                       $sq->where('name', 'like', "%{$searchValue}%");
-                                  });
+                                  })
+                                  ->orWhere('complaint', 'like', "%{$searchValue}%");
                             });
                         }
                     })

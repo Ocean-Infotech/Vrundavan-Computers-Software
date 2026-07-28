@@ -35,7 +35,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <input type="search" class="form-control" name="search" placeholder="Search GR No, Student, Faculty, Complaint...">
+                    <input list="search" id="search_id" name="search" class="form-control" placeholder="Search Name, GR No">
+                    <datalist id="search" class="search_by_courceregistration" data-append="search_by_courceregistration"></datalist>
                 </div>
             </div>
         </div>
@@ -177,7 +178,7 @@
             });
         });
 
-        $('input[name="search"]').keyup(function() {
+        $('input[name="search"]').on('keyup change', function() {
             dtable.draw();
         });
     </script>
@@ -280,5 +281,6 @@
         });
     </script>
 
+    @include('software.utils.getCourceRegistration')
     @include('software.includes.script-delete-record')
 @endsection
