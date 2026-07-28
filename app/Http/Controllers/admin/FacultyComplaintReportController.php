@@ -69,17 +69,16 @@ class FacultyComplaintReportController extends Controller
                         if ($request->has('search') && !empty($request->search['value'])) {
                             $searchValue = $request->search['value'];
                             $query->where(function ($q) use ($searchValue) {
-                                $q->where('admission_id', $searchValue)
-                                  ->orWhereHas('admission', function ($sq) use ($searchValue) {
-                                      $sq->where('first_name', 'like', "%{$searchValue}%")
-                                         ->orWhere('last_name', 'like', "%{$searchValue}%")
-                                         ->orWhere('father_name', 'like', "%{$searchValue}%")
-                                         ->orWhere('gr_no', 'like', "%{$searchValue}%");
-                                  })
-                                  ->orWhereHas('faculty', function ($sq) use ($searchValue) {
-                                      $sq->where('name', 'like', "%{$searchValue}%");
-                                  })
-                                  ->orWhere('complaint', 'like', "%{$searchValue}%");
+                                if (is_numeric($searchValue) && \App\Models\Admission::where('id', $searchValue)->exists()) {
+                                    $q->where('admission_id', $searchValue);
+                                } else {
+                                    $q->whereHas('admission', function ($sq) use ($searchValue) {
+                                        $sq->where('first_name', 'like', "%{$searchValue}%")
+                                           ->orWhere('last_name', 'like', "%{$searchValue}%")
+                                           ->orWhere('father_name', 'like', "%{$searchValue}%")
+                                           ->orWhere('gr_no', 'like', "%{$searchValue}%");
+                                    });
+                                }
                             });
                         }
                     })
@@ -364,16 +363,16 @@ class FacultyComplaintReportController extends Controller
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('gr_no', 'like', "%{$search}%")
-                  ->orWhere('complaint', 'like', "%{$search}%")
-                  ->orWhereHas('admission', function ($sq) use ($search) {
-                      $sq->where('first_name', 'like', "%{$search}%")
-                         ->orWhere('last_name', 'like', "%{$search}%")
-                         ->orWhere('gr_no', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('faculty', function ($sq) use ($search) {
-                      $sq->where('name', 'like', "%{$search}%");
-                  });
+                if (is_numeric($search) && \App\Models\Admission::where('id', $search)->exists()) {
+                    $q->where('admission_id', $search);
+                } else {
+                    $q->whereHas('admission', function ($sq) use ($search) {
+                        $sq->where('first_name', 'like', "%{$search}%")
+                           ->orWhere('last_name', 'like', "%{$search}%")
+                           ->orWhere('father_name', 'like', "%{$search}%")
+                           ->orWhere('gr_no', 'like', "%{$search}%");
+                    });
+                }
             });
         }
 
