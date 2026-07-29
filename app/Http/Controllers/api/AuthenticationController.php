@@ -312,12 +312,10 @@ class AuthenticationController extends Controller
     public function studentSendOtp(Request $request)
     {
         try {
-
             // 🔹 VALIDATION
             $validator = Validator::make($request->all(), [
                 'admission_id' => 'required|integer',
                 'mobile_no'    => 'required|digits_between:10,15',
-                'birth_year'   => 'required|digits:4',
                 'device_token'   => 'nullable|string',
                 'device_details' => 'nullable|string',
             ]);
@@ -336,8 +334,8 @@ class AuthenticationController extends Controller
                 ->where('mobile_no', $request->mobile_no)
                 ->first();
 
-            if (!$student) {
-                return $this->sendError(
+                        if (!$student) {
+                    return $this->sendError(
                     'Student not found.',
                     [],
                     [],
@@ -345,7 +343,7 @@ class AuthenticationController extends Controller
                 );
             }
 
-            // 🔹 STORE DEVICE TOKEN & DETAILS
+            //🔹 STORE DEVICE TOKEN & DETAILS
             if ($request->filled('device_token') || $request->filled('device_details')) {
                 if ($request->filled('device_token')) {
                     StudentDeviceToken::where('device_token', $request->device_token)
@@ -365,43 +363,7 @@ class AuthenticationController extends Controller
                 );
             }
 
-            // 🔹 CHECK BIRTH YEAR
-            $dbYear = Carbon::parse($student->date_of_birth)->year;
-
-            /* =====================================================
-           ✅ CASE 1: YEAR MATCH → DIRECT LOGIN
-        ===================================================== */
-            if ((int)$request->birth_year === (int)$dbYear) {
-
-                // 🔹 Revoke old tokens (Commented out to allow multiple device login)
-                // Token::where('user_id', $student->id)
-                //     ->update(['revoked' => true]);
-
-                // 🔹 Create new token
-                $tokenResult = $student->createToken('student-api');
-                $token = $tokenResult->accessToken;
-                $expiresAt = $tokenResult->token->expires_at;
-
-                // 🔹 Same login response as OTP verify
-                $profileRequest = new Request();
-                $profileRequest->admission_id = $student->id;
-
-                $profile = (new AuthenticatedController())
-                    ->student_profile_response($profileRequest);
-
-                $profile->token = $token;
-                $profile->expiresAt = $expiresAt;
-                $profile->login_type = 'birth_year';
-                $profile->device_token = $request->device_token ?? null;
-                $profile->device_details = $request->device_details ?? null;
-
-                return $this->sendResponse(
-                    $profile,
-                    'Login successful.'
-                );
-            }
-
-            $message = "Please try again. Birth year does not match.";
+            $message = "OTP has been sent successfully.";
 
             resend_otp:
             $checkSendedOtp = SendOTP::where("model", Admission::class)
@@ -412,7 +374,7 @@ class AuthenticationController extends Controller
                 ->orderBy('id', 'DESC')
                 ->first();
 
-            $otp = Helper::generateNumericOTP();
+            $otp = Helper::generateNumericOTP(6);
 
             if (!$checkSendedOtp) {
                 $checkSendedOtp = SendOTP::create([
@@ -425,9 +387,18 @@ class AuthenticationController extends Controller
                     'sms'              => 'Your One time OTP is ' . $otp,
                     'created_from'     => 'AuthenticationController => login',
                 ]);
+
+                // Send OTP SMS
+                $smsResponse = Helper::sendOtpSms($student->mobile_no, $otp);
+
+            } else {
+                // Resend the existing valid OTP
+                $smsResponse = Helper::sendOtpSms($student->mobile_no, $checkSendedOtp->verified_content);
+
             }
 
             if (Carbon::now()->greaterThan(Carbon::parse($checkSendedOtp->expire_time))) {
+                // dd("Hello");
                 $checkSendedOtp->status = 'expire';
                 $checkSendedOtp->save();
                 goto resend_otp;
@@ -501,7 +472,7 @@ class AuthenticationController extends Controller
                 ],
                 'otp' => [
                     'required',
-                    'digits:4',
+                    'digits:6',
                     function ($attribute, $value, $fail) use ($request) {
                         $checkOTP = SendOTP::where('send_to', $request->mobile_no)
                             ->where('verified_content', $value)
@@ -510,7 +481,7 @@ class AuthenticationController extends Controller
                             ->first();
 
                         if (!$checkOTP) {
-                            $fail("OTP not matched.");
+                            $fail("The OTP you entered is incorrect.");
                         } elseif ($checkOTP->verified_at) {
                             $fail("OTP used before. Resend and try again.");
                         } elseif (Carbon::now()->greaterThan(Carbon::parse($checkOTP->expire_time))) {
@@ -523,7 +494,11 @@ class AuthenticationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return $this->sendError($validator->errors()->first(), $validator->errors(), [], 422);
+                $firstError = $validator->errors()->first();
+                if ($validator->errors()->has('otp') && $firstError === "The OTP you entered is incorrect.") {
+                    $firstError = "The OTP you entered is incorrect. Please try again..";
+                }
+                return $this->sendError($firstError, $validator->errors(), [], 422);
             }
 
             // Get student
@@ -589,7 +564,7 @@ class AuthenticationController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    
+
     /**
      * Logout current student
      *
