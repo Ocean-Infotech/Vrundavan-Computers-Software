@@ -147,12 +147,12 @@ class NotificationSettingController extends Controller
                 $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
                 $cleanBody = trim($cleanBody);
 
-                // Get the student's device token
-                $token = StudentDeviceToken::where('student_id', $sid)
-                    ->orderBy('id', 'desc')
-                    ->value('device_token');
+                // Get all the student's device tokens
+                $tokens = StudentDeviceToken::where('student_id', $sid)
+                    ->pluck('device_token')
+                    ->toArray();
 
-                if (!empty($token)) {
+                if (count($tokens) > 0) {
                     $androidConfig = AndroidConfig::fromArray([
                         'ttl' => '3600s',
                         'priority' => 'high',
@@ -166,16 +166,24 @@ class NotificationSettingController extends Controller
                         ],
                     ]);
 
-                    $message = CloudMessage::withTarget('token', $token)
-                        ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
-                        ->withAndroidConfig($androidConfig)
-                        ->withData([
-                            'student_id' => (string) $sid,
-                            'title'      => $validated['title'],
-                            'body'       => $cleanBody,
-                        ]);
+                    foreach ($tokens as $token) {
+                        if (!empty($token)) {
+                            $message = CloudMessage::withTarget('token', $token)
+                                ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
+                                ->withAndroidConfig($androidConfig)
+                                ->withData([
+                                    'student_id' => (string) $sid,
+                                    'title'      => $validated['title'],
+                                    'body'       => $cleanBody,
+                                ]);
 
-                    app('firebase.messaging')->send($message);
+                            try {
+                                app('firebase.messaging')->send($message);
+                            } catch (\Exception $e) {
+                                \Log::error("Failed to send push notification to device token: {$token}. Error: " . $e->getMessage());
+                            }
+                        }
+                    }
                 }
             }
 
