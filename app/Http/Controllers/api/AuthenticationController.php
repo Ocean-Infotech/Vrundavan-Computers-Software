@@ -373,9 +373,9 @@ class AuthenticationController extends Controller
         ===================================================== */
             if ((int)$request->birth_year === (int)$dbYear) {
 
-                // 🔹 Revoke old tokens
-                Token::where('user_id', $student->id)
-                    ->update(['revoked' => true]);
+                // 🔹 Revoke old tokens (Commented out to allow multiple device login)
+                // Token::where('user_id', $student->id)
+                //     ->update(['revoked' => true]);
 
                 // 🔹 Create new token
                 $tokenResult = $student->createToken('student-api');
@@ -546,9 +546,9 @@ class AuthenticationController extends Controller
                 $checkOTP->save();
             }
 
-            // Revoke all previous tokens
-            Token::where('user_id', $student->id)
-                ->update(['revoked' => true]);
+            // Revoke all previous tokens (Commented out to allow multiple device login)
+            // Token::where('user_id', $student->id)
+            //     ->update(['revoked' => true]);
 
             // Create new Passport token
             $tokenResult = $student->createToken('student-api');
@@ -623,8 +623,14 @@ class AuthenticationController extends Controller
             // Revoke current token only
             $request->user()->token()->revoke();
 
-            // Or if you want to delete all device tokens also
-            StudentDeviceToken::where('student_id', $student->id)->delete();
+            // Delete current device token if provided, otherwise delete all for safety
+            if ($request->filled('device_token')) {
+                StudentDeviceToken::where('student_id', $student->id)
+                    ->where('device_token', $request->device_token)
+                    ->delete();
+            } else {
+                StudentDeviceToken::where('student_id', $student->id)->delete();
+            }
 
             return $this->sendResponse([], 'Logged out successfully.');
         } catch (\Exception $e) {
