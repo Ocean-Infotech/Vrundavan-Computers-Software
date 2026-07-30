@@ -292,7 +292,7 @@ class Helper
             <sms>
             <user>Vckguj</user>
             <password>592a9ca9f2XX</password>
-            <message>Your OTP for application login is ' . $otp . '. Do not share it with anyone. - Vrundavan Computers, Keshod | www.vckguj.com | Mo.: 9375221111 - HGE</message>
+            <message>otp for application login is ' . $otp . '. Vrundavan Computers - Keshod for info visit - vckguj.com. mo. 9375221111 -HGE</message>  
             <mobiles>' . $mobileNo . '</mobiles>
             <senderid>HGHelp</senderid>
             <tempid>1607100000000273981</tempid>
