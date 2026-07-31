@@ -147,10 +147,10 @@ class AttedanceReportController extends Controller
             return Datatables::of($collection)
                 ->addIndexColumn()
                 ->addColumn('present_badge', function ($row) {
-                    return '<span class="badge bg-success">' . $row['present_days'] . '</span>';
+                    return $row['present_days'];
                 })
                 ->addColumn('absent_badge', function ($row) {
-                    return '<span class="badge bg-danger">' . $row['absent_days'] . '</span>';
+                    return $row['absent_days'];
                 })
                 ->rawColumns(['present_badge', 'absent_badge'])
                 ->with([
