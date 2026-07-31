@@ -366,12 +366,6 @@
                     </a>
                 </li>
                 @enddirectCan
-
-                <li class="menu-item {{ $sidebar_active == 'combined-report' ? 'active' : '' }}">
-                    <a href="{{ route('combined-report.index') }}" class="menu-link">
-                        <div data-i18n="Combined Report">Combined Report</div>
-                    </a>
-                </li>
             </ul>
         </li>
         @enddirectCanAny
@@ -590,7 +584,7 @@
         @enddirectCanAny
 
         @directCanAny(['other-list-selection-list', 'supplier-list'])
-        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection', 'supplier']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection', 'supplier', 'combined-report']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-list-ul me-2"></i>
                 <div data-i18n="Other">Other</div>
@@ -620,6 +614,12 @@
                     </a>
                 </li>
                 @enddirectCan
+
+                <li class="menu-item {{ $sidebar_active == 'combined-report' ? 'active' : '' }}">
+                    <a href="{{ route('combined-report.index') }}" class="menu-link">
+                        <div data-i18n="Combined Report">Combined Report</div>
+                    </a>
+                </li>
             </ul>
         </li>
         @enddirectCanAny

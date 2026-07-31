@@ -53,7 +53,7 @@
                 <div class="card-body">
                     <div class="row align-items-end">
                         <!-- Course -->
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label class="form-label">Course</label>
                                 <select id="course" name="course_id"
@@ -65,13 +65,25 @@
                         </div>
 
                         <!-- Batch -->
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label class="form-label">Batch</label>
                                 <select id="batch" name="batch_id"
                                     class="form-control search_by_batch select2"
                                     data-append="search_by_batch">
                                     <option value="">Select Batch</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Semester -->
+                        <div class="col-md-2 col-sm-12">
+                            <div class="form-group">
+                                <label class="form-label">Semester</label>
+                                <select id="semester" name="semester"
+                                    class="form-control search_by_semester select2"
+                                    data-append="search_by_semester">
+                                    <option value="">Select Semester</option>
                                 </select>
                             </div>
                         </div>
@@ -120,6 +132,7 @@
 @section('page_leavel_script')
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getSamasterByCourseid')
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -128,6 +141,7 @@
             function loadCombinedReport() {
                 let courseId = $('#course').val();
                 let batchId = $('#batch').val();
+                let semester = $('#semester').val();
 
                 if (!courseId || !batchId) {
                     return;
@@ -141,7 +155,8 @@
                     },
                     data: {
                         course_id: courseId,
-                        batch_id: batchId
+                        batch_id: batchId,
+                        semester: semester
                     },
                     success: function(response) {
                         if (!response.success) return;
@@ -292,15 +307,16 @@
             $('#export_btn').on('click', function() {
                 let courseId = $('#course').val();
                 let batchId = $('#batch').val();
+                let semester = $('#semester').val();
                 if (!courseId || !batchId) {
                     alert('Please select Course and Batch first.');
                     return;
                 }
-                window.location.href = "{{ route('combined-report.export-excel') }}?course_id=" + courseId + "&batch_id=" + batchId;
+                window.location.href = "{{ route('combined-report.export-excel') }}?course_id=" + courseId + "&batch_id=" + batchId + "&semester=" + (semester || '');
             });
 
             // Reload table on dropdown changes
-            $('#course, #batch').on('change', function() {
+            $('#course, #batch, #semester').on('change', function() {
                 loadCombinedReport();
             });
 

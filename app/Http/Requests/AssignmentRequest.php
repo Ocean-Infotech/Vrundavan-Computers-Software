@@ -16,6 +16,7 @@ class AssignmentRequest extends FormRequest
         return [
             'course_id' => 'required|integer|exists:master_course,id',
             'batch_id' => 'required|integer|exists:master_batch,id',
+            'semester' => 'required|string',
             'subject' => 'required|string|max:255',
             'date' => 'required|date',
         ];
@@ -28,6 +29,7 @@ class AssignmentRequest extends FormRequest
             'course_id.exists' => 'The selected Course is invalid.',
             'batch_id.required' => 'The Batch is required.',
             'batch_id.exists' => 'The selected Batch is invalid.',
+            'semester.required' => 'The Semester is required.',
             'subject.required' => 'The Subject is required.',
             'date.required' => 'The Date is required.',
         ];

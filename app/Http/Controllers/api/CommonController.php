@@ -459,13 +459,17 @@ class CommonController extends Controller
                 return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
             }
 
-            $subjects = \App\Models\Test::where('course_id', $request->course_id)
+            $query = \App\Models\Test::where('course_id', $request->course_id)
                 ->where('batch_id', $request->batch_id)
                 ->where('status', 'active')
                 ->whereNotNull('subject_name')
-                ->where('subject_name', '!=', '')
-                ->distinct()
-                ->pluck('subject_name');
+                ->where('subject_name', '!=', '');
+
+            if ($request->filled('semester')) {
+                $query->where('semester', $request->semester);
+            }
+
+            $subjects = $query->distinct()->pluck('subject_name');
 
             $data = $subjects->map(function ($subject) {
                 return [

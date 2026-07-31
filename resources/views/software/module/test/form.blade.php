@@ -86,6 +86,22 @@
                         </div>
                     </div>
 
+                    {{-- Semester --}}
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Select Semester <span class="text-danger">*</span></label>
+                            <select name="semester" id="semester"
+                                class="form-control @error('semester') is-invalid @enderror search_by_semester select2"
+                                data-append="search_by_semester"
+                                data-selectedSemesterId="{{ isset($edit) && $edit?->semester ? $edit?->semester : old('semester') }}">
+                                <option value="">Select Semester</option>
+                            </select>
+                            @error('semester')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label"> Subject Name <span class="text-danger">*</span> </label>
@@ -183,4 +199,5 @@
 @section('page_leavel_script')
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getSamasterByCourseid')
 @endsection

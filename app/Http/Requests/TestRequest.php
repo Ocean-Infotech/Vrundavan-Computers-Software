@@ -36,6 +36,9 @@ class TestRequest extends FormRequest
                 'required',
                 Rule::exists((new MasterBatch())->getTable(), 'id')
             ],
+            'semester' => [
+                'required'
+            ],
             'subject_name' => [
                 'required'
             ],
@@ -68,6 +71,7 @@ class TestRequest extends FormRequest
         return [
             'course_id.required' => 'The Course Name is required.',
             'batch_id.required' => 'The Batch Name is required.',
+            'semester.required' => 'The Semester is required.',
             'subject_name.required' => 'The Subject Name is required.',
             'test_type.required' => 'The Test Type is required.',
             'unit_name.required' => 'The Unit Name is required.',

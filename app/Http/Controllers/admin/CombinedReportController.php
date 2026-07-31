@@ -37,6 +37,7 @@ class CombinedReportController extends Controller
     {
         $courseId = $request->input('course_id');
         $batchId = $request->input('batch_id');
+        $semester = $request->input('semester');
 
         if (empty($courseId) || empty($batchId)) {
             return response()->json([
@@ -56,11 +57,15 @@ class CombinedReportController extends Controller
             ->get();
 
         // 2. Get all tests in this Course & Batch
-        $allTests = \App\Models\Test::where('course_id', $courseId)
+        $allTestsQuery = \App\Models\Test::where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->whereNull('deleted_at')
-            ->orderBy('date', 'asc')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if (!empty($semester)) {
+            $allTestsQuery->where('semester', $semester);
+        }
+
+        $allTests = $allTestsQuery->orderBy('date', 'asc')->get();
 
         // Group tests by test_type and subject_name
         $weeklyTests = [];
@@ -84,10 +89,16 @@ class CombinedReportController extends Controller
         }
 
         // 3. Get all assignments in this Course & Batch
-        $allAssignments = \App\Models\Assignment::where('course_id', $courseId)
+        $allAssignmentsQuery = \App\Models\Assignment::where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->whereNull('deleted_at')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if (!empty($semester)) {
+            $semesterSubjects = $allTests->pluck('subject_name')->unique()->toArray();
+            $allAssignmentsQuery->whereIn('subject', $semesterSubjects);
+        }
+
+        $allAssignments = $allAssignmentsQuery->get();
 
         // Group assignments by subject to get counts
         $assignmentsConfig = [];
@@ -176,6 +187,7 @@ class CombinedReportController extends Controller
     {
         $courseId = $request->input('course_id');
         $batchId = $request->input('batch_id');
+        $semester = $request->input('semester');
 
         if (empty($courseId) || empty($batchId)) {
             return back()->withErrors('Course and Batch are required for export.');
@@ -192,11 +204,15 @@ class CombinedReportController extends Controller
             ->where('status', 'active')
             ->get();
 
-        $allTests = \App\Models\Test::where('course_id', $courseId)
+        $allTestsQuery = \App\Models\Test::where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->whereNull('deleted_at')
-            ->orderBy('date', 'asc')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if (!empty($semester)) {
+            $allTestsQuery->where('semester', $semester);
+        }
+
+        $allTests = $allTestsQuery->orderBy('date', 'asc')->get();
 
         $weeklyTests = [];
         $fullTests = [];
@@ -209,10 +225,16 @@ class CombinedReportController extends Controller
             }
         }
 
-        $allAssignments = \App\Models\Assignment::where('course_id', $courseId)
+        $allAssignmentsQuery = \App\Models\Assignment::where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->whereNull('deleted_at')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if (!empty($semester)) {
+            $semesterSubjects = $allTests->pluck('subject_name')->unique()->toArray();
+            $allAssignmentsQuery->whereIn('subject', $semesterSubjects);
+        }
+
+        $allAssignments = $allAssignmentsQuery->get();
 
         $assignmentsConfig = [];
         foreach ($allAssignments as $assignment) {

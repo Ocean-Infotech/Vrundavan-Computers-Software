@@ -25,6 +25,7 @@ class TestController extends Controller
     protected array $exportableColumns = [
         'course_name'  => 'Course Name',
         'batch_name'   => 'Batch Name',
+        'semester'     => 'Semester',
         'subject_name' => 'Subject Name',
         'test_type'    => 'Test Type',
         'unit_name'    => 'Unit Name',
@@ -36,6 +37,7 @@ class TestController extends Controller
     protected array $defaultExportColumns = [
         'course_name',
         'batch_name',
+        'semester',
         'subject_name',
         'test_type',
         'unit_name',
@@ -78,6 +80,7 @@ class TestController extends Controller
             $columns = [
                 (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
+                (object)['data' => "semester", 'name' => 'semester', 'td_label' => 'Semester'],
                 (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
                 (object)['data' => "test_type", 'name' => 'test_type', 'td_label' => 'Test Type'],
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
@@ -311,6 +314,8 @@ class TestController extends Controller
                 return $test->course?->course_name ?? '-';
             case 'batch_name':
                 return $test->batch?->batch_name ?? '-';
+            case 'semester':
+                return $test->semester ?? '-';
             case 'subject_name':
                 return $test->subject_name ?? '-';
             case 'test_type':

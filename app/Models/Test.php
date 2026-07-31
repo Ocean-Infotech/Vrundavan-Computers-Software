@@ -16,6 +16,7 @@ class Test extends Model
 	protected $fillable = [
         'course_id',
         'batch_id',
+        'semester',
         'subject_name',
         'test_type',
         'unit_name',

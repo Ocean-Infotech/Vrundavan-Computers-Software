@@ -45,6 +45,7 @@ class AssignmentController extends Controller
                 (object)['data' => 'DT_RowIndex', 'name' => 'id', 'td_label' => 'No', 'orderable' => false, 'searchable' => false],
                 (object)['data' => 'course', 'name' => 'course_id', 'td_label' => 'Course'],
                 (object)['data' => 'batch', 'name' => 'batch_id', 'td_label' => 'Batch'],
+                (object)['data' => 'semester', 'name' => 'semester', 'td_label' => 'Semester'],
                 (object)['data' => 'subject', 'name' => 'subject', 'td_label' => 'Subject'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date', 'className' => 'text-center'],
                 (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status', 'className' => 'text-center'],

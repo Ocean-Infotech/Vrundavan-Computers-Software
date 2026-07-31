@@ -67,6 +67,23 @@
                         </div>
                     </div>
 
+                    <!-- Semester -->
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Semester <span class="text-danger">*</span></label>
+                            <select id="semester" name="semester"
+                                class="form-control search_by_semester select2 @error('semester') is-invalid @enderror"
+                                data-append="search_by_semester"
+                                data-selectedSemesterId="{{ isset($edit) && $edit?->semester ? $edit?->semester : old('semester') }}"
+                                required>
+                                <option value="">Select Semester</option>
+                            </select>
+                            @error('semester')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Subject -->
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
@@ -110,16 +127,18 @@
 @section('page_leavel_script')
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
+    @include('software.utils.getSamasterByCourseid')
     <script>
         $(document).ready(function() {
             // Function to load subjects from test table
             function loadSubjects() {
                 let course_id = $('#course').val();
                 let batch_id = $('#batch').val();
+                let semester = $('#semester').val();
                 let subject_select = $('#subject');
                 let selected_subject = subject_select.attr('data-selectedSubject');
 
-                if (course_id && batch_id) {
+                if (course_id && batch_id && semester) {
                     $.ajax({
                         type: 'POST',
                         url: "{{ route('get-test-subjects') }}",
@@ -128,7 +147,8 @@
                         },
                         data: {
                             course_id: course_id,
-                            batch_id: batch_id
+                            batch_id: batch_id,
+                            semester: semester
                         },
                         success: function(response) {
                             if (response.status) {
@@ -151,8 +171,8 @@
                 }
             }
 
-            // Listen to batch dropdown changes
-            $(document).on('change', '#batch', function() {
+            // Listen to batch and semester dropdown changes
+            $(document).on('change', '#batch, #semester', function() {
                 loadSubjects();
             });
 
@@ -161,7 +181,9 @@
             let checkBatchInterval = setInterval(function() {
                 let batchVal = $('#batch').val();
                 let selectedBatchId = $('#batch').attr('data-selectedBatchId');
-                if (batchVal || selectedBatchId) {
+                let semesterVal = $('#semester').val();
+                let selectedSemesterId = $('#semester').attr('data-selectedSemesterId');
+                if ((batchVal || selectedBatchId) && (semesterVal || selectedSemesterId)) {
                     loadSubjects();
                     clearInterval(checkBatchInterval);
                 }
