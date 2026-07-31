@@ -165,8 +165,8 @@ class CombinedReportController extends Controller
 
             $studentData[] = [
                 'gr_no' => $student->admission->gr_no ?? '-',
-                'student_name' => trim(($student->admission->last_name ?? '') . ' ' . 
-                                       ($student->admission->first_name ?? '') . ' ' . 
+                'student_name' => trim(($student->admission->first_name ?? '') . ' ' . 
+                                       ($student->admission->last_name ?? '') . ' ' . 
                                        ($student->admission->father_name ?? '')),
                 'weekly_marks' => $weeklyMarks,
                 'full_marks' => $fullMarks,
@@ -347,7 +347,7 @@ class CombinedReportController extends Controller
 
             $registerId = $student->register_id;
             $sheet->setCellValue('A' . $rowIdx, $student->admission->gr_no ?? '-');
-            $sheet->setCellValue('B' . $rowIdx, trim(($student->admission->last_name ?? '') . ' ' . ($student->admission->first_name ?? '') . ' ' . ($student->admission->father_name ?? '')));
+            $sheet->setCellValue('B' . $rowIdx, trim(($student->admission->first_name ?? '') . ' ' . ($student->admission->last_name ?? '') . ' ' . ($student->admission->father_name ?? '')));
 
             $studentMarks = \App\Models\StudentTestMark::where('register_id', $registerId)
                 ->whereIn('test_id', $allTests->pluck('id'))
