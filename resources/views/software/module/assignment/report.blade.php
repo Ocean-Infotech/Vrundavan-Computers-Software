@@ -88,8 +88,8 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $student->admission ? $student->admission->gr_no : '-' }}</td>
-                                        <td>{{ $student->admission ? trim(($student->admission->last_name ?? '') . ' ' . ($student->admission->first_name ?? '') . ' ' . ($student->admission->father_name ?? '')) : '-' }}</td>
-                                        <td class="d-none">{{ $student->id }}</td>
+                                        <td>{{ $student->admission ? trim(($student->admission->first_name ?? '') . ' ' . ($student->admission->last_name ?? '') . ' ' . ($student->admission->father_name ?? '')) : '-' }}</td>
+                                        <td class="d-none">{{ $student->register_id }}</td>
                                         <td class="text-center">
                                             <input class="form-check-input status-radio" type="radio" 
                                                 name="status_{{ $student->admission->gr_no ?? 0 }}" 
