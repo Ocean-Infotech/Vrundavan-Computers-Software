@@ -215,7 +215,7 @@ class AssignmentController extends Controller
                     'gr_no' => $validated['student_id'],
                 ],
                 [
-                    'status' => $validated['status'],
+                    'status' => (!empty($validated['status'])) ? $validated['status'] : 'pending',
                     'remarks' => $validated['remarks'] ?? '',
                 ]
             );
