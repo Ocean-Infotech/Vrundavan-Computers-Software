@@ -143,7 +143,8 @@ class CombinedReportController extends Controller
             // Get completed assignment counts
             $assignmentCounts = [];
             foreach ($assignmentsConfig as $subject => $totalCount) {
-                $completed = \App\Models\StudentAssignmentReport::where('gr_no', $registerId)
+                $grNo = $student->admission->gr_no ?? 0;
+                $completed = \App\Models\StudentAssignmentReport::where('gr_no', $grNo)
                     ->whereIn('assignment_id', $allAssignments->where('subject', $subject)->pluck('id'))
                     ->where('status', 'complete')
                     ->count();
@@ -366,7 +367,8 @@ class CombinedReportController extends Controller
 
             // Assignment completion
             foreach ($assignmentsConfig as $subject => $totalCount) {
-                $completed = \App\Models\StudentAssignmentReport::where('gr_no', $registerId)
+                $grNo = $student->admission->gr_no ?? 0;
+                $completed = \App\Models\StudentAssignmentReport::where('gr_no', $grNo)
                     ->whereIn('assignment_id', $allAssignments->where('subject', $subject)->pluck('id'))
                     ->where('status', 'complete')
                     ->count();

@@ -722,7 +722,7 @@ class ApiStudentController extends Controller
                 return $this->sendError("No assignments found.", [], [], 404);
             }
 
-            $reports = \App\Models\StudentAssignmentReport::where('gr_no', $student->id)
+            $reports = \App\Models\StudentAssignmentReport::where('gr_no', $student->gr_no)
                 ->whereIn('assignment_id', $assignments->pluck('id'))
                 ->get()
                 ->keyBy('assignment_id');
@@ -732,8 +732,8 @@ class ApiStudentController extends Controller
                 return [
                     'assignment_id' => $assignment->id,
                     'subject'       => $assignment->subject,
-                    'course'        => $assignment->course->course_name ?? null,
-                    'batch'         => $assignment->batch->batch_name ?? null,
+                    // 'course'        => $assignment->course->course_name ?? null,
+                    // 'batch'         => $assignment->batch->batch_name ?? null,
                     'date'          => $assignment->date ? \Carbon\Carbon::parse($assignment->date)->format('d-m-Y') : null,
                     'status'        => $report ? ucfirst($report->status) : 'Pending',
                     'remarks'       => $report ? $report->remarks : '',

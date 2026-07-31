@@ -92,28 +92,28 @@
                                         <td class="d-none">{{ $student->id }}</td>
                                         <td class="text-center">
                                             <input class="form-check-input status-radio" type="radio" 
-                                                name="status_{{ $student->register_id }}" 
-                                                data-student-id="{{ $student->register_id }}" 
+                                                name="status_{{ $student->admission->gr_no ?? 0 }}" 
+                                                data-student-id="{{ $student->admission->gr_no ?? 0 }}" 
                                                 data-assignment-id="{{ $assignment->id }}" 
                                                 value="complete" {{ $status == 'complete' ? 'checked' : '' }}>
                                         </td>
                                         <td class="text-center">
                                             <input class="form-check-input status-radio" type="radio" 
-                                                name="status_{{ $student->register_id }}" 
-                                                data-student-id="{{ $student->register_id }}" 
+                                                name="status_{{ $student->admission->gr_no ?? 0 }}" 
+                                                data-student-id="{{ $student->admission->gr_no ?? 0 }}" 
                                                 data-assignment-id="{{ $assignment->id }}" 
                                                 value="pending" {{ $status == 'pending' ? 'checked' : '' }}>
                                         </td>
                                         <td class="text-center">
                                             <input class="form-check-input status-radio" type="radio" 
-                                                name="status_{{ $student->register_id }}" 
-                                                data-student-id="{{ $student->register_id }}" 
+                                                name="status_{{ $student->admission->gr_no ?? 0 }}" 
+                                                data-student-id="{{ $student->admission->gr_no ?? 0 }}" 
                                                 data-assignment-id="{{ $assignment->id }}" 
                                                 value="incomplete" {{ $status == 'incomplete' ? 'checked' : '' }}>
                                         </td>
                                         <td>
                                             <input type="text" class="form-control remarks-input" 
-                                                data-student-id="{{ $student->register_id }}" 
+                                                data-student-id="{{ $student->admission->gr_no ?? 0 }}" 
                                                 data-assignment-id="{{ $assignment->id }}" 
                                                 value="{{ $remarks }}" placeholder="Enter remarks">
                                         </td>

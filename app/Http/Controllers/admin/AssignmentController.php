@@ -187,8 +187,9 @@ class AssignmentController extends Controller
                 ->get();
 
             foreach ($students as $student) {
+                $grNo = $student->admission->gr_no ?? 0;
                 $student->report = \App\Models\StudentAssignmentReport::where('assignment_id', $id)
-                    ->where('gr_no', $student->register_id)
+                    ->where('gr_no', $grNo)
                     ->first();
             }
 
