@@ -155,12 +155,25 @@ $(document).ready(function() {
     // Custom student search filter
     $('#search_id').on('keyup change input', function() {
         let val = $(this).val().trim();
+        table.columns().search('');
         if (val === '') {
-            table.search('').column(2).search('').draw();
+            table.search('').draw();
         } else if (/^\d+$/.test(val)) {
-            table.search('').column(2).search('^' + val + '$', true, false).draw();
+            // Check if this number exists as a Reg ID in Column 2
+            let regIdExists = false;
+            table.column(2).data().each(function(cellVal) {
+                if (String(cellVal).trim() === val) {
+                    regIdExists = true;
+                }
+            });
+            
+            if (regIdExists) {
+                table.column(2).search('^' + val + '$', true, false).draw();
+            } else {
+                table.search(val).draw();
+            }
         } else {
-            table.column(2).search('').search(val).draw();
+            table.search(val).draw();
         }
     });
 
