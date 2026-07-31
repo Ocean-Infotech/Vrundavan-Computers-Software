@@ -350,19 +350,19 @@
                 </li>
                 @enddirectCanAny
 
-                @directCan('assignment-list')
-                <li class="menu-item {{ $sidebar_active == 'assignment' ? 'active' : '' }}">
-                    <a href="{{ route('assignment.index') }}" class="menu-link">
-                        <div data-i18n="Assignment">Assignment</div>
-                    </a>
-                </li>
-                @enddirectCan
-
+                
                 {{-- Assessment --}}
                 @directCan('assessment-list')
                 <li class="menu-item {{ $sidebar_active == 'assessment' ? 'active' : '' }}">
                     <a href="{{ route('assessment.index') }}" class="menu-link">
                         <div data-i18n="Assessment">Assessment</div>
+                    </a>
+                </li>
+                @enddirectCan
+                @directCan('assignment-list')
+                <li class="menu-item {{ $sidebar_active == 'assignment' ? 'active' : '' }}">
+                    <a href="{{ route('assignment.index') }}" class="menu-link">
+                        <div data-i18n="Assignment">Assignment</div>
                     </a>
                 </li>
                 @enddirectCan
