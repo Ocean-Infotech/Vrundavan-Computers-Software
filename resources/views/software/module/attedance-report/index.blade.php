@@ -112,6 +112,13 @@
             $('.my_daterangepicker').daterangepicker({
                 autoUpdateInput: false,
                 alwaysShowCalendars: true,
+                ranges: {
+                   'Today': [moment(), moment()],
+                   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                   'Last 2 Months': [moment().subtract(2, 'month').startOf('month'), moment().endOf('month')]
+                },
                 locale: {
                     format: 'DD/MM/YYYY',
                     applyLabel: 'Apply',

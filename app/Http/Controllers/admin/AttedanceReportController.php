@@ -42,10 +42,12 @@ class AttedanceReportController extends Controller
             $endDate = $startDate->copy()->addDays(31);
         }
 
-        // Generate date list
+        // Generate date list (excluding Sundays)
         $dates = [];
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $dates[] = $date->format('Y-m-d');
+            if ($date->dayOfWeek !== Carbon::SUNDAY) {
+                $dates[] = $date->format('Y-m-d');
+            }
         }
 
         $totalDays = count($dates);
@@ -109,6 +111,7 @@ class AttedanceReportController extends Controller
                 'course_batch_class' => $cbc,
                 'present_days' => $present,
                 'absent_days' => $absent,
+                'total_days' => $totalDays,
             ];
         }
 
@@ -152,6 +155,9 @@ class AttedanceReportController extends Controller
                 ->addColumn('absent_badge', function ($row) {
                     return $row['absent_days'];
                 })
+                ->addColumn('total_days', function ($row) {
+                    return $row['total_days'];
+                })
                 ->rawColumns(['present_badge', 'absent_badge'])
                 ->with([
                     'present_count' => $presentCount,
@@ -165,8 +171,9 @@ class AttedanceReportController extends Controller
             (object) ['data' => 'biometric_id', 'name' => 'biometric_id', 'td_label' => 'Biometric ID'],
             (object) ['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name'],
             (object) ['data' => 'course_batch_class', 'name' => 'course_batch_class', 'td_label' => 'Course - Batch - Class', 'orderable' => false, 'searchable' => false],
-            (object) ['data' => 'present_badge', 'name' => 'present_days', 'td_label' => 'Present', 'orderable' => false, 'searchable' => false],
-            (object) ['data' => 'absent_badge', 'name' => 'absent_days', 'td_label' => 'Absent', 'orderable' => false, 'searchable' => false],
+            (object) ['data' => 'present_badge', 'name' => 'present_days', 'td_label' => 'Present', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            (object) ['data' => 'absent_badge', 'name' => 'absent_days', 'td_label' => 'Absent', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            (object) ['data' => 'total_days', 'name' => 'total_days', 'td_label' => 'Total Days', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
         ];
 
         return view($modules['folder_path'] . '.index', compact('columns'));
@@ -190,7 +197,7 @@ class AttedanceReportController extends Controller
         $sheet->setTitle('Attendance Report');
 
         // Heading
-        $sheet->mergeCells('A1:F1');
+        $sheet->mergeCells('A1:G1');
         $sheet->setCellValue('A1', 'Attendance Report');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -198,16 +205,16 @@ class AttedanceReportController extends Controller
         $headerRow = 3;
 
         // Table Headers
-        $headers = ['No', 'Biometric ID', 'Student Name', 'Course - Batch - Class', 'Present Days', 'Absent Days'];
+        $headers = ['No', 'Biometric ID', 'Student Name', 'Course - Batch - Class', 'Present Days', 'Absent Days', 'Total Days'];
         foreach ($headers as $colIndex => $header) {
             $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
             $sheet->setCellValue($colLetter . $headerRow, $header);
         }
 
-        $sheet->getStyle('A' . $headerRow . ':F' . $headerRow)->getFont()->setBold(true);
-        $sheet->getStyle('A' . $headerRow . ':F' . $headerRow)->getFill()
+        $sheet->getStyle('A' . $headerRow . ':G' . $headerRow)->getFont()->setBold(true);
+        $sheet->getStyle('A' . $headerRow . ':G' . $headerRow)->getFill()
             ->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFDCBEAF');
-        $sheet->getStyle('A' . $headerRow . ':F' . $headerRow)->getAlignment()
+        $sheet->getStyle('A' . $headerRow . ':G' . $headerRow)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $rowNumber = $headerRow + 1;
@@ -218,6 +225,7 @@ class AttedanceReportController extends Controller
             $sheet->setCellValue('D' . $rowNumber, $record['course_batch_class']);
             $sheet->setCellValue('E' . $rowNumber, $record['present_days']);
             $sheet->setCellValue('F' . $rowNumber, $record['absent_days']);
+            $sheet->setCellValue('G' . $rowNumber, $record['total_days']);
 
             $rowNumber++;
         }
@@ -230,13 +238,13 @@ class AttedanceReportController extends Controller
         $sheet->setCellValue('C' . $rowNumber, $totalPresent);
         $sheet->setCellValue('E' . $rowNumber, 'Total Absent:');
         $sheet->setCellValue('F' . $rowNumber, $totalAbsent);
-        $sheet->getStyle('B' . $rowNumber . ':F' . $rowNumber)->getFont()->setBold(true);
+        $sheet->getStyle('B' . $rowNumber . ':G' . $rowNumber)->getFont()->setBold(true);
 
         $lastRow = $rowNumber;
-        $sheet->getStyle('A' . $headerRow . ':F' . $lastRow)->getBorders()->getAllBorders()
+        $sheet->getStyle('A' . $headerRow . ':G' . $lastRow)->getBorders()->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle('A' . ($headerRow + 1) . ':B' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('E' . ($headerRow + 1) . ':F' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('E' . ($headerRow + 1) . ':G' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $sheet->getColumnDimension('A')->setWidth(8);
         $sheet->getColumnDimension('B')->setWidth(15);
@@ -244,6 +252,7 @@ class AttedanceReportController extends Controller
         $sheet->getColumnDimension('D')->setWidth(35);
         $sheet->getColumnDimension('E')->setWidth(15);
         $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(15);
 
         return response()->streamDownload(function () use ($spreadsheet) {
             $writer = new Xlsx($spreadsheet);

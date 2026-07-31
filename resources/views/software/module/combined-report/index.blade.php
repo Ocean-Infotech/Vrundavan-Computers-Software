@@ -53,7 +53,7 @@
                 <div class="card-body">
                     <div class="row align-items-end">
                         <!-- Course -->
-                        <div class="col-md-3 col-sm-12">
+                        <div class="col-md-4 col-sm-12">
                             <div class="form-group">
                                 <label class="form-label">Course</label>
                                 <select id="course" name="course_id"
@@ -65,7 +65,7 @@
                         </div>
 
                         <!-- Batch -->
-                        <div class="col-md-3 col-sm-12">
+                        <div class="col-md-4 col-sm-12">
                             <div class="form-group">
                                 <label class="form-label">Batch</label>
                                 <select id="batch" name="batch_id"
@@ -88,15 +88,8 @@
                             </div>
                         </div>
 
-                        <!-- Filter Button -->
-                        <div class="col-md-2 col-sm-6 mt-3 mt-md-0">
-                            <button type="button" id="filter_btn" class="btn btn-primary w-100">
-                                <i class="ti ti-filter me-1"></i> Filter
-                            </button>
-                        </div>
-
                         <!-- Export Button -->
-                        <div class="col-md-2 col-sm-6 mt-3 mt-md-0">
+                        <div class="col-md-2 col-sm-12 mt-3 mt-md-0">
                             <button type="button" id="export_btn" class="btn btn-success w-100">
                                 <i class="ti ti-file-spreadsheet me-1"></i> Export
                             </button>
@@ -168,6 +161,14 @@
                         let fullTests = response.full_tests;
                         let assignments = response.assignments;
                         let students = response.students;
+
+                        let weeklyCount = Object.keys(weeklyTests).length;
+                        let fullCount = Object.keys(fullTests).length;
+                        let assignmentCount = Object.keys(assignments).length;
+
+                        if (weeklyCount === 0 && fullCount === 0 && assignmentCount === 0) {
+                            toastr.warning("No tests or assignments found for this semester.", "No Data Found");
+                        }
 
                         // 1. Calculate Colspans for Row 1
                         let weeklyColspan = 0;
@@ -298,10 +299,7 @@
                 });
             }
 
-            // Load on button click
-            $('#filter_btn').on('click', function() {
-                loadCombinedReport();
-            });
+
 
             // Export Excel
             $('#export_btn').on('click', function() {

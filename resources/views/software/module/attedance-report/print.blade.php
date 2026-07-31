@@ -99,12 +99,12 @@
             <td class="report-logo-cell" rowspan="2">
                 <img src="{{ $logoPath }}" alt="College Logo">
             </td>
-            <td class="college-name-cell" colspan="6">
+            <td class="college-name-cell" colspan="7">
                 Shree Patel Vidhya Mandir Science College
             </td>
         </tr>
         <tr>
-            <td class="report-title-cell" colspan="6">
+            <td class="report-title-cell" colspan="7">
                 Attendance Report
             </td>
         </tr>
@@ -112,9 +112,10 @@
             <th width="5%" class="text-center">No</th>
             <th width="15%">Biometric ID</th>
             <th width="30%">Student Name</th>
-            <th width="30%">Course - Batch - Class</th>
+            <th width="25%">Course - Batch - Class</th>
             <th width="10%" class="text-center">Present</th>
             <th width="10%" class="text-center">Absent</th>
+            <th width="10%" class="text-center">Total Days</th>
         </tr>
         @forelse($records as $index => $record)
             <tr>
@@ -124,10 +125,11 @@
                 <td>{{ $record['course_batch_class'] }}</td>
                 <td class="text-center" style="font-weight: bold; color: green;">{{ $record['present_days'] }}</td>
                 <td class="text-center" style="font-weight: bold; color: red;">{{ $record['absent_days'] }}</td>
+                <td class="text-center" style="font-weight: bold; color: blue;">{{ $record['total_days'] }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="6" class="text-center">No attendance records found.</td>
+                <td colspan="7" class="text-center">No attendance records found.</td>
             </tr>
         @endforelse
     </table>
