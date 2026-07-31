@@ -45,6 +45,8 @@ use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
 use App\Http\Controllers\admin\OtherListController;
 use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\admin\AssignmentController;
+use App\Http\Controllers\admin\CombinedReportController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\StudentRequestController;
@@ -227,6 +229,12 @@ Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::clas
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
 Route::post('/attedance/fetch-logs', [AttedanceController::class, 'fetchLogs'])->name('attedance.fetch-logs');
+
+/** Attedance Report Modules */
+Route::get('attedance-report', [\App\Http\Controllers\admin\AttedanceReportController::class, 'index'])->name('attedance-report.index');
+Route::get('attedance-report/export-excel', [\App\Http\Controllers\admin\AttedanceReportController::class, 'exportExcel'])->name('attedance-report.export-excel');
+Route::get('attedance-report/print', [\App\Http\Controllers\admin\AttedanceReportController::class, 'printList'])->name('attedance-report.print');
+
 
 
 // Route::match(['get', 'post'], 'attedance-rollNoIn', [AttedanceController::class, 'rollNoIn'])->name('attedance.rollNoIn');
@@ -419,6 +427,17 @@ Route::delete(
 
 // Student request
 Route::resource('/student-requests', StudentRequestController::class);
+
+/** Assignment Routes */
+Route::get('assignment/report/{id}', [AssignmentController::class, 'report'])->name('assignment.report');
+Route::post('assignment/save-report-ajax', [AssignmentController::class, 'saveReportAjax'])->name('assignment.save-report-ajax');
+Route::resource('assignment', AssignmentController::class);
+Route::post('assignment/change-status', [AssignmentController::class, 'changeStatus'])->name('assignment.change-status');
+
+/** Combined Report Routes */
+Route::get('combined-report/export-excel', [CombinedReportController::class, 'exportExcel'])->name('combined-report.export-excel');
+Route::post('combined-report/get-data', [CombinedReportController::class, 'getDataAjax'])->name('combined-report.get-data');
+Route::resource('combined-report', CombinedReportController::class);
 
 
 

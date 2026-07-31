@@ -17,6 +17,7 @@ class Test extends Model
         'course_id',
         'batch_id',
         'subject_name',
+        'test_type',
         'unit_name',
         'mark',
         'date',

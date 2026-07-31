@@ -671,6 +671,82 @@ class ApiStudentController extends Controller
     }
 
     /**
+     * Get assignment details for student
+     *
+     * Returns assignments and status for logged-in student.
+     *
+     * @group Assignments
+     * @authenticated
+     */
+    public function assignment_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'subject' => 'nullable|string|max:255',
+                'search'  => 'nullable|string|max:255',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors(), [], 422);
+            }
+
+            $registration = \App\Models\CourceRegistration::where('register_id', $student->id)
+                ->where('status', 'active')
+                ->first();
+
+            if (!$registration) {
+                return $this->sendError("Student registration not found.", [], [], 404);
+            }
+
+            $query = \App\Models\Assignment::with(['course', 'batch'])
+                ->where('course_id', $registration->course_id)
+                ->where('batch_id', $registration->batch_id)
+                ->whereNull('deleted_at');
+
+            if ($request->filled('subject')) {
+                $query->where('subject', $request->subject);
+            }
+            if ($request->filled('search')) {
+                $query->where('subject', 'like', '%' . $request->search . '%');
+            }
+
+            $assignments = $query->orderBy('date', 'desc')->get();
+
+            if ($assignments->isEmpty()) {
+                return $this->sendError("No assignments found.", [], [], 404);
+            }
+
+            $reports = \App\Models\StudentAssignmentReport::where('gr_no', $student->id)
+                ->whereIn('assignment_id', $assignments->pluck('id'))
+                ->get()
+                ->keyBy('assignment_id');
+
+            $data = $assignments->map(function ($assignment) use ($reports) {
+                $report = $reports->get($assignment->id);
+                return [
+                    'assignment_id' => $assignment->id,
+                    'subject'       => $assignment->subject,
+                    'course'        => $assignment->course->course_name ?? null,
+                    'batch'         => $assignment->batch->batch_name ?? null,
+                    'date'          => $assignment->date ? \Carbon\Carbon::parse($assignment->date)->format('d-m-Y') : null,
+                    'status'        => $report ? ucfirst($report->status) : 'Pending',
+                    'remarks'       => $report ? $report->remarks : '',
+                ];
+            });
+
+            return $this->sendResponse($data, "Assignment details fetched successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
      * Get notifications list
      *
      * Returns all notifications visible to the logged‑in student (personal, course‑level and general).

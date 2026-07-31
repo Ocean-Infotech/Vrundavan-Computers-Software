@@ -24,6 +24,7 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-course', 'get_course')->name('get-course');
     Route::any('get-semester', 'get_semester')->name('get-semester');
     Route::any('get-batch', 'get_batch')->name('get-batch');
+    Route::any('get-test-subjects', 'get_test_subjects')->name('get-test-subjects');
     Route::any('get-admission', 'get_admission')->name('get-admission');
     Route::get('get-books', 'get_books')->name('get-books');
     Route::any('get-class', 'get_class')->name('get-class');
@@ -55,6 +56,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
         Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
         Route::post('test-details', [ApiStudentController::class, 'test_details']);
+        Route::post('assignment-details', [ApiStudentController::class, 'assignment_details'])->name('student.assignment-details');
         Route::post('notifications-list', [ApiStudentController::class, 'notifications_list']);
         Route::post('notifications-mark-read', [ApiStudentController::class, 'notifications_mark_read']);
         Route::match(['get', 'post'], 'faculty-complaint-reports', [ApiStudentController::class, 'faculty_complaint_reports']);

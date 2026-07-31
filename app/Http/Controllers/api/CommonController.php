@@ -447,6 +447,39 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    public function get_test_subjects(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'course_id' => 'required|integer',
+                'batch_id' => 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendError($validator->messages()->first(), $validator->messages(), [], 401);
+            }
+
+            $subjects = \App\Models\Test::where('course_id', $request->course_id)
+                ->where('batch_id', $request->batch_id)
+                ->where('status', 'active')
+                ->whereNotNull('subject_name')
+                ->where('subject_name', '!=', '')
+                ->distinct()
+                ->pluck('subject_name');
+
+            $data = $subjects->map(function ($subject) {
+                return [
+                    'id' => $subject,
+                    'name' => $subject,
+                ];
+            });
+
+            return $this->sendResponse($data, "Subject list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
 
     /**
      * @OA\Post(

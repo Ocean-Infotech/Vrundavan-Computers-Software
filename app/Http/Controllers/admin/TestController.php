@@ -26,6 +26,7 @@ class TestController extends Controller
         'course_name'  => 'Course Name',
         'batch_name'   => 'Batch Name',
         'subject_name' => 'Subject Name',
+        'test_type'    => 'Test Type',
         'unit_name'    => 'Unit Name',
         'mark'         => 'Mark',
         'date'         => 'Date',
@@ -36,6 +37,7 @@ class TestController extends Controller
         'course_name',
         'batch_name',
         'subject_name',
+        'test_type',
         'unit_name',
         'mark',
         'date',
@@ -77,6 +79,7 @@ class TestController extends Controller
                 (object)['data' => "course.course_name", 'name' => 'course_id', 'td_label' => 'Course Name'],
                 (object)['data' => "batch.batch_name", 'name' => 'batch_id', 'td_label' => 'Batch Name'],
                 (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject Name'],
+                (object)['data' => "test_type", 'name' => 'test_type', 'td_label' => 'Test Type'],
                 (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit Name'],
                 (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Mark', 'className' =>  'w-5 text-center'],
                 (object)['data' => "date", 'name' => 'date', 'td_label' => 'Date', 'className' =>  'w-5 text-center'],
@@ -310,6 +313,8 @@ class TestController extends Controller
                 return $test->batch?->batch_name ?? '-';
             case 'subject_name':
                 return $test->subject_name ?? '-';
+            case 'test_type':
+                return $test->test_type ?? '-';
             case 'unit_name':
                 return $test->unit_name ?? '-';
             case 'mark':

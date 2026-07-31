@@ -103,6 +103,23 @@
 
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
+                            <label class="form-label"> Test Type <span class="text-danger">*</span> </label>
+                            <select id="test_type" name="test_type" class="form-control select2 @error('test_type') is-invalid @enderror">
+                                <option value="">Select Test Type</option>
+                                <option value="Weekly" {{ old('test_type', $edit->test_type ?? '') == 'Weekly' ? 'selected' : '' }}>Weekly</option>
+                                <option value="Full" {{ old('test_type', $edit->test_type ?? '') == 'Full' ? 'selected' : '' }}>Full</option>
+                            </select>
+
+                            @error('test_type')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
                             <label class="form-label"> Unit Name <span class="text-danger">*</span> </label>
                             <input id="unit_name" type="text" class="form-control @error('unit_name') is-invalid @enderror"
                                 name="unit_name" value="{{ isset($edit?->unit_name) ? $edit?->unit_name : old('unit_name') }}"

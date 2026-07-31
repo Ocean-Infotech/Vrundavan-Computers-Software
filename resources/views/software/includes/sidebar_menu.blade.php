@@ -154,7 +154,7 @@
 
 
         @directCanAny(['attedance-list', 'attedance-create', 'attedance-edit', 'attedance-delete'])
-        <li class="menu-item {{ $sidebar_active == 'attedance' ? 'active open' : '' }}">
+        <li class="menu-item {{ $sidebar_active == 'attedance' || $sidebar_active == 'attedance-report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-calendar me-2"></i>
                 <div data-i18n="Attendance">Attendance</div>
@@ -175,6 +175,15 @@
                 <li class="menu-item {{ Route::current()->getName() == 'attedance.index' ? 'active' : '' }}">
                     <a href="{{ route('attedance.index') }}" class="menu-link">
                         <div data-i18n="View Attendance">View Attendance</div>
+                    </a>
+                </li>
+                @enddirectCan
+
+                {{-- Attendance Report --}}
+                @directCan('attedance-list')
+                <li class="menu-item {{ Route::current()->getName() == 'attedance-report.index' ? 'active' : '' }}">
+                    <a href="{{ route('attedance-report.index') }}" class="menu-link">
+                        <div data-i18n="Attendance Report">Attendance Report</div>
                     </a>
                 </li>
                 @enddirectCan
@@ -300,9 +309,11 @@
             'notification-setting-create',
             'notification-setting-edit',
             'notification-setting-delete',
-            'assessment-list'
+            'assessment-list',
+            'assignment-list',
+            'assignment-create'
         ])
-        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment', 'assignment', 'combined-report']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
                 <div data-i18n="Communication">Communication</div>
@@ -315,7 +326,7 @@
                     </a>
                 </li>
                 @enddirectCan
-
+ 
                 {{-- Marksheet Issue --}}
                 @directCan('marksheet-issue-list')
                 <li class="menu-item {{ Route::currentRouteName() == 'marksheet-issue.index' ? 'active' : '' }}">
@@ -324,7 +335,7 @@
                     </a>
                 </li>
                 @enddirectCan
-
+ 
                 {{-- Notification Settings --}}
                 @directCanAny([
                     'notification-setting-list',
@@ -339,6 +350,14 @@
                 </li>
                 @enddirectCanAny
 
+                @directCan('assignment-list')
+                <li class="menu-item {{ $sidebar_active == 'assignment' ? 'active' : '' }}">
+                    <a href="{{ route('assignment.index') }}" class="menu-link">
+                        <div data-i18n="Assignment">Assignment</div>
+                    </a>
+                </li>
+                @enddirectCan
+
                 {{-- Assessment --}}
                 @directCan('assessment-list')
                 <li class="menu-item {{ $sidebar_active == 'assessment' ? 'active' : '' }}">
@@ -347,6 +366,12 @@
                     </a>
                 </li>
                 @enddirectCan
+
+                <li class="menu-item {{ $sidebar_active == 'combined-report' ? 'active' : '' }}">
+                    <a href="{{ route('combined-report.index') }}" class="menu-link">
+                        <div data-i18n="Combined Report">Combined Report</div>
+                    </a>
+                </li>
             </ul>
         </li>
         @enddirectCanAny

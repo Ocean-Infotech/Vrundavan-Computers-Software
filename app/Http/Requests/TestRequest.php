@@ -39,6 +39,10 @@ class TestRequest extends FormRequest
             'subject_name' => [
                 'required'
             ],
+            'test_type' => [
+                'required',
+                Rule::in(['Weekly', 'Full'])
+            ],
             'unit_name' => [
                 'required'
             ],
@@ -65,6 +69,7 @@ class TestRequest extends FormRequest
             'course_id.required' => 'The Course Name is required.',
             'batch_id.required' => 'The Batch Name is required.',
             'subject_name.required' => 'The Subject Name is required.',
+            'test_type.required' => 'The Test Type is required.',
             'unit_name.required' => 'The Unit Name is required.',
             'mark.required' => 'The Mark is required.',
             'date.required' => 'The Date is required.',
