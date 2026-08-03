@@ -131,9 +131,35 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6 col-sm-12 mt-3">
+                        <div class="form-group">
+                            <label class="form-label">Notification Image</label>
+                            <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                            @if(isset($edit) && $edit->image)
+                                <div class="mt-2">
+                                    <img src="{{ asset($edit->image) }}" class="img-thumbnail" style="max-height: 100px;">
+                                </div>
+                            @endif
+                            @error('image')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
 
-
-
+                    <div class="col-md-6 col-sm-12 mt-3">
+                        <div class="form-group">
+                            <label class="form-label">Notification PDF Document</label>
+                            <input type="file" name="pdf" class="form-control @error('pdf') is-invalid @enderror" accept="application/pdf">
+                            @if(isset($edit) && $edit->pdf)
+                                <div class="mt-2">
+                                    <a href="{{ asset($edit->pdf) }}" target="_blank" class="btn btn-sm btn-info">View Uploaded PDF</a>
+                                </div>
+                            @endif
+                            @error('pdf')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
 
                 </div>
 

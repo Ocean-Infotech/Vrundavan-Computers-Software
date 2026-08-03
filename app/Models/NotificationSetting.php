@@ -20,6 +20,8 @@ class NotificationSetting extends Model
         'batch_id',
         'class_id',
         'student_id',
+        'image',
+        'pdf',
         'created_by',
         'updated_by',
     ];

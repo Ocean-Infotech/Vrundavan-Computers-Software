@@ -131,6 +131,33 @@ class NotificationSettingController extends Controller
             $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
             $validated['created_by'] = Auth::user()->id;
 
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $imageFile = $request->file('image');
+                $imageName = time() . '_img_' . $imageFile->getClientOriginalName();
+                $imagePath = public_path('uploads/notifications/images');
+                if (!file_exists($imagePath)) {
+                    mkdir($imagePath, 0777, true);
+                }
+                $imageFile->move($imagePath, $imageName);
+                $validated['image'] = 'uploads/notifications/images/' . $imageName;
+            }
+
+            // Handle PDF upload
+            if ($request->hasFile('pdf')) {
+                $pdfFile = $request->file('pdf');
+                $pdfName = time() . '_pdf_' . $pdfFile->getClientOriginalName();
+                $pdfPath = public_path('uploads/notifications/pdfs');
+                if (!file_exists($pdfPath)) {
+                    mkdir($pdfPath, 0777, true);
+                }
+                $pdfFile->move($pdfPath, $pdfName);
+                $validated['pdf'] = 'uploads/notifications/pdfs/' . $pdfName;
+            }
+
+            $imageUrl = isset($validated['image']) ? asset($validated['image']) : null;
+            $pdfUrl = isset($validated['pdf']) ? asset($validated['pdf']) : null;
+
             foreach ($studentIds as $sid) {
                 // Create a separate NotificationSetting record for each student
                 $notificationData = $validated;
@@ -168,13 +195,20 @@ class NotificationSettingController extends Controller
 
                     foreach ($tokens as $token) {
                         if (!empty($token)) {
+                            $fcmNotification = FCMNotification::create($validated['title'], $cleanBody);
+                            if ($imageUrl) {
+                                $fcmNotification = $fcmNotification->withImageUrl($imageUrl);
+                            }
+
                             $message = CloudMessage::withTarget('token', $token)
-                                ->withNotification(FCMNotification::create($validated['title'], $cleanBody))
+                                ->withNotification($fcmNotification)
                                 ->withAndroidConfig($androidConfig)
                                 ->withData([
                                     'student_id' => (string) $sid,
                                     'title'      => $validated['title'],
                                     'body'       => $cleanBody,
+                                    'image'      => $imageUrl ?? '',
+                                    'pdf'        => $pdfUrl ?? '',
                                 ]);
 
                             try {
@@ -283,6 +317,38 @@ class NotificationSettingController extends Controller
             $validated['student_id'] = implode(',', $studentIds);
             $validated['updated_by'] = Auth::user()->id;
 
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($notificationSetting->image && file_exists(public_path($notificationSetting->image))) {
+                    unlink(public_path($notificationSetting->image));
+                }
+                $imageFile = $request->file('image');
+                $imageName = time() . '_img_' . $imageFile->getClientOriginalName();
+                $imagePath = public_path('uploads/notifications/images');
+                if (!file_exists($imagePath)) {
+                    mkdir($imagePath, 0777, true);
+                }
+                $imageFile->move($imagePath, $imageName);
+                $validated['image'] = 'uploads/notifications/images/' . $imageName;
+            }
+
+            // Handle PDF upload
+            if ($request->hasFile('pdf')) {
+                // Delete old PDF if exists
+                if ($notificationSetting->pdf && file_exists(public_path($notificationSetting->pdf))) {
+                    unlink(public_path($notificationSetting->pdf));
+                }
+                $pdfFile = $request->file('pdf');
+                $pdfName = time() . '_pdf_' . $pdfFile->getClientOriginalName();
+                $pdfPath = public_path('uploads/notifications/pdfs');
+                if (!file_exists($pdfPath)) {
+                    mkdir($pdfPath, 0777, true);
+                }
+                $pdfFile->move($pdfPath, $pdfName);
+                $validated['pdf'] = 'uploads/notifications/pdfs/' . $pdfName;
+            }
+
             $notificationSetting->update($validated);
 
             foreach ($studentIds as $sid) {
@@ -300,6 +366,12 @@ class NotificationSettingController extends Controller
     {
         try {
             $notificationSetting = NotificationSetting::findOrFail($id);
+            if ($notificationSetting->image && file_exists(public_path($notificationSetting->image))) {
+                unlink(public_path($notificationSetting->image));
+            }
+            if ($notificationSetting->pdf && file_exists(public_path($notificationSetting->pdf))) {
+                unlink(public_path($notificationSetting->pdf));
+            }
             $notificationSetting->delete();
 
             // If AJAX request, return JSON success

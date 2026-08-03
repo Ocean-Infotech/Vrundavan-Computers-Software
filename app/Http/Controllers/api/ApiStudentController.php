@@ -804,6 +804,8 @@ class ApiStudentController extends Controller
                     'id'    => $row->id,
                     'title' => $row->title,
                     'body'  => $cleanBody,
+                    'image' => $row->image ? asset($row->image) : '',
+                    'pdf'   => $row->pdf ? asset($row->pdf) : '',
                     'is_read' => (bool) $row->is_read,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];

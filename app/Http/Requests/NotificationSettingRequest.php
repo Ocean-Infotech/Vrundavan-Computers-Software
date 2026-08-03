@@ -37,7 +37,9 @@ class NotificationSettingRequest extends FormRequest
             'batch_id' => 'nullable|integer',
             'class_id' => 'nullable|integer',
             'student_id' => 'required|array',
-            'student_id.*' => 'integer|exists:admission,id',
+            'student_id.*' => 'string', // Allow 'all' or integer IDs as string/int
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'pdf' => 'nullable|mimes:pdf|max:15360',
         ];
     }
 }
