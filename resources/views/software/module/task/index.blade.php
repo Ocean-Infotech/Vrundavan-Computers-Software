@@ -107,6 +107,9 @@
                                                 <option value="0">Pending</option>
                                                 <option value="1">In Progress</option>
                                                 <option value="2">Completed</option>
+                                                <option value="3">Done</option>
+                                                <option value="4">Repass</option>
+                                                <option value="5">Cancelled</option>
                                             </select>
                                         </td>
                                         <td>
@@ -221,7 +224,7 @@
 
             // Repass Button Handler in Modal
             $(document).on('click', '.btn-modal-repass', function() {
-                $('#modal-status-select').val('1').trigger('change');
+                $('#modal-status-select').val('4').trigger('change');
                 $('#taskReplyForm').submit();
             });
 

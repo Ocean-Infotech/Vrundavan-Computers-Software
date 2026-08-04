@@ -98,6 +98,15 @@ class TaskController extends Controller
                         } elseif ($row->status == 2) {
                             $statusText = 'Completed';
                             $class = 'success';
+                        } elseif ($row->status == 3) {
+                            $statusText = 'Done';
+                            $class = 'info';
+                        } elseif ($row->status == 4) {
+                            $statusText = 'Repass';
+                            $class = 'secondary';
+                        } elseif ($row->status == 5) {
+                            $statusText = 'Cancelled';
+                            $class = 'dark';
                         }
 
                         if ($isFaculty) {
@@ -112,6 +121,9 @@ class TaskController extends Controller
                                 <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="0">Pending</a></li>
                                 <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="1">In Progress</a></li>
                                 <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="2">Completed</a></li>
+                                <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="3">Done</a></li>
+                                <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="4">Repass</a></li>
+                                <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="5">Cancelled</a></li>
                             </ul>
                         </div>';
                     })
@@ -149,7 +161,7 @@ class TaskController extends Controller
                                         data-remarks="' . e($row->remarks) . '" 
                                         data-response="' . e($row->response) . '" 
                                         data-status="' . $row->status . '">Done</button>' .
-                                   '<button type="button" class="btn btn-sm btn-warning change-status mx-1" data-id="' . $row->id . '" data-status="1">Cancel</button>';
+                                   '<button type="button" class="btn btn-sm btn-warning change-status mx-1" data-id="' . $row->id . '" data-status="5">Cancel</button>';
                         }
                         $btn = '';
                         if ($modules['permission_edit']) {
@@ -196,7 +208,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'due_date' => 'nullable|date_format:Y-m-d\TH:i',
             'assigned_to' => 'nullable|exists:users,id',
-            'status' => 'required|in:0,1,2',
+            'status' => 'required|in:0,1,2,3,4,5',
             'remarks' => 'nullable|string',
         ]);
 
@@ -238,7 +250,7 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'due_date' => 'nullable|date_format:Y-m-d\TH:i',
             'assigned_to' => 'nullable|exists:users,id',
-            'status' => 'required|in:0,1,2',
+            'status' => 'required|in:0,1,2,3,4,5',
             'remarks' => 'nullable|string',
         ]);
 
@@ -294,6 +306,9 @@ class TaskController extends Controller
             }
             if ($request->has('response')) {
                 $task->response = $request->response;
+            }
+            if (Helper::getLoginUserRole() === 'Facility') {
+                $task->status = 3; // Done
             }
             $task->updated_by = Auth::id();
             $task->save();
