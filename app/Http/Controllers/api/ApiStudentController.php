@@ -12,6 +12,7 @@ use App\Models\Master\MasterCourse;
 use App\Models\NotificationSetting;
 use App\Models\StudentTestMark;
 use App\Models\Timetable;
+use App\Models\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -109,6 +110,60 @@ class ApiStudentController extends Controller
 
                 return $this->sendResponse($data, 'Academic details fetched successfully.');
             }
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get timetable details of logged-in student
+     *
+     * Returns timetable attachment for authenticated student.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Timetable details fetched successfully.",
+     *   "data": {
+     *     "attachment": "https://example.com/storage/timetable.pdf"
+     *   }
+     * }
+     */
+    public function timetable_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $courseRegistered = CourceRegistration::where('register_id', $student->id)
+                ->with(['batch', 'course', 'class'])
+                ->first();
+
+            if (!$courseRegistered) {
+                return $this->sendError('Your Academic Detail not found.', [], [], 422);
+            }
+
+            $timetable = Timetable::where('course_id', $courseRegistered->course_id)
+                ->where('batch_id', $courseRegistered->batch_id)
+                ->where('class_id', $courseRegistered->class_id)
+                ->first();
+
+            if (!$timetable || !$timetable->attachment) {
+                return $this->sendError('No record found.', [], [], 404);
+            }
+
+            $data = [
+                // 'course'     => $courseRegistered->course?->course_name ?? '',
+                // 'batch'      => $courseRegistered->batch?->batch_name ?? '',
+                // 'class'      => $courseRegistered->class?->class ?? '',
+                'attachment' => asset($timetable->attachment),
+            ];
+
+            return $this->sendResponse($data, 'Timetable details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
@@ -665,6 +720,62 @@ class ApiStudentController extends Controller
             });
 
             return $this->sendResponse($data, "Test details fetched successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get Test Schedule
+     *
+     * Returns scheduled tests for the logged-in student based on their registered course and batch.
+     *
+     * @authenticated
+     */
+    public function test_schedule(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorized.", [], [], 401);
+            }
+
+            $courseRegistered = CourceRegistration::where('register_id', $student->id)
+                ->with(['batch', 'course'])
+                ->first();
+
+            if (!$courseRegistered) {
+                return $this->sendError('Your Academic Detail not found.', [], [], 422);
+            }
+
+            $tests = Test::where('course_id', $courseRegistered->course_id)
+                ->where('batch_id', $courseRegistered->batch_id)
+                ->where('status', 'active')
+                ->where('date', '>=', \Carbon\Carbon::today()->format('Y-m-d'))
+                ->with(['course', 'batch'])
+                ->orderBy('date', 'asc')
+                ->get();
+
+            if ($tests->isEmpty()) {
+                return $this->sendError('No record found.', [], [], 404);
+            }
+
+            $data = $tests->map(function ($test) {
+                return [
+                    'id'           => $test->id,
+                    'course'       => $test->course->course_name ?? '',
+                    'batch'        => $test->batch->batch_name ?? '',
+                    'semester'     => $test->semester ?? '',
+                    'subject_name' => $test->subject_name ?? '',
+                    'test_type'    => $test->test_type ?? '',
+                    'unit_name'    => $test->unit_name ?? '',
+                    'total_mark'   => $test->mark ?? '',
+                    'date'         => $test->date ? \Carbon\Carbon::parse($test->date)->format('d-m-Y') : '',
+                ];
+            });
+
+            return $this->sendResponse($data, 'Test schedule fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

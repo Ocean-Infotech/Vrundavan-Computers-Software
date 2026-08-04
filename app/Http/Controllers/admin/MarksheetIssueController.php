@@ -238,9 +238,9 @@ class MarksheetIssueController extends Controller
         try {
             $record = StudentMarksheetIssue::findOrFail($id);
             $record->delete();
-            return response()->json(['status' => true, 'message' => $modules['title'] . ' deleted successfully']);
+            return response()->json(['success' => true, 'message' => $modules['title'] . ' deleted successfully.']);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

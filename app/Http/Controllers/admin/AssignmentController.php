@@ -88,7 +88,7 @@ class AssignmentController extends Controller
                         $btn = '';
                         $btn .= '<a href="' . route('assignment.report', [$row->id]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Assignment Report"><i class="fa-solid fa-file-circle-check"></i></a>';
                         $btn .= '<a href="' . route($modules['route'] . '.edit', [$row->id]) . '" class="btn btn-light btn-icon mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>';
-                        $btn .= '<button type="button" class="btn btn-danger btn-icon delete-record mx-1" data-id="' . $row->id . '" title="Delete"><i class="fa-solid fa-trash"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-danger btn-icon deletebutton mx-1" data-did="' . route($modules['route'] . '.destroy', [$row->id]) . '" title="Delete"><i class="fa-solid fa-trash"></i></button>';
                         return $btn;
                     })
                     ->rawColumns(['status', 'action'])

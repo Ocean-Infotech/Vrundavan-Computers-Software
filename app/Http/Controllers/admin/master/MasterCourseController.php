@@ -468,6 +468,39 @@ class MasterCourseController extends Controller
         }
     }
 
+    public function permanentDelete($id)
+    {
+        $modules = $this->modules;
+        try {
+            $course = MasterCourse::withTrashed()->findOrFail($id);
+
+            $isUsed =
+                $course->batches()->exists() ||
+                FeesCollection::where('course_id', $course->id)->exists() ||
+                CourceRegistration::where('course_id', $course->id)->exists() ||
+                Timetable::where('course_id', $course->id)->exists();
+
+            if ($isUsed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This course cannot be permanently deleted because it is already assigned in others data.'
+                ], 400);
+            }
+
+            $course->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Course permanently deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function exportExcel(Request $request)
     {
         $this->authorizeCourseList();

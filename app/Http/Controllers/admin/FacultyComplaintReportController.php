@@ -99,12 +99,33 @@ class FacultyComplaintReportController extends Controller
                     })
                     ->addColumn('action', function ($row) use ($modules, $editPermission, $deletePermission) {
                         $btn = '<div class="d-flex gap-2 justify-content-center">';
-                        if ($editPermission) {
-                            $btn .= '<div class="edit"><a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-info btn-icon mr-2"><i class="bx bx-edit-alt"></i></a></div>';
+                        
+                        if (!$row?->deleted_at) {
+                            if ($editPermission) {
+                                $btn .= '<div class="edit"><a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-info btn-icon"><i class="bx bx-edit-alt"></i></a></div>';
+                            }
+                            if ($deletePermission) {
+                                $btn .= '<div class="remove"><a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton"><i class="bx bx-trash"></i></a></div>';
+                            }
+                            // 🔹 Permanent Delete Button
+                            $btn .= '<a href="javascript:void(0)"
+                                        data-id="' . $row->id . '"
+                                        data-did="' . route($modules["route"] . ".permanent-delete", [$row["id"]]) . '"
+                                        class="btn btn-dark btn-icon permanentDeleteButton"
+                                        title="Permanent Delete">
+                                        <i class="fa-solid fa-trash-arrow-up"></i>
+                                    </a>';
+                        } else {
+                            $btn .= '<a href="javascript:void(0)"
+                                        data-restore="' . route($modules["route"] . ".restore", ['id' => $row["id"]]) . '"
+                                        class="btn btn-light record-restore"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        data-bs-original-title="Restore Data">
+                                        <i class="ti ti-history"></i> Restore
+                                    </a>';
                         }
-                        if ($deletePermission) {
-                            $btn .= '<div class="remove"><a href="javascript:void(0)" data-id="' . $row->id . '" data-did="' . route($modules["route"] . ".destroy", [$row["id"]]) . '" class="btn btn-danger btn-icon deletebutton"><i class="bx bx-trash"></i></a></div>';
-                        }
+                        
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -254,15 +275,59 @@ class FacultyComplaintReportController extends Controller
             $report = FacultyComplaintReport::findOrFail($id);
             if ($report) {
                 if ($report->delete()) {
-                    return response()->json(true);
+                    return response()->json([
+                        'success' => true,
+                        'message' => $modules['title'] . ' deleted successfully.'
+                    ]);
                 }
             }
-            return response()->json(false);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete ' . $modules['title']
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
+    public function restore($id)
+    {
+        try {
+            $report = FacultyComplaintReport::withTrashed()->findOrFail($id);
+            $report->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Faculty Complaint Report restored successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function permanentDelete($id)
+    {
+        try {
+            $report = FacultyComplaintReport::withTrashed()->findOrFail($id);
+            $report->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Faculty Complaint Report permanently deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
     public function exportExcel(Request $request)
     {
         $this->authorizeFacultyComplaintReportList();

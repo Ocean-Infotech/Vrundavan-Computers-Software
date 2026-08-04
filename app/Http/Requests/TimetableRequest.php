@@ -43,21 +43,9 @@ class TimeTableRequest extends FormRequest
              'attachment' => [
                 'nullable',
                 // 'file',
-                'mimes:pdf,jpg,jpeg,png',
-                'max:5120'
+                'mimes:pdf,doc,docx,txt,text,jpg,jpeg,png,webp',
+                'max:10240'
             ],
-            // 'semester' => [
-            //     'required',
-            //     'string',
-            //     Rule::unique((new TimeTable())->getTable())
-            //         ->where(function ($query) {
-            //             return $query->where('course_id', $this->course_id)
-            //                 ->where('batch_id', $this->batch_id)
-            //                 ->where('class_id', $this->class_id);
-            //         })
-            //         ->ignore($id)
-            // ],
-
         ];
     }
 }

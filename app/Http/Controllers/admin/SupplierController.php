@@ -199,12 +199,21 @@ class SupplierController extends Controller
                 $supplier->deleted_by = Auth::id();
                 $supplier->save();
                 if ($supplier->delete()) {
-                    return response()->json(true);
+                    return response()->json([
+                        'success' => true,
+                        'message' => $modules['title'] . ' deleted successfully.'
+                    ]);
                 }
             }
-            return response()->json(false);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete ' . $modules['title']
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 

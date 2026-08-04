@@ -93,17 +93,7 @@
                         </div>
                     </div>
 
-                    {{-- <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Semester <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('semester') is-invalid @enderror"
-                                name="semester" value="{{ isset($edit?->semester) ? $edit->semester : old('semester') }}"
-                                placeholder="Enter semester">
-                            @error('semester')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div> --}}
+
 
 
 
@@ -111,7 +101,7 @@
                         <div class="form-group">
                             <label class="form-label">Attachment</label>
                             <input type="file" class="form-control @error('attachment') is-invalid @enderror"
-                                name="attachment" accept=".pdf,.doc,.docx,.jpg,.png,.jpeg">
+                                name="attachment" accept=".pdf,.doc,.docx,.txt,.text,.jpg,.png,.jpeg,.webp">
                             @if (isset($edit?->attachment) && $edit->attachment)
                                 <p class="mt-2">
                                     <a href="{{ asset($edit->attachment) }}" target="_blank">
