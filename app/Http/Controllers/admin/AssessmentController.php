@@ -250,15 +250,15 @@ class AssessmentController extends Controller
 
         $canDelete = Helper::directCan($modules['permission_prefix'] . '-delete');
         if (!$canDelete) {
-            return response()->json(['status' => false, 'message' => 'User does not have the right permissions.']);
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
         }
 
         try {
             $record = Assessment::findOrFail($id);
             $record->delete();
-            return response()->json(['status' => true, 'message' => $modules['title'] . ' deleted successfully']);
+            return response()->json(['success' => true, 'message' => $modules['title'] . ' deleted successfully.']);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

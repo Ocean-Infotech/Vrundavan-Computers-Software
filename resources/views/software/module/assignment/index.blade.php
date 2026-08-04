@@ -95,30 +95,21 @@
                     success: function(response) {
                         if (response.success) {
                             dtable.ajax.reload(null, false);
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(response.message);
+                            }
                         } else {
-                            alert(response.message);
-                        }
-                    }
-                });
-            });
-
-            // Delete Record Handler
-            $(document).on('click', '.delete-record', function() {
-                var id = $(this).data('id');
-                if (confirm('Are you sure you want to delete this assignment?')) {
-                    $.ajax({
-                        url: "{{ route('assignment.index') }}/" + id,
-                        type: "DELETE",
-                        success: function(response) {
-                            if (response.success) {
-                                dtable.ajax.reload(null, false);
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error(response.message);
                             } else {
                                 alert(response.message);
                             }
                         }
-                    });
-                }
+                    }
+                });
             });
         });
     </script>
+
+    @include('software.includes.script-delete-record')
 @endsection

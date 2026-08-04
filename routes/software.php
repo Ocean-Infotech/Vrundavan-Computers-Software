@@ -46,6 +46,7 @@ use App\Http\Controllers\admin\OtherListSelectionController;
 use App\Http\Controllers\admin\OtherListController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\admin\AssignmentController;
+use App\Http\Controllers\admin\TaskController;
 use App\Http\Controllers\admin\CombinedReportController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
@@ -317,6 +318,8 @@ Route::post('issue-certificate/history', [IssueCertificateController::class, 'st
 Route::get('faculty-complaint-report/export-excel', [FacultyComplaintReportController::class, 'exportExcel'])->name('faculty-complaint-report.export-excel');
 Route::get('faculty-complaint-report/print', [FacultyComplaintReportController::class, 'printView'])->name('faculty-complaint-report.print');
 Route::resource('faculty-complaint-report', FacultyComplaintReportController::class);
+Route::match(['get', 'post'], 'faculty-complaint-report/restore/{id}', [FacultyComplaintReportController::class, 'restore'])->name('faculty-complaint-report.restore');
+Route::delete('faculty-complaint-report/permanent-delete/{id}', [FacultyComplaintReportController::class, 'permanentDelete'])->name('faculty-complaint-report.permanent-delete');
 Route::get('supplier/export-excel', [SupplierController::class, 'exportExcel'])->name('supplier.export-excel');
 Route::get('supplier/print', [SupplierController::class, 'printView'])->name('supplier.print');
 Route::resource('supplier', SupplierController::class);
@@ -423,6 +426,11 @@ Route::delete(
     [TimetableController::class, 'permanentDelete']
 )->name('timetable.permanent-delete');
 
+Route::get(
+    'timetable/students/{id}',
+    [TimetableController::class, 'getStudents']
+)->name('timetable.students');
+
 
 
 // Student request
@@ -433,6 +441,11 @@ Route::get('assignment/report/{id}', [AssignmentController::class, 'report'])->n
 Route::post('assignment/save-report-ajax', [AssignmentController::class, 'saveReportAjax'])->name('assignment.save-report-ajax');
 Route::resource('assignment', AssignmentController::class);
 Route::post('assignment/change-status', [AssignmentController::class, 'changeStatus'])->name('assignment.change-status');
+
+/** Task Routes */
+Route::resource('task', TaskController::class);
+Route::post('task/change-status', [TaskController::class, 'changeStatus'])->name('task.change-status');
+Route::post('task/save-reply', [TaskController::class, 'saveReply'])->name('task.save-reply');
 
 /** Combined Report Routes */
 Route::get('combined-report/export-excel', [CombinedReportController::class, 'exportExcel'])->name('combined-report.export-excel');

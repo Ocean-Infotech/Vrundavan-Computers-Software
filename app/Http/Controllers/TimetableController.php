@@ -53,7 +53,7 @@ class TimetableController extends Controller
             (object)['data' => "course_name", 'name' => 'course_id', 'td_label' => 'Course'],
             (object)['data' => "batch_name", 'name' => 'batch_id', 'td_label' => 'Batch'],
             (object)['data' => "class", 'name' => 'class', 'td_label' => 'Class'],
-            // (object)['data' => "semester", 'name' => 'semester', 'td_label' => 'Semester'],
+            (object)['data' => "student_count", 'name' => 'student_count', 'td_label' => 'Students', 'orderable' => false, 'searchable' => false],
             (object)['data' => "attachment", 'name' => 'attachment', 'td_label' => 'Attachment'],
             (object)[
                 'data' => "action",
@@ -72,20 +72,30 @@ class TimetableController extends Controller
             if ($request->ajax()) {
                 $data = Timetable::with(['course', 'batch', 'class']);
 
-
                 return Datatables::of($data)
-                    // ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
+                        if ($request->filled('course_id')) {
+                            $query->where('course_id', $request->course_id);
+                        }
+                        if ($request->filled('batch_id')) {
+                            $query->where('batch_id', $request->batch_id);
+                        }
+                        if ($request->filled('class_id')) {
+                            $query->where('class_id', $request->class_id);
+                        }
                         if ($request->has('search') && $request->search['value'] != '') {
                             $search = $request->search['value'];
-                            $query->whereHas('course', function ($q) use ($search) {
-                                $q->where('course_name', 'like', "%$search%");
-                            })
-                                ->orWhereHas('batch', function ($q) use ($search) {
-                                    $q->where('batch_name', 'like', "%$search%");
+                            $query->where(function ($q) use ($search) {
+                                $q->whereHas('course', function ($q2) use ($search) {
+                                    $q2->where('course_name', 'like', "%$search%");
                                 })
-                                ->orWhere('class_id', 'like', "%$search%")
-                                ->orWhere('semester', 'like', "%$search%");
+                                ->orWhereHas('batch', function ($q2) use ($search) {
+                                    $q2->where('batch_name', 'like', "%$search%");
+                                })
+                                ->orWhereHas('class', function ($q2) use ($search) {
+                                    $q2->where('class', 'like', "%$search%");
+                                });
+                            });
                         }
                     })
                     ->addColumn('course_name', function ($row) {
@@ -96,6 +106,16 @@ class TimetableController extends Controller
                     })
                     ->addColumn('batch_name', function ($row) {
                         return $row->batch ? $row->batch->batch_name : '-';
+                    })
+                    ->addColumn('student_count', function ($row) {
+                        $count = \App\Models\CourceRegistration::where('course_id', $row->course_id)
+                            ->where('batch_id', $row->batch_id)
+                            ->where('class_id', $row->class_id)
+                            ->where('status', 'active')
+                            ->count();
+                        return '<button type="button" class="btn btn-sm btn-outline-primary view-students-btn" data-id="' . $row->id . '">
+                                    <i class="fa-solid fa-users me-1"></i> ' . $count . ' Students
+                                </button>';
                     })
                     ->editColumn('attachment', function ($row) {
                         if (!$row->attachment) return '-';
@@ -118,14 +138,47 @@ class TimetableController extends Controller
                  </a>';
                         return $btn ?: '-';
                     })
-                    ->rawColumns(['action', 'attachment'])
+                    ->rawColumns(['action', 'attachment', 'student_count'])
                     ->make(true);
             }
 
-            // return Timetable::with(['course', 'batch', 'class'])->get();
             return view($modules['folder_path'] . '.index');
         } catch (\Exception $e) {
             return Redirect::route('dashboard')->withErrors($e->getMessage());
+        }
+    }
+
+    public function getStudents($id)
+    {
+        try {
+            $timetable = Timetable::findOrFail($id);
+
+            $registrations = \App\Models\CourceRegistration::with('admission')
+                ->where('course_id', $timetable->course_id)
+                ->where('batch_id', $timetable->batch_id)
+                ->where('class_id', $timetable->class_id)
+                ->where('status', 'active')
+                ->get();
+
+            $students = $registrations->map(function ($reg) {
+                $adm = $reg->admission;
+                $name = $adm ? trim($adm->first_name . ' ' . $adm->father_name . ' ' . $adm->last_name) : '-';
+                return [
+                    'gr_no'  => $adm->gr_no ?? '-',
+                    'name'   => $name,
+                    'mobile' => $adm->student_mobile_no ?? ($adm->parent_mobile_no ?? '-'),
+                ];
+            });
+
+            return response()->json([
+                'status'   => true,
+                'students' => $students,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 

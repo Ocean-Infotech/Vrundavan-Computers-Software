@@ -50,12 +50,14 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('profile-detail', [AuthenticatedController::class, 'student_profile_detail']);
         Route::post('update-profile', [AuthenticatedController::class, 'student_update_profile']);
         Route::post('academic-details', [ApiStudentController::class, 'academic_details']);
+        Route::match(['get', 'post'], 'timetable-details', [ApiStudentController::class, 'timetable_details']);
         Route::post('fee-details', [ApiStudentController::class, 'fee_details']);
         Route::post('document-details', [ApiStudentController::class, 'document_details']);
         Route::post('contact-details', [ApiStudentController::class, 'contact_details']);
         Route::post('attendance-details', [ApiStudentController::class, 'attendance_details']);
         Route::post('test-subjects', [ApiStudentController::class, 'test_subjects']);
         Route::post('test-details', [ApiStudentController::class, 'test_details']);
+        Route::match(['get', 'post'], 'test-schedule', [ApiStudentController::class, 'test_schedule']);
         Route::post('assignment-details', [ApiStudentController::class, 'assignment_details'])->name('student.assignment-details');
         Route::post('notifications-list', [ApiStudentController::class, 'notifications_list']);
         Route::post('notifications-mark-read', [ApiStudentController::class, 'notifications_mark_read']);

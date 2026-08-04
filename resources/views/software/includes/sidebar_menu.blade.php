@@ -65,6 +65,8 @@
         </li>
         @enddirectCanAny
 
+
+
         @directCan('panel-user-managment')
         <li
             class="menu-item {{ $sidebar_active == 'users' || $sidebar_active == 'roles' || $sidebar_active == 'permissions' ? 'active open' : '' }}">
@@ -311,9 +313,10 @@
             'notification-setting-delete',
             'assessment-list',
             'assignment-list',
-            'assignment-create'
+            'assignment-create',
+            'task-list'
         ])
-        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment', 'assignment', 'combined-report']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment', 'assignment', 'combined-report', 'task']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
                 <div data-i18n="Communication">Communication</div>
@@ -363,6 +366,13 @@
                 <li class="menu-item {{ $sidebar_active == 'assignment' ? 'active' : '' }}">
                     <a href="{{ route('assignment.index') }}" class="menu-link">
                         <div data-i18n="Assignment">Assignment</div>
+                    </a>
+                </li>
+                @enddirectCan
+                @directCan('task-list')
+                <li class="menu-item {{ $sidebar_active == 'task' ? 'active' : '' }}">
+                    <a href="{{ route('task.index') }}" class="menu-link">
+                        <div data-i18n="Task Management">Task Management</div>
                     </a>
                 </li>
                 @enddirectCan

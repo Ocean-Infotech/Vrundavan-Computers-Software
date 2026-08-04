@@ -173,6 +173,12 @@ class PermissionTableSeeder extends Seeder
                 'assignment-create',
                 'assignment-edit',
                 'assignment-delete',
+            ],
+            'task' => [
+                'task-list',
+                'task-create',
+                'task-edit',
+                'task-delete',
             ]
         ];
 

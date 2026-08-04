@@ -178,7 +178,7 @@
                 ],
                 language: {
                     searchPlaceholder: 'Search...',
-                    emptyTable: ""
+                    emptyTable: "Please select Course, Batch and Semester to filter students."
                 },
                 drawCallback: function() {
                     let api = this.api();
@@ -187,7 +187,6 @@
                     $('#selectAllStudents').prop('checked', false);
 
                     if (!hasRequiredFilters()) {
-                        $('#yajra-datatables tbody').empty();
                         return;
                     }
 
