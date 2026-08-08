@@ -74,7 +74,7 @@ class ApiStudentController extends Controller
             // dd($courseRegistered);
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
-            } elseif ($courseRegistered?->status != "active") {
+            } elseif (!in_array(strtolower($courseRegistered?->status), ['running', 'active'])) {
                 return $this->sendError('Academic detail not active.', [], [], 422);
             } else {
 
