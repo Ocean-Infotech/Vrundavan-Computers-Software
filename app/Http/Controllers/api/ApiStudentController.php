@@ -71,7 +71,7 @@ class ApiStudentController extends Controller
             $courseRegistered = CourceRegistration::where('register_id', $student->id)
                 ->with(['batch', 'course', 'class', 'shift', 'admission'])
                 ->first();
-// dd($courseRegistered);
+            // dd($courseRegistered);
             if (!$courseRegistered) {
                 return $this->sendError('Your Academic Detail not found.', [], [], 422);
             } elseif ($courseRegistered?->status != "active") {
@@ -433,18 +433,18 @@ class ApiStudentController extends Controller
             $year  = $request->year ?? date('Y');
 
             $attendanceRecords = Attedance::where(function ($query) use ($student) {
-                    $query->where('admission_id', $student->id);
-                    if (!empty($student->biometric_id)) {
-                        $query->orWhere('biometric_id', $student->biometric_id);
-                    }
-                })
+                $query->where('admission_id', $student->id);
+                if (!empty($student->biometric_id)) {
+                    $query->orWhere('biometric_id', $student->biometric_id);
+                }
+            })
                 ->whereMonth('date', $month)
                 ->whereYear('date', $year)
                 ->orderBy('date', 'desc')
                 ->orderBy('in_time')
                 ->orderBy('id')
                 ->get()
-                ->groupBy(fn ($att) => \Carbon\Carbon::parse($att->date)->format('Y-m-d'));
+                ->groupBy(fn($att) => \Carbon\Carbon::parse($att->date)->format('Y-m-d'));
 
             $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
 
@@ -629,7 +629,7 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-    
+
     /**
      * Get test details
      *
@@ -915,8 +915,7 @@ class ApiStudentController extends Controller
                     'id'    => $row->id,
                     'title' => $row->title,
                     'body'  => $cleanBody,
-                    'image' => $row->image ? asset($row->image) : '',
-                    'pdf'   => $row->pdf ? asset($row->pdf) : '',
+                    'file_path' => $row->image ?: ($row->pdf ?? ''),
                     'is_read' => (bool) $row->is_read,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
@@ -1172,7 +1171,7 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-             // Automatically mark all assessments for this student as read
+            // Automatically mark all assessments for this student as read
             \App\Models\Assessment::where('admission_id', $student->id)
                 ->where('is_read', false)
                 ->update(['is_read' => true]);
