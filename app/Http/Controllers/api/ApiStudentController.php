@@ -911,7 +911,7 @@ class ApiStudentController extends Controller
                     'id'    => $row->id,
                     'title' => $row->title,
                     'body'  => $cleanBody,
-                    'file_path' => $row->image ?: ($row->pdf ?? ''),
+                    'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
                     'is_read' => (bool) $row->is_read,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
