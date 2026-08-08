@@ -70,4 +70,73 @@
             </div>
         </div>
     </div>
+
+    @if ($isFaculty)
+        <!-- Tasks Section for Faculty -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-transparent border-bottom">
+                        <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
+                            <i class="bx bx-list-check me-2 text-primary fs-4"></i> My Assigned Tasks
+                        </h5>
+                    </div>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Task</th>
+                                    <th>Assign Date</th>
+                                    <th>Due Date</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Remarks</th>
+                                    <th>Response</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse($tasks as $task)
+                                    @php
+                                        $statusText = 'Pending';
+                                        $class = 'danger';
+                                        if ($task->status == 1) {
+                                            $statusText = 'In Progress';
+                                            $class = 'warning';
+                                        } elseif ($task->status == 2) {
+                                            $statusText = 'Completed';
+                                            $class = 'success';
+                                        } elseif ($task->status == 3) {
+                                            $statusText = 'Done';
+                                            $class = 'info';
+                                        } elseif ($task->status == 4) {
+                                            $statusText = 'Repass';
+                                            $class = 'secondary';
+                                        } elseif ($task->status == 5) {
+                                            $statusText = 'Cancelled';
+                                            $class = 'dark';
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td><strong>{{ $task->title }}</strong></td>
+                                        <td>{{ $task->date ? \Carbon\Carbon::parse($task->date)->format('d-m-Y h:i A') : '-' }}</td>
+                                        <td>{{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('d-m-Y h:i A') : '-' }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-{{ $class }}">{{ $statusText }}</span>
+                                        </td>
+                                        <td>{{ $task->remarks ?? '-' }}</td>
+                                        <td>{{ $task->response ?? '-' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">No tasks assigned to you.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

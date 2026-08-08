@@ -200,8 +200,16 @@ class AdmissionController extends Controller
                     ->addIndexColumn()
 
                     ->filter(function ($query) use ($request) {
-                        if ($request->has('search')) {
-                            $query->orWhere('first_name', 'like', "%" . $request->search . "%");
+                        $search = $request->input('search');
+                        $searchValue = is_array($search) ? ($search['value'] ?? '') : $search;
+
+                        if (!empty($searchValue)) {
+                            $query->where(function ($q) use ($searchValue) {
+                                $q->where('first_name', 'like', "%" . $searchValue . "%")
+                                  ->orWhere('last_name', 'like', "%" . $searchValue . "%")
+                                  ->orWhere('father_name', 'like', "%" . $searchValue . "%")
+                                  ->orWhere('id', 'like', "%" . $searchValue . "%");
+                            });
                         }
                     })
                     ->editColumn('admission_name', function ($row) {

@@ -33,6 +33,14 @@ class DashboardController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $isFaculty = \App\Helpers\Helper::getLoginUserRole() === 'Facility';
+        $tasks = [];
+        if ($isFaculty) {
+            $tasks = \App\Models\Task::where('assigned_to', Auth::id())
+                ->orderBy('id', 'desc')
+                ->get();
+        }
+
         $totalStudents = Admission::count();
         $totalCourses = \App\Models\Master\MasterCourse::count();
         $todayTestsCount = \App\Models\Test::whereDate('date', \Carbon\Carbon::today())->count();
@@ -44,6 +52,8 @@ class DashboardController extends Controller
             ->with(['course', 'batch', 'class'])
             ->get();
 
-        return view($modules['folder_path'] . '.dashboard', compact('totalStudents', 'totalCourses', 'todayTestsCount', 'timetablesCount', 'timetables'));
+        return view($modules['folder_path'] . '.dashboard', compact(
+            'totalStudents', 'totalCourses', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks'
+        ));
     }
 }
