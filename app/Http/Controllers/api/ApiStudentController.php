@@ -763,14 +763,10 @@ class ApiStudentController extends Controller
 
             $data = $tests->map(function ($test) {
                 return [
-                    'id'           => $test->id,
-                    'course'       => $test->course->course_name ?? '',
-                    'batch'        => $test->batch->batch_name ?? '',
-                    'semester'     => $test->semester ?? '',
                     'subject_name' => $test->subject_name ?? '',
                     'test_type'    => $test->test_type ?? '',
                     'unit_name'    => $test->unit_name ?? '',
-                    'total_mark'   => $test->mark ?? '',
+                    'mark'         => $test->mark ?? '',
                     'date'         => $test->date ? \Carbon\Carbon::parse($test->date)->format('d-m-Y') : '',
                 ];
             });
