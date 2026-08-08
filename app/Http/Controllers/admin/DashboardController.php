@@ -33,12 +33,17 @@ class DashboardController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        $admission = Admission::all()->map(function ($row) {
-            $folderName = $row->id . '-' . $row->first_name . '-' . $row->father_name . '-' . $row->last_name;
-            $row->folder_button = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-foldername="' . $folderName . '" data-folderurl="' . $row->gdrivefolderurl . '" class="btn btn-warning btn-sm open_google_drive_folder"><i class="bx bx-copy-alt"></i> Open Folder</a>';
-            return $row;
-        });
+        $totalStudents = Admission::count();
+        $totalCourses = \App\Models\Master\MasterCourse::count();
+        $todayTestsCount = \App\Models\Test::whereDate('date', \Carbon\Carbon::today())->count();
+        $timetablesCount = \App\Models\Timetable::whereNotNull('attachment')
+            ->where('attachment', '!=', '')
+            ->count();
+        $timetables = \App\Models\Timetable::whereNotNull('attachment')
+            ->where('attachment', '!=', '')
+            ->with(['course', 'batch', 'class'])
+            ->get();
 
-        return view($modules['folder_path'] . '.dashboard', compact('admission'));
+        return view($modules['folder_path'] . '.dashboard', compact('totalStudents', 'totalCourses', 'todayTestsCount', 'timetablesCount', 'timetables'));
     }
 }
