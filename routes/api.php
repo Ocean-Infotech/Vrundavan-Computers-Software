@@ -26,6 +26,7 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-batch', 'get_batch')->name('get-batch');
     Route::any('get-test-subjects', 'get_test_subjects')->name('get-test-subjects');
     Route::any('get-admission', 'get_admission')->name('get-admission');
+    Route::any('get-all-admission', 'get_all_admission')->name('get-all-admission');
     Route::get('get-books', 'get_books')->name('get-books');
     Route::any('get-class', 'get_class')->name('get-class');
     Route::any('get-shift', 'get_shift')->name('get-shift');

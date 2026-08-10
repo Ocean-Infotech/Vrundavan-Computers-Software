@@ -35,7 +35,7 @@
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
             'show_add_btn' => false,
-            'show_filter_btn' => false,
+            'show_filter_btn' => true,
             'show_export_btns' => true,
             'show_excal_btn' => true,
             'show_print_btn' => false,
@@ -45,6 +45,32 @@
 
 
     <div class="row my-3">
+        <div class="col-12 mb-4" id="filter_section" style="display: none;">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <!-- Filter Input -->
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Filter by Student</label>
+                            <input list="search" id="search_id" name="search"
+                                class="form-control search @error('search') is-invalid @enderror"
+                                value="{{ old('search') }}" placeholder="Search">
+                            <datalist id="search" class="search_by_admission" data-append="search_by_admission"
+                                data-selectedAdmissionId="{{ old('search') }}">
+                            </datalist>
+                        </div>
+
+                        <!-- Clear Filter Button -->
+                        <div class="col-md-2">
+                            <button type="button" title="Clear Filter" id="cilory_filter"
+                                class="btn btn-outline-danger mt-4">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
@@ -721,7 +747,7 @@
         var dtable = null;
         $(document).ready(function() {
             dtable = $('#yajra-datatables').DataTable({
-                searching: true,
+                searching: false,
                 processing: true,
                 serverSide: true,
                 order: [
@@ -735,7 +761,10 @@
                     },
                     type: "GET",
                     data: function(data) {
-                        data.search = $('input[type="search"]').val();
+                        data.search = {
+                            value: $('input[name="search"]').val(),
+                            regex: false
+                        };
                     },
                 },
                 columns: {!! json_encode($columns) !!},
@@ -747,8 +776,18 @@
             });
         });
 
-        // Redraw DataTable on search input keyup
-        $('input[name="search"]').keyup(function() {
+        // Redraw DataTable on search input keyup / input / change
+        $('input[name="search"]').on('input change keyup', function() {
+            dtable.draw();
+        });
+
+        // Toggle filter section on filter button click
+        $(document).on('click', '#show_filter', function() {
+            $('#filter_section').slideToggle();
+        });
+
+        $("#cilory_filter").click(function() {
+            $('.search').val('');
             dtable.draw();
         });
 
@@ -1211,4 +1250,35 @@
     @include('software.includes.script-delete-record')
     @include('software.includes.script-restore-record')
     {{-- @include('software.includes.script-update-status') --}}
+    <script>
+        $(document).ready(function() {
+            let instance = $('.search_by_admission');
+            let admission_id = instance.attr("data-selectedAdmissionId");
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('get-all-admission') }}",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.status) {
+                        let options = "<option value=''>Select Admission</option>";
+                        if (response.data && response.data.length > 0) {
+                            $.each(response.data, function(i, item) {
+                                if (admission_id == item.id) {
+                                    options += "<option value='" + item.id + "' selected>" + item.name + "</option>";
+                                } else {
+                                    options += "<option value='" + item.id + "'>" + item.name + "</option>";
+                                }
+                            });
+                        }
+                        if (instance.attr('data-append')) {
+                            $("." + instance.attr('data-append')).empty().append(options);
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection

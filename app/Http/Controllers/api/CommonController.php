@@ -284,6 +284,23 @@ class CommonController extends Controller
         return $this->sendError("Something want to wrong in register API");
     }
 
+    public function get_all_admission(Request $request)
+    {
+        try {
+            $data = Admission::withTrashed()->orderBy('id', 'ASC')->get();
+
+            $data = $data->map(function ($row) {
+                $temp['id'] = $row?->id . "";
+                $temp['name'] = $row?->first_name . " " . $row?->last_name . " " . $row?->father_name . "";
+                return $temp;
+            });
+            return $this->sendResponse($data, "All Admission list.");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+        return $this->sendError("Something went wrong in register API");
+    }
+
     /**
      * @OA\Post(
      *      path="/get-course",

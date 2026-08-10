@@ -205,10 +205,14 @@ class AdmissionController extends Controller
 
                         if (!empty($searchValue)) {
                             $query->where(function ($q) use ($searchValue) {
-                                $q->where('first_name', 'like', "%" . $searchValue . "%")
-                                  ->orWhere('last_name', 'like', "%" . $searchValue . "%")
-                                  ->orWhere('father_name', 'like', "%" . $searchValue . "%")
-                                  ->orWhere('id', 'like', "%" . $searchValue . "%");
+                                $q->where('id', 'like', "%" . $searchValue . "%");
+
+                                $words = array_filter(explode(' ', trim($searchValue)));
+                                foreach ($words as $word) {
+                                    $q->orWhere('first_name', 'like', "%" . $word . "%")
+                                      ->orWhere('last_name', 'like', "%" . $word . "%")
+                                      ->orWhere('father_name', 'like', "%" . $word . "%");
+                                }
                             });
                         }
                     })
