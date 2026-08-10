@@ -230,8 +230,11 @@
 
         var dtable = null;
         $(document).ready(function() {
-
-        var admission_id = $('#admission_id').val();
+            var admissionId = localStorage.getItem('admission_id');
+            if (admissionId) {
+                $('#admission_id').val(admissionId);
+                localStorage.removeItem('admission_id');
+            }
 
             dtable = $('#yajra-datatables').DataTable({
                 searching: true,
@@ -245,7 +248,7 @@
                     type: "GET",
                     data: function(data) {
                         data.search = $('input[type="search"]').val();
-                        data.admission_id = admission_id;
+                        data.admission_id = $('#admission_id').val();
                         data.filter_course = $('#classwise_course_id').val();
                         data.filter_batch = $('#classwise_batch_id').val();
                         data.filter_class = $('#classwise_class_id').val();
@@ -270,15 +273,6 @@
         $("#show_filter").click(function() {
             $('#filter_section').toggle();
         });
-            var admissionId = localStorage.getItem('admission_id');
-
-    if (admissionId) {
-        // Set hidden field value
-        $('#admission_id').val(admissionId);
-
-        // ✅ Clear it immediately so it won’t persist for next visit
-        localStorage.removeItem('admission_id');
-    }
     </script>
     <script type="text/javascript">
         $(function() {

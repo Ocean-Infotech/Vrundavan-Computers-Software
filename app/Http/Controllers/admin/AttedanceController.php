@@ -116,7 +116,17 @@ class AttedanceController extends Controller
                     ->orderByDesc('id');
 
                 if (!empty($admission_id)) {
-                    $data->where('admission_id', $admission_id);
+                    $admission = Admission::find($admission_id);
+                    if ($admission) {
+                        $data->where(function ($q) use ($admission_id, $admission) {
+                            $q->where('admission_id', $admission_id);
+                            if (!empty($admission->biometric_id)) {
+                                $q->orWhere('biometric_id', $admission->biometric_id);
+                            }
+                        });
+                    } else {
+                        $data->where('admission_id', $admission_id);
+                    }
                 }
 
                 if ($request->filled('filter_course') || $request->filled('filter_batch') || $request->filled('filter_class')) {
