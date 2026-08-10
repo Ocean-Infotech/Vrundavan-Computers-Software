@@ -36,7 +36,8 @@ class TimeTableRequest extends FormRequest
                  Rule::unique((new TimeTable())->getTable())
                     ->where(function ($query) {
                         return $query->where('course_id', $this->course_id)
-                            ->where('batch_id', $this->batch_id);
+                            ->where('batch_id', $this->batch_id)
+                            ->whereNull('deleted_at');
                     })
                     ->ignore($id)
             ],
