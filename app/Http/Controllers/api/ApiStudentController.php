@@ -156,14 +156,11 @@ class ApiStudentController extends Controller
                 return $this->sendError('No record found.', [], [], 404);
             }
 
-            $data = [
-                // 'course'     => $courseRegistered->course?->course_name ?? '',
-                // 'batch'      => $courseRegistered->batch?->batch_name ?? '',
-                // 'class'      => $courseRegistered->class?->class ?? '',
+            return response()->json([
+                'status' => 'true',
+                'message' => 'Timetable details fetched successfully.',
                 'attachment' => asset($timetable->attachment),
-            ];
-
-            return $this->sendResponse($data, 'Timetable details fetched successfully.');
+            ], 200);
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
