@@ -108,7 +108,9 @@ Route::resource('marksheet-issue', MarksheetIssueController::class);
 Route::get('assessment/export-excel', [AssessmentController::class, 'exportExcel'])->name('assessment.export-excel');
 Route::get('assessment/print', [AssessmentController::class, 'printView'])->name('assessment.print');
 Route::resource('assessment', AssessmentController::class);
+Route::post('admission/data', [AdmissionController::class, 'index'])->name('admission.data');
 Route::resource('admission', AdmissionController::class)->except(['show']);
+
 
 // Additional routes
 
