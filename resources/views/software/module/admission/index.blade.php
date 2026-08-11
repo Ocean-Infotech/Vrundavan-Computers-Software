@@ -776,9 +776,13 @@
             });
         });
 
-        // Redraw DataTable on search input keyup / input / change
+        // Redraw DataTable on search input keyup / input / change with debounce
+        let searchDebounceTimer;
         $('input[name="search"]').on('input change keyup', function() {
-            dtable.draw();
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function() {
+                dtable.draw();
+            }, 500);
         });
 
         // Toggle filter section on filter button click
