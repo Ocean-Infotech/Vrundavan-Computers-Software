@@ -754,14 +754,13 @@
                     [1, 'desc']
                 ],
                 ajax: {
-                    url: "{{ route('admission.data') }}",
+                    url: "{{ route($route . '.index') }}",
                     beforeSend: function(request) {
                         request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr(
                             'content'));
                     },
-                    type: "POST",
+                    type: "GET",
                     data: function(data) {
-                        data._token = '{{ csrf_token() }}';
                         data.search = {
                             value: $('input[name="search"]').val(),
                             regex: false
