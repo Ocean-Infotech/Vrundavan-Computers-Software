@@ -92,7 +92,7 @@ class ApiStudentController extends Controller
                     $shiftTiming = $from . ' To ' . $to;
                 }
 
-                $data = [
+                 $data = [
                     'university'        => $courseRegistered->university ?? '',
                     'department'        => $courseRegistered->department ?? '',
                     'course'            => $courseRegistered->course?->course_name ?? '',
@@ -105,6 +105,7 @@ class ApiStudentController extends Controller
                     'spid'              => $student->spid ?? '',
                     'udise'             => $student->udise,
                     'apaar_id_abc_id'   => $student->apaar_id_abc_id,
+                    'profile_pic'       => $student->profile_pic_url ?? '',
                     'attachment'        => $timetable?->attachment ? asset($timetable->attachment) : '',
                 ];
 
@@ -304,6 +305,7 @@ class ApiStudentController extends Controller
 
                     'Vrundavan Computer' => [
                         'College mobile'        => '96874 51774',
+                        'School Number'         => '96246 51774',
                         'Phone'         => '02871-231059',
                         'Distance' => '93752 21111',
                     ]
