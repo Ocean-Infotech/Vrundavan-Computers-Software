@@ -69,9 +69,9 @@ class TestreportController extends Controller
             // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
             (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
             (object)['data' => "unit_name", 'name' => 'test.unit_name', 'td_label' => 'Unit'],
-            (object)['data' => "cr_date", 'name' => 'cource_registration.date', 'td_label' => 'Date'],
+            (object)['data' => "cr_date", 'name' => 'test.date', 'td_label' => 'Date'],
             (object)['data' => "mark", 'name' => 'test.mark', 'td_label' => 'Total Mark'],
-            (object)['data' => "input", 'name' => 'test.marks', 'td_label' => 'Marks'],
+            (object)['data' => "input", 'name' => 'student_test_marks.marks', 'td_label' => 'Marks'],
         ];
         View::share("columns", $columns);
 
@@ -144,7 +144,8 @@ class TestreportController extends Controller
                     $query->where(function ($q) use ($searchValue) {
                         $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
                           ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
-                          ->orWhere('test.marks', 'like', "%{$searchValue}%");
+                          ->orWhere('test.mark', 'like', "%{$searchValue}%")
+                          ->orWhere('student_test_marks.marks', 'like', "%{$searchValue}%");
                     });
                 }
             })
@@ -207,7 +208,7 @@ class TestreportController extends Controller
             return response()->json(['message' => 'Test not found'], 404);
         }
 
-        if ($request->marks > $test->marks) {
+        if ($request->marks > $test->mark) {
             return response()->json(['message' => 'Marks cannot exceed maximum allowed'], 422);
         }
 
@@ -375,7 +376,7 @@ class TestreportController extends Controller
             ->select(
                 'test.*',
                 'cource_registration.fee',
-                'cource_registration.date as cr_date',
+                'test.date as cr_date',
                 'cource_registration.register_id',
                 'cource_registration.id as admission_id',
                 DB::raw("CONCAT(admission.first_name, ' ', admission.last_name, ' ', admission.father_name) AS student_name"),
@@ -424,7 +425,8 @@ class TestreportController extends Controller
                 $query->where(function ($q) use ($searchValue) {
                     $q->where(DB::raw("CONCAT(admission.first_name, ' ', admission.last_name)"), 'like', "%{$searchValue}%")
                       ->orWhere('test.subject_name', 'like', "%{$searchValue}%")
-                      ->orWhere('test.marks', 'like', "%{$searchValue}%");
+                      ->orWhere('test.mark', 'like', "%{$searchValue}%")
+                      ->orWhere('student_test_marks.marks', 'like', "%{$searchValue}%");
                 });
             }
         }
