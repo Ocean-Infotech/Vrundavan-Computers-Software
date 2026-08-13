@@ -344,17 +344,27 @@
                 }, 500);
             }
 
-            // Student search functionality - trigger on input change
-            $("#search_id").on('input change', function() {
+            // Student search functionality - debounced on input to avoid flooding requests
+            let searchIdDebounceTimer;
+            $("#search_id").on('input', function() {
                 let selectedValue = $(this).val();
 
-                // Update admission_id when student is selected from datalist
+                // Update admission_id when student is selected
                 if (selectedValue) {
                     $('#admission_id').val(selectedValue);
                 } else {
                     $('#admission_id').val('');
                 }
 
+                clearTimeout(searchIdDebounceTimer);
+                searchIdDebounceTimer = setTimeout(function() {
+                    dtable.draw();
+                }, 500); // 500ms debounce
+            });
+
+            $("#search_id").on('change', function() {
+                // Trigger immediately on change (e.g. selection from datalist)
+                clearTimeout(searchIdDebounceTimer);
                 dtable.draw();
             });
 
@@ -370,8 +380,13 @@
                 dtable.draw();
             });
 
+            // Debounced general search
+            let generalSearchDebounceTimer;
             $(document).on('keyup', 'input[type="search"]', function() {
-                dtable.draw();
+                clearTimeout(generalSearchDebounceTimer);
+                generalSearchDebounceTimer = setTimeout(function() {
+                    dtable.draw();
+                }, 500);
             });
 
         });
