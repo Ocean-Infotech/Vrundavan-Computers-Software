@@ -257,7 +257,7 @@
                 order: [
                     [1, 'desc']
                 ],
-                searching: true,
+                searching: false,
                 ajax: {
                     url: "{{ route($route . '.index') }}",
                     type: "GET",
