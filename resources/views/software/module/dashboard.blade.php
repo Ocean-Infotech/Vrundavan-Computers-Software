@@ -37,13 +37,19 @@
         <!-- Card 3: Today's Tests -->
         <div class="col-md-3 col-sm-6 mb-4">
             <div class="card h-100 shadow-sm border-0">
-                <div class="card-body d-flex align-items-center">
-                    <div class="badge rounded bg-label-danger p-3 me-3" style="background-color: rgba(234, 84, 85, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <div class="card-body d-flex align-items-start">
+                    <div class="badge rounded bg-label-danger p-3 me-3" style="background-color: rgba(234, 84, 85, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="bx bx-calendar-event fs-3 text-danger" style="font-size: 2rem !important;"></i>
                     </div>
-                    <div>
-                        <span class="text-muted d-block small">Today's Tests</span>
-                        <h4 class="mb-0 fw-bold mt-1">{{ $todayTestsCount }}</h4>
+                    <div class="overflow-hidden">
+                        <span class="text-muted d-block small mb-1">Today's Tests</span>
+                        @forelse($todayTests as $test)
+                            <span class="d-block text-truncate fw-bold mb-1 small" style="font-size: 0.85rem;" title="{{ $test->course->course_name ?? '-' }} ({{ $test->subject_name ?? '-' }})">
+                                {{ $loop->iteration }} {{ $test->course->course_name ?? '-' }} ({{ $test->subject_name ?? '-' }})
+                            </span>
+                        @empty
+                            <span class="text-muted small">No tests today</span>
+                        @endforelse
                     </div>
                 </div>
             </div>
