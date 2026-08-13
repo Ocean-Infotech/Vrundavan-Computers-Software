@@ -67,11 +67,11 @@ class TestreportController extends Controller
             // (object)['data' => "student_name", 'name' => 'admission.first_name', 'td_label' => 'Student Name'],
             // (object)['data' => "batch_name", 'name' => 'master_batch.batch_name', 'td_label' => 'Batch'],
             // (object)['data' => "course_name", 'name' => 'master_course.course_name', 'td_label' => 'Course Name'],
-            (object)['data' => "subject_name", 'name' => 'test.subject_name', 'td_label' => 'Subject'],
-            (object)['data' => "unit_name", 'name' => 'test.unit_name', 'td_label' => 'Unit'],
-            (object)['data' => "cr_date", 'name' => 'test.date', 'td_label' => 'Date'],
-            (object)['data' => "mark", 'name' => 'test.mark', 'td_label' => 'Total Mark'],
-            (object)['data' => "input", 'name' => 'student_test_marks.marks', 'td_label' => 'Marks'],
+            (object)['data' => "subject_name", 'name' => 'subject_name', 'td_label' => 'Subject'],
+            (object)['data' => "unit_name", 'name' => 'unit_name', 'td_label' => 'Unit'],
+            (object)['data' => "cr_date", 'name' => 'cr_date', 'td_label' => 'Date'],
+            (object)['data' => "mark", 'name' => 'mark', 'td_label' => 'Total Mark'],
+            (object)['data' => "input", 'name' => 'student_mark', 'td_label' => 'Marks'],
         ];
         View::share("columns", $columns);
 
