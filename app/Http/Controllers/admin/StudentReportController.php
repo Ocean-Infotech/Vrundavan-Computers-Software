@@ -29,7 +29,7 @@ class StudentReportController extends Controller
             'title' => 'Student Report',
             'folder_path' => 'software.module.student_report',
             'route' => 'student_report',
-            'permission_prefix' => 'admission',
+            'permission_prefix' => 'student_report',
         ];
     }
 

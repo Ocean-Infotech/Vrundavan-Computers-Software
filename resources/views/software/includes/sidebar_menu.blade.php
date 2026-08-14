@@ -113,7 +113,7 @@
         @enddirectCanAny
 
 
-        @directCanAny(['admission-list', 'admission-create', 'admission-edit', 'admission-delete', 'admission-import'])
+        @directCanAny(['admission-list', 'admission-create', 'admission-edit', 'admission-delete', 'admission-import', 'student_report-list'])
         <li
             class="menu-item {{ $sidebar_active == 'admission' || $sidebar_active == 'cource-registration' || $sidebar_active == 'student_report' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -151,7 +151,7 @@
                 @enddirectCan
 
                 {{-- Student Report --}}
-                @directCan('admission-list')
+                @directCan('student_report-list')
                 <li class="menu-item {{ Route::current()->getName() == 'student_report.index' ? 'active' : '' }}">
                     <a href="{{ route('student_report.index') }}" class="menu-link">
                         <div data-i18n="Student Report">Student Report</div>
