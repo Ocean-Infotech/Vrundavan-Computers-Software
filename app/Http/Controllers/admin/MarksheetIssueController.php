@@ -128,7 +128,7 @@ class MarksheetIssueController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        $students = Admission::where('status', 'active')
+        $students = Admission::whereIn('status', ['active', 'created'])
             ->with('courses.course')
             ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
             ->orderBy('id', 'asc')
@@ -182,7 +182,7 @@ class MarksheetIssueController extends Controller
         try {
             $edit = StudentMarksheetIssue::findOrFail($id);
 
-            $students = Admission::where('status', 'active')
+            $students = Admission::whereIn('status', ['active', 'created'])
                 ->with('courses.course')
                 ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
                 ->orderBy('id', 'asc')

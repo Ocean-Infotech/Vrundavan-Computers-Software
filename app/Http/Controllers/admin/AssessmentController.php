@@ -138,7 +138,7 @@ class AssessmentController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
         }
 
-        $students = Admission::where('status', 'active')
+        $students = Admission::whereIn('status', ['active', 'created'])
             ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
             ->orderBy('id', 'asc')
             ->get();
@@ -195,7 +195,7 @@ class AssessmentController extends Controller
         try {
             $edit = Assessment::findOrFail($id);
 
-            $students = Admission::where('status', 'active')
+            $students = Admission::whereIn('status', ['active', 'created'])
                 ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
                 ->orderBy('id', 'asc')
                 ->get();

@@ -43,6 +43,7 @@ use App\Http\Controllers\admin\AssessmentController;
 use App\Http\Controllers\admin\TestreportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
+use App\Http\Controllers\admin\StudentReportController;
 use App\Http\Controllers\admin\OtherListController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\admin\AssignmentController;
@@ -473,3 +474,7 @@ Route::post('/device-shield/devices/{id}/force-rebind', [App\Http\Controllers\De
 Route::post('/device-shield/devices/{id}/update-name', [App\Http\Controllers\DeviceBindingController::class, 'updateDeviceName'])->name('device-shield.update-name');
 Route::get('/device-shield/logs', [App\Http\Controllers\DeviceBindingController::class, 'logs'])->name('device-shield.logs');
 Route::post('/device-shield/users/{id}/toggle-check', [App\Http\Controllers\DeviceBindingController::class, 'toggleDeviceCheck'])->name('device-shield.users.toggle-check');
+
+/** Student Report Routes */
+Route::get('student_report', [StudentReportController::class, 'index'])->name('student_report.index');
+Route::get('student_report/data', [StudentReportController::class, 'getReportData'])->name('student_report.data');

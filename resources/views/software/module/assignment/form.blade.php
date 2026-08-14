@@ -111,12 +111,12 @@
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-success mt-1">
+                <div class="row">
+                    <div class="col-md-12 text-center mt-3">
+                        <button type="submit" class="btn btn-success me-2">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
                         </button>
-                        <a href="{{ route($route . '.index') }}" class="btn btn-danger mt-1">Cancel</a>
+                        <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
                     </div>
                 </div>
             </form>

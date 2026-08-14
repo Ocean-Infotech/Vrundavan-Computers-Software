@@ -158,7 +158,7 @@ class FacultyComplaintReportController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
-        $students = Admission::where('status', 'active')
+        $students = Admission::whereIn('status', ['active', 'created'])
             ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
             ->orderBy('id', 'asc')
             ->get();
@@ -216,7 +216,7 @@ class FacultyComplaintReportController extends Controller
         try {
             $edit = FacultyComplaintReport::findOrFail($id);
 
-            $students = Admission::where('status', 'active')
+            $students = Admission::whereIn('status', ['active', 'created'])
                 ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
                 ->orderBy('id', 'asc')
                 ->get();

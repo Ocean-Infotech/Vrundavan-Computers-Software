@@ -37,7 +37,7 @@ class AssignmentController extends Controller
         $modules['permission_add'] = true;
         $modules['permission_edit'] = true;
         $modules['permission_delete'] = true;
-        
+
         View::share('modules', $modules);
 
         try {
@@ -73,7 +73,7 @@ class AssignmentController extends Controller
                         $checked = $row->status ? 'checked' : '';
                         $active = $row->status ? 'Active' : 'Inactive';
                         $class = $row->status ? 'success' : 'danger';
-                        
+
                         return '<div class="btn-group">
                             <button type="button" class="btn btn-sm btn-' . $class . ' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 ' . $active . '
@@ -180,11 +180,11 @@ class AssignmentController extends Controller
 
         try {
             $assignment = Assignment::with(['course', 'batch'])->findOrFail($id);
-            
+
             $students = \App\Models\CourceRegistration::with(['admission'])
                 ->where('course_id', $assignment->course_id)
                 ->where('batch_id', $assignment->batch_id)
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'Running'])
                 ->get();
 
             foreach ($students as $student) {

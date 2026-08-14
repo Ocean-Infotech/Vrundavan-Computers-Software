@@ -49,11 +49,11 @@ class CombinedReportController extends Controller
             ]);
         }
 
-        // 1. Get all active students
+        // 1. Get all active & Running students
         $students = CourceRegistration::with(['admission'])
             ->where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'Running'])
             ->get();
 
         // 2. Get all tests in this Course & Batch
