@@ -49,7 +49,7 @@
                                         @if (isset($edit) && $edit->admission_id == $student->id) selected
                                         @elseif(old('admission_id') == $student->id) selected @endif>
                                         {{ $student->id }} -
-                                        {{ trim(($student->last_name ?? '') . ' ' . ($student->first_name ?? '') . ' ' . ($student->father_name ?? '')) }}
+                                        {{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? '')) }}
                                     </option>
                                 @endforeach
                             </select>

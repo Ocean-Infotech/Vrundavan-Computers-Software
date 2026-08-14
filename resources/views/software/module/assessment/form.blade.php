@@ -128,8 +128,8 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-12 text-end">
-                        <button type="submit" class="btn btn-primary">{{ isset($edit) ? 'Update' : 'Save' }}</button>
+                    <div class="col-md-12 text-center mt-3">
+                        <button type="submit" class="btn btn-success me-2">{{ isset($edit) ? 'Update' : 'Submit' }}</button>
                         <a href="{{ route($route . '.index') }}" class="btn btn-danger">Cancel</a>
                     </div>
                 </div>
