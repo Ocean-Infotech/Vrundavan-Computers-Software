@@ -368,7 +368,17 @@
                 clearTimeout(searchDebounceTimer);
                 searchDebounceTimer = setTimeout(function() {
                     if (selectedVal) {
-                        fetchStudentReport(selectedVal);
+                        let optionExists = false;
+                        $('#search option').each(function() {
+                            if ($(this).val() == selectedVal) {
+                                optionExists = true;
+                                return false;
+                            }
+                        });
+
+                        if (optionExists) {
+                            fetchStudentReport(selectedVal);
+                        }
                     } else {
                         resetReport();
                     }
@@ -515,9 +525,24 @@
                             resetReport();
                         }
                     },
-                    error: function() {
+                    error: function(xhr, status, error) {
                         $('#loading-spinner').hide();
-                        toastr.error('An error occurred while compiling the report.');
+                        let errorMsg = 'An error occurred while compiling the report.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg += ' Details: ' + xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            // Extract title or body if it is HTML error page
+                            let tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = xhr.responseText;
+                            let title = tempDiv.querySelector('title');
+                            if (title && title.innerText) {
+                                errorMsg += ' Details: ' + title.innerText;
+                            } else {
+                                errorMsg += ' Details: ' + xhr.statusText;
+                            }
+                        }
+                        toastr.error(errorMsg);
+                        console.error('AJAX Error:', status, error, xhr.responseText);
                         resetReport();
                     }
                 });
