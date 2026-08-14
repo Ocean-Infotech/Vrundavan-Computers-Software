@@ -53,6 +53,8 @@ class CourceRegistrationRequest extends FormRequest
             'fee' => 'required|numeric|min:0',
             'date' => 'required|date',
             'note' => 'nullable|string',
+            'is_lateral_entry' => 'nullable|boolean',
+            'joining_semester' => 'required_if:is_lateral_entry,1|nullable|integer|min:1|max:6',
         ];
         return $rules;
     }

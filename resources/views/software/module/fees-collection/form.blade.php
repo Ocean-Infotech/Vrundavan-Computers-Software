@@ -368,17 +368,24 @@
                 let selectedSemester = parseInt($(this).val());
                 if (isNaN(selectedSemester)) return;
 
-                if (selectedSemester === 1) return; // always allow semester 1
+                // Find the minimum numeric semester option value in the dropdown
+                let options = $('#year_semester option').map(function() {
+                    let val = parseInt($(this).val());
+                    return isNaN(val) ? null : val;
+                }).get();
+                let minSemester = Math.min.apply(Math, options);
+
+                if (selectedSemester === minSemester) return; // always allow the first starting semester
 
                 // Find previous option
                 let previousSemester = selectedSemester - 1;
                 let previousOption = $('#year_semester option[value="' + previousSemester + '"]');
 
                 if (!previousOption.length || !previousOption.prop('disabled')) {
-                    $(this).val(''); // reset selection
+                    $(this).val('').trigger('change'); // reset selection
                     $('<div id="semErrorMsg" class="text-danger mt-1">You must complete payment for Semester ' +
                             previousSemester + ' before selecting Semester ' + selectedSemester + '.</div>')
-                        .insertAfter($(this));
+                        .insertAfter($(this).parent());
                 }
             });
 
@@ -554,20 +561,24 @@
 
                             $('#FeesCollectionDetails').show();
 
-                            let fullCourseFee = parseFloat(studentdetails.fee);
-                            let totalSemesters = studentdetails.course.semester;
+                             let fullCourseFee = parseFloat(studentdetails.fee);
+                             let totalSemesters = studentdetails.course.semester;
 
-                            // Fill semester dropdown
-                            let semester_rows = '<option value="">Select Semester</option>';
-                            for (let semester = 1; semester <= totalSemesters; semester++) {
-                                semester_rows += '<option value="' + semester + '"';
-                                if ($("#year_semester").attr("data-semester") == semester) {
-                                    semester_rows += " selected ";
-                                }
-                                semester_rows += '>' + semester +
-                                    '</option>';
-                            }
-                            $('#year_semester').html(semester_rows);
+                             let startSem = (parseInt(studentdetails.is_lateral_entry) === 1 && studentdetails.joining_semester)
+                                  ? parseInt(studentdetails.joining_semester)
+                                  : 1;
+
+                             // Fill semester dropdown
+                             let semester_rows = '<option value="">Select Semester</option>';
+                             for (let semester = startSem; semester <= totalSemesters; semester++) {
+                                 semester_rows += '<option value="' + semester + '"';
+                                 if ($("#year_semester").attr("data-semester") == semester) {
+                                     semester_rows += " selected ";
+                                 }
+                                 semester_rows += '>' + semester +
+                                     '</option>';
+                             }
+                             $('#year_semester').html(semester_rows);
                             // Fill other student info
                             let studentname = studentdetails.admission.first_name + ' ' +
                                 studentdetails.admission.last_name + ' ' +
@@ -622,6 +633,7 @@
 
                             if (response.fees_collection && response.fees_collection.length > 0) {
                                 $.each(response.fees_collection, function(index, item) {
+                                    if (parseFloat(item.fees) <= 0) return; // Skip placeholder/unpaid records
                                     rows += '<tr>';
                                     rows += '<td>' + item.id + '</td>';
                                     rows += '<td>' + item.year_semester + '</td>';
@@ -685,8 +697,12 @@
                 $('#fees').val('').prop('disabled', false).removeClass('is-invalid');
                 $('#feeError, #feeErrorZero, #feeErrorCourse').remove();
 
-                // Calculate semester fee
-                var semesterFee = studentdetails.course.course_fees / studentdetails.course.semester;
+                 // Calculate semester fee
+                 let studentFee = (parseFloat(studentdetails.fee) > 0) ? parseFloat(studentdetails.fee) : (parseFloat(studentdetails.course.course_fees) || 0);
+                 let activeSemesters = (parseInt(studentdetails.is_lateral_entry) === 1 && studentdetails.joining_semester)
+                     ? (parseInt(studentdetails.course.semester) - parseInt(studentdetails.joining_semester) + 1)
+                     : parseInt(studentdetails.course.semester);
+                 var semesterFee = (activeSemesters > 0) ? (studentFee / activeSemesters) : 0;
 
                 // Get already paid semesters
                 var paidSemesters = window.paidSemesters || [];

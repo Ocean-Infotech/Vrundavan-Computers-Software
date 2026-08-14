@@ -28,6 +28,8 @@ class CourceRegistration extends Model
         'fee',
         'date',
         'note',
+        'is_lateral_entry',
+        'joining_semester',
         'status',
         'created_by',
         'updated_by',
@@ -94,5 +96,9 @@ class CourceRegistration extends Model
        public function university()
     {
         return $this->hasMany(MasterUniversity::class, 'university', 'id');
+    }
+    public static function calculateTotalFee($registration)
+    {
+        return (float) $registration->fee;
     }
 }

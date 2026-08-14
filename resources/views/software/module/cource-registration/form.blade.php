@@ -260,6 +260,38 @@
                                 @enderror
                             </div>
 
+                            @if (!isset($edit))
+                            {{-- Lateral Entry Checkbox --}}
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input type="hidden" name="is_lateral_entry" value="0">
+                                    <input class="form-check-input @error('is_lateral_entry') is-invalid @enderror" type="checkbox" name="is_lateral_entry" id="is_lateral_entry" value="1" {{ old('is_lateral_entry', $edit->is_lateral_entry ?? 0) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_lateral_entry">Lateral Admission</label>
+                                    @error('is_lateral_entry')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Starting Semester Dropdown --}}
+                            <div class="col-md-12 mb-3" id="joining_semester_container">
+                                <div class="form-group">
+                                    <label for="joining_semester">Starting Semester <span class="text-danger">*</span></label>
+                                    <select name="joining_semester" id="joining_semester" class="form-control select2 @error('joining_semester') is-invalid @enderror">
+                                        <option value="">Select Starting Semester</option>
+                                        @for ($sem = 1; $sem <= 6; $sem++)
+                                            <option value="{{ $sem }}" {{ old('joining_semester', $edit->joining_semester ?? '') == $sem ? 'selected' : '' }}>
+                                                Semester {{ $sem }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                    @error('joining_semester')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            @endif
+
                             {{-- Note --}}
                             <div class="col-md-12 mb-3">
                                 <div class="form-group">
@@ -503,6 +535,22 @@
                         $('#StudentName').text(studentname);
                     }
                 });
+            }
+
+            function toggleLateralFields() {
+                if ($('#is_lateral_entry').length > 0) {
+                    if ($('#is_lateral_entry').is(':checked')) {
+                        $('#joining_semester_container').show();
+                        $('#joining_semester').attr('required', true);
+                    } else {
+                        $('#joining_semester_container').hide();
+                        $('#joining_semester').removeAttr('required').val('').trigger('change');
+                    }
+                }
+            }
+            if ($('#is_lateral_entry').length > 0) {
+                $('#is_lateral_entry').change(toggleLateralFields);
+                toggleLateralFields();
             }
         });
     </script>

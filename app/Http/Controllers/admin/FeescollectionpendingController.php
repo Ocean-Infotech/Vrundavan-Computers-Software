@@ -175,7 +175,10 @@ class FeescollectionpendingController extends Controller
 
 
                     ->addColumn('total_fee', function ($row) use ($allRegistrations) {
-                        $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
+                        $registrations = $allRegistrations->get($row->register_id, collect());
+                        $total_fee = $registrations->sum(function($reg) {
+                            return CourceRegistration::calculateTotalFee($reg);
+                        });
                         return '₹' . number_format($total_fee, 2);
                     })
                     ->addColumn('paid_fee', function ($row) use ($feesCollection) {
@@ -185,7 +188,10 @@ class FeescollectionpendingController extends Controller
 
 
                     ->addColumn('pending_fee', function ($row) use ($allRegistrations, $feesCollection) {
-                        $total_fee = (float) $allRegistrations->get($row->register_id, collect())->sum('fee');
+                        $registrations = $allRegistrations->get($row->register_id, collect());
+                        $total_fee = $registrations->sum(function($reg) {
+                            return CourceRegistration::calculateTotalFee($reg);
+                        });
                         $paid_fee = (float) ($feesCollection[$row->register_id] ?? 0);
                         $pending = $total_fee - $paid_fee;
                         return '₹' . number_format($pending, 2);
@@ -437,8 +443,12 @@ class FeescollectionpendingController extends Controller
 
             // Semester wise fee calculation
             $totalSemesters = $courseReg->course->semester ?? 0;
-            $semesterFee    = ($courseReg->course->course_fees && $totalSemesters > 0)
-                ? $courseReg->course->course_fees / $totalSemesters
+            $studentFee = ($courseReg->fee && $courseReg->fee > 0) ? $courseReg->fee : ($courseReg->course->course_fees ?? 0);
+            $activeSemesters = ($courseReg->is_lateral_entry == 1 && $courseReg->joining_semester)
+                ? ($courseReg->course->semester - $courseReg->joining_semester + 1)
+                : $totalSemesters;
+            $semesterFee    = ($studentFee && $activeSemesters > 0)
+                ? $studentFee / $activeSemesters
                 : 0;
 
             // Get fees paid grouped by semester
@@ -454,16 +464,30 @@ class FeescollectionpendingController extends Controller
 
             // Prepare final data
             $feesData = [];
+            $joiningSem = ($courseReg->is_lateral_entry == 1 && $courseReg->joining_semester) ? $courseReg->joining_semester : 1;
             for ($sem = 1; $sem <= $totalSemesters; $sem++) {
-                $paid    = $semesterPaid[$sem] ?? 0;
-                $pending = max($semesterFee - $paid, 0);
+                if ($courseReg->is_lateral_entry == 1 && $sem < $joiningSem) {
+                    $feesData[] = [
+                        'semester'    => "Semester $sem",
+                        'sem_no'      => $sem,
+                        'total_fee'   => 0,
+                        'paid_fee'    => 0,
+                        'pending_fee' => 0,
+                        'is_skipped'  => true,
+                    ];
+                } else {
+                    $paid    = $semesterPaid[$sem] ?? 0;
+                    $pending = max($semesterFee - $paid, 0);
 
-                $feesData[] = [
-                    'semester'    => "Semester $sem",
-                    'total_fee'   => $semesterFee,
-                    'paid_fee'    => $paid,
-                    'pending_fee' => $pending,
-                ];
+                    $feesData[] = [
+                        'semester'    => "Semester $sem",
+                        'sem_no'      => $sem,
+                        'total_fee'   => $semesterFee,
+                        'paid_fee'    => $paid,
+                        'pending_fee' => $pending,
+                        'is_skipped'  => false,
+                    ];
+                }
             }
 
             return view('software.module.fees-collection-pending.view-fee', compact('student', 'courseReg', 'feesData'));
@@ -523,11 +547,15 @@ class FeescollectionpendingController extends Controller
                 $firstRecord = $feesCollection->firstWhere('student_id', $regId);
                 return $firstRecord->year_semester ?? '-';
             case 'total_fee':
-                return (float) $courses->sum('fee');
+                return (float) $courses->sum(function($reg) {
+                    return CourceRegistration::calculateTotalFee($reg);
+                });
             case 'paid_fee':
                 return (float) $feesCollection->where('student_id', $regId)->sum('total_paid');
             case 'pending_fee':
-                $total = (float) $courses->sum('fee');
+                $total = (float) $courses->sum(function($reg) {
+                    return CourceRegistration::calculateTotalFee($reg);
+                });
                 $paid = (float) $feesCollection->where('student_id', $regId)->sum('total_paid');
                 return $total - $paid;
             default:

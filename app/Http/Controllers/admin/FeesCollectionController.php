@@ -277,8 +277,12 @@ class FeesCollectionController extends Controller
             }
 
             // Calculate semester fee
-            $semester_fee = ($getcourceSingle->course->course_fees != '' && $getcourceSingle->course->semester != 0)
-                ? $getcourceSingle->course->course_fees / $getcourceSingle->course->semester
+            $student_fee = ($getcourceSingle->fee != '' && $getcourceSingle->fee > 0) ? $getcourceSingle->fee : ($getcourceSingle->course->course_fees ?? 0);
+            $active_semesters = ($getcourceSingle->is_lateral_entry == 1 && $getcourceSingle->joining_semester)
+                ? ($getcourceSingle->course->semester - $getcourceSingle->joining_semester + 1)
+                : $getcourceSingle->course->semester;
+            $semester_fee = ($student_fee != '' && $active_semesters != 0)
+                ? $student_fee / $active_semesters
                 : 0;
             //dd($semester_fee);
             // Get fees collection entries
@@ -311,7 +315,8 @@ class FeesCollectionController extends Controller
             // $semesterInWords = array_flip($semesterInWords);
 
             // Loop over all semesters to calculate pending fees
-            for ($sem = 1; $sem <= $total_semesters; $sem++) {
+            $startSem = $getcourceSingle->joining_semester ?? 1;
+            for ($sem = $startSem; $sem <= $total_semesters; $sem++) {
                 $sem_name = $semesterInWords[$sem];
                 $paid = $semesterPaid[$sem_name] ?? $semesterPaid[$sem] ?? 0;
                 $pending = $semester_fee - $paid;
