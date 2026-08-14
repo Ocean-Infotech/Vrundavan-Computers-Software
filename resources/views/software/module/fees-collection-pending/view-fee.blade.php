@@ -25,37 +25,42 @@
                 <tbody>
                     @foreach ($feesData as $row)
                         @php
-                            // Extract semester number (e.g., "Semester 1" -> 1)
-                            $semesterNumber = preg_replace('/\D/', '', $row['semester']);
+                            $semesterNumber = $row['sem_no'] ?? preg_replace('/\D/', '', $row['semester']);
                         @endphp
                         <tr>
                             <td>{{ $row['semester'] }}</td>
-                            <td>₹{{ number_format($row['total_fee'], 2) }}</td>
-                            <td>₹{{ number_format($row['paid_fee'], 2) }}</td>
-                            <td>₹{{ number_format($row['pending_fee'], 2) }}</td>
-                            <td>
-                                @if ($row['paid_fee'] > 0)
-                                    <a href="{{ url('software/students-fees-report/print') }}?student_id={{ $student->id }}&semester={{ $semesterNumber }}"
-                                        class="btn btn-sm btn-primary" target="_blank">
-                                        Print
-                                    </a>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td>
-                                @if ($row['pending_fee'] > 0)
-                                    <a href="{{ route('fees-collection.create_by_id', [
-                                        'student_id' => $student->id,
-                                        'semester' => $semesterNumber,
-                                    ]) }}"
-                                        class="btn btn-sm btn-success" target="_blank">
-                                        Create Fee
-                                    </a>
-                                @else
-                                    <span class="text-muted">Paid</span>
-                                @endif
-                            </td>
+                            @if (!empty($row['is_skipped']))
+                                <td colspan="5" class="text-center text-muted fw-bold">
+                                    Join as semester {{ $courseReg->joining_semester }}
+                                </td>
+                            @else
+                                <td>₹{{ number_format($row['total_fee'], 2) }}</td>
+                                <td>₹{{ number_format($row['paid_fee'], 2) }}</td>
+                                <td>₹{{ number_format($row['pending_fee'], 2) }}</td>
+                                <td>
+                                    @if ($row['paid_fee'] > 0)
+                                        <a href="{{ url('software/students-fees-report/print') }}?student_id={{ $student->id }}&semester={{ $semesterNumber }}"
+                                            class="btn btn-sm btn-primary" target="_blank">
+                                            Print
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($row['pending_fee'] > 0)
+                                        <a href="{{ route('fees-collection.create_by_id', [
+                                            'student_id' => $student->id,
+                                            'semester' => $semesterNumber,
+                                        ]) }}"
+                                            class="btn btn-sm btn-success" target="_blank">
+                                            Create Fee
+                                        </a>
+                                    @else
+                                        <span class="text-muted">Paid</span>
+                                    @endif
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

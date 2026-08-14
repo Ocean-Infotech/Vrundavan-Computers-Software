@@ -198,6 +198,9 @@ class FeesCollectionReportController extends Controller
         $reportStudents = [];
 
         foreach ($allStudents as $reg) {
+            if ($reg->is_lateral_entry == 1 && $semester_id < $reg->joining_semester) {
+                continue;
+            }
             $installments = $this->getSemesterInstallments(
                 $reg->register_id,
                 $semester_id,

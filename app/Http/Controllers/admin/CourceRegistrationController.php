@@ -11,6 +11,7 @@ use App\Models\CourceRegistration;
 use App\Http\Requests\CourceRegistrationRequest;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterDepartment;
+use App\Models\FeesCollection;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;

@@ -73,7 +73,7 @@
                     $reg_id = $item->register_id;
                     $courses = $allRegistrations[$reg_id] ?? collect();
                     $course_names = $courses->map(fn($c) => $c->course->course_name ?? '')->implode(', ');
-                    $total_fee = $courses->sum('fee');
+                    $total_fee = $courses->sum(fn($reg) => \App\Models\CourceRegistration::calculateTotalFee($reg));
                     $paid_fee = $feesCollection->where('student_id', $reg_id)->sum('total_paid');
                     $pending_fee = $total_fee - $paid_fee;
                     $firstCourse = $courses->first();

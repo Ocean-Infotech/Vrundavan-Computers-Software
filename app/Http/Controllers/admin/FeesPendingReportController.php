@@ -73,6 +73,9 @@ class FeesPendingReportController extends Controller
                     ->groupBy('student_id');
 
                 foreach ($allStudents as $reg) {
+                    if ($reg->is_lateral_entry == 1 && $semester_id < $reg->joining_semester) {
+                        continue;
+                    }
                     $studentFees = $feesCollections->get($reg->register_id, collect());
                     $paidForSemester = 0;
 
@@ -252,6 +255,9 @@ class FeesPendingReportController extends Controller
                 ->groupBy('student_id');
 
             foreach ($allStudents as $reg) {
+                if ($reg->is_lateral_entry == 1 && $semester_id < $reg->joining_semester) {
+                    continue;
+                }
                 $studentFees = $feesCollections->get($reg->register_id, collect());
                 $paidForSemester = 0;
 
@@ -274,7 +280,7 @@ class FeesPendingReportController extends Controller
                 ->groupBy('student_id');
 
             foreach ($allStudents as $reg) {
-                $courseFee = $reg->course->course_fees ?? 0;
+                $courseFee = CourceRegistration::calculateTotalFee($reg);
                 $studentFees = $feesCollections->get($reg->register_id, collect());
                 $paid = $studentFees->sum('fees');
                 $pending = max($courseFee - $paid, 0);
