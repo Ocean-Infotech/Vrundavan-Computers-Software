@@ -179,6 +179,9 @@ class PermissionTableSeeder extends Seeder
                 'task-create',
                 'task-edit',
                 'task-delete',
+            ],
+            'student_report' => [
+                'student_report-list',
             ]
         ];
 
