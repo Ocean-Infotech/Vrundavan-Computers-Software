@@ -175,7 +175,7 @@ if (document.getElementById('layout-menu')) {
         debug: false,
         fallbackLng: 'en',
         backend: {
-          loadPath: assetsPath + 'admin/theme_2/json/locales/{{lng}}.json'
+          loadPath: assetsPath + 'admin/assets/json/locales/{{lng}}.json'
         },
         returnObjects: true
       })

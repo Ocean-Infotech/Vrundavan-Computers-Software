@@ -478,3 +478,4 @@ Route::post('/device-shield/users/{id}/toggle-check', [App\Http\Controllers\Devi
 /** Student Report Routes */
 Route::get('student_report', [StudentReportController::class, 'index'])->name('student_report.index');
 Route::get('student_report/data', [StudentReportController::class, 'getReportData'])->name('student_report.data');
+Route::get('student_report/print', [StudentReportController::class, 'printReport'])->name('student_report.print');

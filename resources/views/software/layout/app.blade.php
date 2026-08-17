@@ -171,16 +171,18 @@
 
     <script>
         const firebaseConfig = @json($firebaseConfig);
-        firebase.initializeApp(firebaseConfig);
-        const messaging = firebase.messaging();
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .then(function(registration) {
-                    messaging.useServiceWorker(registration);
-                    console.log('Service Worker registered and messaging linked.');
-                }).catch(function(err) {
-                    console.error('Service Worker registration failed: ', err);
-                });
+        if (firebaseConfig && firebaseConfig.projectId) {
+            firebase.initializeApp(firebaseConfig);
+            const messaging = firebase.messaging();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(function(registration) {
+                        messaging.useServiceWorker(registration);
+                        console.log('Service Worker registered and messaging linked.');
+                    }).catch(function(err) {
+                        console.error('Service Worker registration failed: ', err);
+                    });
+            }
         }
     </script>
 

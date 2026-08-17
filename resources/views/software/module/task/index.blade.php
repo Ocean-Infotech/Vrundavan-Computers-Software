@@ -78,12 +78,12 @@
                                 <thead class="table-light text-uppercase small">
                                     <tr>
                                         @if(\App\Helpers\Helper::getLoginUserRole() !== 'Facility')
-                                        <th style="width: 20%;">Task Details</th>
-                                        <th style="width: 14%;">Assign Date</th>
-                                        <th style="width: 14%;">Deadline</th>
-                                        <th style="width: 11%;">Status</th>
+                                        <th style="width: 18%;">Task Details</th>
+                                        <th style="width: 12%;">Assign Date</th>
+                                        <th style="width: 12%;">Deadline</th>
+                                        <th style="width: 16%;">Status</th>
                                         <th style="width: 14%;">Response</th>
-                                        <th style="width: 14%;">Remarks</th>
+                                        <th style="width: 15%;">Remarks</th>
                                         <th style="width: 13%;">Action</th>
                                         @else
                                         <th style="width: 30%;">Task Details</th>
@@ -212,7 +212,8 @@
                 if ($('#modal-status-select').length) {
                     $('#modal-status-select').val(status).trigger('change');
                     $('#modal-status-select').select2({
-                        dropdownParent: $('#taskDetailsModal')
+                        dropdownParent: $('#taskDetailsModal'),
+                        width: '100%'
                     });
                 }
             });

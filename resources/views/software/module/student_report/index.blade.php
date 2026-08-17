@@ -78,13 +78,15 @@
             .report-section {
                 box-shadow: none !important;
                 border: 1px solid #000 !important;
-                padding: 1rem !important;
-                margin-bottom: 1.5rem !important;
+                padding: 0.75rem !important;
+                margin-bottom: 0.5rem !important;
                 page-break-inside: avoid;
             }
             .section-header {
                 border-bottom: 2px solid #000 !important;
                 color: #000 !important;
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 0.25rem !important;
             }
             .report-table th {
                 background-color: #f1f1f1 !important;
@@ -102,13 +104,16 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <h4 class="mb-0 fw-bold">{{ $page_title }}</h4>
+        <button id="print-report-btn" class="btn btn-primary">
+            <i class="bx bxs-file-pdf me-1"></i> Export PDF
+        </button>
     </div>
 
     <!-- Search Section -->
     <div class="card mb-4 no-print">
         <div class="card-body">
             <div class="row align-items-end">
-                <div class="col-md-6 col-sm-12">
+                <div class="col-md-3 col-sm-12">
                     <div class="form-group mb-0">
                         <label class="form-label fw-bold">Search Student</label>
                         <input list="search" id="search_id" name="search"
@@ -142,6 +147,7 @@
 
     <!-- Printable Report Container -->
     <div id="printable-area" style="display: none;">
+
         <div class="text-center mb-4">
             <h3 class="fw-bold mb-2" id="report-title">Student Report (Current Semester)</h3>
         </div>
@@ -361,6 +367,7 @@
         $(document).ready(function() {
             let searchDebounceTimer;
             let currentAttendanceData = [];
+            let selectedStudentId = null;
 
             $('#search_id').on('input change', function() {
                 let selectedVal = $(this).val();
@@ -399,6 +406,7 @@
                         
                         if (response.success) {
                             currentAttendanceData = response.attendance;
+                            selectedStudentId = studentId;
 
                             // Populate Personal Details
                             $('#student-photo').attr('src', response.personal.photo);
@@ -577,12 +585,23 @@
                 }
             });
 
-            function resetReport() {
-                $('#printable-area').hide();
-                $('#empty-state').show();
-                $('#report-title').text('Student Report (Current Semester)');
-                currentAttendanceData = [];
-            }
-        });
+             function resetReport() {
+                 $('#printable-area').hide();
+                 $('#empty-state').show();
+                 $('#report-title').text('Student Report (Current Semester)');
+                 currentAttendanceData = [];
+                 selectedStudentId = null;
+             }
+
+             // Print report click listener
+             $('#print-report-btn').on('click', function() {
+                 if (selectedStudentId) {
+                     let url = "{{ route('student_report.print') }}?student_id=" + selectedStudentId;
+                     window.open(url, '_blank');
+                 } else {
+                     toastr.warning('Please select a student.');
+                 }
+             });
+e        });
     </script>
 @endsection

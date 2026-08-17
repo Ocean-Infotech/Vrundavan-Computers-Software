@@ -54,10 +54,35 @@ class StudentReportController extends Controller
             return response()->json(['success' => false, 'message' => 'Student ID is required.'], 400);
         }
 
+        $data = $this->gatherReportData($studentId);
+        if (!$data) {
+            return response()->json(['success' => false, 'message' => 'Student not found.'], 404);
+        }
+
+        return response()->json(array_merge(['success' => true], $data));
+    }
+
+    public function printReport(Request $request)
+    {
+        $studentId = $request->student_id;
+        if (!$studentId) {
+            abort(400, 'Student ID is required.');
+        }
+
+        $data = $this->gatherReportData($studentId);
+        if (!$data) {
+            abort(404, 'Student not found.');
+        }
+
+        return view('software.module.student_report.print', $data);
+    }
+
+    private function gatherReportData($studentId)
+    {
         // 1. Personal Details
         $student = Admission::find($studentId);
         if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student not found.'], 404);
+            return null;
         }
 
         // 2. Academic Details
@@ -112,10 +137,15 @@ class StudentReportController extends Controller
         }
 
         // 4. Attendance Details (current Semester)
-        // Let's calculate attendance for each month in the current year up to now (or the last 6 months)
+        // Calculate attendance starting from June of the current academic cycle
         $attendanceList = [];
-        $monthsToCalculate = 6;
         $now = Carbon::now();
+        $startOfAttendance = Carbon::create($now->year, 6, 1)->startOfDay();
+        if ($now->month < 6) {
+            $startOfAttendance->subYear();
+        }
+        $monthsToCalculate = $startOfAttendance->diffInMonths($now->copy()->startOfMonth()) + 1;
+
         for ($i = 0; $i < $monthsToCalculate; $i++) {
             $dateCursor = $now->copy()->subMonths($i);
             $month = $dateCursor->month;
@@ -184,6 +214,7 @@ class StudentReportController extends Controller
             $tests = Test::where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
                 ->where('semester', $currentSemester)
+                ->where('date', '>=', $startOfAttendance->format('Y-m-d'))
                 ->whereNull('deleted_at')
                 ->orderBy('date', 'desc')
                 ->get();
@@ -224,6 +255,7 @@ class StudentReportController extends Controller
             $assignments = Assignment::where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
                 ->where('semester', $currentSemester)
+                ->whereNull('deleted_at')
                 ->orderBy('date', 'desc')
                 ->get();
 
@@ -256,9 +288,9 @@ class StudentReportController extends Controller
             ];
         }
 
-        return response()->json([
-            'success' => true,
+        return [
             'personal' => [
+                'id' => $student->id,
                 'gr_no' => $student->id,
                 'name' => $student->first_name . ' ' . $student->last_name . ' ' . $student->father_name,
                 'photo' => $student->profile_pic ? asset($student->profile_pic) : asset('admin/assets/images/user.png')
@@ -274,6 +306,6 @@ class StudentReportController extends Controller
             'complaints' => $complaintList,
             'assignments' => $assignmentList,
             'assessments' => $assessmentList
-        ]);
+        ];
     }
 }
