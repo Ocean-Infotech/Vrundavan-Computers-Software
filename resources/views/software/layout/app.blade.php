@@ -8,7 +8,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title> {{ env('APP_NAME') ?? 'Ocean Infotech' }}</title>
+    <title> {{ config('app.name') ?? 'Ocean Infotech' }}</title>
 
     <meta name="description" content="" />
 
