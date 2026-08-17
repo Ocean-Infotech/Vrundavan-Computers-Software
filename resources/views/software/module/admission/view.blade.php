@@ -294,9 +294,9 @@
             <span class="underline-input">{{ $admission->mother_name ?? '' }}</span>
         </div>
 
-        <div class="info-section">
+        <div class="info-section" style="align-items: flex-start;">
             <label>Permanent Address :</label>
-            <span class="underline-input">{{ $admission->permanent_address ?? '' }}</span>
+            <span class="underline-input" style="white-space: normal; flex-grow: 1; line-height: 1.4; min-height: 24px;">{{ $admission->permanent_address ?? '' }}</span>
         </div>
 
         <div class="info-section">

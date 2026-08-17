@@ -127,11 +127,11 @@
                                 @break
 
                                 @case('in_time')
-                                    {{ $attendance->in_time ? \Carbon\Carbon::parse($attendance->in_time)->format('h:i A') : '-' }}
+                                    {{ $attendance->first_punch ? \Carbon\Carbon::parse($attendance->first_punch)->format('h:i A') : '-' }}
                                 @break
 
                                 @case('out_time')
-                                    {{ $attendance->out_time ? \Carbon\Carbon::parse($attendance->out_time)->format('h:i A') : '-' }}
+                                    {{ ($attendance->last_punch && $attendance->last_punch !== $attendance->first_punch) ? \Carbon\Carbon::parse($attendance->last_punch)->format('h:i A') : '-' }}
                                 @break
 
                                 @case('leave_status')

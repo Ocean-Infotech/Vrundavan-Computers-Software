@@ -39,8 +39,8 @@ class AttedanceController extends Controller
         'biometric_id' => 'Biometric ID',
         'student_name' => 'Student Name',
         'date' => 'Date',
-        'in_time' => 'Punch Time',
-        'punch_type' => 'In / Out',
+        'in_time' => 'Punch In Time',
+        'out_time' => 'Punch Out Time',
         'device_key' => 'Device Key',
         'device_name' => 'Device Name',
     ];
@@ -50,7 +50,7 @@ class AttedanceController extends Controller
         'student_name',
         'date',
         'in_time',
-        'punch_type',
+        'out_time',
         'device_key',
         'device_name',
     ];
@@ -92,8 +92,8 @@ class AttedanceController extends Controller
                 (object)['data' => 'biometric_id', 'name' => 'biometric_id', 'td_label' => 'Biometric ID'],
                 (object)['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name', 'orderable' => false, 'searchable' => false],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date'],
-                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'Punch Time', 'orderable' => false, 'searchable' => false],
-                (object)['data' => 'punch_type', 'name' => 'punch_type', 'td_label' => 'In / Out', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'in_time', 'name' => 'in_time', 'td_label' => 'Punch In Time', 'orderable' => false, 'searchable' => false],
+                (object)['data' => 'out_time', 'name' => 'out_time', 'td_label' => 'Punch Out Time', 'orderable' => false, 'searchable' => false],
                 (object)['data' => 'DeviceKey', 'name' => 'DeviceKey', 'td_label' => 'Device Key', 'orderable' => false, 'searchable' => false],
                 (object)['data' => 'DeviceName', 'name' => 'DeviceName', 'td_label' => 'Device Name', 'orderable' => false, 'searchable' => false],
             ];
@@ -107,25 +107,49 @@ class AttedanceController extends Controller
 
             if ($request->ajax()) {
                 // dd($request->all());
-                $punchSubquery = DB::table('attedance')
-                    ->selectRaw('*, ROW_NUMBER() OVER (PARTITION BY admission_id, date ORDER BY in_time ASC, id ASC) as punch_number');
+                $latestRegIds = DB::table('cource_registration')
+                    ->select('register_id', DB::raw('MAX(id) as max_id'))
+                    ->whereNull('deleted_at')
+                    ->groupBy('register_id');
 
-                $data = Attedance::fromSub($punchSubquery, 'attedance')
+                $data = Attedance::select([
+                        'attedance.admission_id',
+                        'attedance.biometric_id',
+                        'attedance.date',
+                        DB::raw('MIN(attedance.in_time) as first_punch'),
+                        DB::raw('MAX(attedance.in_time) as last_punch'),
+                        DB::raw('MIN(attedance.DeviceKey) as DeviceKey'),
+                        DB::raw('MIN(attedance.DeviceName) as DeviceName'),
+                    ])
+                    ->join('admission', function ($join) {
+                        $join->on('attedance.admission_id', '=', 'admission.id')
+                             ->orOn('attedance.biometric_id', '=', 'admission.biometric_id');
+                    })
+                    ->join('cource_registration', function ($join) {
+                        $join->on('admission.id', '=', 'cource_registration.register_id')
+                             ->whereRaw('attedance.date >= cource_registration.date');
+                    })
+                    ->joinSub($latestRegIds, 'latest_reg', function ($join) {
+                        $join->on('cource_registration.id', '=', 'latest_reg.max_id');
+                    })
+                    ->whereIn('cource_registration.status', ['active', 'Running'])
+                    ->whereNull('admission.deleted_at')
+                    ->whereNull('cource_registration.deleted_at')
                     ->with(['admission'])
-                    ->orderByDesc('date')
-                    ->orderByDesc('id');
+                    ->groupBy('attedance.admission_id', 'attedance.biometric_id', 'attedance.date')
+                    ->orderByDesc('attedance.date');
 
                 if (!empty($admission_id)) {
                     $admission = Admission::find($admission_id);
                     if ($admission) {
                         $data->where(function ($q) use ($admission_id, $admission) {
-                            $q->where('admission_id', $admission_id);
+                            $q->where('attedance.admission_id', $admission_id);
                             if (!empty($admission->biometric_id)) {
-                                $q->orWhere('biometric_id', $admission->biometric_id);
+                                $q->orWhere('attedance.biometric_id', $admission->biometric_id);
                             }
                         });
                     } else {
-                        $data->where('admission_id', $admission_id);
+                        $data->where('attedance.admission_id', $admission_id);
                     }
                 }
 
@@ -145,7 +169,7 @@ class AttedanceController extends Controller
                     }
 
                     $admissionIds = $registrationQuery->pluck('register_id');
-                    $data->whereIn('admission_id', $admissionIds);
+                    $data->whereIn('attedance.admission_id', $admissionIds);
                 }
 
                 $editPermission = true;
@@ -160,16 +184,16 @@ class AttedanceController extends Controller
                         }
 
                         $query->where(function ($q) use ($search) {
-                            $q->where('biometric_id', 'like', "%{$search}%")
-                                ->orWhere('date', 'like', "%{$search}%")
-                                ->orWhere('DeviceKey', 'like', "%{$search}%")
-                                ->orWhere('DeviceName', 'like', "%{$search}%")
+                            $q->where('attedance.biometric_id', 'like', "%{$search}%")
+                                ->orWhere('attedance.date', 'like', "%{$search}%")
+                                ->orWhere('attedance.DeviceKey', 'like', "%{$search}%")
+                                ->orWhere('attedance.DeviceName', 'like', "%{$search}%")
                                 ->orWhereHas('admission', function ($admissionQuery) use ($search) {
                                     $admissionQuery->where('first_name', 'like', "%{$search}%")
                                         ->orWhere('last_name', 'like', "%{$search}%")
                                         ->orWhere('father_name', 'like', "%{$search}%");
                                 })
-                                ->orWhereIn('biometric_id', function ($subQuery) use ($search) {
+                                ->orWhereIn('attedance.biometric_id', function ($subQuery) use ($search) {
                                     $subQuery->select('biometric_id')
                                         ->from('admission')
                                         ->where('first_name', 'like', "%{$search}%")
@@ -205,17 +229,16 @@ class AttedanceController extends Controller
                         return Carbon::parse($row->date)->format('d-m-Y');
                     })
                     ->editColumn('in_time', function ($row) {
-                        if (empty($row->in_time)) {
+                        if (empty($row->first_punch)) {
                             return '<p class="text-center">-</p>';
                         }
-
-                        return Carbon::parse($row->in_time)->format('h:i A');
+                        return Carbon::parse($row->first_punch)->format('h:i A');
                     })
-                    ->addColumn('punch_type', function ($row) {
-                        $badgeClass = ((int) ($row->punch_number ?? 1) % 2 === 1) ? 'bg-success' : 'bg-danger';
-                        $label = ((int) ($row->punch_number ?? 1) % 2 === 1) ? 'In' : 'Out';
-
-                        return '<span class="badge ' . $badgeClass . '">' . $label . '</span>';
+                    ->addColumn('out_time', function ($row) {
+                        if (empty($row->last_punch) || $row->last_punch === $row->first_punch) {
+                            return '<p class="text-center">-</p>';
+                        }
+                        return Carbon::parse($row->last_punch)->format('h:i A');
                     })
                     ->editColumn('DeviceKey', function ($row) {
                         return $row->DeviceKey ?: '-';
@@ -223,7 +246,7 @@ class AttedanceController extends Controller
                     ->editColumn('DeviceName', function ($row) {
                         return $row->DeviceName ?: '-';
                     })
-                    ->rawColumns(['student_name', 'date', 'in_time', 'punch_type'])
+                    ->rawColumns(['student_name', 'date', 'in_time', 'out_time'])
                     ->make(true);
                 return $returnData;
             }
@@ -802,22 +825,22 @@ class AttedanceController extends Controller
     public function exportExcel(Request $request)
     {
         try {
-            
+
             $this->authorizeAttendanceList();
-    
+
             $scope = strtolower($request->get('scope', 'filtered')) === 'all' ? 'all' : 'filtered';
             $selectedColumns = $this->resolveSelectedColumns($request->input('columns', []));
             $columnLabels = $this->mapColumnLabels($selectedColumns);
-    
+
             $attendances = $this->buildAttendanceExportQuery($request, $scope)->get();
-    
+
             $spreadsheet = new Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
-    
+
             foreach (array_values($columnLabels) as $index => $label) {
                 $sheet->setCellValueByColumnAndRow($index + 1, 1, $label);
             }
-    
+
             $rowNumber = 2;
             foreach ($attendances as $attendance) {
                 foreach ($selectedColumns as $columnIndex => $columnKey) {
@@ -829,16 +852,16 @@ class AttedanceController extends Controller
                 }
                 $rowNumber++;
             }
-    
+
             if (!empty($selectedColumns)) {
                 for ($i = 1; $i <= count($selectedColumns); $i++) {
                     $columnLetter = Coordinate::stringFromColumnIndex($i);
                     $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
                 }
             }
-    
+
             $fileName = 'attendance-' . now()->format('Ymd_His') . '.xlsx';
-    
+
             return response()->streamDownload(function () use ($spreadsheet) {
                 $writer = new Xlsx($spreadsheet);
                 $writer->save('php://output');
@@ -896,17 +919,41 @@ class AttedanceController extends Controller
 
     protected function buildAttendanceExportQuery(Request $request, string $scope): Builder
     {
-        $punchSubquery = DB::table('attedance')
-            ->selectRaw('*, ROW_NUMBER() OVER (PARTITION BY admission_id, date ORDER BY in_time ASC, id ASC) as punch_number');
+        $latestRegIds = DB::table('cource_registration')
+            ->select('register_id', DB::raw('MAX(id) as max_id'))
+            ->whereNull('deleted_at')
+            ->groupBy('register_id');
 
-        $query = Attedance::fromSub($punchSubquery, 'attedance')
+        $query = Attedance::select([
+                'attedance.admission_id',
+                'attedance.biometric_id',
+                'attedance.date',
+                DB::raw('MIN(attedance.in_time) as first_punch'),
+                DB::raw('MAX(attedance.in_time) as last_punch'),
+                DB::raw('MIN(attedance.DeviceKey) as DeviceKey'),
+                DB::raw('MIN(attedance.DeviceName) as DeviceName'),
+            ])
+            ->join('admission', function ($join) {
+                $join->on('attedance.admission_id', '=', 'admission.id')
+                     ->orOn('attedance.biometric_id', '=', 'admission.biometric_id');
+            })
+            ->join('cource_registration', function ($join) {
+                $join->on('admission.id', '=', 'cource_registration.register_id')
+                     ->whereRaw('attedance.date >= cource_registration.date');
+            })
+            ->joinSub($latestRegIds, 'latest_reg', function ($join) {
+                $join->on('cource_registration.id', '=', 'latest_reg.max_id');
+            })
+            ->whereIn('cource_registration.status', ['active', 'Running'])
+            ->whereNull('admission.deleted_at')
+            ->whereNull('cource_registration.deleted_at')
             ->with(['admission'])
-            ->orderByDesc('date')
-            ->orderByDesc('id');
+            ->groupBy('attedance.admission_id', 'attedance.biometric_id', 'attedance.date')
+            ->orderByDesc('attedance.date');
 
         $admissionId = $request->get('admission_id');
         if (!empty($admissionId)) {
-            $query->where('admission_id', $admissionId);
+            $query->where('attedance.admission_id', $admissionId);
         }
 
         if ($scope === 'all') {
@@ -916,10 +963,10 @@ class AttedanceController extends Controller
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('biometric_id', 'like', "%{$search}%")
-                    ->orWhere('date', 'like', "%{$search}%")
-                    ->orWhere('DeviceKey', 'like', "%{$search}%")
-                    ->orWhere('DeviceName', 'like', "%{$search}%")
+                $q->where('attedance.biometric_id', 'like', "%{$search}%")
+                    ->orWhere('attedance.date', 'like', "%{$search}%")
+                    ->orWhere('attedance.DeviceKey', 'like', "%{$search}%")
+                    ->orWhere('attedance.DeviceName', 'like', "%{$search}%")
                     ->orWhereHas('admission', function ($admissionQuery) use ($search) {
                         $admissionQuery->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
@@ -977,11 +1024,13 @@ class AttedanceController extends Controller
                     ? Carbon::parse($attendance->date)->format('d-m-Y')
                     : '-';
             case 'in_time':
-                return $attendance->in_time
-                    ? Carbon::parse($attendance->in_time)->format('h:i A')
+                return $attendance->first_punch
+                    ? Carbon::parse($attendance->first_punch)->format('h:i A')
                     : '-';
-            case 'punch_type':
-                return ((int) ($attendance->punch_number ?? 1) % 2 === 1) ? 'In' : 'Out';
+            case 'out_time':
+                return ($attendance->last_punch && $attendance->last_punch !== $attendance->first_punch)
+                    ? Carbon::parse($attendance->last_punch)->format('h:i A')
+                    : '-';
             case 'leave_status':
                 $inTime = $attendance->in_time ?? '';
                 $outTime = $attendance->out_time ?? '';
@@ -1057,8 +1106,6 @@ class AttedanceController extends Controller
 
         $attendanceRows = Attedance::query()
             ->whereIn('admission_id', $admissionIds)
-            ->where('course_id', $courseId)
-            ->where('batch_id', $batchId)
             ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->get();
 
@@ -1091,7 +1138,7 @@ class AttedanceController extends Controller
         $monthLabelEndCol = 25;
         $monthValueStartCol = 26;
 
-        $col = fn (int $index) => Coordinate::stringFromColumnIndex($index);
+        $col = fn(int $index) => Coordinate::stringFromColumnIndex($index);
 
         $sheet->mergeCells('A1:' . $col($titleLeftEndCol) . '1');
         $sheet->setCellValue('A1', 'Monthly Class Attendance');
@@ -1162,8 +1209,8 @@ class AttedanceController extends Controller
             $admissionId = $registration->register_id;
             $studentName = trim(
                 ($admission->first_name ?? '') . ' ' .
-                ($admission->last_name ?? '') . ' ' .
-                ($admission->father_name ?? '')
+                    ($admission->last_name ?? '') . ' ' .
+                    ($admission->father_name ?? '')
             );
 
             $presentCount = 0;

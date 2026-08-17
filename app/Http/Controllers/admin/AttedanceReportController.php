@@ -65,7 +65,7 @@ class AttedanceReportController extends Controller
                     $q->where('batch_id', $request->batch_id);
                 }
                 if ($request->filled('class_id')) {
-                    $q->where('class_id', $request->class_id);
+                    $q->whereIn('class_id', (array) $request->class_id);
                 }
             });
         }
