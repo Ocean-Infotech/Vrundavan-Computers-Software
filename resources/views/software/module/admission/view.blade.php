@@ -248,14 +248,20 @@
                 <h2>Shree Patel Vidhya Mandir Science College</h2>
                 <h4>Admission Form</h4>
             </div>
-            <div class="photo-box"></div>
+            <div class="photo-box">
+                @if($admission->profile_pic_url)
+                    <img src="{{ $admission->profile_pic_url }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                @else
+                    Photo
+                @endif
+            </div>
         </div>
 
         <div class="admission-header">Admission Details:</div>
         <table class="admission-details-table">
             <tr>
                 <td style="width: 141px;"><strong>GR No. :</strong> {{ $admission->id }}</td>
-                <td style="width: 195px;"><strong>Adm. Date :</strong> {{ '-' }}</td>
+                <td style="width: 195px;"><strong>Adm. Date :</strong> {{ $admission->created_at ? $admission->created_at->format('d-m-Y') : '-' }}</td>
                 <td><strong>Course :</strong> {{ $course->course->course_name ?? '-' }}</td>
             </tr>
             <tr>
