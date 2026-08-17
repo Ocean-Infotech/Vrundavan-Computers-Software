@@ -243,16 +243,23 @@
 
 <body>
     <div class="container">
-        <div class="header-section">
-            <div>
-                <h2>Shree Patel Vidhya Mandir Science College</h2>
-                <h4>Admission Form</h4>
+        <div class="header-section" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #004aad; padding-bottom: 15px; margin-bottom: 20px;">
+            <div class="logo-box" style="width: 100px; text-align: left; flex-shrink: 0;">
+                <img src="{{ asset('uploads/logo/logo.png') }}" alt="College Logo" style="width: 85px; height: auto;">
             </div>
-            <div class="photo-box">
-                @if($admission->profile_pic_url)
-                    <img src="{{ $admission->profile_pic_url }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+            <div class="college-info-box" style="text-align: center; flex-grow: 1; padding: 0 10px; line-height: 1.3;">
+                <span style="font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px;">Shree Patel Vidhyarthi Ashram Sanchalit</span><br>
+                <h2 style="font-size: 20px; font-weight: 800; color: #004aad; margin: 2px 0; text-transform: uppercase;">Shree Patel Vidhya Mandir Science College</h2>
+                <span style="font-size: 11px; color: #666; font-weight: 500;">Behind Maruti Service Center, Veraval Road, Keshod – 362220</span><br>
+                <span style="font-size: 11px; color: #666; font-weight: 500;">Mo. 96874 51774 | Email: pvmsciencecollegekeshod@gmail.com</span><br>
+                <h4 style="font-size: 16px; font-weight: 700; color: #f57c00; font-style: italic; margin-top: 5px; margin-bottom: 0; text-transform: uppercase;">Admission Form</h4>
+            </div>
+            <div class="photo-box" style="margin-left: 10px; flex-shrink: 0; line-height: 150px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                @if($admission->profile_pic && file_exists(public_path($admission->profile_pic)))
+                    <img src="{{ $admission->profile_pic_url }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <span style="display: none; font-size: 13px; color: #777; font-weight: 600;">Photo</span>
                 @else
-                    Photo
+                    <span style="font-size: 13px; color: #777; font-weight: 600;">Photo</span>
                 @endif
             </div>
         </div>
