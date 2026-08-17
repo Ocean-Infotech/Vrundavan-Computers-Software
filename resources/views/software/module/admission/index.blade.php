@@ -475,6 +475,7 @@
 
 @section('page_leavel_script')
     <script type="text/javascript">
+        const canUpdateStatus = @json(auth()->check() && (auth()->user()->hasRole('super-admin') || auth()->user()->hasRole('developer')));
         // Show student details modal
         $(document).on('click', '.view-btn', function() {
             let id = $(this).data('id');
@@ -660,27 +661,34 @@
                                     currentStatus === 'Completed' ? 'btn-success' :
                                     currentStatus === 'Cancel' ? 'btn-danger' : 'btn-secondary';
 
-                                let statusDropdown = `<div class="btn-group w-100">
-                            <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100"
-                                data-bs-toggle="dropdown" aria-expanded="false" style="height: 37px">
-                                ${currentStatus || 'Select Status'}
-                            </button>
-                            <ul class="dropdown-menu w-100">`;
+                                let statusDropdown = '';
+                                if (canUpdateStatus) {
+                                    statusDropdown = `<div class="btn-group w-100">
+                                <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100"
+                                    data-bs-toggle="dropdown" aria-expanded="false" style="height: 37px">
+                                    ${currentStatus || 'Select Status'}
+                                </button>
+                                <ul class="dropdown-menu w-100">`;
 
-                                statusOptions.forEach(function(option) {
-                                    if (option !== currentStatus) {
-                                        statusDropdown += `<li>
-                                    <a href="javascript:void(0)" class="dropdown-item update-status"
-                                        data-register_id="${course.register_id}"
-                                        data-course_id="${course.course_id}"
-                                        data-update_status="${option}">
-                                        ${option}
-                                    </a>
-                                </li>`;
-                                    }
-                                });
+                                    statusOptions.forEach(function(option) {
+                                        if (option !== currentStatus) {
+                                            statusDropdown += `<li>
+                                        <a href="javascript:void(0)" class="dropdown-item update-status"
+                                            data-register_id="${course.register_id}"
+                                            data-course_id="${course.course_id}"
+                                            data-update_status="${option}">
+                                            ${option}
+                                        </a>
+                                    </li>`;
+                                        }
+                                    });
 
-                                statusDropdown += `</ul></div>`;
+                                    statusDropdown += `</ul></div>`;
+                                } else {
+                                    statusDropdown = `<button type="button" class="btn ${statusClass} btn-sm w-100" disabled style="height: 37px">
+                                    ${currentStatus || 'Select Status'}
+                                </button>`;
+                                }
                                 row +=
                                     `<div class="col-md-3 mb-2">${statusDropdown}</div>`;
                                 row +=
@@ -1003,28 +1011,35 @@
                                             'btn-danger' :
                                             'btn-secondary';
 
-                                        let statusDropdown = `<div class="btn-group w-100">
-                                <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100" style="height: 37px"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    ${currentStatus || 'Select Status'}
-                                </button>
-                                <ul class="dropdown-menu w-100">`;
+                                         let statusDropdown = '';
+                                         if (canUpdateStatus) {
+                                             statusDropdown = `<div class="btn-group w-100">
+                                    <button type="button" class="btn ${statusClass} btn-sm dropdown-toggle w-100" style="height: 37px"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        ${currentStatus || 'Select Status'}
+                                    </button>
+                                    <ul class="dropdown-menu w-100">`;
 
-                                        statusOptions.forEach(function(option) {
-                                            if (option !== currentStatus) {
-                                                statusDropdown += `
-                                        <li>
-                                            <a href="javascript:void(0)" class="dropdown-item update-status"
-                                                data-register_id="${course.register_id}"
-                                                data-course_id="${course.course_id}"
-                                                data-update_status="${option}">
-                                                ${option}
-                                            </a>
-                                        </li>`;
-                                            }
-                                        });
+                                             statusOptions.forEach(function(option) {
+                                                 if (option !== currentStatus) {
+                                                     statusDropdown += `
+                                             <li>
+                                                 <a href="javascript:void(0)" class="dropdown-item update-status"
+                                                     data-register_id="${course.register_id}"
+                                                     data-course_id="${course.course_id}"
+                                                     data-update_status="${option}">
+                                                     ${option}
+                                                 </a>
+                                             </li>`;
+                                                 }
+                                             });
 
-                                        statusDropdown += `</ul></div>`;
+                                             statusDropdown += `</ul></div>`;
+                                         } else {
+                                             statusDropdown = `<button type="button" class="btn ${statusClass} btn-sm w-100" disabled style="height: 37px">
+                                             ${currentStatus || 'Select Status'}
+                                         </button>`;
+                                         }
 
                                         row +=
                                             `<div class="col-md-3 mb-2">${statusDropdown}</div>`;

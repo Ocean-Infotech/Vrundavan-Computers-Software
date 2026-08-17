@@ -34,23 +34,23 @@
                 <div class="card-body py-2">
                     <form id="filterForm">
                         <div class="row align-items-end">
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-2 mb-2">
                                 <label class="form-label fw-semibold mb-1">Course</label>
                                 <select id="course_id" class="form-control search_by_course select2 select_filter" data-append="search_by_course">
                                     <option value="">Select Course</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-2 mb-2">
                                 <label class="form-label fw-semibold mb-1">Batch</label>
                                 <select id="batch_id" class="form-control search_by_batch select2 select_filter" data-append="search_by_batch">
                                     <option value="">Select Batch</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-5 mb-2">
                                 <label class="form-label fw-semibold mb-1">Class</label>
-                                <select id="class_id" class="form-control search_by_class select2 select_filter" data-append="search_by_class">
-                                    <option value="">Select Class</option>
-                                </select>
+                                <div id="class_id" class="form-control search_by_class d-flex flex-wrap align-items-center" data-append="search_by_class" style="min-height: 38px; border: 1px solid #ced4da; border-radius: 4px; padding: 6px 12px; background: #fff; gap: 15px;">
+                                    <span class="text-muted">Select Class</span>
+                                </div>
                             </div>
                             <div class="col-md-3 mb-2">
                                 <label class="form-label fw-semibold mb-1">Date Range</label>
@@ -150,68 +150,119 @@
                     data.end_date = $('#end_date').val();
                     data.course_id = $('#course_id').val();
                     data.batch_id = $('#batch_id').val();
-                    data.class_id = $('#class_id').val();
-
-                    $.ajax({
-                        url: "{{ route('attedance-report.index') }}",
-                        type: "GET",
-                        data: data,
-                        beforeSend: function(request) {
-                            request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
-                        },
-                        success: function(response) {
-                            callback(response);
-                        }
+                    
+                    var classIds = [];
+                    $('.class-checkbox-filter:checked').each(function() {
+                        classIds.push($(this).val());
                     });
-                },
-                columns: {!! json_encode($columns) !!},
-                language: {
-                    searchPlaceholder: 'Search...',
-                    emptyTable: "No attendance records found."
-                }
-            });
+                    data.class_id = classIds;
+ 
+                     $.ajax({
+                         url: "{{ route('attedance-report.index') }}",
+                         type: "GET",
+                         data: data,
+                         beforeSend: function(request) {
+                             request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
+                         },
+                         success: function(response) {
+                             callback(response);
+                         }
+                     });
+                 },
+                 columns: {!! json_encode($columns) !!},
+                 language: {
+                     searchPlaceholder: 'Search...',
+                     emptyTable: "No attendance records found."
+                 }
+             });
+ 
+             $('.select_filter').on('change', function() {
+                 dtable.draw();
+             });
 
-            $('.select_filter').on('change', function() {
-                dtable.draw();
-            });
-
-            $("#print_btn").click(function(e) {
-                e.preventDefault();
-                var start = $('#start_date').val();
-                if (!start) {
-                    alert("Please select a Date Range first!");
-                    return;
-                }
-                const params = new URLSearchParams({
-                    start_date: start,
-                    end_date: $('#end_date').val(),
-                    course_id: $('#course_id').val() || '',
-                    batch_id: $('#batch_id').val() || '',
-                    class_id: $('#class_id').val() || ''
-                });
-                window.open("{{ route('attedance-report.print') }}?" + params.toString(), '_blank');
-            });
-
-            $("#exportExcelBtn").click(function(e) {
-                e.preventDefault();
-                var start = $('#start_date').val();
-                if (!start) {
-                    alert("Please select a Date Range first!");
-                    return;
-                }
-                const params = new URLSearchParams({
-                    start_date: start,
-                    end_date: $('#end_date').val(),
-                    course_id: $('#course_id').val() || '',
-                    batch_id: $('#batch_id').val() || '',
-                    class_id: $('#class_id').val() || ''
-                });
-                window.location.href = "{{ route('attedance-report.export-excel') }}?" + params.toString();
-            });
+             $(document).on('change', '.class-checkbox-filter', function() {
+                 dtable.draw();
+             });
+ 
+             $("#print_btn").click(function(e) {
+                 e.preventDefault();
+                 var start = $('#start_date').val();
+                 if (!start) {
+                     alert("Please select a Date Range first!");
+                     return;
+                 }
+                 const params = new URLSearchParams({
+                     start_date: start,
+                     end_date: $('#end_date').val(),
+                     course_id: $('#course_id').val() || '',
+                     batch_id: $('#batch_id').val() || ''
+                 });
+                 $('.class-checkbox-filter:checked').each(function() {
+                     params.append('class_id[]', $(this).val());
+                 });
+                 window.open("{{ route('attedance-report.print') }}?" + params.toString(), '_blank');
+             });
+ 
+             $("#exportExcelBtn").click(function(e) {
+                 e.preventDefault();
+                 var start = $('#start_date').val();
+                 if (!start) {
+                     alert("Please select a Date Range first!");
+                     return;
+                 }
+                 const params = new URLSearchParams({
+                     start_date: start,
+                     end_date: $('#end_date').val(),
+                     course_id: $('#course_id').val() || '',
+                     batch_id: $('#batch_id').val() || ''
+                 });
+                 $('.class-checkbox-filter:checked').each(function() {
+                     params.append('class_id[]', $(this).val());
+                 });
+                 window.location.href = "{{ route('attedance-report.export-excel') }}?" + params.toString();
+             });
+             // Custom handler for loading class checkboxes in this page
+             $(document).on('change', '.search_by_batch', function() {
+                 let batch_id = $(this).val();
+                 let container = $('#class_id');
+                 if (batch_id) {
+                     $.ajax({
+                         type: 'POST',
+                         url: "{{ route('get-class-bybatch') }}",
+                         beforeSend: function(request) {
+                             request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
+                         },
+                         data: {
+                             batch_id: batch_id
+                         },
+                         success: function(response) {
+                             if (response.status) {
+                                 let checkboxes = "";
+                                 if (response.data && response.data.length > 0) {
+                                     $.each(response.data, function(i, item) {
+                                         checkboxes += `
+                                             <div class="form-check form-check-inline mb-0 me-3">
+                                                 <input class="form-check-input class-checkbox-filter" type="checkbox" name="class_id[]" value="${item.id}" id="class_chk_${item.id}">
+                                                 <label class="form-check-label fw-semibold" for="class_chk_${item.id}">${item.name}</label>
+                                             </div>
+                                         `;
+                                     });
+                                 } else {
+                                     checkboxes = '<span class="text-muted">No classes found</span>';
+                                 }
+                                 container.empty().html(checkboxes);
+                                 dtable.draw();
+                             }
+                         }
+                     });
+                 } else {
+                     container.empty().html('<span class="text-muted">Select Batch first</span>');
+                     dtable.draw();
+                 }
+             });
         });
     </script>
 
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
-    @include('software.utils.getClassByBatch')
 @endsection

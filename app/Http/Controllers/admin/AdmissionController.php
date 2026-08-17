@@ -187,7 +187,7 @@ class AdmissionController extends Controller
 
                 if ($request->filled('course_id')) {
                     $courseId = $request->input('course_id');
-                    $data->whereHas('courses', function($q) use ($courseId) {
+                    $data->whereHas('courses', function ($q) use ($courseId) {
                         $q->where('course_id', $courseId);
                     });
                 }
@@ -210,8 +210,8 @@ class AdmissionController extends Controller
                                 $words = array_filter(explode(' ', trim($searchValue)));
                                 foreach ($words as $word) {
                                     $q->orWhere('first_name', 'like', "%" . $word . "%")
-                                      ->orWhere('last_name', 'like', "%" . $word . "%")
-                                      ->orWhere('father_name', 'like', "%" . $word . "%");
+                                        ->orWhere('last_name', 'like', "%" . $word . "%")
+                                        ->orWhere('father_name', 'like', "%" . $word . "%");
                                 }
                             });
                         }
@@ -1095,6 +1095,11 @@ class AdmissionController extends Controller
 
     public function updateCourseStatus(Request $request)
     {
+        $user = Auth::user();
+        if (!$user || !(method_exists($user, 'hasRole') && ($user->hasRole('super-admin') || $user->hasRole('developer')))) {
+            return $this->sendError('Only Super-admin can update the status.', [], [], 403);
+        }
+
         $request->validate([
             'register_id' => 'required|integer',
             'course_id'   => 'required|integer',
@@ -1370,7 +1375,7 @@ class AdmissionController extends Controller
             'recommender_type' => $request->recommender_type ?? 'principal',
             'faculty_id' => $request->faculty_id ?? null,
         ];
-    }   
+    }
 
     protected function formatCertificateDate($value, string $default = ''): string
     {
