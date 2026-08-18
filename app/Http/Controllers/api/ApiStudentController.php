@@ -998,7 +998,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => true,
+                    'is_read' => 1,
                 ];
             });
 
