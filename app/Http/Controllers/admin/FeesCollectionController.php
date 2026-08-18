@@ -273,7 +273,13 @@ class FeesCollectionController extends Controller
             $getcourceSingle = CourceRegistration::where('register_id', $id)->with(['course', 'admission', 'batch'])->first();
 
             if (!$getcourceSingle || !$getcourceSingle->course) {
-                throw new \Exception('Course registration or course not found.');
+                return response()->json([
+                    'data' => [],
+                    'fees_collection' => [],
+                    'paid_semesters' => [],
+                    'unpaid_semesters' => [],
+                    'course_fee' => 0,
+                ]);
             }
 
             // Calculate semester fee
@@ -340,7 +346,10 @@ class FeesCollectionController extends Controller
                 'course_fee' => $semester_fee,
             ]);
         } catch (\Exception $e) {
-            return Redirect::route('software.dashboard')->withErrors($e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
