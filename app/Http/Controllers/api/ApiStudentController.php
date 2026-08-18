@@ -998,7 +998,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => 1,
+                    'is_read' => true,
                 ];
             });
 
@@ -1073,7 +1073,7 @@ class ApiStudentController extends Controller
                         'complaint'    => $report->complaint,
                         'faculty_id'   => $report->faculty_id,
                         'faculty_name' => $report->faculty?->name ?? '',
-                        'is_read'      => ($report->is_read ?? 0) ? 1 : 0,
+                        'is_read'      => (bool) ($report->is_read ?? false),
                     ];
                 });
 
