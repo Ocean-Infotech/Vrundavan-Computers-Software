@@ -905,7 +905,7 @@ class ApiStudentController extends Controller
                 $cleanBody = $row->body;
                 $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
                 $cleanBody = str_ireplace('<p>', '', $cleanBody);
-                $cleanBody = strip_tags($cleanBody);
+                $cleanBody = strip_tags($cleanBody, '<b><strong><i><em><u><a>');
                 $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
                 $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
                 $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
@@ -987,7 +987,7 @@ class ApiStudentController extends Controller
                 $cleanBody = $row->body;
                 $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
                 $cleanBody = str_ireplace('<p>', '', $cleanBody);
-                $cleanBody = strip_tags($cleanBody);
+                $cleanBody = strip_tags($cleanBody, '<b><strong><i><em><u><a>');
                 $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
                 $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
                 $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
