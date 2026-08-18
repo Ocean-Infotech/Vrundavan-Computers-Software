@@ -916,7 +916,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => in_array($row->id, $readNotificationIds),
+                    'is_read' => in_array($row->id, $readNotificationIds) ? 1 : 0,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
             });
@@ -998,7 +998,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => true,
+                    'is_read' => 1,
                 ];
             });
 
