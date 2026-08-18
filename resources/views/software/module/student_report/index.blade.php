@@ -567,13 +567,13 @@
                     let html = '';
                     if (monthData.daily_records && monthData.daily_records.length > 0) {
                         monthData.daily_records.forEach(function(rec) {
-                            let badgeClass = rec.status === 'Present' ? 'bg-success' : 'bg-danger';
+                            let statusClass = rec.status === 'Present' ? 'text-success fw-bold' : 'text-danger fw-bold';
                             html += `<tr>
                                 <td>${rec.date}</td>
                                 <td>${rec.day}</td>
                                 <td>${rec.in_time}</td>
                                 <td>${rec.out_time}</td>
-                                <td><span class="badge ${badgeClass}">${rec.status}</span></td>
+                                <td class="${statusClass}">${rec.status}</td>
                             </tr>`;
                         });
                     } else {

@@ -147,6 +147,9 @@ class AttedanceReportController extends Controller
 
             return Datatables::of($collection)
                 ->addIndexColumn()
+                ->editColumn('student_name', function ($row) {
+                    return '<a href="javascript:void(0);" class="view-student-attendance text-primary fw-semibold" data-biometric-id="' . $row['biometric_id'] . '" data-student-name="' . $row['student_name'] . '">' . $row['student_name'] . '</a>';
+                })
                 ->addColumn('present_badge', function ($row) {
                     return $row['present_days'];
                 })
@@ -156,7 +159,7 @@ class AttedanceReportController extends Controller
                 ->addColumn('total_days', function ($row) {
                     return $row['total_days'];
                 })
-                ->rawColumns(['present_badge', 'absent_badge'])
+                ->rawColumns(['student_name', 'present_badge', 'absent_badge'])
                 ->with([
                     'present_count' => $presentCount,
                     'absent_count' => $absentCount,
@@ -258,5 +261,60 @@ class AttedanceReportController extends Controller
         }, 'attendance-report.xlsx', [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
+    }
+
+    public function getStudentAttendanceDetails(Request $request)
+    {
+        try {
+            $biometricId = $request->biometric_id;
+            if (!$biometricId) {
+                return response()->json(['status' => false, 'message' => 'Biometric ID is required.'], 400);
+            }
+
+            $startDate = Carbon::parse($request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d')));
+            $endDate = Carbon::parse($request->get('end_date', Carbon::now()->format('Y-m-d')));
+
+            // Generate date list (excluding Sundays)
+            $dates = [];
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                if ($date->dayOfWeek !== Carbon::SUNDAY) {
+                    $dates[] = $date->format('Y-m-d');
+                }
+            }
+
+            // Fetch logs for this specific student in date range
+            $logs = Attedance::where('biometric_id', $biometricId)
+                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->get()
+                ->groupBy('date');
+
+            $details = [];
+            foreach ($dates as $d) {
+                $dayPunches = $logs->get($d, collect());
+                $dayAttendance = Attedance::resolveDayAttendance($dayPunches);
+                
+                $status = $dayAttendance['is_present'] ? 'Present' : 'Absent';
+                $in_time = $dayAttendance['in_time'] ? Carbon::parse($dayAttendance['in_time'])->format('h:i A') : '-';
+                $out_time = $dayAttendance['out_time'] ? Carbon::parse($dayAttendance['out_time'])->format('h:i A') : '-';
+                
+                $details[] = [
+                    'date' => Carbon::parse($d)->format('d-m-Y'),
+                    'day' => Carbon::parse($d)->format('l'),
+                    'status' => $status,
+                    'in_time' => $in_time,
+                    'out_time' => $out_time
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'data' => $details
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
