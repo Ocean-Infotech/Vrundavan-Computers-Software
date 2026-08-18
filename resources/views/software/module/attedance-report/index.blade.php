@@ -86,6 +86,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Attendance Detail Modal -->
+    <div class="modal fade" id="attendanceDetailModal" tabindex="-1" aria-labelledby="attendanceDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="attendanceDetailModalLabel">Attendance - <span id="modalStudentName" class="text-primary"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="detailedAttendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>In Time</th>
+                                    <th>Out Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailedAttendanceBody">
+                                <!-- JS appends rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('page_script_file')
@@ -259,7 +289,53 @@
                      container.empty().html('<span class="text-muted">Select Batch first</span>');
                      dtable.draw();
                  }
-             });
+            });
+
+            // Click handler for viewing day-wise detailed attendance modal
+            $(document).on('click', '.view-student-attendance', function(e) {
+                e.preventDefault();
+                let biometricId = $(this).attr('data-biometric-id');
+                let studentName = $(this).attr('data-student-name');
+                let startDate = $('#start_date').val();
+                let endDate = $('#end_date').val();
+
+                $('#modalStudentName').text(studentName);
+                $('#detailedAttendanceBody').html('<tr><td colspan="5" class="text-center">Loading details...</td></tr>');
+                $('#attendanceDetailModal').modal('show');
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('attedance-report.student-details') }}",
+                    data: {
+                        biometric_id: biometricId,
+                        start_date: startDate,
+                        end_date: endDate
+                    },
+                    success: function(response) {
+                        if (response.status && response.data.length > 0) {
+                            let rows = "";
+                            $.each(response.data, function(i, item) {
+                                let statusClass = item.status === 'Present' ? 'text-success fw-bold' : 'text-danger fw-bold';
+                                rows += `
+                                    <tr>
+                                        <td>${item.date}</td>
+                                        <td>${item.day}</td>
+                                        <td>${item.in_time}</td>
+                                        <td>${item.out_time}</td>
+                                        <td class="${statusClass}">${item.status}</td>
+                                    </tr>
+                                `;
+                            });
+                            $('#detailedAttendanceBody').html(rows);
+                        } else {
+                            $('#detailedAttendanceBody').html('<tr><td colspan="5" class="text-center text-danger">No logs found for this student.</td></tr>');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#detailedAttendanceBody').html('<tr><td colspan="5" class="text-center text-danger">Error loading attendance details.</td></tr>');
+                    }
+                });
+            });
         });
     </script>
 
