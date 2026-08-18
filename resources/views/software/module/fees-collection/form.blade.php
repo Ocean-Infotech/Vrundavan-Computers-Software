@@ -678,7 +678,7 @@
                         }
                     },
                     error: function() {
-                        showMessage("Error retrieving data", "error");
+                        // showMessage("Error retrieving data", "error");
                     }
                 });
             }
