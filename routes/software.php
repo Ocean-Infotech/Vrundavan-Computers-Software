@@ -102,6 +102,7 @@ Route::delete(
 
 Route::get('admission/export-excel', [AdmissionController::class, 'exportExcel'])->name('admission.export-excel');
 Route::get('admission/print', [AdmissionController::class, 'printView'])->name('admission.print');
+Route::get('marksheet-issue/get-students', [MarksheetIssueController::class, 'getStudents'])->name('marksheet-issue.get-students');
 Route::get('marksheet-issue/export-excel', [MarksheetIssueController::class, 'exportExcel'])->name('marksheet-issue.export-excel');
 Route::get('marksheet-issue/print', [MarksheetIssueController::class, 'printView'])->name('marksheet-issue.print');
 Route::post('marksheet-issue/toggle', [MarksheetIssueController::class, 'toggle'])->name('marksheet-issue.toggle');

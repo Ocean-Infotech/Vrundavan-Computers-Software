@@ -35,6 +35,42 @@
                     <input type="hidden" name="id" value="{{ $edit?->id ?? '' }}" />
                 @endisset
 
+                @if (!isset($edit))
+                <div class="row mb-3">
+                    <!-- Course Filter -->
+                    <div class="col-md-4 col-sm-12 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Course</label>
+                            <select id="filter_course_id" class="form-control select2">
+                                <option value="">Select Course</option>
+                                @foreach ($courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Batch Filter -->
+                    <div class="col-md-4 col-sm-12 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Batch</label>
+                            <select id="filter_batch_id" class="form-control select2">
+                                <option value="">Select Batch</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Class Filter -->
+                    <div class="col-md-4 col-sm-12 mb-2">
+                        <div class="form-group">
+                            <label class="form-label">Class</label>
+                            <select id="filter_class_id" class="form-control select2">
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                @endif
+
                 <div class="row">
                     <!-- Select Student -->
                     <div class="col-md-4 col-sm-12 mb-3">
@@ -149,6 +185,108 @@
                     allowClear: true
                 });
             }
+
+            function loadFilteredStudents() {
+                let courseId = $('#filter_course_id').val();
+                let batchId = $('#filter_batch_id').val();
+                let classId = $('#filter_class_id').val();
+
+                if (!courseId || !batchId || !classId) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('marksheet-issue.get-students') }}",
+                    data: {
+                        course_id: courseId,
+                        batch_id: batchId,
+                        class_id: classId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            let select = $('#admission_id');
+                            select.empty().append('<option value="" disabled selected>GR No.</option>');
+                            
+                            response.data.forEach(function(student) {
+                                select.append(`<option value="${student.id}" data-gr-no="${student.gr_no}" data-semesters="${student.semester_count}">${student.full_name} (GR: ${student.gr_no || '-'})</option>`);
+                            });
+                            
+                            select.trigger('change');
+                        }
+                    }
+                });
+            }
+
+            // Dependent dropdown: Course -> Batch
+            $('#filter_course_id').on('change', function() {
+                let courseId = $(this).val();
+                let batchSelect = $('#filter_batch_id');
+                let classSelect = $('#filter_class_id');
+                let studentSelect = $('#admission_id');
+
+                batchSelect.empty().append('<option value="">Select Batch</option>');
+                classSelect.empty().append('<option value="">Select Class</option>');
+                studentSelect.empty().append('<option value="" disabled selected>GR No.</option>');
+
+                batchSelect.trigger('change.select2');
+                classSelect.trigger('change.select2');
+                studentSelect.trigger('change.select2');
+
+                if (courseId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-batch') }}",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            course_id: courseId
+                        },
+                        success: function(response) {
+                            if (response.status && response.data) {
+                                response.data.forEach(function(batch) {
+                                    batchSelect.append(`<option value="${batch.id}">${batch.name}</option>`);
+                                });
+                                batchSelect.trigger('change.select2');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Dependent dropdown: Batch -> Class
+            $('#filter_batch_id').on('change', function() {
+                let batchId = $(this).val();
+                let classSelect = $('#filter_class_id');
+                let studentSelect = $('#admission_id');
+
+                classSelect.empty().append('<option value="">Select Class</option>');
+                studentSelect.empty().append('<option value="" disabled selected>GR No.</option>');
+
+                classSelect.trigger('change.select2');
+                studentSelect.trigger('change.select2');
+
+                if (batchId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-class-bybatch') }}",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            batch_id: batchId
+                        },
+                        success: function(response) {
+                            if (response.status && response.data) {
+                                response.data.forEach(function(cls) {
+                                    classSelect.append(`<option value="${cls.id}">${cls.name}</option>`);
+                                });
+                                classSelect.trigger('change.select2');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // When Class is selected, load students
+            $('#filter_class_id').on('change', loadFilteredStudents);
 
             // Auto-populate semester dropdown based on selected student's course semesters
             $('#admission_id').on('change', function() {

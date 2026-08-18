@@ -213,11 +213,13 @@
                 window.location.href = "{{ route('fees-pending-report.export-excel') }}?" + params.toString();
             });
             
-            $('#filterForm').on('submit', function(e) {
-                if (!hasRequiredFilters()) {
-                    e.preventDefault();
-                    showFilterWarning();
-                }
+            $(document).on('click', '.pending-fee-link', function(e) {
+                e.preventDefault();
+                let studentId = $(this).attr('data-student-id');
+                let semester = $(this).attr('data-semester');
+                sessionStorage.setItem('pendingFeeStudent', studentId);
+                sessionStorage.setItem('pendingFeeSemester', semester);
+                window.open("{{ route('fees-collection.create') }}", '_blank');
             });
         });
     </script>

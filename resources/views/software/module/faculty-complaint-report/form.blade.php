@@ -40,21 +40,40 @@
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Select Student <span class="text-danger">*</span></label>
-                            <select name="admission_id"
-                                class="form-control select2 @error('admission_id') is-invalid @enderror" required>
-                                <option value="" disabled {{ !isset($edit) ? 'selected' : '' }}>Select Student
-                                </option>
-                                @foreach ($students as $student)
-                                    <option value="{{ $student->id }}"
-                                        @if (isset($edit) && $edit->admission_id == $student->id) selected
-                                        @elseif(old('admission_id') == $student->id) selected @endif>
-                                        {{ $student->id }} -
-                                        {{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? '')) }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if (!isset($edit))
+                                <div class="card p-2" style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc;">
+                                    <input type="text" id="student_search" class="form-control mb-2" placeholder="Search student...">
+                                    <div id="student_checkbox_list">
+                                        @foreach ($students as $student)
+                                            @php
+                                                $studentText = $student->id . ' - ' . trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? ''));
+                                            @endphp
+                                            <div class="form-check student-checkbox-item mb-1">
+                                                <input class="form-check-input student-checkbox" type="checkbox" name="admission_id[]" value="{{ $student->id }}" id="student_{{ $student->id }}"
+                                                    @if (is_array(old('admission_id')) && in_array($student->id, old('admission_id'))) checked @endif>
+                                                <label class="form-check-label" for="student_{{ $student->id }}">
+                                                    {{ $studentText }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <select name="admission_id"
+                                    class="form-control select2 @error('admission_id') is-invalid @enderror" required>
+                                    <option value="" disabled>Select Student</option>
+                                    @foreach ($students as $student)
+                                        <option value="{{ $student->id }}"
+                                            @if ($edit->admission_id == $student->id) selected
+                                            @elseif (old('admission_id') == $student->id) selected @endif>
+                                            {{ $student->id }} -
+                                            {{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? '')) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
                             @error('admission_id')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
                     </div>
@@ -131,6 +150,20 @@
                     allowClear: true
                 });
             }
+
+            $('#student_search').on('keyup', function() {
+                let value = $(this).val().toLowerCase();
+                $('#student_checkbox_list .student-checkbox-item').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            $('form').on('submit', function(e) {
+                if ($('.student-checkbox').length > 0 && $('.student-checkbox:checked').length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one student.');
+                }
+            });
 
             const complaintTextarea = document.querySelector('#complaint');
             if (complaintTextarea && typeof autosize !== 'undefined') {

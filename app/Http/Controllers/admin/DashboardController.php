@@ -43,6 +43,7 @@ class DashboardController extends Controller
 
         $totalStudents = Admission::count();
         $totalCourses = \App\Models\Master\MasterCourse::count();
+        $studentRequestsCount = \App\Models\StudentRequest::count();
         $todayTests = \App\Models\Test::whereDate('date', \Carbon\Carbon::today())
             ->with(['course'])
             ->get();
@@ -56,7 +57,7 @@ class DashboardController extends Controller
             ->get();
 
         return view($modules['folder_path'] . '.dashboard', compact(
-            'totalStudents', 'totalCourses', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks', 'todayTests'
+            'totalStudents', 'totalCourses', 'studentRequestsCount', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks', 'todayTests'
         ));
     }
 }

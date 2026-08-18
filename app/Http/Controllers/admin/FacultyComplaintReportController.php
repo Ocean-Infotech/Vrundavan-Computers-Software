@@ -181,7 +181,8 @@ class FacultyComplaintReportController extends Controller
         View::share('modules', $modules);
 
         $request->validate([
-            'admission_id' => 'required',
+            'admission_id' => 'required|array',
+            'admission_id.*' => 'required|exists:admission,id',
             'date' => 'required|date',
             'complaint' => 'required|string',
             'faculty_id' => 'required|exists:users,id',
@@ -189,15 +190,17 @@ class FacultyComplaintReportController extends Controller
 
         DB::beginTransaction();
         try {
-            $admission = Admission::find($request->admission_id);
+            foreach ($request->admission_id as $studentId) {
+                $admission = Admission::find($studentId);
 
-            FacultyComplaintReport::create([
-                'admission_id' => $request->admission_id,
-                'gr_no' => $admission ? $admission->gr_no : $request->gr_no,
-                'date' => $request->date,
-                'complaint' => $request->complaint,
-                'faculty_id' => $request->faculty_id,
-            ]);
+                FacultyComplaintReport::create([
+                    'admission_id' => $studentId,
+                    'gr_no' => $admission ? $admission->gr_no : null,
+                    'date' => $request->date,
+                    'complaint' => $request->complaint,
+                    'faculty_id' => $request->faculty_id,
+                ]);
+            }
 
             DB::commit();
 
@@ -242,7 +245,7 @@ class FacultyComplaintReportController extends Controller
         View::share('modules', $modules);
 
         $request->validate([
-            'admission_id' => 'required',
+            'admission_id' => 'required|exists:admission,id',
             'date' => 'required|date',
             'complaint' => 'required|string',
             'faculty_id' => 'required|exists:users,id',

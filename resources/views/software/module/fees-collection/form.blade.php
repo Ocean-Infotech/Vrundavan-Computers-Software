@@ -521,6 +521,15 @@
                 searchData();
 
             });
+            let pendingStudent = sessionStorage.getItem('pendingFeeStudent');
+            let pendingSemester = sessionStorage.getItem('pendingFeeSemester');
+            if (pendingStudent && pendingSemester) {
+                $('#search_id').val(pendingStudent);
+                $('#year_semester').attr('data-semester', pendingSemester);
+                sessionStorage.removeItem('pendingFeeStudent');
+                sessionStorage.removeItem('pendingFeeSemester');
+            }
+
             var search_id = $('#search_id').val()?.trim();
             if (search_id !== '') {
                 searchData();

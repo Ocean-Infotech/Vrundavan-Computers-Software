@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Illuminate\Database\Eloquent\Builder;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use App\Models\CourceRegistration;
+use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterBatch;
+use App\Models\Master\MasterClass;
 
 class MarksheetIssueController extends Controller
 {
@@ -134,7 +136,11 @@ class MarksheetIssueController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'students'));
+        $courses = MasterCourse::where('status', 'active')->orderBy('course_name', 'asc')->get();
+        $batches = MasterBatch::where('status', 'active')->orderBy('batch_name', 'asc')->get();
+        $classes = MasterClass::where('status', 'active')->orderBy('class', 'asc')->get();
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'students', 'courses', 'batches', 'classes'));
     }
 
     public function store(Request $request)
@@ -188,7 +194,11 @@ class MarksheetIssueController extends Controller
                 ->orderBy('id', 'asc')
                 ->get();
 
-            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'students'));
+            $courses = MasterCourse::where('status', 'active')->orderBy('course_name', 'asc')->get();
+            $batches = MasterBatch::where('status', 'active')->orderBy('batch_name', 'asc')->get();
+            $classes = MasterClass::where('status', 'active')->orderBy('class', 'asc')->get();
+
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'students', 'courses', 'batches', 'classes'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage());
         }
@@ -411,5 +421,46 @@ class MarksheetIssueController extends Controller
         }
 
         return $query;
+    }
+
+    public function getStudents(Request $request)
+    {
+        $course_id = $request->input('course_id');
+        $batch_id = $request->input('batch_id');
+        $class_id = $request->input('class_id');
+
+        $query = CourceRegistration::query();
+
+        if ($course_id) {
+            $query->where('course_id', $course_id);
+        }
+        if ($batch_id) {
+            $query->where('batch_id', $batch_id);
+        }
+        if ($class_id) {
+            $query->where('class_id', $class_id);
+        }
+
+        $studentIds = $query->pluck('register_id');
+
+        $students = Admission::whereIn('id', $studentIds)
+            ->whereIn('status', ['active', 'created'])
+            ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $students = $students->map(function ($student) {
+            $courseReg = CourceRegistration::where('register_id', $student->id)
+                ->with('course')
+                ->first();
+            $student->semester_count = $courseReg && $courseReg->course ? $courseReg->course->semester : 0;
+            $student->full_name = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? ''));
+            return $student;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $students
+        ]);
     }
 }

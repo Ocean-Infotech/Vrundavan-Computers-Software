@@ -100,15 +100,17 @@ class FeesPendingReportController extends Controller
 
             return Datatables::of($students)
                 ->addIndexColumn()
-                ->addColumn('student_name', function ($row) {
+                ->addColumn('student_name', function ($row) use ($semester_id) {
                     $first = $row->admission->first_name ?? '';
                     $last = $row->admission->last_name ?? '';
                     $father = $row->admission->father_name ?? '';
-                    return trim("{$first} {$last} {$father}");
+                    $fullName = trim("{$first} {$last} {$father}");
+                    return '<a href="javascript:void(0);" class="pending-fee-link" data-student-id="' . $row->register_id . '" data-semester="' . $semester_id . '">' . $fullName . '</a>';
                 })
                 ->addColumn('pending_fees', function ($row) {
                     return $row->pending_fees ?? 0;
                 })
+                ->rawColumns(['student_name'])
                 ->make(true);
         }
 

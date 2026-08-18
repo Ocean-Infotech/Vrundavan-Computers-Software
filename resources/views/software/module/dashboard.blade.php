@@ -5,7 +5,7 @@
 
     <div class="row">
         <!-- Card 1: Total Students -->
-        <div class="col-md-3 col-sm-6 mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-center">
                     <div class="badge rounded bg-label-primary p-3 me-3" style="background-color: rgba(115, 103, 240, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
@@ -20,7 +20,7 @@
         </div>
 
         <!-- Card 2: Total Courses -->
-        <div class="col-md-3 col-sm-6 mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-center">
                     <div class="badge rounded bg-label-warning p-3 me-3" style="background-color: rgba(255, 159, 67, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
@@ -34,8 +34,25 @@
             </div>
         </div>
 
-        <!-- Card 3: Today's Tests -->
-        <div class="col-md-3 col-sm-6 mb-4">
+        <!-- Card 3: Student Requests -->
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+            <a href="{{ route('student-requests.index') }}" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm border-0 card-hover-effect" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="badge rounded bg-label-success p-3 me-3" style="background-color: rgba(40, 199, 111, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bx bx-envelope fs-3 text-success" style="font-size: 2rem !important;"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted d-block small">Student Requests</span>
+                            <h4 class="mb-0 fw-bold mt-1">{{ $studentRequestsCount }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Card 4: Today's Tests -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-start">
                     <div class="badge rounded bg-label-danger p-3 me-3" style="background-color: rgba(234, 84, 85, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -55,8 +72,8 @@
             </div>
         </div>
 
-        <!-- Card 4: Timetables (Single Box listing attachments) -->
-        <div class="col-md-3 col-sm-6 mb-4">
+        <!-- Card 5: Timetables (Single Box listing attachments) -->
+        <div class="col-xl-3 col-md-6 col-sm-6 mb-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body d-flex align-items-start">
                     <div class="badge rounded bg-label-info p-3 me-3" style="background-color: rgba(0, 192, 239, 0.16) !important; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
