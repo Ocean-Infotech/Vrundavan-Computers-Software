@@ -14,6 +14,8 @@ class StudentAssignmentReport extends Model
         'gr_no',
         'status',
         'remarks',
+        'created_by',
+        'updated_by',
     ];
 
     public function assignment()
@@ -24,5 +26,15 @@ class StudentAssignmentReport extends Model
     public function student()
     {
         return $this->belongsTo(Admission::class, 'gr_no');
+    }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

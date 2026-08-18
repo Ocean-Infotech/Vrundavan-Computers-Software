@@ -37,4 +37,14 @@ class Test extends Model
     {
         return $this->belongsTo(MasterBatch::class, 'batch_id', 'id');
     }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

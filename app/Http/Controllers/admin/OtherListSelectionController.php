@@ -57,7 +57,7 @@ class OtherListSelectionController extends Controller
                     return '<input type="checkbox" class="student-checkbox" value="' . $row->register_id . '">';
                 })
                 ->addColumn('student_name', function ($row) {
-                    return $row->admission->full_name ?? '-';
+                    return $row->admission->first_name . ' ' . $row->admission->last_name . ' ' . $row->admission->father_name ?? '-';
                 })
                 ->addColumn('gender', function ($row) {
                     return $row->admission->gender ?? '-';
@@ -266,7 +266,8 @@ class OtherListSelectionController extends Controller
         $query = CourceRegistration::whereIn('id', $sub)
             ->with('admission')
             ->where('course_id', $course_id)
-            ->where('batch_id', $batch_id);
+            ->where('batch_id', $batch_id)
+            ->whereNotIn('status', ['Cancel', 'cancel']);
 
         if (!empty($studentIds)) {
             $query->whereIn('register_id', $studentIds);

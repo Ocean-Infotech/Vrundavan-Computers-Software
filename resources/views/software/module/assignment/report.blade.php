@@ -78,6 +78,8 @@
                                     <th class="text-center">Pending</th>
                                     <th class="text-center">Incomplete</th>
                                     <th>Remarks</th>
+                                    <th>Faculty Name</th>
+                                    <th>Date & Time</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,6 +119,24 @@
                                                 data-assignment-id="{{ $assignment->id }}" 
                                                 value="{{ $remarks }}" placeholder="Enter remarks">
                                         </td>
+                                        <td class="faculty-name-box">
+                                            @if($student->report)
+                                                <span class="badge bg-light text-dark">
+                                                    {{ $student->report->updatedByUser?->name ?? $student->report->createdByUser?->name ?? 'N/A' }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="faculty-time-box">
+                                            @if($student->report && $student->report->updated_at)
+                                                <small class="text-muted">
+                                                    {{ $student->report->updated_at->format('d-m-Y h:i A') }}
+                                                </small>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -146,7 +166,7 @@ $(document).ready(function() {
         info: true,
         pageLength: 25,
         lengthMenu: [ [25, 50, 100], [25, 50, 100] ],
-        dom: '<"row"<"col-sm-12"f>>t<"row mt-3"<"col-sm-12 col-md-4"l><"col-sm-12 col-md-4"i><"col-sm-12 col-md-4"p>>',
+        dom: 't<"row mt-3"<"col-sm-12 col-md-4"l><"col-sm-12 col-md-4"i><"col-sm-12 col-md-4"p>>',
         language: {
             searchPlaceholder: 'Search student...',
         }
@@ -178,7 +198,7 @@ $(document).ready(function() {
     });
 
     // Helper to send ajax status/remarks updates
-    function updateReport(studentId, assignmentId, status, remarks) {
+    function updateReport(inputEl, studentId, assignmentId, status, remarks) {
         $.ajax({
             type: "POST",
             url: "{{ route('assignment.save-report-ajax') }}",
@@ -194,6 +214,14 @@ $(document).ready(function() {
             success: function(data) {
                 if (data.success) {
                     toastr.success("Report updated successfully!", "Success");
+                    // Update the faculty name and time in separate columns
+                    let row = inputEl.closest('tr');
+                    row.find('.faculty-name-box').html(`
+                        <span class="badge bg-light text-dark">${data.faculty_name}</span>
+                    `);
+                    row.find('.faculty-time-box').html(`
+                        <small class="text-muted">${data.time}</small>
+                    `);
                 } else {
                     toastr.error(data.message || "Something went wrong!", "Error");
                 }
@@ -206,19 +234,21 @@ $(document).ready(function() {
 
     // Save status when radio button is clicked
     $('#report-datatables').on('change', '.status-radio', function() {
+        let inputEl = $(this);
         let studentId = $(this).data('student-id');
         let assignmentId = $(this).data('assignment-id');
         let status = $(this).val();
         let remarks = $(this).closest('tr').find('.remarks-input').val();
-        updateReport(studentId, assignmentId, status, remarks);
+        updateReport(inputEl, studentId, assignmentId, status, remarks);
     });
 
     $('#report-datatables').on('blur', '.remarks-input', function() {
+        let inputEl = $(this);
         let studentId = $(this).data('student-id');
         let assignmentId = $(this).data('assignment-id');
         let status = $(this).closest('tr').find('.status-radio:checked').val() || '';
         let remarks = $(this).val();
-        updateReport(studentId, assignmentId, status, remarks);
+        updateReport(inputEl, studentId, assignmentId, status, remarks);
     });
 
     $('#report-datatables').on('keypress', '.remarks-input', function(e) {

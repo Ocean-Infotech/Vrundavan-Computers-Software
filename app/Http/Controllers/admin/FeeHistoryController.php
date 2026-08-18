@@ -46,6 +46,9 @@ class FeeHistoryController extends Controller
             //     ->orderByDesc('date')
             //     ->orderByDesc('id');
             $feesQuery = FeesCollection::with(['course', 'admission'])
+                ->whereHas('registration', function ($q) {
+                    $q->whereNotIn('status', ['Cancel', 'cancel']);
+                })
                 ->orderByDesc('date')
                 ->orderByDesc('id');
             if ($request->has('search') && !empty($request->search)) {

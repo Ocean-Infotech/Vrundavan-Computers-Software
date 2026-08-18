@@ -21,7 +21,10 @@
             success: function(response) {
                 if (response.status) {
                     // console.log("getcourceregistration 18",response.data, courceregistration_id);
-                    let options = "<option value=''>Select Fees Collection</option>";
+                    let options = "";
+                    if (!instance.is('datalist')) {
+                        options = "<option value=''>Select Fees Collection</option>";
+                    }
                     if (response.data && response.data.length > 0) {
                         $.each(response.data, function(i, item) {
                             if (courceregistration_id == item.id) {

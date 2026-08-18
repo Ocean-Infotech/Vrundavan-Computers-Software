@@ -52,12 +52,11 @@ class AttedanceReportController extends Controller
 
         $totalDays = count($dates);
 
-        // Fetch all active/mapped students
+        // Fetch all active/mapped students (excluding cancelled ones)
         $studentsQuery = Admission::whereNotNull('biometric_id')
-            ->where('biometric_id', '!=', '');
-
-        if ($request->filled('course_id') || $request->filled('batch_id') || $request->filled('class_id')) {
-            $studentsQuery->whereHas('courses', function ($q) use ($request) {
+            ->where('biometric_id', '!=', '')
+            ->whereHas('courses', function ($q) use ($request) {
+                $q->whereNotIn('status', ['Cancel', 'cancel']);
                 if ($request->filled('course_id')) {
                     $q->where('course_id', $request->course_id);
                 }
@@ -68,7 +67,6 @@ class AttedanceReportController extends Controller
                     $q->whereIn('class_id', (array) $request->class_id);
                 }
             });
-        }
 
         $students = $studentsQuery->get();
 

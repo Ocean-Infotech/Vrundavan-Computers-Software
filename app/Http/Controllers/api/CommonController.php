@@ -45,7 +45,7 @@ class CommonController extends Controller
             $data = DB::table('cource_registration as cr')
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
-                // ->where('cr.status', 'active')
+                ->whereNotIn('cr.status', ['Cancel', 'cancel'])
                 ->orderBy('cr.id', 'ASC')
                 ->select(
                     'cr.id as course_reg_id',
@@ -269,7 +269,9 @@ class CommonController extends Controller
     public function get_admission(Request $request)
     {
         try {
-            $data = Admission::where('status', 'created')->orderBy('id', 'ASC')->get();
+            $data = Admission::whereHas('courses', function ($q) {
+                $q->whereNotIn('status', ['Cancel', 'cancel']);
+            })->orderBy('id', 'ASC')->get();
 
             $data = $data->map(function ($row) {
                 // $temp = $row;

@@ -15,6 +15,8 @@ class StudentTestMark extends Model
         'test_id',
         'register_id',
         'marks',
+        'created_by',
+        'updated_by',
     ];
 
 
@@ -22,11 +24,21 @@ class StudentTestMark extends Model
     public function test()
     {
         return $this->belongsTo(Test::class, 'test_id');
-}
+    }
 
     // Each mark belongs to a student (Admission model)
     public function student()
     {
         return $this->belongsTo(Admission::class, 'register_id');
+    }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

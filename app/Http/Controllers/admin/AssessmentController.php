@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Illuminate\Database\Eloquent\Builder;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterBatch;
+use App\Models\Master\MasterClass;
 
 class AssessmentController extends Controller
 {
@@ -138,12 +139,13 @@ class AssessmentController extends Controller
             return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
         }
 
-        $students = Admission::whereIn('status', ['active', 'created'])
-            ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
-            ->orderBy('id', 'asc')
-            ->get();
+        $courses = MasterCourse::pluck('course_name', 'id');
+        $batches = [];
+        $classes = [];
+        $students = [];
+        $selectedStudents = [];
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'students'));
+        return view($modules['folder_path'] . '.form', compact('modules', 'courses', 'batches', 'classes', 'students', 'selectedStudents'));
     }
 
     public function store(Request $request)
@@ -154,6 +156,35 @@ class AssessmentController extends Controller
         $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
         if (!$canCreate) {
             return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
+        // Check if it is a bulk submission
+        if ($request->has('assessments') && is_array($request->assessments)) {
+            $request->validate([
+                'assessments' => 'required|array',
+                'assessments.*.admission_id' => 'required|exists:admission,id',
+                'assessments.*.subject' => 'required|string|max:255',
+                'assessments.*.performance' => 'required|in:best,good,average,poor',
+                'assessments.*.remarks' => 'nullable|string',
+            ]);
+
+            DB::beginTransaction();
+            try {
+                foreach ($request->assessments as $assess) {
+                    Assessment::create([
+                        'admission_id' => $assess['admission_id'],
+                        'subject'      => $assess['subject'],
+                        'performance'  => $assess['performance'],
+                        'remarks'      => $assess['remarks'] ?? null,
+                        'created_by'   => Auth::id(),
+                    ]);
+                }
+                DB::commit();
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' records created successfully.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return Redirect::back()->withErrors($e->getMessage())->withInput();
+            }
         }
 
         $request->validate([

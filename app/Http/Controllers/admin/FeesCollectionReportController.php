@@ -185,6 +185,7 @@ class FeesCollectionReportController extends Controller
             ->groupBy('register_id');
 
         $allStudents = CourceRegistration::whereIn('id', $sub)
+            ->whereNotIn('status', ['Cancel', 'cancel'])
             ->with(['admission', 'course'])
             ->where('course_id', $course_id)
             ->where('batch_id', $batch_id)

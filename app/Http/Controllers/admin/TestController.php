@@ -544,8 +544,13 @@ class TestController extends Controller
         View::share('modules', $modules);
 
         try {
-            // Load test with batch, students, and their admission details
-            $test = Test::with(['batch.students.admission'])->findOrFail($id);
+            // Load test with batch, active students, and their admission details
+            $test = Test::with([
+                'batch.students' => function ($query) {
+                    $query->whereNotIn('status', ['Cancel', 'cancel']);
+                },
+                'batch.students.admission'
+            ])->findOrFail($id);
             $students = $test->batch->students ?? [];
 
             // Load previously saved marks for each student for this specific test
@@ -574,17 +579,36 @@ class TestController extends Controller
                 'mark' => 'nullable|numeric',
             ]);
 
-            \App\Models\StudentTestMark::updateOrCreate(
-                [
+            $userId = Auth::id();
+
+            // Find existing or create new
+            $markRecord = \App\Models\StudentTestMark::where([
+                'test_id' => $validated['test_id'],
+                'register_id' => $validated['student_id'],
+            ])->first();
+
+            if ($markRecord) {
+                $markRecord->update([
+                    'marks' => $validated['mark'] ?? 0,
+                    'updated_by' => $userId,
+                ]);
+                $markRecord->load(['updatedByUser', 'createdByUser']);
+            } else {
+                $markRecord = \App\Models\StudentTestMark::create([
                     'test_id' => $validated['test_id'],
                     'register_id' => $validated['student_id'],
-                ],
-                [
                     'marks' => $validated['mark'] ?? 0,
-                ]
-            );
+                    'created_by' => $userId,
+                    'updated_by' => $userId,
+                ]);
+                $markRecord->load(['updatedByUser', 'createdByUser']);
+            }
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'faculty_name' => $markRecord->updatedByUser?->name ?? $markRecord->createdByUser?->name ?? 'N/A',
+                'time' => $markRecord->updated_at ? $markRecord->updated_at->format('d-m-Y h:i A') : '',
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }

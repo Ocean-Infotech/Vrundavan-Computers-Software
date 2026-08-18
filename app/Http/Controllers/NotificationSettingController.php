@@ -402,7 +402,8 @@ class NotificationSettingController extends Controller
     {
         try {
             $query = \App\Models\CourceRegistration::with('student', 'admission:id,first_name,last_name,father_name')
-                ->where('course_id', $course_id);
+                ->where('course_id', $course_id)
+                ->whereNotIn('status', ['Cancel', 'cancel']);
 
             if ($request->filled('batch_id')) {
                 $query->where('batch_id', $request->batch_id);

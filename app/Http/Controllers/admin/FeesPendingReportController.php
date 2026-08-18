@@ -49,6 +49,7 @@ class FeesPendingReportController extends Controller
                 ->groupBy('register_id');
 
             $query = CourceRegistration::whereIn('id', $sub)
+                ->whereNotIn('status', ['Cancel', 'cancel'])
                 ->with(['admission', 'course']);
 
             if ($course_id) {
@@ -233,6 +234,7 @@ class FeesPendingReportController extends Controller
             ->groupBy('register_id');
 
         $query = CourceRegistration::whereIn('id', $sub)
+            ->whereNotIn('status', ['Cancel', 'cancel'])
             ->with(['admission', 'course']);
 
         if ($course_id) {

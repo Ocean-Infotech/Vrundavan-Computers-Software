@@ -201,7 +201,10 @@ class IssueCertificateController extends Controller
 
     private function getStudentOptions()
     {
-        return Admission::orderByDesc('id')
+        return Admission::whereHas('courses', function ($q) {
+                $q->whereNotIn('status', ['Cancel', 'cancel']);
+            })
+            ->orderByDesc('id')
             ->get()
             ->map(function ($admission) {
                 $name = trim(

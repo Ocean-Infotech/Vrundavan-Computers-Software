@@ -40,14 +40,27 @@
                         <div class="col-md-3">
                             <h4 class="mb-0">{{ $modules['title'] }} Mark Entry Form</h4>
                         </div>
-                        <div class="col-md-3">
-                            <strong>Batch:</strong> {{ $test->batch->batch_name ?? 'N/A' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Subject:</strong> {{ $test->subject_name ?? 'N/A' }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Unit:</strong> {{ $test->unit_name ?? 'N/A' }}
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <strong>Batch:</strong> {{ $test->batch->batch_name ?? 'N/A' }}
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <strong>Subject:</strong> {{ $test->subject_name ?? 'N/A' }}
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <strong>Unit:</strong> {{ $test->unit_name ?? 'N/A' }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Faculty Name:</strong> {{ $test->createdByUser?->name ?? 'N/A' }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Date & Time:</strong> {{ $test->created_at ? $test->created_at->format('d-m-Y h:i A') : 'N/A' }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Max Marks:</strong> {{ $test->mark ?? 'N/A' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -61,17 +74,16 @@
                             <table id="yajra-datatables" class="table table-striped table-hover dt-responsive nowrap" style="width: 100%">
                                 <thead>
                                     <tr>
-                                        <th>Sr No</th>
                                         <th>Student ID</th>
                                         <th>Name</th>
                                         <th>Mark</th>
+                                        <th>Faculty Name</th>
+                                        <th>Date & Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $i = 1; @endphp
                                     @foreach ($students as $student)
                                         <tr>
-                                            <td>{{ $i++ }}</td>
                                             <td>{{ $student->id }}</td>
                                             <td>{{ $student->admission->first_name }} {{ $student->admission->last_name }}
                                             </td>
@@ -81,6 +93,27 @@
                                                     data-test-id="{{ $test->id }}"
                                                     value="{{ $student->admission->testMarks->isNotEmpty() ? number_format($student->admission->testMarks->first()->marks, 2) : 0 }}"
                                                     min="0" max="100" placeholder="Enter marks">
+                                            </td>
+                                            @php
+                                                $markInfo = $student->admission->testMarks->first();
+                                            @endphp
+                                            <td class="faculty-name-box">
+                                                @if($markInfo)
+                                                    <span class="badge bg-light text-dark">
+                                                        {{ $markInfo->updatedByUser?->name ?? $markInfo->createdByUser?->name ?? 'N/A' }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="faculty-time-box">
+                                                @if($markInfo)
+                                                    <small class="text-muted">
+                                                        {{ $markInfo->updated_at ? $markInfo->updated_at->format('d-m-Y h:i A') : '' }}
+                                                    </small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -128,7 +161,7 @@ $(document).ready(function() {
         },
         columnDefs: [
             {
-                targets: 3,
+                targets: 2,
                 orderDataType: 'dom-text-numeric'
             }
         ]
@@ -136,6 +169,7 @@ $(document).ready(function() {
 
     // ✅ Event Delegation - table પર event listener લગાવો
     $('#yajra-datatables').on('change', '.mark-input', function() {
+        let inputEl = $(this);
         let mark = parseFloat(this.value);
         let studentId = this.dataset.studentId;
         let testId = this.dataset.testId;
@@ -163,6 +197,14 @@ $(document).ready(function() {
             .then(data => {
                 if (data.success) {
                     toastr.success("Marks saved successfully!", "Success");
+                    // Update the faculty name and time in separate columns
+                    let row = inputEl.closest('tr');
+                    row.find('.faculty-name-box').html(`
+                        <span class="badge bg-light text-dark">${data.faculty_name}</span>
+                    `);
+                    row.find('.faculty-time-box').html(`
+                        <small class="text-muted">${data.time}</small>
+                    `);
                 } else {
                     toastr.error(data.message || "Something went wrong!", "Error");
                 }

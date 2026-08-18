@@ -120,7 +120,7 @@
                     <div class="col-md-12 col-sm-12 mt-3">
                         <div class="form-group">
                             <label class="form-label">Body <span class="text-danger">*</span></label>
-                            <textarea id="body_editor" name="body" class="form-control @error('body') is-invalid @enderror"
+                            <textarea id="body" name="body" rows="5" class="form-control @error('body') is-invalid @enderror"
                                 placeholder="Enter message">{{ isset($edit?->body) ? $edit->body : old('body') }}</textarea>
 
                             @error('body')
@@ -176,25 +176,6 @@
 @endsection
 
 @section('page_leavel_script')
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#body_editor'), {
-                toolbar: [
-                    'heading', '|',
-                    'bold', 'italic', 'underline', 'link', '|',
-                    'bulletedList', 'numberedList', '|',
-                    'blockQuote', 'undo', 'redo'
-                ]
-            })
-    </script>
-    <style>
-        .ck-editor__editable {
-            min-height: 300px !important;
-            max-height: 300px !important;
-            overflow-y: auto;
-        }
-    </style>
     <script>
         $(document).ready(function() {
 

@@ -90,12 +90,12 @@ class FeescollectionpendingController extends Controller
             // dd('hello');
             if ($request->ajax()) {
 
-                // dd($request->all());
                 $sub = CourceRegistration::select(DB::raw('MAX(id) as id'))
                     // ->where('status', 'active')
                     ->groupBy('register_id');
 
                 $dataQuery = CourceRegistration::whereIn('id', $sub)
+                    ->whereNotIn('status', ['Cancel', 'cancel'])
                     ->with(['course', 'admission', 'batch', 'class', 'shift', 'feescollection'])
                     ->withTrashed()
                     ->orderBy('created_at', 'desc');
@@ -271,6 +271,7 @@ class FeescollectionpendingController extends Controller
                 ->groupBy('register_id');
 
             $dataQuery = CourceRegistration::whereIn('id', $sub)
+                ->whereNotIn('status', ['Cancel', 'cancel'])
                 ->with(['course', 'admission', 'feescollection']);
 
             if ($scope === 'filtered') {
@@ -364,6 +365,7 @@ class FeescollectionpendingController extends Controller
             ->groupBy('register_id');
 
         $dataQuery = CourceRegistration::whereIn('id', $sub)
+            ->whereNotIn('status', ['Cancel', 'cancel'])
             ->with(['course', 'admission', 'feescollection']);
 
         if ($scope === 'filtered') {
@@ -433,7 +435,7 @@ class FeescollectionpendingController extends Controller
 
             // Active course registration with course details
             $courseReg = CourceRegistration::where('register_id', $id)
-                // ->where('status', 'active')
+                ->whereNotIn('status', ['Cancel', 'cancel'])
                 ->with('course')
                 ->firstOrFail();
 

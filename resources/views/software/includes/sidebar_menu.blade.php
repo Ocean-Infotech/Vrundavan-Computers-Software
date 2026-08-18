@@ -341,7 +341,7 @@
  
                 {{-- Marksheet Issue --}}
                 @directCan('marksheet-issue-list')
-                <li class="menu-item {{ Route::currentRouteName() == 'marksheet-issue.index' ? 'active' : '' }}">
+                <li class="menu-item {{ $sidebar_active == 'marksheet-issue' ? 'active' : '' }}">
                     <a href="{{ route('marksheet-issue.index') }}" class="menu-link">
                         <div data-i18n="Marksheet Issue">Marksheet Issue</div>
                     </a>

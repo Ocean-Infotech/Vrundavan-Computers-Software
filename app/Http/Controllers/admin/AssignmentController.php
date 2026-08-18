@@ -32,11 +32,17 @@ class AssignmentController extends Controller
     {
         $modules = $this->modules;
         $modules['login_user_role'] = Helper::getLoginUserRole();
-        // Since permissions might not be seeded yet, fallback to true or standard checks
-        $modules['permission_list'] = true;
-        $modules['permission_add'] = true;
-        $modules['permission_edit'] = true;
-        $modules['permission_delete'] = true;
+        $modules['permission_list'] = Helper::directCan($modules['permission_prefix'] . '-list');
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+
+        if (!$modules['permission_list']) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'User does not have the right permissions.'], 403);
+            }
+            abort(403, 'User does not have the right permissions.');
+        }
 
         View::share('modules', $modules);
 
@@ -104,7 +110,10 @@ class AssignmentController extends Controller
     public function create()
     {
         $modules = $this->modules;
-        $modules['permission_add'] = true;
+        $modules['permission_add'] = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$modules['permission_add']) {
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
         return view($modules['folder_path'] . '.form');
     }
@@ -112,6 +121,10 @@ class AssignmentController extends Controller
     public function store(AssignmentRequest $request)
     {
         $modules = $this->modules;
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            abort(403, 'User does not have the right permissions.');
+        }
         $validated = $request->validated();
 
         try {
@@ -127,7 +140,10 @@ class AssignmentController extends Controller
     public function edit($id)
     {
         $modules = $this->modules;
-        $modules['permission_edit'] = true;
+        $modules['permission_edit'] = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$modules['permission_edit']) {
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         $edit = Assignment::findOrFail($id);
@@ -137,6 +153,10 @@ class AssignmentController extends Controller
     public function update(AssignmentRequest $request, $id)
     {
         $modules = $this->modules;
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            abort(403, 'User does not have the right permissions.');
+        }
         $validated = $request->validated();
         $assignment = Assignment::findOrFail($id);
 
@@ -152,6 +172,10 @@ class AssignmentController extends Controller
 
     public function destroy($id)
     {
+        $canDelete = Helper::directCan($this->modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.'], 403);
+        }
         try {
             $assignment = Assignment::findOrFail($id);
             $assignment->delete();
@@ -176,6 +200,10 @@ class AssignmentController extends Controller
     public function report($id)
     {
         $modules = $this->modules;
+        $canList = Helper::directCan($modules['permission_prefix'] . '-list');
+        if (!$canList) {
+            abort(403, 'User does not have the right permissions.');
+        }
         View::share('modules', $modules);
 
         try {
@@ -189,7 +217,8 @@ class AssignmentController extends Controller
 
             foreach ($students as $student) {
                 $grNo = $student->admission->gr_no ?? 0;
-                $student->report = \App\Models\StudentAssignmentReport::where('assignment_id', $id)
+                $student->report = \App\Models\StudentAssignmentReport::with(['createdByUser', 'updatedByUser'])
+                    ->where('assignment_id', $id)
                     ->where('gr_no', $grNo)
                     ->first();
             }
@@ -210,18 +239,38 @@ class AssignmentController extends Controller
                 'remarks' => 'nullable|string',
             ]);
 
-            \App\Models\StudentAssignmentReport::updateOrCreate(
-                [
-                    'assignment_id' => $validated['assignment_id'],
-                    'gr_no' => $validated['student_id'],
-                ],
-                [
+            $userId = Auth::id();
+
+            // Find existing or create new
+            $reportRecord = \App\Models\StudentAssignmentReport::where([
+                'assignment_id' => $validated['assignment_id'],
+                'gr_no' => $validated['student_id'],
+            ])->first();
+
+            if ($reportRecord) {
+                $reportRecord->update([
                     'status' => (!empty($validated['status'])) ? $validated['status'] : 'pending',
                     'remarks' => $validated['remarks'] ?? '',
-                ]
-            );
+                    'updated_by' => $userId,
+                ]);
+                $reportRecord->load(['updatedByUser', 'createdByUser']);
+            } else {
+                $reportRecord = \App\Models\StudentAssignmentReport::create([
+                    'assignment_id' => $validated['assignment_id'],
+                    'gr_no' => $validated['student_id'],
+                    'status' => (!empty($validated['status'])) ? $validated['status'] : 'pending',
+                    'remarks' => $validated['remarks'] ?? '',
+                    'created_by' => $userId,
+                    'updated_by' => $userId,
+                ]);
+                $reportRecord->load(['updatedByUser', 'createdByUser']);
+            }
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'faculty_name' => $reportRecord->updatedByUser?->name ?? $reportRecord->createdByUser?->name ?? 'N/A',
+                'time' => $reportRecord->updated_at ? $reportRecord->updated_at->format('d-m-Y h:i A') : '',
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
