@@ -237,7 +237,7 @@
             }
 
             dtable = $('#yajra-datatables').DataTable({
-                searching: true,
+                searching: false,
                 processing: true,
                 serverSide: true,
                 order: [
