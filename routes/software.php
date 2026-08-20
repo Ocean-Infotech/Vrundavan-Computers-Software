@@ -237,6 +237,7 @@ Route::post('/attedance/fetch-logs', [AttedanceController::class, 'fetchLogs'])-
 Route::get('attedance-report', [\App\Http\Controllers\admin\AttedanceReportController::class, 'index'])->name('attedance-report.index');
 Route::get('attedance-report/export-excel', [\App\Http\Controllers\admin\AttedanceReportController::class, 'exportExcel'])->name('attedance-report.export-excel');
 Route::get('attedance-report/print', [\App\Http\Controllers\admin\AttedanceReportController::class, 'printList'])->name('attedance-report.print');
+Route::get('attedance-report/student-detail', [\App\Http\Controllers\admin\AttedanceReportController::class, 'studentDetail'])->name('attedance-report.student-detail');
 
 
 

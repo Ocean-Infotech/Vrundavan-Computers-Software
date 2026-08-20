@@ -86,6 +86,51 @@
             </div>
         </div>
     </div>
+
+    {{-- Student Attendance Detail Modal --}}
+    <div class="modal fade" id="studentDetailModal" tabindex="-1" aria-labelledby="studentDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title mb-0" id="studentDetailModalLabel">
+                        <i class="bx bx-calendar-check me-1"></i>
+                        Attendance Detail — <span id="modalStudentName"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="studentDetailLoading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted mb-0">Fetching attendance…</p>
+                    </div>
+                    <div id="studentDetailError" class="alert alert-danger m-3 d-none"></div>
+                    <div class="table-responsive" id="studentDetailTableWrapper">
+                        <table class="table table-bordered table-hover table-sm mb-0" id="studentDetailTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width:40px">#</th>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th class="text-center">In Time</th>
+                                    <th class="text-center">Out Time</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentDetailTableBody">
+                                <tr><td colspan="6" class="text-center text-muted py-3">No data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <div class="me-auto small text-muted" id="studentDetailSummary"></div>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('page_script_file')
@@ -265,4 +310,91 @@
 
     @include('software.utils.getCourse')
     @include('software.utils.getBatchByCourseid')
+
+    <script type="text/javascript">
+        // Student Name Click → Detail Modal
+        var studentDetailModal = new bootstrap.Modal(document.getElementById('studentDetailModal'));
+
+        $(document).on('click', '.student-name-link', function (e) {
+            e.preventDefault();
+
+            var biometricId  = $(this).data('biometric-id');
+            var studentName  = $(this).data('student-name');
+            var startDate    = $('#start_date').val();
+            var endDate      = $('#end_date').val();
+
+            if (!startDate || !endDate) {
+                alert('Please select a Date Range first to view student detail.');
+                return;
+            }
+
+            // Reset modal state
+            $('#modalStudentName').text(studentName);
+            $('#studentDetailLoading').removeClass('d-none');
+            $('#studentDetailError').addClass('d-none').text('');
+            $('#studentDetailTableBody').html('<tr><td colspan="6" class="text-center text-muted py-3">Loading…</td></tr>');
+            $('#studentDetailSummary').text('');
+
+            studentDetailModal.show();
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('attedance-report.student-detail') }}",
+                data: {
+                    biometric_id : biometricId,
+                    start_date   : startDate,
+                    end_date     : endDate,
+                },
+                beforeSend: function (request) {
+                    request.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+                },
+                success: function (response) {
+                    $('#studentDetailLoading').addClass('d-none');
+
+                    if (!response.status || !response.data || !response.data.length) {
+                        $('#studentDetailTableBody').html('<tr><td colspan="6" class="text-center text-muted py-3">No attendance records found.</td></tr>');
+                        return;
+                    }
+
+                    var rows    = response.data;
+                    var present = 0;
+                    var html    = '';
+
+                    $.each(rows, function (i, row) {
+                        var isPresent = (row.status === 'Present');
+                        if (isPresent) present++;
+
+                        var statusBadge = isPresent
+                            ? '<span class="badge bg-success px-2 py-1">Present</span>'
+                            : '<span class="badge bg-danger px-2 py-1">Absent</span>';
+
+                        var rowClass = isPresent ? '' : 'table-danger';
+
+                        html += '<tr class="' + rowClass + '">'
+                             +  '<td class="text-center">' + (i + 1) + '</td>'
+                             +  '<td>' + row.date + '</td>'
+                             +  '<td>' + row.day + '</td>'
+                             +  '<td class="text-center">' + row.in_time + '</td>'
+                             +  '<td class="text-center">' + row.out_time + '</td>'
+                             +  '<td class="text-center">' + statusBadge + '</td>'
+                             +  '</tr>';
+                    });
+
+                    var absent = rows.length - present;
+                    $('#studentDetailTableBody').html(html);
+                    $('#studentDetailSummary').html(
+                        'Total: <strong>' + rows.length + '</strong> days &nbsp;|&nbsp; '
+                      + 'Present: <strong class="text-success">' + present + '</strong> &nbsp;|&nbsp; '
+                      + 'Absent: <strong class="text-danger">' + absent + '</strong>'
+                    );
+                },
+                error: function () {
+                    $('#studentDetailLoading').addClass('d-none');
+                    $('#studentDetailError').removeClass('d-none').text('Failed to load attendance data. Please try again.');
+                    $('#studentDetailTableBody').html('<tr><td colspan="6" class="text-center text-muted py-3">Error loading data.</td></tr>');
+                }
+            });
+        });
+    </script>
 @endsection
+

@@ -149,6 +149,13 @@ class AttedanceReportController extends Controller
 
             return Datatables::of($collection)
                  ->addIndexColumn()
+                 ->addColumn('student_name_link', function ($row) {
+                     $name = e($row['student_name']);
+                     $bio  = e($row['biometric_id']);
+                     return '<a href="#" class="student-name-link fw-semibold text-primary text-decoration-none" '
+                          . 'data-biometric-id="' . $bio . '" '
+                          . 'data-student-name="' . $name . '">' . $name . '</a>';
+                 })
                  ->addColumn('present_badge', function ($row) {
                      return $row['present_days'];
                  })
@@ -158,7 +165,7 @@ class AttedanceReportController extends Controller
                  ->addColumn('total_days', function ($row) {
                      return $row['total_days'];
                  })
-                 ->rawColumns(['present_badge', 'absent_badge'])
+                 ->rawColumns(['present_badge', 'absent_badge', 'student_name_link'])
                 ->with([
                     'present_count' => $presentCount,
                     'absent_count' => $absentCount,
@@ -169,7 +176,7 @@ class AttedanceReportController extends Controller
         $columns = [
             (object) ['data' => 'DT_RowIndex', 'name' => 'id', 'td_label' => 'No', 'orderable' => false, 'searchable' => false],
             (object) ['data' => 'biometric_id', 'name' => 'biometric_id', 'td_label' => 'Biometric ID'],
-            (object) ['data' => 'student_name', 'name' => 'student_name', 'td_label' => 'Student Name'],
+            (object) ['data' => 'student_name_link', 'name' => 'student_name', 'td_label' => 'Student Name', 'orderable' => false, 'searchable' => false],
             (object) ['data' => 'course_batch_class', 'name' => 'course_batch_class', 'td_label' => 'Course - Batch - Class', 'orderable' => false, 'searchable' => false],
             (object) ['data' => 'present_badge', 'name' => 'present_days', 'td_label' => 'Present', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
             (object) ['data' => 'absent_badge', 'name' => 'absent_days', 'td_label' => 'Absent', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
@@ -259,6 +266,63 @@ class AttedanceReportController extends Controller
             $writer->save('php://output');
         }, 'attendance-report.xlsx', [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function studentDetail(Request $request)
+    {
+        $biometricId = $request->input('biometric_id');
+        $startDateStr = $request->input('start_date') ?: date('Y-m-d');
+        $endDateStr   = $request->input('end_date')   ?: date('Y-m-d');
+
+        $startDate = Carbon::parse($startDateStr);
+        $endDate   = Carbon::parse($endDateStr);
+
+        // Limit to 31 days
+        if ($startDate->diffInDays($endDate) > 31) {
+            $endDate = $startDate->copy()->addDays(31);
+        }
+
+        // Build date list (excluding Sundays)
+        $dates = [];
+        for ($d = $startDate->copy(); $d->lte($endDate); $d->addDay()) {
+            if ($d->dayOfWeek !== Carbon::SUNDAY) {
+                $dates[] = $d->format('Y-m-d');
+            }
+        }
+
+        // Fetch attendance logs for this student
+        $logs = Attedance::where('biometric_id', $biometricId)
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get()
+            ->groupBy('date');
+
+        $rows = [];
+        foreach ($dates as $dateStr) {
+            $dayLogs = $logs->get($dateStr);
+            $isPresent = $dayLogs && $dayLogs->isNotEmpty();
+
+            $inTime  = null;
+            $outTime = null;
+
+            if ($isPresent) {
+                $sorted   = $dayLogs->sortBy(fn($p) => $p->in_time . '_' . $p->id)->values();
+                $inTime   = $sorted->first()?->in_time;
+                $outTime  = $sorted->count() >= 2 ? $sorted->get(1)?->in_time : null;
+            }
+
+            $rows[] = [
+                'date'    => Carbon::parse($dateStr)->format('d-m-Y'),
+                'day'     => Carbon::parse($dateStr)->format('l'),
+                'in_time' => $inTime  ? date('h:i A', strtotime($inTime))  : '-',
+                'out_time'=> $outTime ? date('h:i A', strtotime($outTime)) : '-',
+                'status'  => $isPresent ? 'Present' : 'Absent',
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'data'   => $rows,
         ]);
     }
 }
