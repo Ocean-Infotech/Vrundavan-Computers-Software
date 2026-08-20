@@ -90,6 +90,8 @@ class TestreportController extends Controller
          --------------------------------------------*/
         $studentSearch = trim($request->student_search ?? '');
         $student_details = null;
+        $currentSemester = null;
+        $startDateStr = null;
 
         if (!empty($studentSearch)) {
             $student_details = DB::table('cource_registration')
@@ -99,7 +101,11 @@ class TestreportController extends Controller
                     'admission.id as admission_id',
                     'cource_registration.id as student_id',
                     DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name) as student_name"),
-                    'master_course.course_name'
+                    'master_course.course_name',
+                    'cource_registration.register_id',
+                    'cource_registration.course_id',
+                    'cource_registration.is_lateral_entry',
+                    'cource_registration.joining_semester'
                 )
                 ->where(function ($q) use ($studentSearch) {
                     if (is_numeric($studentSearch)) {
@@ -111,6 +117,29 @@ class TestreportController extends Controller
                     }
                 })
                 ->first();
+
+            if ($student_details) {
+                // Determine current semester
+                $currentSemester = 1;
+                if ($student_details->is_lateral_entry == 1 && $student_details->joining_semester) {
+                    $currentSemester = (int)$student_details->joining_semester;
+                }
+                $maxPaidSem = DB::table('fees_collections')
+                    ->where('student_id', $student_details->register_id)
+                    ->where('course_id', $student_details->course_id)
+                    ->max('year_semester');
+                if ($maxPaidSem && $maxPaidSem > $currentSemester) {
+                    $currentSemester = (int)$maxPaidSem;
+                }
+
+                // Determine June start date of current academic cycle
+                $now = \Carbon\Carbon::now();
+                $startOfAttendance = \Carbon\Carbon::create($now->year, 6, 1)->startOfDay();
+                if ($now->month < 6) {
+                    $startOfAttendance->subYear();
+                }
+                $startDateStr = $startOfAttendance->format('Y-m-d');
+            }
         }
 
 
@@ -121,12 +150,11 @@ class TestreportController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->filter(function ($query) use ($request) {
+            ->filter(function ($query) use ($request, $studentSearch, $student_details, $currentSemester, $startDateStr) {
 
-                $studentSearch = trim($request->student_search ?? '');
                 $searchValue = $request->search['value'] ?? null;
 
-                if (!empty($studentSearch)) {
+                if (!empty($studentSearch) && $student_details) {
                     $query->where(function ($q) use ($studentSearch) {
                         if (is_numeric($studentSearch)) {
                             $q->where('cource_registration.id', $studentSearch)
@@ -137,7 +165,9 @@ class TestreportController extends Controller
                         }
                     });
 
-                    return;
+                    // Only show tests matching current semester and current cycle (June onwards)
+                    $query->where('test.semester', $currentSemester);
+                    $query->where('test.date', '>=', $startDateStr);
                 }
 
                 if (!empty($searchValue)) {
@@ -340,7 +370,11 @@ class TestreportController extends Controller
                     'admission.id as admission_id',
                     'cource_registration.id as student_id',
                     DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name) as student_name"),
-                    'master_course.course_name'
+                    'master_course.course_name',
+                    'cource_registration.register_id',
+                    'cource_registration.course_id',
+                    'cource_registration.is_lateral_entry',
+                    'cource_registration.joining_semester'
                 )
                 ->where(function ($q) use ($studentSearch) {
                     if (is_numeric($studentSearch)) {
@@ -352,6 +386,22 @@ class TestreportController extends Controller
                     }
                 })
                 ->first();
+
+            if ($student_details) {
+                // Determine current semester
+                $currentSemester = 1;
+                if ($student_details->is_lateral_entry == 1 && $student_details->joining_semester) {
+                    $currentSemester = (int)$student_details->joining_semester;
+                }
+                $maxPaidSem = DB::table('fees_collections')
+                    ->where('student_id', $student_details->register_id)
+                    ->where('course_id', $student_details->course_id)
+                    ->max('year_semester');
+                if ($maxPaidSem && $maxPaidSem > $currentSemester) {
+                    $currentSemester = (int)$maxPaidSem;
+                }
+                $student_details->current_semester = $currentSemester;
+            }
         }
 
         $tests = $this->buildTestReportExportQuery($request, $scope)->get();
@@ -418,6 +468,50 @@ class TestreportController extends Controller
                             'like', "%{$studentSearch}%");
                     }
                 });
+
+                // Get details to filter by current semester and date
+                $student_details = DB::table('cource_registration')
+                    ->leftJoin('admission', 'cource_registration.register_id', '=', 'admission.id')
+                    ->select(
+                        'cource_registration.register_id',
+                        'cource_registration.course_id',
+                        'cource_registration.is_lateral_entry',
+                        'cource_registration.joining_semester'
+                    )
+                    ->where(function ($q) use ($studentSearch) {
+                        if (is_numeric($studentSearch)) {
+                            $q->where('cource_registration.id', $studentSearch)
+                              ->orWhere('admission.id', $studentSearch);
+                        } else {
+                            $q->where(DB::raw("CONCAT(admission.first_name,' ',admission.last_name,' ',admission.father_name)"),
+                                'like', "%{$studentSearch}%");
+                        }
+                    })
+                    ->first();
+
+                if ($student_details) {
+                    $currentSemester = 1;
+                    if ($student_details->is_lateral_entry == 1 && $student_details->joining_semester) {
+                        $currentSemester = (int)$student_details->joining_semester;
+                    }
+                    $maxPaidSem = DB::table('fees_collections')
+                        ->where('student_id', $student_details->register_id)
+                        ->where('course_id', $student_details->course_id)
+                        ->max('year_semester');
+                    if ($maxPaidSem && $maxPaidSem > $currentSemester) {
+                        $currentSemester = (int)$maxPaidSem;
+                    }
+
+                    $now = \Carbon\Carbon::now();
+                    $startOfAttendance = \Carbon\Carbon::create($now->year, 6, 1)->startOfDay();
+                    if ($now->month < 6) {
+                        $startOfAttendance->subYear();
+                    }
+                    $startDateStr = $startOfAttendance->format('Y-m-d');
+
+                    $query->where('test.semester', $currentSemester);
+                    $query->where('test.date', '>=', $startDateStr);
+                }
             }
 
             $searchValue = $request->get('search');

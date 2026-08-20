@@ -29,6 +29,7 @@
             'show_export_btns' => true,
             'show_excal_btn' => true,
             'show_print_btn' => true,
+            'show_student_test_report_btn' => true,
             'show_back_btn' => false,
         ])
     </div>
@@ -432,6 +433,29 @@
             $('#print_btn').on('click', function(e) {
                 e.preventDefault();
                 openExportModal('print');
+            });
+
+            $('#print_student_test_report_btn').on('click', function(e) {
+                e.preventDefault();
+                
+                const studentSearch = $('#search_id').val() || '';
+                if (!studentSearch) {
+                    alert('Please search and select a student first.');
+                    return;
+                }
+                
+                const params = new URLSearchParams();
+                params.append('scope', 'filtered');
+                params.append('student_search', studentSearch);
+                
+                // Add default columns
+                const defaultCols = ['subject_name', 'unit_name', 'cr_date', 'mark', 'student_mark'];
+                defaultCols.forEach(column => params.append('columns[]', column));
+                
+                const baseUrl = "{{ route($route . '.print') }}";
+                const finalUrl = `${baseUrl}?${params.toString()}`;
+                
+                window.open(finalUrl, '_blank');
             });
 
             $('#selectAllColumns').on('click', function() {

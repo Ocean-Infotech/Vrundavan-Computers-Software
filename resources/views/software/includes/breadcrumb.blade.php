@@ -68,6 +68,14 @@
                 </li>
             @endif
 
+            @if (isset($show_student_test_report_btn) && $show_student_test_report_btn)
+                <li>
+                    <a href="#" class="dropdown-item" id="print_student_test_report_btn">
+                        <i class="fa fa-print me-2 text-info"></i>Print Student Test Report
+                    </a>
+                </li>
+            @endif
+
             @if (isset($show_classwise_attendance_btn) && $show_classwise_attendance_btn)
                 <li>
                     <a href="#" class="dropdown-item" id="classwiseAttendanceBtn">
