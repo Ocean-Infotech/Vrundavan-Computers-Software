@@ -92,7 +92,7 @@ class ApiStudentController extends Controller
                     $shiftTiming = $from . ' To ' . $to;
                 }
 
-                 $data = [
+                $data = [
                     'university'        => $courseRegistered->university ?? '',
                     'department'        => $courseRegistered->department ?? '',
                     'course'            => $courseRegistered->course?->course_name ?? '',
@@ -885,9 +885,8 @@ class ApiStudentController extends Controller
 
             $notifications = NotificationSetting::query()
                 ->where(function ($q) use ($student) {
-                    $q->whereNull('student_id')
-                        ->orWhere('student_id', '')
-                        ->orWhereRaw("FIND_IN_SET(?, student_id)", [$student->id])
+                    $q->where('student_id', $student->id)
+                        ->orWhereNull('student_id')
                         ->orWhere('course_id', $student->course_id ?? 0);
                 })
                 ->latest()
@@ -897,12 +896,7 @@ class ApiStudentController extends Controller
                 return $this->sendError("No notifications found.", [], [], 404);
             }
 
-            // Get read notification IDs for this student
-            $readIds = \App\Models\NotificationRead::where('student_id', $student->id)
-                ->pluck('notification_id')
-                ->toArray();
-
-            $data = $notifications->map(function ($row) use ($readIds) {
+            $data = $notifications->map(function ($row) {
                 $cleanBody = $row->body;
                 $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
                 $cleanBody = str_ireplace('<p>', '', $cleanBody);
@@ -917,7 +911,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => in_array($row->id, $readIds) ? 1 : 0,
+                    'is_read' => (bool) $row->is_read,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
             });
@@ -927,7 +921,7 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
-        /**
+    /**
      * Mark notifications as read
      *
      * Marks specific notifications as read for the logged‑in student. If no IDs are provided,
@@ -953,7 +947,7 @@ class ApiStudentController extends Controller
      * }
      */
 
-  public function notifications_mark_read(Request $request)
+    public function notifications_mark_read(Request $request)
     {
         try {
             $student = Auth::guard('student-api')->user();
@@ -964,54 +958,33 @@ class ApiStudentController extends Controller
             $notificationIds = $request->input('notification_ids', []);
 
             if (!empty($notificationIds)) {
-                // Find valid notifications matching this student
-                $notificationsToMark = NotificationSetting::whereIn('id', $notificationIds)
+                $updated = NotificationSetting::whereIn('id', $notificationIds)
                     ->where(function ($q) use ($student) {
-                        $q->whereNull('student_id')
-                            ->orWhere('student_id', '')
-                            ->orWhereRaw("FIND_IN_SET(?, student_id)", [$student->id])
-                            ->orWhere('course_id', $student->course_id ?? 0);
+                        $q->where('student_id', (string) $student->id)
+                            ->orWhereNull('student_id')
+                            ->orWhere('course_id', (string) ($student->course_id ?? '0'));
                     })
-                    ->pluck('id')
-                    ->toArray();
+                    ->update(['is_read' => 1]);
 
-                foreach ($notificationsToMark as $nid) {
-                    \App\Models\NotificationRead::firstOrCreate([
-                        'notification_id' => $nid,
-                        'student_id' => $student->id
-                    ]);
+                if ($updated == 0) {
+                    return $this->sendError("No notifications found to mark as read.", [], [], 404);
                 }
             } else {
-                // Get all notifications for this student
-                $allNotifications = NotificationSetting::where(function ($q) use ($student) {
-                        $q->whereNull('student_id')
-                            ->orWhere('student_id', '')
-                            ->orWhereRaw("FIND_IN_SET(?, student_id)", [$student->id])
-                            ->orWhere('course_id', $student->course_id ?? 0);
-                    })
-                    ->pluck('id')
-                    ->toArray();
-
-                foreach ($allNotifications as $nid) {
-                    \App\Models\NotificationRead::firstOrCreate([
-                        'notification_id' => $nid,
-                        'student_id' => $student->id
-                    ]);
-                }
+                $updated = NotificationSetting::where(function ($q) use ($student) {
+                    $q->where('student_id', (string) $student->id)
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0'));
+                })
+                    ->where('is_read', 0)
+                    ->update(['is_read' => 1]);
             }
 
-            // Get read notification IDs for retrieving read notifications
-            $readIds = \App\Models\NotificationRead::where('student_id', $student->id)
-                ->pluck('notification_id')
-                ->toArray();
-
             $readNotifications = NotificationSetting::query()
-                ->whereIn('id', $readIds)
+                ->where('is_read', 1)
                 ->where(function ($q) use ($student) {
-                    $q->whereNull('student_id')
-                        ->orWhere('student_id', '')
-                        ->orWhereRaw("FIND_IN_SET(?, student_id)", [$student->id])
-                        ->orWhere('course_id', $student->course_id ?? 0);
+                    $q->where('student_id', (string) $student->id)
+                        ->orWhereNull('student_id')
+                        ->orWhere('course_id', (string) ($student->course_id ?? '0'));
                 })
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -1028,7 +1001,6 @@ class ApiStudentController extends Controller
                 $cleanBody = trim($cleanBody);
 
                 $row->body = $cleanBody;
-                $row->is_read = 1; // Add attribute manually for API consistency as integer 1
             }
 
             return $this->sendResponse(
@@ -1171,27 +1143,10 @@ class ApiStudentController extends Controller
                 ->where('is_read', false)
                 ->count();
 
-            // Calculate unread notifications count using the new read tracking
-            $totalNotifications = NotificationSetting::where(function ($q) use ($student) {
-                    $q->whereNull('student_id')
-                        ->orWhere('student_id', '')
-                        ->orWhereRaw("FIND_IN_SET(?, student_id)", [$student->id])
-                        ->orWhere('course_id', $student->course_id ?? 0);
-                })
-                ->pluck('id')
-                ->toArray();
-
-            $readNotificationCount = \App\Models\NotificationRead::where('student_id', $student->id)
-                ->whereIn('notification_id', $totalNotifications)
-                ->count();
-
-            $unreadNotificationCount = max(0, count($totalNotifications) - $readNotificationCount);
-
             return $this->sendResponse([[
                 'unread_complaints' => $unreadComplaints,
                 'marksheet_count' => $marksheetCount,
                 'unread_assessment' => $assessmentCount,
-                'unread_notification' => $unreadNotificationCount,
             ]], 'Unread counts fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);

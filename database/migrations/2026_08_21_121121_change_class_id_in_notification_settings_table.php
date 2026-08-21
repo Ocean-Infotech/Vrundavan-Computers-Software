@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notification_settings', function (Blueprint $table) {
-            $table->string('class_id')->nullable()->change();
+            //
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('notification_settings', function (Blueprint $table) {
-            $table->unsignedBigInteger('class_id')->nullable()->change();
+            //
         });
     }
 };

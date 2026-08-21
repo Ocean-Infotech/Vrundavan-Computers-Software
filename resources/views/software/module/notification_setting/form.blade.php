@@ -71,10 +71,11 @@
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="form-label">Class</label>
-                            <select class="form-control select2" name="class_id[]" id="classSelect" multiple data-placeholder="Select Class">
+                            <select class="form-control select2" name="class_id" id="classSelect">
+                                <option value="">Select Class</option>
                                 @foreach ($classes as $id => $class_name)
                                     <option value="{{ $id }}"
-                                        {{ (isset($edit) && is_array($edit->class_id) && in_array($id, $edit->class_id)) || (is_array(old('class_id')) && in_array($id, old('class_id'))) ? 'selected' : '' }}>
+                                        {{ (isset($edit) && $edit->class_id == $id) || old('class_id') == $id ? 'selected' : '' }}>
                                         {{ $class_name }}
                                     </option>
                                 @endforeach
@@ -82,16 +83,11 @@
                         </div>
                     </div>
 
-                    <div class="col-md-12 col-sm-12 mb-3">
+                    <div class="col-md-3 col-sm-12 mb-3">
                         <div class="form-group">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="form-label mb-0">Student <span class="text-danger">*</span></label>
-                                <button type="button" class="btn btn-sm btn-link p-0 text-danger" id="clearStudentsBtn" style="font-size: 0.8rem; text-decoration: none;">
-                                    <i class="fa-solid fa-xmark"></i> Clear Selection
-                                </button>
-                            </div>
+                            <label class="form-label">Student <span class="text-danger">*</span></label>
                             <select class="form-control select2 @error('student_id') is-invalid @enderror"
-                                name="student_id[]" id="studentDropdown" multiple data-placeholder="Select Students" style="width: 100%;">
+                                name="student_id[]" id="studentDropdown" multiple>
                                 <option value="all">Select All</option>
                                 @if (isset($students) && count($students) > 0)
                                     @foreach ($students as $student)
@@ -104,7 +100,7 @@
                             </select>
 
                             @error('student_id')
-                                <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
                     </div>
@@ -209,17 +205,10 @@
                     },
                     success: function(data) {
                         studentDropdown.empty().append('<option value="all">Select All</option>');
-                        var allIds = [];
                         $.each(data, function(key, student) {
                             studentDropdown.append('<option value="' + student.id + '">' + student.name + '</option>');
-                            allIds.push(student.id);
                         });
-                        // Automatically select all students ONLY if Class is selected
-                        if (classId && classId.length > 0) {
-                            studentDropdown.val(allIds).trigger('change.select2');
-                        } else {
-                            studentDropdown.val([]).trigger('change.select2');
-                        }
+                        studentDropdown.trigger('change.select2');
                     },
                     error: function(xhr) {
                         studentDropdown.empty().append('<option value="">Error loading students</option>');
@@ -311,11 +300,6 @@
                 if (e.params.data.id !== 'all') {
                     studentDropdown.find('option[value="all"]').prop('selected', false);
                 }
-            });
-
-            // Clear Button Click Action
-            $('#clearStudentsBtn').on('click', function() {
-                studentDropdown.val([]).trigger('change.select2');
             });
 
         });

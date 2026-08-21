@@ -35,13 +35,12 @@ class NotificationSettingRequest extends FormRequest
             'body' => 'required|string',
             'course_id' => 'required|string',
             'batch_id' => 'nullable|integer',
-            'class_id' => 'nullable|array',
-            'class_id.*' => 'string',
-            'send_to_all' => 'nullable|boolean',
-            'student_id' => 'required_without:send_to_all|array',
+            'class_id' => 'nullable|integer',
+            'student_id' => 'required|array',
             'student_id.*' => 'string', // Allow 'all' or integer IDs as string/int
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'pdf' => 'nullable|mimes:pdf|max:15360',
         ];
     }
+}
 }
