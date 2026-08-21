@@ -122,13 +122,36 @@ class NotificationSettingController extends Controller
 
         return view($modules['folder_path'] . '.form');
     }
-
     public function store(NotificationSettingRequest $request)
     {
         $validated = $request->validated();
 
         try {
-            $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
+            $sendToAll = $request->boolean('send_to_all');
+            $studentIds = [];
+
+            if ($sendToAll) {
+                // Fetch all students for the given course, batch, or class
+                $query = \App\Models\CourceRegistration::where('course_id', $validated['course_id'])
+                    ->whereNotIn('status', ['Cancel', 'cancel']);
+
+                if (!empty($validated['batch_id'])) {
+                    $query->where('batch_id', $validated['batch_id']);
+                }
+
+                 if (!empty($validated['class_id'])) {
+                    if (is_array($validated['class_id'])) {
+                        $query->whereIn('class_id', $validated['class_id']);
+                    } else {
+                        $query->where('class_id', $validated['class_id']);
+                    }
+                }
+
+                $studentIds = $query->pluck('admission_id')->toArray();
+            } else {
+                $studentIds = array_filter($validated['student_id'] ?? [], fn($id) => $id !== 'all');
+            }
+
             $validated['created_by'] = Auth::user()->id;
 
             // Handle image upload
@@ -158,64 +181,68 @@ class NotificationSettingController extends Controller
             $imageUrl = isset($validated['image']) ? asset($validated['image']) : null;
             $pdfUrl = isset($validated['pdf']) ? asset($validated['pdf']) : null;
 
-              foreach ($studentIds as $sid) {
-                // Create a separate NotificationSetting record for each student
-                $notificationData = $validated;
-                $notificationData['student_id'] = $sid;
-                $notification = NotificationSetting::create($notificationData);
+            // Create a single NotificationSetting record with comma-separated student IDs
+            $notificationData = $validated;
+            if (isset($notificationData['class_id']) && is_array($notificationData['class_id'])) {
+                $notificationData['class_id'] = implode(',', $notificationData['class_id']);
+            }
+            $notificationData['student_id'] = implode(',', $studentIds);
+            NotificationSetting::create($notificationData);
 
-                // Prepare notification body
-                $cleanBody = $validated['body'];
-                $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
-                $cleanBody = str_ireplace('<p>', '', $cleanBody);
-                $cleanBody = strip_tags($cleanBody);
-                $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
-                $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
-                $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
-                $cleanBody = trim($cleanBody);
-    
-                // Get all the student's device tokens
-                $tokens = StudentDeviceToken::where('student_id', $sid)
-                    ->pluck('device_token')
+            // Prepare notification body for push notification
+            $cleanBody = $validated['body'];
+            $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+            $cleanBody = str_ireplace('<p>', '', $cleanBody);
+            $cleanBody = strip_tags($cleanBody);
+            $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+            $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+            $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+            $cleanBody = trim($cleanBody);
+
+            // Get all device tokens for all selected students
+            $tokens = [];
+            if (count($studentIds) > 0) {
+                $tokens = StudentDeviceToken::whereIn('student_id', $studentIds)
+                    ->pluck('device_token', 'student_id')
                     ->toArray();
+            }
 
-                if (count($tokens) > 0) {
-                    $androidConfig = AndroidConfig::fromArray([
-                        'ttl' => '3600s',
-                        'priority' => 'high',
-                        'notification' => [
-                            'channel_id'   => 'default',
-                            'sound'        => 'default',
-                            'click_action' => 'OPEN_NOTIFICATION',
-                        ],
-                        'fcm_options' => [
-                            'analytics_label' => 'student_notification',
-                        ],
-                    ]);
+            if (count($tokens) > 0) {
+                $androidConfig = AndroidConfig::fromArray([
+                    'ttl' => '3600s',
+                    'priority' => 'high',
+                    'notification' => [
+                        'channel_id'   => 'default',
+                        'sound'        => 'default',
+                        'click_action' => 'OPEN_NOTIFICATION',
+                    ],
+                    'fcm_options' => [
+                        'analytics_label' => 'student_notification',
+                    ],
+                ]);
 
-                    foreach ($tokens as $token) {
-                        if (!empty($token)) {
-                            $fcmNotification = FCMNotification::create($validated['title'], $cleanBody);
-                            if ($imageUrl) {
-                                $fcmNotification = $fcmNotification->withImageUrl($imageUrl);
-                            }
+                foreach ($tokens as $sid => $token) {
+                    if (!empty($token)) {
+                        $fcmNotification = FCMNotification::create($validated['title'], $cleanBody);
+                        if ($imageUrl) {
+                            $fcmNotification = $fcmNotification->withImageUrl($imageUrl);
+                        }
 
-                            $message = CloudMessage::withTarget('token', $token)
-                                ->withNotification($fcmNotification)
-                                ->withAndroidConfig($androidConfig)
-                                ->withData([
-                                    'student_id' => (string) $sid,
-                                    'title'      => $validated['title'],
-                                    'body'       => $cleanBody,
-                                    'image'      => $imageUrl ?? '',
-                                    'pdf'        => $pdfUrl ?? '',
-                                ]);
+                        $message = CloudMessage::withTarget('token', $token)
+                            ->withNotification($fcmNotification)
+                            ->withAndroidConfig($androidConfig)
+                            ->withData([
+                                'student_id' => (string) $sid,
+                                'title'      => $validated['title'],
+                                'body'       => $cleanBody,
+                                'image'      => $imageUrl ?? '',
+                                'pdf'        => $pdfUrl ?? '',
+                            ]);
 
-                            try {
-                                app('firebase.messaging')->send($message);
-                            } catch (\Exception $e) {
-                                \Log::error("Failed to send push notification to device token: {$token}. Error: " . $e->getMessage());
-                            }
+                        try {
+                            app('firebase.messaging')->send($message);
+                        } catch (\Exception $e) {
+                            \Log::error("Failed to send push notification to device token: {$token}. Error: " . $e->getMessage());
                         }
                     }
                 }
@@ -410,7 +437,12 @@ class NotificationSettingController extends Controller
             }
 
             if ($request->filled('class_id')) {
-                $query->where('class_id', $request->class_id);
+                $classIds = $request->class_id;
+                if (is_array($classIds)) {
+                    $query->whereIn('class_id', $classIds);
+                } else {
+                    $query->where('class_id', $classIds);
+                }
             }
 
             $students = $query->get()
