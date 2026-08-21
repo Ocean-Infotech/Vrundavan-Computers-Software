@@ -66,6 +66,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::match(['get', 'post'], 'marksheet-details', [ApiStudentController::class, 'marksheet_details']);
         Route::match(['get', 'post'], 'unread-counts', [ApiStudentController::class, 'unread_counts']);
         Route::match(['get', 'post'], 'assessment-details', [ApiStudentController::class, 'assessment_details']);
+        Route::match(['get', 'post'], 'achievement-details', [ApiStudentController::class, 'achievement_details']);
     });
 
     Route::match(['get', 'post'], 'get-faculty-complaint-reports', [ApiStudentController::class, 'faculty_complaint_reports']);

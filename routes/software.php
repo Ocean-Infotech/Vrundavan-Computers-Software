@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\FeeHistoryController;
 use App\Http\Controllers\admin\master\LibraryMasterBookController;
 use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
+use App\Http\Controllers\admin\master\MasterEventController;
 use App\Http\Controllers\admin\DocumentTypeController;
 use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\admin\master\MasterUniversityController;
 use App\Http\Controllers\admin\spatie\PermissionController;
 use App\Http\Controllers\admin\spatie\RoleController;
 use App\Http\Controllers\admin\spatie\UserController;
+use App\Http\Controllers\admin\StudentAchievementController;
 use App\Http\Controllers\admin\AdmissionController;
 use App\Http\Controllers\admin\CourceRegistrationController;
 use App\Http\Controllers\admin\master\MasterCourseController;
@@ -107,6 +109,9 @@ Route::get('marksheet-issue/export-excel', [MarksheetIssueController::class, 'ex
 Route::get('marksheet-issue/print', [MarksheetIssueController::class, 'printView'])->name('marksheet-issue.print');
 Route::post('marksheet-issue/toggle', [MarksheetIssueController::class, 'toggle'])->name('marksheet-issue.toggle');
 Route::resource('marksheet-issue', MarksheetIssueController::class);
+
+Route::get('achievement/get-students', [StudentAchievementController::class, 'getStudents'])->name('achievement.get-students');
+Route::resource('achievement', StudentAchievementController::class);
 Route::get('assessment/export-excel', [AssessmentController::class, 'exportExcel'])->name('assessment.export-excel');
 Route::get('assessment/print', [AssessmentController::class, 'printView'])->name('assessment.print');
 Route::resource('assessment', AssessmentController::class);
@@ -366,6 +371,14 @@ Route::delete(
     '/subject/permanent-delete/{id}',
     [MasterSubjectController::class, 'permanentDelete']
 )->name('subject.permanent-delete');
+
+Route::resource('/event', MasterEventController::class);
+Route::match(['get', 'post'], 'event/restore/{id}', [MasterEventController::class, 'restore'])->name('event.restore');
+Route::match(['get', 'post'], 'event-update-status', [MasterEventController::class, 'update_status'])->name('event.status-update');
+Route::delete(
+    '/event/permanent-delete/{id}',
+    [MasterEventController::class, 'permanentDelete']
+)->name('event.permanent-delete');
 
 
 /** Master Class Modules */

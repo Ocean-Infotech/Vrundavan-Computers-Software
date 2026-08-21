@@ -1192,4 +1192,41 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
+    /**
+     * Get achievement details for the student
+     *
+     * @authenticated
+     */
+    public function achievement_details(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            $achievements = \App\Models\StudentAchievement::with('event')
+                ->where('admission_id', $student->id)
+                ->orderBy('date', 'desc')
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $achievementDetails = [];
+            foreach ($achievements as $ach) {
+                $achievementDetails[] = [
+                    'id'         => $ach->id,
+                    'event_name' => $ach->event->name ?? '',
+                    'rank'       => $ach->rank ?? '',
+                    'remark'     => $ach->remark ?? '',
+                    'date'       => $ach->date ? \Carbon\Carbon::parse($ach->date)->format('d-m-Y') : null,
+                ];
+            }
+
+            return $this->sendResponse($achievementDetails, 'Achievement details fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
 }

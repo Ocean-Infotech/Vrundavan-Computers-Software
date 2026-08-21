@@ -182,6 +182,18 @@ class PermissionTableSeeder extends Seeder
             ],
             'student_report' => [
                 'student_report-list',
+            ],
+            'event' => [
+                'event-list',
+                'event-create',
+                'event-edit',
+                'event-delete',
+            ],
+            'achievement' => [
+                'achievement-list',
+                'achievement-create',
+                'achievement-edit',
+                'achievement-delete',
             ]
         ];
 

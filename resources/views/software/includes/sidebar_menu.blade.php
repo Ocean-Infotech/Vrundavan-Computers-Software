@@ -323,9 +323,10 @@
             'assessment-list',
             'assignment-list',
             'assignment-create',
-            'task-list'
+            'task-list',
+            'achievement-list'
         ])
-        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment', 'assignment', 'combined-report', 'task']) ? 'active open' : '' }}">
+        <li class="menu-item {{ in_array($sidebar_active, ['faculty-complaint-report', 'marksheet-issue', 'notification_setting', 'assessment', 'assignment', 'combined-report', 'task', 'achievement']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-messages me-2"></i>
                 <div data-i18n="Communication">Communication</div>
@@ -385,6 +386,15 @@
                     </a>
                 </li>
                 @enddirectCan
+
+                {{-- Achievement --}}
+                @directCan('achievement-list')
+                <li class="menu-item {{ $sidebar_active == 'achievement' ? 'active' : '' }}">
+                    <a href="{{ route('achievement.index') }}" class="menu-link">
+                        <div data-i18n="Achievement">Achievement</div>
+                    </a>
+                </li>
+                @enddirectCan
             </ul>
         </li>
         @enddirectCanAny
@@ -424,6 +434,7 @@
             'shift-list',
             'syllabus-list',
             'subject-list',
+            'event-list',
             'notification-setting-list',
             'timetable-list',
             'student-requests-list',
@@ -431,7 +442,7 @@
             'department-list'
         ])
         <li
-            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'timetable', 'student-requests', 'fees', 'department', 'university']) ? 'active open' : '' }}">
+            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'event', 'timetable', 'student-requests', 'fees', 'department', 'university']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
                 <div data-i18n="Course Masters">Course Masters</div>
@@ -507,6 +518,15 @@
                 <li class="menu-item {{ $sidebar_active == 'subject' ? 'active' : '' }}">
                     <a href="{{ route('subject.index') }}" class="menu-link">
                         <div data-i18n="Request Subject">Request Subject</div>
+                    </a>
+                </li>
+                @enddirectCanAny
+
+                {{-- Event Master --}}
+                @directCanAny(['event-list', 'event-create', 'event-edit', 'event-delete'])
+                <li class="menu-item {{ $sidebar_active == 'event' ? 'active' : '' }}">
+                    <a href="{{ route('event.index') }}" class="menu-link">
+                        <div data-i18n="Event Master">Event Master</div>
                     </a>
                 </li>
                 @enddirectCanAny
