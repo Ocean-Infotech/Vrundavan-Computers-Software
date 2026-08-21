@@ -334,9 +334,31 @@ class AuthenticationController extends Controller
                 ->where('mobile_no', $request->mobile_no)
                 ->first();
 
-                        if (!$student) {
-                    return $this->sendError(
+            if (!$student) {
+                return $this->sendError(
                     'Student not found.',
+                    [],
+                    [],
+                    422
+                );
+            }
+
+            if (in_array(strtolower($student->status), ['cancel', 'cancelled'])) {
+                return $this->sendError(
+                    'Your account has been closed.',
+                    [],
+                    [],
+                    422
+                );
+            }
+
+            $hasActiveCourse = CourceRegistration::where('register_id', $student->id)
+                ->whereNotIn('status', ['Cancel', 'cancel'])
+                ->exists();
+
+            if (!$hasActiveCourse) {
+                return $this->sendError(
+                    'Your course registration has been cancelled.',
                     [],
                     [],
                     422
@@ -506,6 +528,28 @@ class AuthenticationController extends Controller
 
             if (!$student) {
                 return $this->sendError('User not found.', ['mobile_no' => ['User not found.']], [], 404);
+            }
+
+            if (in_array(strtolower($student->status), ['cancel', 'cancelled'])) {
+                return $this->sendError(
+                    'Your account has been cancelled. Please contact admin.',
+                    [],
+                    [],
+                    422
+                );
+            }
+
+            $hasActiveCourse = CourceRegistration::where('register_id', $student->id)
+                ->whereNotIn('status', ['Cancel', 'cancel'])
+                ->exists();
+
+            if (!$hasActiveCourse) {
+                return $this->sendError(
+                    'Your course registration has been cancelled. Please contact admin.',
+                    [],
+                    [],
+                    422
+                );
             }
 
             // Mark OTP as verified

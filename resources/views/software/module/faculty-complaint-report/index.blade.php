@@ -158,9 +158,7 @@
                 searching: false,
                 processing: true,
                 serverSide: true,
-                order: [
-                    [0, 'desc']
-                ],
+                order: [],
                 ajax: {
                     "url": "{{ route($route . '.index') }}",
                     'beforeSend': function(request) {

@@ -58,7 +58,9 @@ class FacultyComplaintReportController extends Controller
         try {
             $data = [];
             if ($request->ajax()) {
-                $data = FacultyComplaintReport::with(['admission', 'faculty'])->select('faculty_complaint_report.*');
+                $data = FacultyComplaintReport::with(['admission', 'faculty'])
+                    ->select('faculty_complaint_report.*')
+                    ->orderBy('faculty_complaint_report.id', 'desc');
 
                 $editPermission = Auth::user()->hasDirectPermission($modules["permission_prefix"] . '-edit');
                 $deletePermission = Auth::user()->hasDirectPermission($modules["permission_prefix"] . '-delete');
