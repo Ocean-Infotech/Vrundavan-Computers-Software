@@ -288,6 +288,12 @@
                                 `);
                             });
 
+                            if ($.fn.select2) {
+                                $('.student-semester').select2({
+                                    width: '100%'
+                                });
+                            }
+
                             toggleRowInputs();
                         }
                     }
@@ -298,7 +304,7 @@
                 $('.student-select').each(function() {
                     let isChecked = $(this).is(':checked');
                     let row = $(this).closest('tr');
-                    row.find('input:not(.student-select), select').prop('disabled', !isChecked);
+                    row.find('input:not(.student-select), select').prop('disabled', !isChecked).trigger('change.select2');
                 });
             }
 
@@ -316,7 +322,7 @@
             $('#common_semester').on('change', function() {
                 let val = $(this).val();
                 if (val) {
-                    $('.student-semester').val(val);
+                    $('.student-semester').val(val).trigger('change');
                 }
             });
 
