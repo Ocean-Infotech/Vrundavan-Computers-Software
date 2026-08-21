@@ -917,7 +917,7 @@ class ApiStudentController extends Controller
                     'title' => $row->title,
                     'body'  => $cleanBody,
                     'file_path' => $row->image ? asset($row->image) : ($row->pdf ? asset($row->pdf) : ''),
-                    'is_read' => in_array($row->id, $readIds),
+                    'is_read' => in_array($row->id, $readIds) ? 1 : 0,
                     'date_time' => $row->created_at->format('Y-m-d H:i:s'),
                 ];
             });
@@ -1028,7 +1028,7 @@ class ApiStudentController extends Controller
                 $cleanBody = trim($cleanBody);
 
                 $row->body = $cleanBody;
-                $row->is_read = true; // Add attribute manually for API consistency
+                $row->is_read = 1; // Add attribute manually for API consistency as integer 1
             }
 
             return $this->sendResponse(
