@@ -267,7 +267,7 @@
                                             <input type="checkbox" class="form-check-input student-select" checked>
                                         </td>
                                         <td>
-                                            <strong>${student.first_name} ${student.last_name} ${student.father_name}</strong> (GR: ${student.gr_no || '-'})
+                                            <strong>${student.first_name} ${student.last_name} ${student.father_name}</strong>
                                             <input type="hidden" name="issues[${index}][admission_id]" value="${student.id}" class="student-admission-id">
                                         </td>
                                         <td>
