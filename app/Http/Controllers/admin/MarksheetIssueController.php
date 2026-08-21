@@ -70,11 +70,11 @@ class MarksheetIssueController extends Controller
                             $searchValue = $request->search['value'];
                             $query->where(function ($q) use ($searchValue) {
                                 $q->where('admission_id', $searchValue)
-                                  ->orWhereHas('admission', function ($sub) use ($searchValue) {
-                                      $sub->where('first_name', 'like', "%{$searchValue}%")
-                                          ->orWhere('last_name', 'like', "%{$searchValue}%")
-                                          ->orWhere('father_name', 'like', "%{$searchValue}%");
-                                  });
+                                    ->orWhereHas('admission', function ($sub) use ($searchValue) {
+                                        $sub->where('first_name', 'like', "%{$searchValue}%")
+                                            ->orWhere('last_name', 'like', "%{$searchValue}%")
+                                            ->orWhere('father_name', 'like', "%{$searchValue}%");
+                                    });
                             });
                         }
                     })
@@ -148,8 +148,42 @@ class MarksheetIssueController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        if ($request->has('issues') && is_array($request->issues)) {
+            $request->validate([
+                'issues' => 'required|array',
+                'issues.*.admission_id' => 'required|exists:admission,id',
+                'issues.*.semester' => 'required|integer',
+                'issues.*.date' => 'required|date',
+                'issues.*.series' => 'nullable|string|max:255',
+                'issues.*.note' => 'nullable|string',
+            ]);
+
+            DB::beginTransaction();
+            try {
+                foreach ($request->issues as $issue) {
+                    $admission = Admission::find($issue['admission_id']);
+                    if ($admission) {
+                        StudentMarksheetIssue::create([
+                            'admission_id' => $issue['admission_id'],
+                            'gr_no'        => $admission->gr_no ?? null,
+                            'date'         => $issue['date'],
+                            'semester'     => $issue['semester'],
+                            'series'       => $issue['series'] ?? null,
+                            'note'         => $issue['note'] ?? null,
+                            'created_by'   => Auth::id(),
+                        ]);
+                    }
+                }
+                DB::commit();
+                return Redirect::route($modules['route'] . '.index')->withSuccess($modules['title'] . ' records created successfully.');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return Redirect::back()->withErrors($e->getMessage())->withInput();
+            }
+        }
+
         $request->validate([
-            'admission_id' => 'required|exists:admission,id',
+            'admission_id' => 'required',
             'semester'     => 'required|integer',
             'date'         => 'required|date',
             'gr_no'        => 'nullable|string|max:255',
@@ -157,19 +191,24 @@ class MarksheetIssueController extends Controller
             'note'         => 'nullable|string',
         ]);
 
+        $admissionIds = is_array($request->admission_id) ? $request->admission_id : [$request->admission_id];
+
         DB::beginTransaction();
         try {
-            $admission = Admission::find($request->admission_id);
-
-            StudentMarksheetIssue::create([
-                'admission_id' => $request->admission_id,
-                'gr_no'        => $request->gr_no ?: ($admission ? $admission->gr_no : null),
-                'date'         => $request->date,
-                'semester'     => $request->semester,
-                'series'       => $request->series,
-                'note'         => $request->note,
-                'created_by'   => Auth::id(),
-            ]);
+            foreach ($admissionIds as $id) {
+                $admission = Admission::find($id);
+                if ($admission) {
+                    StudentMarksheetIssue::create([
+                        'admission_id' => $id,
+                        'gr_no'        => (count($admissionIds) > 1) ? ($admission->gr_no ?? null) : ($request->gr_no ?: ($admission->gr_no ?? null)),
+                        'date'         => $request->date,
+                        'semester'     => $request->semester,
+                        'series'       => $request->series,
+                        'note'         => $request->note,
+                        'created_by'   => Auth::id(),
+                    ]);
+                }
+            }
 
             DB::commit();
 
@@ -412,11 +451,11 @@ class MarksheetIssueController extends Controller
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('admission_id', $search)
-                  ->orWhereHas('admission', function ($sub) use ($search) {
-                      $sub->where('first_name', 'like', "%{$search}%")
-                          ->orWhere('last_name', 'like', "%{$search}%")
-                          ->orWhere('father_name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('admission', function ($sub) use ($search) {
+                        $sub->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('father_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -438,7 +477,11 @@ class MarksheetIssueController extends Controller
             $query->where('batch_id', $batch_id);
         }
         if ($class_id) {
-            $query->where('class_id', $class_id);
+            if (is_array($class_id)) {
+                $query->whereIn('class_id', $class_id);
+            } else {
+                $query->where('class_id', $class_id);
+            }
         }
 
         $studentIds = $query->pluck('register_id');
@@ -454,7 +497,7 @@ class MarksheetIssueController extends Controller
                 ->with('course')
                 ->first();
             $student->semester_count = $courseReg && $courseReg->course ? $courseReg->course->semester : 0;
-            $student->full_name = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? ''));
+            $student->full_name = trim(($student->father_name ?? '') . ' ' . ($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
             return $student;
         });
 

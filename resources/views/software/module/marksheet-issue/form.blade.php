@@ -36,77 +36,119 @@
                 @endisset
 
                 @if (!isset($edit))
-                <div class="row mb-3">
-                    <!-- Course Filter -->
-                    <div class="col-md-4 col-sm-12 mb-2">
-                        <div class="form-group">
-                            <label class="form-label">Course</label>
-                            <select id="filter_course_id" class="form-control select2">
-                                <option value="">Select Course</option>
-                                @foreach ($courses as $course)
-                                    <option value="{{ $course->id }}">{{ $course->course_name }}</option>
-                                @endforeach
-                            </select>
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <!-- Course Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Course <span class="text-danger">*</span></label>
+                                <select id="filter_course_id" class="form-control select2" required>
+                                    <option value="">Select Course</option>
+                                    @foreach ($courses as $course)
+                                        <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Batch Filter -->
-                    <div class="col-md-4 col-sm-12 mb-2">
-                        <div class="form-group">
-                            <label class="form-label">Batch</label>
-                            <select id="filter_batch_id" class="form-control select2">
-                                <option value="">Select Batch</option>
-                            </select>
+                        <!-- Batch Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Batch <span class="text-danger">*</span></label>
+                                <select id="filter_batch_id" class="form-control select2" required>
+                                    <option value="">Select Batch</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Class Filter -->
-                    <div class="col-md-4 col-sm-12 mb-2">
-                        <div class="form-group">
-                            <label class="form-label">Class</label>
-                            <select id="filter_class_id" class="form-control select2">
-                                <option value="">Select Class</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                @endif
-
-                <div class="row">
-                    <!-- Select Student -->
-                    <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">GR No. <span class="text-danger">*</span></label>
-                            <select id="admission_id" name="admission_id"
-                                class="form-control select2 @error('admission_id') is-invalid @enderror" required>
-                                <option value="" disabled {{ !isset($edit) ? 'selected' : '' }}>GR No.</option>
-                                @foreach ($students as $student)
-                                    @php
-                                        $totalSemesters = 0;
-                                        $courseReg = $student->courses->first();
-                                        if ($courseReg && $courseReg->course) {
-                                            $totalSemesters = (int) $courseReg->course->semester;
-                                        }
-                                    @endphp
-                                    <option value="{{ $student->id }}" data-gr-no="{{ $student->gr_no }}" data-semesters="{{ $totalSemesters }}"
-                                        @if (isset($edit) && $edit->admission_id == $student->id) selected
-                                        @elseif(old('admission_id') == $student->id) selected @endif>
-                                        {{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? '')) }} (GR: {{ $student->gr_no ?? '-' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('admission_id')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
+                        <!-- Class Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label d-block">Class</label>
+                                <div id="class_checkboxes_container" class="d-flex flex-wrap gap-3 mt-2 border p-2 rounded bg-white" style="min-height: 38px; align-items: center;">
+                                    <span class="text-muted small">Select Batch first</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Semester -->
-                    <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Semester <span class="text-danger">*</span></label>
-                            <select name="semester" class="form-control select2 @error('semester') is-invalid @enderror" required>
-                                <option value="" disabled {{ !isset($edit) ? 'selected' : '' }}>Select Semester</option>
-                                @if (isset($edit))
+                    <!-- Common Inputs for Auto Fill -->
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3"><i class="bx bx-cog me-1"></i> Common Inputs (Auto Fill)</h6>
+                            <div class="row">
+                                <!-- Common Semester -->
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Semester</label>
+                                        <select id="common_semester" class="form-control select2">
+                                            <option value="">Select Semester</option>
+                                            @for ($s = 1; $s <= 10; $s++)
+                                                <option value="{{ $s }}">Semester {{ $s }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- Common Series -->
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Series</label>
+                                        <input type="text" id="common_series" class="form-control" placeholder="Enter Series">
+                                    </div>
+                                </div>
+                                <!-- Common Date -->
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Date</label>
+                                        <input type="date" id="common_date" class="form-control" value="{{ date('Y-m-d') }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Students Grid Table -->
+                    <div class="table-responsive my-3">
+                        <table class="table table-bordered table-striped align-middle" id="studentGridTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%" class="text-center">
+                                        <input type="checkbox" id="select_all_students" class="form-check-input" checked>
+                                    </th>
+                                    <th width="25%">Student Name</th>
+                                    <th width="15%">Semester <span class="text-danger">*</span></th>
+                                    <th width="15%">Series</th>
+                                    <th width="15%">Date <span class="text-danger">*</span></th>
+                                    <th width="25%">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Please select Course, Batch, and Class to load student list.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <!-- Edit Mode (Single Student) -->
+                    <div class="row">
+                        <!-- Select Student -->
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Student <span class="text-danger">*</span></label>
+                                <select id="admission_id" name="admission_id" class="form-control select2" required>
+                                    @foreach ($students as $student)
+                                        <option value="{{ $student->id }}" @if ($edit->admission_id == $student->id) selected @endif>
+                                            {{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? '')) }} (GR: {{ $student->gr_no ?? '-' }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Semester -->
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Semester <span class="text-danger">*</span></label>
+                                <select name="semester" class="form-control select2" required>
                                     @php
                                         $totalSemesters = 10;
                                         $courseReg = $edit->admission->courses->first();
@@ -119,51 +161,38 @@
                                             Semester {{ $i }}
                                         </option>
                                     @endfor
-                                @endif
-                            </select>
-                            @error('semester')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Date <span class="text-danger">*</span></label>
+                                <input type="date" name="date" class="form-control"
+                                    value="{{ \Carbon\Carbon::parse($edit->date)->format('Y-m-d') }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Series -->
+                        <div class="col-md-4 col-sm-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Series</label>
+                                <input type="text" name="series" class="form-control" value="{{ $edit->series }}" placeholder="Enter Series">
+                            </div>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="col-12 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Note</label>
+                                <textarea name="note" rows="3" class="form-control" placeholder="Enter note...">{{ $edit->note }}</textarea>
+                            </div>
                         </div>
                     </div>
+                @endif
 
-                    <!-- Date -->
-                    <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Date <span class="text-danger">*</span></label>
-                            <input type="date" name="date" class="form-control @error('date') is-invalid @enderror"
-                                value="{{ isset($edit->date) ? \Carbon\Carbon::parse($edit->date)->format('Y-m-d') : old('date', date('Y-m-d')) }}"
-                                required>
-                            @error('date')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Series -->
-                    <div class="col-md-4 col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Series</label>
-                            <input type="text" name="series" class="form-control @error('series') is-invalid @enderror"
-                                value="{{ isset($edit->series) ? $edit->series : old('series') }}" placeholder="Enter Series">
-                            @error('series')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Note -->
-                    <div class="col-12 mb-3">
-                        <div class="form-group">
-                            <label class="form-label">Note</label>
-                            <textarea id="note" name="note" rows="3" class="form-control @error('note') is-invalid @enderror"
-                                placeholder="Enter note...">{{ isset($edit->note) ? $edit->note : old('note') }}</textarea>
-                            @error('note')
-                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-
+                <div class="row">
                     <div class="col-md-12 text-center mt-3">
                         <button type="submit" class="btn btn-success me-2">
                             {{ isset($edit) ? 'Update' : 'Submit' }}
@@ -186,14 +215,21 @@
                 });
             }
 
-            function loadFilteredStudents() {
+            @if (!isset($edit))
+             function loadFilteredStudents() {
                 let courseId = $('#filter_course_id').val();
                 let batchId = $('#filter_batch_id').val();
-                let classId = $('#filter_class_id').val();
+                let classIds = [];
+                $('.filter-class-checkbox:checked').each(function() {
+                    classIds.push($(this).val());
+                });
 
-                if (!courseId || !batchId || !classId) {
+                if (!courseId || !batchId || classIds.length === 0) {
+                    $('#studentTableBody').html('<tr><td colspan="6" class="text-center text-muted">Please select Course, Batch, and Class to load student list.</td></tr>');
                     return;
                 }
+
+                $('#studentTableBody').html('<tr><td colspan="6" class="text-center">Loading student list...</td></tr>');
 
                 $.ajax({
                     type: 'GET',
@@ -201,37 +237,108 @@
                     data: {
                         course_id: courseId,
                         batch_id: batchId,
-                        class_id: classId
+                        class_id: classIds
                     },
                     success: function(response) {
                         if (response.success) {
-                            let select = $('#admission_id');
-                            select.empty().append('<option value="" disabled selected>GR No.</option>');
-                            
-                            response.data.forEach(function(student) {
-                                select.append(`<option value="${student.id}" data-gr-no="${student.gr_no}" data-semesters="${student.semester_count}">${student.full_name} (GR: ${student.gr_no || '-'})</option>`);
+                            let tbody = $('#studentTableBody');
+                            tbody.empty();
+
+                            if (response.data.length === 0) {
+                                tbody.append('<tr><td colspan="6" class="text-center text-muted">No students found.</td></tr>');
+                                return;
+                            }
+
+                            let commonSemester = $('#common_semester').val() || '';
+                            let commonSeries = $('#common_series').val() || '';
+                            let commonDate = $('#common_date').val() || '{{ date('Y-m-d') }}';
+
+                            response.data.forEach(function(student, index) {
+                                let totalSems = student.semester_count || 10;
+                                let semOptions = `<option value="">Semester</option>`;
+                                for (let s = 1; s <= totalSems; s++) {
+                                    let selected = (commonSemester == s) ? 'selected' : '';
+                                    semOptions += `<option value="${s}" ${selected}>Semester ${s}</option>`;
+                                }
+
+                                tbody.append(`
+                                    <tr>
+                                        <td class="text-center">
+                                            <input type="checkbox" class="form-check-input student-select" checked>
+                                        </td>
+                                        <td>
+                                            <strong>${student.first_name} ${student.last_name} ${student.father_name}</strong> (GR: ${student.gr_no || '-'})
+                                            <input type="hidden" name="issues[${index}][admission_id]" value="${student.id}" class="student-admission-id">
+                                        </td>
+                                        <td>
+                                            <select name="issues[${index}][semester]" class="form-control student-semester" required>
+                                                ${semOptions}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="issues[${index}][series]" class="form-control student-series" value="${commonSeries}" placeholder="Series">
+                                        </td>
+                                        <td>
+                                            <input type="date" name="issues[${index}][date]" class="form-control student-date" value="${commonDate}" required>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="issues[${index}][note]" class="form-control student-note" value="" placeholder="Note">
+                                        </td>
+                                    </tr>
+                                `);
                             });
-                            
-                            select.trigger('change');
+
+                            toggleRowInputs();
                         }
                     }
                 });
             }
 
+            function toggleRowInputs() {
+                $('.student-select').each(function() {
+                    let isChecked = $(this).is(':checked');
+                    let row = $(this).closest('tr');
+                    row.find('input:not(.student-select), select').prop('disabled', !isChecked);
+                });
+            }
+
+            // Sync rows inputs status when select status is checked/unchecked
+            $(document).on('change', '.student-select', toggleRowInputs);
+
+            // Master Select All checkbox
+            $(document).on('change', '#select_all_students', function() {
+                let isChecked = $(this).is(':checked');
+                $('.student-select').prop('checked', isChecked);
+                toggleRowInputs();
+            });
+
+            // Auto-fill common inputs on all rows
+            $('#common_semester').on('change', function() {
+                let val = $(this).val();
+                if (val) {
+                    $('.student-semester').val(val);
+                }
+            });
+
+            $('#common_series').on('input', function() {
+                let val = $(this).val();
+                $('.student-series').val(val);
+            });
+
+            $('#common_date').on('change input', function() {
+                let val = $(this).val();
+                $('.student-date').val(val);
+            });
+
             // Dependent dropdown: Course -> Batch
             $('#filter_course_id').on('change', function() {
                 let courseId = $(this).val();
                 let batchSelect = $('#filter_batch_id');
-                let classSelect = $('#filter_class_id');
-                let studentSelect = $('#admission_id');
 
                 batchSelect.empty().append('<option value="">Select Batch</option>');
-                classSelect.empty().append('<option value="">Select Class</option>');
-                studentSelect.empty().append('<option value="" disabled selected>GR No.</option>');
+                $('#class_checkboxes_container').html('<span class="text-muted small">Select Batch first</span>');
 
                 batchSelect.trigger('change.select2');
-                classSelect.trigger('change.select2');
-                studentSelect.trigger('change.select2');
 
                 if (courseId) {
                     $.ajax({
@@ -251,19 +358,15 @@
                         }
                     });
                 }
+                loadFilteredStudents();
             });
 
-            // Dependent dropdown: Batch -> Class
+            // Dependent dropdown: Batch -> Class Checkboxes
             $('#filter_batch_id').on('change', function() {
                 let batchId = $(this).val();
-                let classSelect = $('#filter_class_id');
-                let studentSelect = $('#admission_id');
+                let container = $('#class_checkboxes_container');
 
-                classSelect.empty().append('<option value="">Select Class</option>');
-                studentSelect.empty().append('<option value="" disabled selected>GR No.</option>');
-
-                classSelect.trigger('change.select2');
-                studentSelect.trigger('change.select2');
+                container.html('<span class="text-muted small">Loading classes...</span>');
 
                 if (batchId) {
                     $.ajax({
@@ -275,55 +378,37 @@
                         },
                         success: function(response) {
                             if (response.status && response.data) {
+                                let checkboxesHtml = '';
                                 response.data.forEach(function(cls) {
-                                    classSelect.append(`<option value="${cls.id}">${cls.name}</option>`);
+                                    checkboxesHtml += `
+                                        <div class="form-check me-3">
+                                            <input class="form-check-input filter-class-checkbox" type="checkbox" value="${cls.id}" id="class_chk_${cls.id}">
+                                            <label class="form-check-label" for="class_chk_${cls.id}">
+                                                ${cls.name}
+                                            </label>
+                                        </div>
+                                    `;
                                 });
-                                classSelect.trigger('change.select2');
+                                container.html(checkboxesHtml || '<span class="text-muted small">No classes found</span>');
+                            } else {
+                                container.html('<span class="text-muted small">No classes found</span>');
                             }
+                            loadFilteredStudents();
+                        },
+                        error: function() {
+                            container.html('<span class="text-muted small">Error loading classes</span>');
+                            loadFilteredStudents();
                         }
                     });
+                } else {
+                    container.html('<span class="text-muted small">Select Batch first</span>');
+                    loadFilteredStudents();
                 }
             });
 
-            // When Class is selected, load students
-            $('#filter_class_id').on('change', loadFilteredStudents);
-
-            // Auto-populate semester dropdown based on selected student's course semesters
-            $('#admission_id').on('change', function() {
-                let semesters = $(this).find(':selected').data('semesters');
-                let semesterSelect = $('select[name="semester"]');
-                let selectedVal = semesterSelect.val() || "{{ isset($edit) ? $edit->semester : old('semester') }}";
-                
-                semesterSelect.empty().append('<option value="" disabled selected>Select Semester</option>');
-                
-                if (semesters) {
-                    for (let i = 1; i <= semesters; i++) {
-                        let selected = (selectedVal == i) ? 'selected' : '';
-                        semesterSelect.append(`<option value="${i}" ${selected}>Semester ${i}</option>`);
-                    }
-                }
-                
-                // Notify Select2 to update the UI
-                semesterSelect.trigger('change');
-            });
-
-            // Prevent opening semester dropdown if no student/GR No is selected
-            $('select[name="semester"]').on('select2:opening', function(e) {
-                if (!$('#admission_id').val()) {
-                    e.preventDefault();
-                    if (typeof toastr !== 'undefined') {
-                        toastr.warning('Please select GR No. first.');
-                    } else {
-                        alert('Please select GR No. first.');
-                    }
-                }
-            });
-
-            // Trigger change on load if student is already selected
-            if ($('#admission_id').val()) {
-                $('#admission_id').trigger('change');
-            }
-
+            // When Class checkboxes change, load students
+            $(document).on('change', '.filter-class-checkbox', loadFilteredStudents);
+            @endif
         });
     </script>
 @endsection
