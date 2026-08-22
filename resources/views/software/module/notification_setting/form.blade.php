@@ -70,22 +70,29 @@
 
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
-                            <label class="form-label">Class</label>
-                            <select class="form-control select2" name="class_id" id="classSelect">
-                                <option value="">Select Class</option>
-                                @foreach ($classes as $id => $class_name)
-                                    <option value="{{ $id }}"
-                                        {{ (isset($edit) && $edit->class_id == $id) || old('class_id') == $id ? 'selected' : '' }}>
-                                        {{ $class_name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label class="form-label d-block">Class</label>
+                            <div id="classCheckboxContainer" class="form-control d-flex flex-wrap align-items-center" style="min-height: 38px; border: 1px solid #ced4da; border-radius: 4px; padding: 6px 12px; background: #fff; gap: 15px;">
+                                @if (isset($classes) && count($classes) > 0)
+                                    @foreach ($classes as $id => $class_name)
+                                        <div class="form-check form-check-inline mb-0 me-3">
+                                            <input class="form-check-input class-checkbox" type="checkbox" name="class_id[]" value="{{ $id }}" id="class_chk_{{ $id }}"
+                                                {{ (isset($edit) && strpos($edit->class_id, (string)$id) !== false) || (is_array(old('class_id')) && in_array($id, old('class_id'))) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-semibold" for="class_chk_{{ $id }}">{{ $class_name }}</label>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <span class="text-muted">Select Class</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-3 col-sm-12 mb-3">
+                    <div class="col-md-12 col-sm-12 mb-3">
                         <div class="form-group">
-                            <label class="form-label">Student <span class="text-danger">*</span></label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label mb-0">Student <span class="text-danger">*</span></label>
+                                <button type="button" class="btn btn-sm btn-link p-0 text-danger" id="clearStudentsBtn" style="text-decoration: none;"><i class="fa-solid fa-xmark me-1"></i>Clear Selection</button>
+                            </div>
                             <select class="form-control select2 @error('student_id') is-invalid @enderror"
                                 name="student_id[]" id="studentDropdown" multiple>
                                 <option value="all">Select All</option>
@@ -178,16 +185,30 @@
 @section('page_leavel_script')
     <script>
         $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
             var studentDropdown = $('#studentDropdown');
             var courseSelect = $('#courseSelect');
             var batchSelect = $('#batchSelect');
-            var classSelect = $('#classSelect');
+            var classCheckboxContainer = $('#classCheckboxContainer');
 
             function fetchStudents() {
                 let courseId = courseSelect.val();
                 let batchId = batchSelect.val();
-                let classId = classSelect.val();
+                
+                let classIds = [];
+                $('.class-checkbox:checked').each(function() {
+                    classIds.push($(this).val());
+                });
+
+                if (classIds.length === 0) {
+                    studentDropdown.empty().append('<option value="">Select Student</option>').val('').trigger('change.select2');
+                    return;
+                }
 
                 if (!courseId) {
                     studentDropdown.empty().append('<option value="">Select Student</option>');
@@ -201,14 +222,16 @@
                     type: "GET",
                     data: {
                         batch_id: batchId,
-                        class_id: classId
+                        class_id: classIds
                     },
                     success: function(data) {
                         studentDropdown.empty().append('<option value="all">Select All</option>');
+                        var allIds = [];
                         $.each(data, function(key, student) {
                             studentDropdown.append('<option value="' + student.id + '">' + student.name + '</option>');
+                            allIds.push(student.id);
                         });
-                        studentDropdown.trigger('change.select2');
+                        studentDropdown.val(allIds).trigger('change.select2');
                     },
                     error: function(xhr) {
                         studentDropdown.empty().append('<option value="">Error loading students</option>');
@@ -222,7 +245,8 @@
                 
                 // Reset batch, class and student dropdowns
                 batchSelect.empty().append('<option value="">Select Batch</option>').val('').trigger('change.select2');
-                classSelect.empty().append('<option value="">Select Class</option>').val('').trigger('change.select2');
+                classCheckboxContainer.empty().html('<span class="text-muted">Select Class</span>');
+                studentDropdown.empty().append('<option value="">Select Student</option>').val('').trigger('change.select2');
 
                 if (courseId) {
                     // Fetch Batch list
@@ -244,16 +268,15 @@
                         }
                     });
                 }
-                
-                fetchStudents();
             });
 
             // Batch change AJAX
             batchSelect.on('change', function() {
                 let batchId = $(this).val();
 
-                // Reset class dropdown
-                classSelect.empty().append('<option value="">Select Class</option>').val('').trigger('change.select2');
+                // Reset class container and student dropdown
+                classCheckboxContainer.empty().html('<span class="text-muted">Select Class</span>');
+                studentDropdown.empty().append('<option value="">Select Student</option>').val('').trigger('change.select2');
 
                 if (batchId) {
                     // Fetch Class list
@@ -266,22 +289,30 @@
                         },
                         success: function(response) {
                             if ((response.status === true || response.status === "true") && response.data) {
-                                let options = '<option value="">Select Class</option>';
+                                let checkboxes = '';
                                 response.data.forEach(function(item) {
-                                    options += `<option value="${item.id}">${item.name}</option>`;
+                                    checkboxes += `
+                                        <div class="form-check form-check-inline mb-0 me-3">
+                                            <input class="form-check-input class-checkbox" type="checkbox" name="class_id[]" value="${item.id}" id="class_chk_${item.id}">
+                                            <label class="form-check-label fw-semibold" for="class_chk_${item.id}">${item.name}</label>
+                                        </div>
+                                    `;
                                 });
-                                classSelect.html(options).trigger('change.select2');
+                                classCheckboxContainer.html(checkboxes || '<span class="text-muted">No classes found</span>');
                             }
                         }
                     });
                 }
+            });
 
+            // Class checkbox change
+            $(document).on('change', '.class-checkbox', function() {
                 fetchStudents();
             });
 
-            // Class change
-            classSelect.on('change', function() {
-                fetchStudents();
+            // Clear selection functionality
+            $('#clearStudentsBtn').on('click', function() {
+                studentDropdown.val(null).trigger('change.select2');
             });
 
             // Select All functionality

@@ -35,7 +35,8 @@ class NotificationSettingRequest extends FormRequest
             'body' => 'required|string',
             'course_id' => 'required|string',
             'batch_id' => 'nullable|integer',
-            'class_id' => 'nullable|integer',
+            'class_id' => 'nullable|array',
+            'class_id.*' => 'integer',
             'student_id' => 'required|array',
             'student_id.*' => 'string', // Allow 'all' or integer IDs as string/int
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',

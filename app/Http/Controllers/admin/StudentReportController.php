@@ -280,11 +280,27 @@ class StudentReportController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        foreach ($assessments as $as) {
+         foreach ($assessments as $as) {
             $assessmentList[] = [
                 'subject' => $as->subject,
                 'performance' => $as->performance,
                 'remarks' => $as->remarks
+            ];
+        }
+
+        // 9. Achievements
+        $achievementList = [];
+        $achievements = \App\Models\StudentAchievement::where('admission_id', $student->id)
+            ->with('event')
+            ->orderBy('date', 'desc')
+            ->get();
+
+        foreach ($achievements as $ach) {
+            $achievementList[] = [
+                'event' => $ach->event ? $ach->event->name : 'N/A',
+                'rank' => $ach->rank,
+                'date' => $ach->date ? Carbon::parse($ach->date)->format('d-m-Y') : '-',
+                'remark' => $ach->remark ?? '-'
             ];
         }
 
@@ -305,7 +321,8 @@ class StudentReportController extends Controller
             'tests' => $testList,
             'complaints' => $complaintList,
             'assignments' => $assignmentList,
-            'assessments' => $assessmentList
+            'assessments' => $assessmentList,
+            'achievements' => $achievementList
         ];
     }
 }

@@ -327,6 +327,29 @@
                 </table>
             </div>
         </div>
+
+        <!-- Section: Achievements -->
+        <div class="report-section">
+            <div class="section-header">Achievements</div>
+            <div class="table-responsive">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">No</th>
+                            <th>Event Name</th>
+                            <th>Rank</th>
+                            <th>Date</th>
+                            <th>Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody id="achievements-tbody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No achievements recorded.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Attendance Detail Modal -->
@@ -526,6 +549,23 @@
                                 assessmentsHtml = '<tr><td colspan="4" class="text-center text-muted">No assessments recorded.</td></tr>';
                             }
                             $('#assessments-tbody').html(assessmentsHtml);
+
+                            // Populate Achievements
+                            let achievementsHtml = '';
+                            if (response.achievements.length > 0) {
+                                response.achievements.forEach(function(ach, index) {
+                                    achievementsHtml += `<tr>
+                                        <td>${index + 1}</td>
+                                        <td>${ach.event}</td>
+                                        <td>${ach.rank}</td>
+                                        <td>${ach.date}</td>
+                                        <td>${ach.remark}</td>
+                                    </tr>`;
+                                });
+                            } else {
+                                achievementsHtml = '<tr><td colspan="5" class="text-center text-muted">No achievements recorded.</td></tr>';
+                            }
+                            $('#achievements-tbody').html(achievementsHtml);
 
                             $('#printable-area').show();
                         } else {

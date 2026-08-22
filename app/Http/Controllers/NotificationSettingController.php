@@ -161,6 +161,9 @@ class NotificationSettingController extends Controller
             // Create a single NotificationSetting record for all selected students
             $notificationData = $validated;
             $notificationData['student_id'] = implode(',', $studentIds);
+            if (isset($validated['class_id']) && is_array($validated['class_id'])) {
+                $notificationData['class_id'] = implode(',', $validated['class_id']);
+            }
             $notification = NotificationSetting::create($notificationData);
 
             // Prepare notification body
@@ -314,6 +317,9 @@ class NotificationSettingController extends Controller
 
             $studentIds = array_filter($validated['student_id'], fn($id) => $id !== 'all');
             $validated['student_id'] = implode(',', $studentIds);
+            if (isset($validated['class_id']) && is_array($validated['class_id'])) {
+                $validated['class_id'] = implode(',', $validated['class_id']);
+            }
             $validated['updated_by'] = Auth::user()->id;
 
             // Handle image upload
@@ -410,7 +416,8 @@ class NotificationSettingController extends Controller
             }
 
             if ($request->filled('class_id')) {
-                $query->where('class_id', $request->class_id);
+                $classIds = is_array($request->class_id) ? $request->class_id : explode(',', $request->class_id);
+                $query->whereIn('class_id', $classIds);
             }
 
             $students = $query->get()

@@ -378,6 +378,35 @@
         </tbody>
     </table>
 
+    <!-- 6. Achievements Section -->
+    <div class="section-title">Achievements</div>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 10%;">No.</th>
+                <th>Event Name</th>
+                <th>Rank</th>
+                <th>Date</th>
+                <th>Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($achievements as $index => $ach)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $ach['event'] }}</td>
+                    <td>{{ $ach['rank'] }}</td>
+                    <td>{{ $ach['date'] }}</td>
+                    <td>{{ $ach['remark'] }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888;">No achievements recorded.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
     <!-- 6. Complaints Section -->
     <div class="section-title">Complaints</div>
     <table class="report-table">
