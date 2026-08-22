@@ -158,22 +158,22 @@ class NotificationSettingController extends Controller
             $imageUrl = isset($validated['image']) ? asset($validated['image']) : null;
             $pdfUrl = isset($validated['pdf']) ? asset($validated['pdf']) : null;
 
+            // Create a single NotificationSetting record for all selected students
+            $notificationData = $validated;
+            $notificationData['student_id'] = implode(',', $studentIds);
+            $notification = NotificationSetting::create($notificationData);
+
+            // Prepare notification body
+            $cleanBody = $validated['body'];
+            $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
+            $cleanBody = str_ireplace('<p>', '', $cleanBody);
+            $cleanBody = strip_tags($cleanBody);
+            $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
+            $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
+            $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
+            $cleanBody = trim($cleanBody);
+
             foreach ($studentIds as $sid) {
-                // Create a separate NotificationSetting record for each student
-                $notificationData = $validated;
-                $notificationData['student_id'] = $sid;
-                $notification = NotificationSetting::create($notificationData);
-
-                // Prepare notification body
-                $cleanBody = $validated['body'];
-                $cleanBody = str_ireplace(['<br>', '<br/>', '<br />', '</p>'], "\n", $cleanBody);
-                $cleanBody = str_ireplace('<p>', '', $cleanBody);
-                $cleanBody = strip_tags($cleanBody);
-                $cleanBody = html_entity_decode($cleanBody, ENT_QUOTES, 'UTF-8');
-                $cleanBody = preg_replace("/[ \t]+/", " ", $cleanBody);
-                $cleanBody = preg_replace("/\r\n|\r/", "\n", $cleanBody);
-                $cleanBody = trim($cleanBody);
-
                 // Get all the student's device tokens
                 $tokens = StudentDeviceToken::where('student_id', $sid)
                     ->pluck('device_token')
