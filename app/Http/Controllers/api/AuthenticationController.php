@@ -411,11 +411,11 @@ class AuthenticationController extends Controller
                 ]);
 
                 // Send OTP SMS
-                // $smsResponse = Helper::sendOtpSms($student->mobile_no, $otp);
+                $smsResponse = Helper::sendOtpSms($student->mobile_no, $otp);
 
             } else {
                 // Resend the existing valid OTP
-                // $smsResponse = Helper::sendOtpSms($student->mobile_no, $checkSendedOtp->verified_content);
+                $smsResponse = Helper::sendOtpSms($student->mobile_no, $checkSendedOtp->verified_content);
 
             }
 
@@ -429,7 +429,6 @@ class AuthenticationController extends Controller
             return $this->sendResponse([
                 'admission_id' => $student->id,
                 'mobile_no'    => $student->mobile_no,
-                'otp'          => $checkSendedOtp->verified_content, // Return OTP for testing
             ], $message);
         } catch (\Exception $e) {
             return $this->sendError(
