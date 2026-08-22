@@ -52,14 +52,22 @@ class StudentAchievementController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
+                ->addColumn('gr_no', function ($row) {
+                    return $row->gr_no ?? '-';
+                })
                 ->addColumn('student_name', function ($row) {
                     if ($row->admission) {
-                        return trim(($row->admission->first_name ?? '') . ' ' . ($row->admission->last_name ?? '') . ' ' . ($row->admission->father_name ?? ''));
+                        $name = trim(($row->admission->first_name ?? '') . ' ' . ($row->admission->last_name ?? '') . ' ' . ($row->admission->father_name ?? ''));
+                        return '<a href="javascript:void(0)" class="view-student-achievements text-primary fw-bold" data-id="'.$row->admission_id.'" data-name="'.$name.'">'.$name.'</a>';
                     }
                     return '-';
                 })
                 ->addColumn('event_name', function ($row) {
-                    return $row->event->name ?? '-';
+                    if ($row->event) {
+                        $eventName = $row->event->name ?? '-';
+                        return '<a href="javascript:void(0)" class="view-event-achievements text-primary fw-bold" data-id="'.$row->event_id.'" data-name="'.$eventName.'">'.$eventName.'</a>';
+                    }
+                    return '-';
                 })
                 ->editColumn('date', function ($row) {
                     return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-';
@@ -75,7 +83,7 @@ class StudentAchievementController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['student_name', 'event_name', 'action'])
                 ->make(true);
         }
 
@@ -218,6 +226,60 @@ class StudentAchievementController extends Controller
         return response()->json([
             'success' => true,
             'data' => $students
+        ]);
+    }
+
+    public function studentData($id)
+    {
+        $data = StudentAchievement::where('admission_id', $id)
+            ->with(['event', 'admission'])
+            ->get();
+
+        $userIds = $data->pluck('created_by')->filter()->unique();
+        $users = \App\Models\User::whereIn('id', $userIds)->pluck('name', 'id');
+
+        $result = $data->map(function ($row) use ($users) {
+            return [
+                'event' => $row->event->name ?? 'N/A',
+                'rank' => $row->rank ?? '-',
+                'remark' => $row->remark ?? '-',
+                'date' => $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-',
+                'by_user' => $users[$row->created_by] ?? 'N/A'
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
+
+    public function eventData($id)
+    {
+        $data = StudentAchievement::where('event_id', $id)
+            ->with(['admission'])
+            ->get();
+
+        $userIds = $data->pluck('created_by')->filter()->unique();
+        $users = \App\Models\User::whereIn('id', $userIds)->pluck('name', 'id');
+
+        $result = $data->map(function ($row) use ($users) {
+            $student_name = '';
+            if ($row->admission) {
+                $student_name = trim(($row->admission->first_name ?? '') . ' ' . ($row->admission->last_name ?? '') . ' ' . ($row->admission->father_name ?? ''));
+            }
+            return [
+                'student_name' => $student_name ?: 'N/A',
+                'rank' => $row->rank ?? '-',
+                'remark' => $row->remark ?? '-',
+                'date' => $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '-',
+                'by_user' => $users[$row->created_by] ?? 'N/A'
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
         ]);
     }
 }

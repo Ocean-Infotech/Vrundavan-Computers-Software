@@ -34,14 +34,76 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>GR No</th>
                                     <th>Student Name</th>
                                     <th>Event</th>
-                                    <th>Rank</th>
-                                    <th>Date</th>
-                                    <th>Remark</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
+                        </table>
+                    </div>
+        </div>
+    </div>
+
+    <!-- Student Achievements Modal -->
+    <div class="modal fade" id="studentAchievementsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="studentModalTitle">Student Achievements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Achievement</th>
+                                    <th>Rank</th>
+                                    <th>Remark</th>
+                                    <th>Date</th>
+                                    <th>By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-modal-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Achievements Modal -->
+    <div class="modal fade" id="eventAchievementsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="eventModalTitle">Event Achievements</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Student Name</th>
+                                    <th>Rank</th>
+                                    <th>Remark</th>
+                                    <th>Date</th>
+                                    <th>By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="event-modal-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -83,16 +145,84 @@
                 },
                 columns: [
                     { data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false },
+                    { data: 'gr_no', name: 'gr_no' },
                     { data: 'student_name', name: 'student_name' },
                     { data: 'event_name', name: 'event_name' },
-                    { data: 'rank', name: 'rank' },
-                    { data: 'date', name: 'date' },
-                    { data: 'remark', name: 'remark' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 language: {
                     searchPlaceholder: 'Search...',
                 },
+            });
+
+            // View student achievements modal
+            $(document).on('click', '.view-student-achievements', function() {
+                let id = $(this).data('id');
+                let name = $(this).data('name');
+                $('#studentModalTitle').text(name + ' - Achievements');
+                $('#student-modal-tbody').html('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
+                $('#studentAchievementsModal').modal('show');
+
+                $.ajax({
+                    url: "{{ url('software/achievement/student-data') }}/" + id,
+                    type: "GET",
+                    success: function(response) {
+                        if (response.success && response.data.length > 0) {
+                            let html = '';
+                            response.data.forEach(function(row, idx) {
+                                html += `<tr>
+                                    <td>${idx + 1}</td>
+                                    <td>${row.event}</td>
+                                    <td>${row.rank}</td>
+                                    <td>${row.remark}</td>
+                                    <td>${row.date}</td>
+                                    <td>${row.by_user}</td>
+                                </tr>`;
+                            });
+                            $('#student-modal-tbody').html(html);
+                        } else {
+                            $('#student-modal-tbody').html('<tr><td colspan="6" class="text-center text-muted">No achievements found.</td></tr>');
+                        }
+                    },
+                    error: function() {
+                        $('#student-modal-tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading achievements.</td></tr>');
+                    }
+                });
+            });
+
+            // View event achievements modal
+            $(document).on('click', '.view-event-achievements', function() {
+                let id = $(this).data('id');
+                let name = $(this).data('name');
+                $('#eventModalTitle').text(name + ' - Achievements');
+                $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
+                $('#eventAchievementsModal').modal('show');
+
+                $.ajax({
+                    url: "{{ url('software/achievement/event-data') }}/" + id,
+                    type: "GET",
+                    success: function(response) {
+                        if (response.success && response.data.length > 0) {
+                            let html = '';
+                            response.data.forEach(function(row, idx) {
+                                html += `<tr>
+                                    <td>${idx + 1}</td>
+                                    <td>${row.student_name}</td>
+                                    <td>${row.rank}</td>
+                                    <td>${row.remark}</td>
+                                    <td>${row.date}</td>
+                                    <td>${row.by_user}</td>
+                                </tr>`;
+                            });
+                            $('#event-modal-tbody').html(html);
+                        } else {
+                            $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center text-muted">No achievements found.</td></tr>');
+                        }
+                    },
+                    error: function() {
+                        $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading achievements.</td></tr>');
+                    }
+                });
             });
         });
     </script>

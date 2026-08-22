@@ -388,13 +388,13 @@
                 @enddirectCan
 
                 {{-- Achievement --}}
-                @directCan('achievement-list')
-                <li class="menu-item {{ $sidebar_active == 'achievement' ? 'active' : '' }}">
+                @directCanAny(['achievement-list', 'achievement-create'])
+                <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.create', 'achievement.edit']) ? 'active' : '' }}">
                     <a href="{{ route('achievement.index') }}" class="menu-link">
-                        <div data-i18n="Achievement">Achievement</div>
+                        <div>Achievement</div>
                     </a>
                 </li>
-                @enddirectCan
+                @enddirectCanAny
             </ul>
         </li>
         @enddirectCanAny

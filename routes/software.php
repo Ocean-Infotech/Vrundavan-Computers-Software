@@ -111,6 +111,8 @@ Route::post('marksheet-issue/toggle', [MarksheetIssueController::class, 'toggle'
 Route::resource('marksheet-issue', MarksheetIssueController::class);
 
 Route::get('achievement/get-students', [StudentAchievementController::class, 'getStudents'])->name('achievement.get-students');
+Route::get('achievement/student-data/{id}', [StudentAchievementController::class, 'studentData'])->name('achievement.student-data');
+Route::get('achievement/event-data/{id}', [StudentAchievementController::class, 'eventData'])->name('achievement.event-data');
 Route::resource('achievement', StudentAchievementController::class);
 Route::get('assessment/export-excel', [AssessmentController::class, 'exportExcel'])->name('assessment.export-excel');
 Route::get('assessment/print', [AssessmentController::class, 'printView'])->name('assessment.print');
