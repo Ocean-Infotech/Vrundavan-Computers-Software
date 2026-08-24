@@ -128,6 +128,7 @@ Route::post('result/entry/store', [ResultController::class, 'entryStore'])->name
 // Result Report
 Route::get('result/report', [ResultController::class, 'reportIndex'])->name('result.report.index');
 Route::get('result/report/data', [ResultController::class, 'reportGet'])->name('result.report.data');
+Route::post('result/report/export-excel', [ResultController::class, 'exportExcel'])->name('result.report.export-excel');
 
 // Result Master
 Route::resource('result', ResultController::class)->except(['show']);

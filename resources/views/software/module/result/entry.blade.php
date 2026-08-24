@@ -27,7 +27,7 @@
                     <select class="form-control select2" id="courseSelect">
                         <option value="">Select Course</option>
                         @foreach ($courses as $course)
-                            <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                            <option value="{{ $course->id }}" data-semesters="{{ $course->semester }}">{{ $course->course_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -52,7 +52,6 @@
                     <label class="form-label fw-bold">Semester</label>
                     <select class="form-control select2" id="semesterSelect">
                         <option value="">Select Semester</option>
-                        <option value="0">HSC (Prior Education)</option>
                         @for ($i = 1; $i <= 8; $i++)
                             <option value="{{ $i }}">Semester {{ $i }}</option>
                         @endfor
@@ -79,7 +78,7 @@
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-hover align-middle">
                         <thead class="table-light">
-                            <tr>
+                            <tr id="tableHeaderRow">
                                 <th style="width: 8%;">No</th>
                                 <th style="width: 12%;">GR No</th>
                                 <th>Student Name</th>
@@ -135,34 +134,82 @@
                                 $('#hiddenSemester').val(response.semester);
                                 totalMaxMarksField.val(response.total_marks);
                                 
-                                if (parseInt(response.semester) === 0) {
-                                    totalMarksInfo.text("HSC / Entry Qualification (Out of 700)");
+                                let isSem1 = parseInt(response.semester) === 1;
+                                
+                                // Change header row dynamically
+                                let headerRow = $('#tableHeaderRow');
+                                if (isSem1) {
+                                    headerRow.html(`
+                                        <th style="width: 5%;">No</th>
+                                        <th style="width: 10%;">GR No</th>
+                                        <th>Student Name</th>
+                                        <th style="width: 20%;">HSC Marks (Out of 700)</th>
+                                        <th style="width: 10%;">HSC %</th>
+                                        <th style="width: 20%;">Obtained Marks (Sem 1)</th>
+                                        <th style="width: 15%;">Percentage (Sem 1)</th>
+                                    `);
+                                    totalMarksInfo.text("Total Max Marks (Sem 1): " + response.total_marks);
                                 } else {
+                                    headerRow.html(`
+                                        <th style="width: 8%;">No</th>
+                                        <th style="width: 12%;">GR No</th>
+                                        <th>Student Name</th>
+                                        <th style="width: 25%;">Obtained Marks</th>
+                                        <th style="width: 20%;">Percentage</th>
+                                    `);
                                     totalMarksInfo.text("Total Max Marks: " + response.total_marks);
                                 }
 
                                 studentTbody.empty();
                                 if (response.students.length > 0) {
                                     response.students.forEach(function(student, idx) {
-                                        studentTbody.append(`
-                                            <tr>
-                                                <td>${idx + 1}</td>
-                                                <td>${student.gr_no}</td>
-                                                <td class="fw-bold">${student.name}</td>
-                                                <td>
-                                                    <input type="hidden" name="results[${idx}][admission_id]" value="${student.id}">
-                                                    <input type="number" step="0.01" class="form-control obtained-marks-input num_only" name="results[${idx}][obtained_marks]" value="${student.obtained_marks}" max="${response.total_marks}" placeholder="Enter Marks">
-                                                </td>
-                                                <td>
-                                                    <input type="hidden" class="percentage-input" name="results[${idx}][percentage]" value="${student.percentage}">
-                                                    <strong class="percentage-val">${student.percentage ? student.percentage + '%' : '-'}</strong>
-                                                </td>
-                                            </tr>
-                                        `);
+                                        let rowHtml = '';
+                                        if (isSem1) {
+                                            rowHtml = `
+                                                <tr>
+                                                    <td>${idx + 1}</td>
+                                                    <td>${student.gr_no}</td>
+                                                    <td class="fw-bold">${student.name}</td>
+                                                    <td>
+                                                        <input type="hidden" name="results[${idx}][admission_id]" value="${student.id}">
+                                                        <input type="number" step="0.01" class="form-control hsc-marks-input num_only" data-admission-id="${student.id}" value="${student.hsc_marks || ''}" max="700" placeholder="Enter HSC Marks">
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" class="hsc-percentage-input" value="${student.hsc_percentage || ''}">
+                                                        <strong class="hsc-percentage-val">${student.hsc_percentage ? student.hsc_percentage + '%' : '-'}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" step="0.01" class="form-control obtained-marks-input num_only" name="results[${idx}][obtained_marks]" value="${student.obtained_marks || ''}" max="${response.total_marks}" placeholder="Enter Marks">
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" class="percentage-input" name="results[${idx}][percentage]" value="${student.percentage || ''}">
+                                                        <strong class="percentage-val">${student.percentage ? student.percentage + '%' : '-'}</strong>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        } else {
+                                            rowHtml = `
+                                                <tr>
+                                                    <td>${idx + 1}</td>
+                                                    <td>${student.gr_no}</td>
+                                                    <td class="fw-bold">${student.name}</td>
+                                                    <td>
+                                                        <input type="hidden" name="results[${idx}][admission_id]" value="${student.id}">
+                                                        <input type="number" step="0.01" class="form-control obtained-marks-input num_only" name="results[${idx}][obtained_marks]" value="${student.obtained_marks || ''}" max="${response.total_marks}" placeholder="Enter Marks">
+                                                    </td>
+                                                    <td>
+                                                        <input type="hidden" class="percentage-input" name="results[${idx}][percentage]" value="${student.percentage || ''}">
+                                                        <strong class="percentage-val">${student.percentage ? student.percentage + '%' : '-'}</strong>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }
+                                        studentTbody.append(rowHtml);
                                     });
                                     studentCard.removeClass('d-none');
                                 } else {
-                                    studentTbody.html('<tr><td colspan="5" class="text-center text-muted">No students found in this course, batch, and class.</td></tr>');
+                                    let colspan = isSem1 ? 7 : 5;
+                                    studentTbody.html(`<tr><td colspan="${colspan}" class="text-center text-muted">No students found in this course, batch, and class.</td></tr>`);
                                     studentCard.removeClass('d-none');
                                 }
                             } else {
@@ -183,6 +230,21 @@
             // Course change AJAX
             $('#courseSelect').on('change', function() {
                 let courseId = $(this).val();
+                let semesters = $(this).find(':selected').data('semesters') || 8;
+                
+                // Update semester dropdown based on course
+                let semesterSelect = $('#semesterSelect');
+                let currentVal = semesterSelect.val();
+                semesterSelect.empty().append('<option value="">Select Semester</option>');
+                for (let i = 1; i <= semesters; i++) {
+                    semesterSelect.append(`<option value="${i}">Semester ${i}</option>`);
+                }
+                if (currentVal && parseInt(currentVal) <= semesters) {
+                    semesterSelect.val(currentVal).trigger('change.select2');
+                } else {
+                    semesterSelect.val('').trigger('change.select2');
+                }
+
                 $('#batchSelect').empty().append('<option value="">Select Batch</option>').val('').trigger('change.select2');
                 $('#classSelect').empty().val([]).trigger('change.select2');
                 checkAndLoadStudents();
@@ -299,6 +361,73 @@
                             toastr.success(response.message || 'Result saved successfully.');
                         } else {
                             toastr.error(response.message || 'Failed to save result.');
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('An error occurred while saving.');
+                    }
+                });
+            });
+
+            // Calculate HSC percentage dynamically
+            $(document).on('input', '.hsc-marks-input', function() {
+                let obtained = parseFloat($(this).val());
+                let total = 700; // HSC total is 700
+                let row = $(this).closest('tr');
+                let percentageField = row.find('.hsc-percentage-input');
+                let percentageValField = row.find('.hsc-percentage-val');
+
+                if (!isNaN(obtained) && total > 0) {
+                    if (obtained > total) {
+                        toastr.warning('Obtained marks cannot be greater than 700');
+                        $(this).val(total);
+                        obtained = total;
+                    }
+                    let pct = (obtained / total) * 100;
+                    percentageField.val(pct.toFixed(2));
+                    percentageValField.text(pct.toFixed(2) + '%');
+                } else {
+                    percentageField.val('');
+                    percentageValField.text('-');
+                }
+            });
+
+            // Auto Save on HSC Marks Input Change
+            $(document).on('change', '.hsc-marks-input', function() {
+                let inputField = $(this);
+                let obtained = inputField.val();
+                let total = 700;
+                let row = inputField.closest('tr');
+                let admissionId = inputField.data('admission-id');
+                let percentage = row.find('.hsc-percentage-input').val();
+
+                if (obtained !== '') {
+                    let obtainedFloat = parseFloat(obtained);
+                    if (!isNaN(obtainedFloat) && obtainedFloat > total) {
+                        obtained = total;
+                        percentage = 100;
+                    }
+                }
+
+                $.ajax({
+                    url: "{{ route('result.entry.store') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        semester: 0, // HSC is 0
+                        results: [
+                            {
+                                admission_id: admissionId,
+                                obtained_marks: obtained,
+                                percentage: percentage
+                            }
+                        ]
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success('HSC marks saved successfully.');
+                        } else {
+                            toastr.error(response.message || 'Failed to save HSC marks.');
                         }
                     },
                     error: function(xhr) {

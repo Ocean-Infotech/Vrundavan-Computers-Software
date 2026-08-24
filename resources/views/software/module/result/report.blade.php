@@ -13,6 +13,9 @@
             'route' => $route,
             'show_add_btn' => false,
             'show_filter_btn' => false,
+            'show_export_btns' => true,
+            'show_excal_btn' => true,
+            'show_print_btn' => false,
             'show_back_btn' => false,
         ])
     </div>
@@ -54,11 +57,9 @@
         </div>
     </div>
 
-    <!-- Report Table Card -->
     <div class="card shadow d-none" id="reportCard">
         <div class="card-header border-bottom d-flex justify-content-between align-items-center no-print">
             <h5 class="mb-0 fw-bold" id="reportTitle">Student Results Report</h5>
-            <button onclick="window.print();" class="btn btn-outline-secondary"><i class="bx bx-printer me-1"></i> Print Report</button>
         </div>
         <div class="card-body mt-3">
             <div class="text-center print-header-banner d-none d-print-block mb-4">
@@ -241,6 +242,35 @@
                     }
                 });
             });
+
+            $(document).on('click', '#exportExcelBtn', function(e) {
+                e.preventDefault();
+                let courseId = $('#courseSelect').val();
+                let batchId = $('#batchSelect').val();
+                let classIds = $('#classSelect').val();
+
+                if (!courseId || !batchId || !classIds || classIds.length === 0) {
+                    alert('Please select course, batch, and class.');
+                    return;
+                }
+
+                $('#excel_course_id').val(courseId);
+                $('#excel_batch_id').val(batchId);
+                
+                let container = $('#excel_class_ids_container').empty();
+                classIds.forEach(function(val) {
+                    container.append(`<input type="hidden" name="class_id[]" value="${val}">`);
+                });
+
+                $('#exportExcelForm').submit();
+            });
         });
     </script>
+
+    <form id="exportExcelForm" method="POST" action="{{ route('result.report.export-excel') }}" class="d-none">
+        @csrf
+        <input type="hidden" name="course_id" id="excel_course_id">
+        <input type="hidden" name="batch_id" id="excel_batch_id">
+        <div id="excel_class_ids_container"></div>
+    </form>
 @endsection

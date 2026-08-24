@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Log;
 
 class ResultController extends Controller
 {
@@ -197,9 +201,13 @@ class ResultController extends Controller
     public function destroy($id)
     {
         $master = ResultMaster::findOrFail($id);
+        
+        // Delete all student results associated with this result master
+        StudentResult::where('result_id', $id)->delete();
+
         $master->delete();
         return response()->json([
-            'status' => true,
+            'success' => true,
             'message' => 'Result Master deleted successfully.'
         ]);
     }
@@ -256,6 +264,15 @@ class ResultController extends Controller
             ->get()
             ->keyBy('admission_id');
 
+        // Fetch HSC marks as well if semester is 1
+        $hscResults = collect();
+        if ((int)$semester === 1) {
+            $hscResults = StudentResult::whereIn('admission_id', $students->pluck('id'))
+                ->where('semester', 0)
+                ->get()
+                ->keyBy('admission_id');
+        }
+
         // Get master config
         $totalMarks = 0;
         if ((int)$semester > 0) {
@@ -279,12 +296,15 @@ class ResultController extends Controller
         $studentData = [];
         foreach ($students as $student) {
             $result = $existingResults->get($student->id);
+            $hscResult = $hscResults->get($student->id);
             $studentData[] = [
                 'id' => $student->id,
                 'gr_no' => $student->gr_no ?? '-',
                 'name' => $student->name,
                 'obtained_marks' => $result ? $result->obtained_marks : '',
                 'percentage' => $result ? $result->percentage : '',
+                'hsc_marks' => $hscResult ? $hscResult->obtained_marks : '',
+                'hsc_percentage' => $hscResult ? $hscResult->percentage : '',
             ];
         }
 
@@ -320,12 +340,30 @@ class ResultController extends Controller
                     continue;
                 }
 
+                // Query cource_registration for this admission to find course, batch, class
+                $registration = DB::table('cource_registration')
+                    ->where('register_id', $res['admission_id'])
+                    ->first();
+
+                $resultId = null;
+                if ($registration) {
+                    $master = ResultMaster::where('course_id', $registration->course_id)
+                        ->where('batch_id', $registration->batch_id)
+                        ->where('class_id', $registration->class_id)
+                        ->where('semester', $semester)
+                        ->first();
+                    if ($master) {
+                        $resultId = $master->id;
+                    }
+                }
+
                 StudentResult::updateOrCreate(
                     [
                         'admission_id' => $res['admission_id'],
                         'semester' => $semester,
                     ],
                     [
+                        'result_id' => $resultId,
                         'obtained_marks' => $res['obtained_marks'],
                         'percentage' => $res['percentage'] ?? 0,
                         'created_by' => $userId,
@@ -431,5 +469,162 @@ class ResultController extends Controller
             'students' => $studentData,
             'semesters' => $semestersList
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            $courseId = $request->course_id;
+            $batchId = $request->batch_id;
+            $classId = $request->class_id;
+
+            if (!$courseId || !$batchId || !$classId) {
+                return back()->withErrors('Please select all filters.');
+            }
+
+            // Get student list
+            $studentsQuery = DB::table('cource_registration as cr')
+                ->join('admission as a', 'cr.register_id', '=', 'a.id')
+                ->where('cr.course_id', $courseId)
+                ->where('cr.batch_id', $batchId);
+
+            if (is_array($classId)) {
+                $studentsQuery->whereIn('cr.class_id', $classId);
+            } else {
+                $studentsQuery->where('cr.class_id', $classId);
+            }
+
+            $students = $studentsQuery->whereNotIn('cr.status', ['Cancel', 'cancel'])
+                ->select('a.id', 'a.gr_no', DB::raw("CONCAT(a.first_name, ' ', a.last_name, ' ', a.father_name) as name"))
+                ->orderBy('a.first_name', 'asc')
+                ->get();
+
+            if ($students->isEmpty()) {
+                return back()->withErrors('No student records found.');
+            }
+
+            // Get semesters that have results entered for these students
+            $semestersList = StudentResult::whereIn('admission_id', $students->pluck('id'))
+                ->pluck('semester')
+                ->unique()
+                ->sort()
+                ->values()
+                ->toArray();
+
+            // Get all results of these students
+            $results = StudentResult::whereIn('admission_id', $students->pluck('id'))
+                ->get()
+                ->groupBy('admission_id');
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $course = MasterCourse::find($courseId);
+            $batch = MasterBatch::find($batchId);
+            $title = ($course ? strtoupper($course->course_name) : '') . ' ' . ($batch ? $batch->batch_name : '') . ' BATCH ALL RESULTS';
+
+            $totalSemesters = count($semestersList);
+            $lastColNum = 2 + ($totalSemesters * 2); // Col 1: NO., Col 2: Name, then 2 columns per semester
+            $lastColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lastColNum);
+
+            // Row 1: Merged Title
+            $sheet->mergeCells('A1:' . $lastColLetter . '1');
+            $sheet->setCellValue('A1', $title);
+            $sheet->getRowDimension(1)->setRowHeight(30);
+
+            // Row 2: Headers
+            $sheet->setCellValue('A2', 'NO.');
+            $sheet->setCellValue('B2', 'Name');
+
+            $colIndex = 3;
+            foreach ($semestersList as $sem) {
+                $firstColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                $secondColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+
+                $sheet->mergeCells($firstColLetter . '2:' . $secondColLetter . '2');
+                $sheet->setCellValue($firstColLetter . '2', (int)$sem === 0 ? 'HSC' : 'Sem' . $sem);
+
+                $colIndex += 2;
+            }
+
+            // Row 3 and onwards: Data rows
+            $rowIdx = 3;
+            foreach ($students as $index => $student) {
+                $sheet->setCellValue('A' . $rowIdx, $index + 1);
+                $sheet->setCellValue('B' . $rowIdx, $student->name);
+
+                $studentRes = $results->get($student->id) ?? collect();
+                $curColIndex = 3;
+
+                foreach ($semestersList as $sem) {
+                    $semRes = $studentRes->where('semester', $sem)->first();
+                    
+                    $marks = $semRes ? $semRes->obtained_marks : '-';
+                    $percentage = $semRes ? number_format($semRes->percentage, 2) : '-';
+
+                    $firstCell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($curColIndex);
+                    $secondCell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($curColIndex + 1);
+
+                    $sheet->setCellValue($firstCell . $rowIdx, $marks);
+                    $sheet->setCellValue($secondCell . $rowIdx, $percentage);
+
+                    $curColIndex += 2;
+                }
+
+                $rowIdx++;
+            }
+
+            // Autofit columns
+            for ($col = 1; $col <= $lastColNum; $col++) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
+                $sheet->getColumnDimension($colLetter)->setAutoSize(true);
+            }
+
+            // Layout Styling
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+            $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+            $sheet->getStyle('A2:' . $lastColLetter . '2')->getFont()->setBold(true)->setSize(11);
+            $sheet->getStyle('A2:' . $lastColLetter . '2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A2:' . $lastColLetter . '2')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+            $sheet->getStyle('A3:A' . ($rowIdx - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('B3:B' . ($rowIdx - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('C3:' . $lastColLetter . ($rowIdx - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Thin gridlines
+            $styleArray = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ];
+            $sheet->getStyle('A1:' . $lastColLetter . ($rowIdx - 1))->applyFromArray($styleArray);
+
+            $writer = new Xlsx($spreadsheet);
+
+            $response = new StreamedResponse(function () use ($writer) {
+                $writer->save('php://output');
+            });
+
+            $fileName = ($course ? str_replace(' ', '_', $course->course_name) : 'Student') . '_' . ($batch ? $batch->batch_name : 'Results') . '_Report.xlsx';
+
+            $disposition = $response->headers->makeDisposition(
+                \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                $fileName
+            );
+
+            $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            $response->headers->set('Content-Disposition', $disposition);
+
+            return $response;
+
+        } catch (\Exception $e) {
+            Log::error('Result Report Export Excel Error: ' . $e->getMessage());
+            return back()->withErrors('Something went wrong while exporting the Excel.');
+        }
     }
 }

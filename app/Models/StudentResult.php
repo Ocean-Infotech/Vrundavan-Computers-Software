@@ -13,6 +13,7 @@ class StudentResult extends Model
 
     protected $fillable = [
         'admission_id',
+        'result_id',
         'semester',
         'obtained_marks',
         'percentage',
