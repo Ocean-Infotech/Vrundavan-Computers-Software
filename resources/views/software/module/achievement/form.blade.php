@@ -64,7 +64,7 @@
                             <div class="form-group">
                                 <label class="form-label d-block">Class</label>
                                 <div id="class_checkboxes_container" class="d-flex flex-wrap gap-3 mt-2 border p-2 rounded bg-white" style="min-height: 38px; align-items: center;">
-                                    <span class="text-muted small">Select Batch first</span>
+                                    <span class="text-muted small">Select Class</span>
                                 </div>
                             </div>
                     </div>
@@ -280,7 +280,7 @@
                 let batchSelect = $('#filter_batch_id');
 
                 batchSelect.empty().append('<option value="">Select Batch</option>');
-                $('#class_checkboxes_container').html('<span class="text-muted small">Select Batch first</span>');
+                $('#class_checkboxes_container').html('<span class="text-muted small">Select Class</span>');
 
                 batchSelect.trigger('change.select2');
 
@@ -345,7 +345,7 @@
                         }
                     });
                 } else {
-                    container.html('<span class="text-muted small">Select Batch first</span>');
+                    container.html('<span class="text-muted small">Select Class</span>');
                     loadFilteredStudents();
                 }
             });

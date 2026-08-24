@@ -19,7 +19,7 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' => isset($modules['permission_add']) ? $modules['permission_add'] : false,
+            'show_add_btn' => false,
             'show_filter_btn' => false,
             'show_back_btn' => false,
         ])
@@ -29,6 +29,35 @@
         <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-body">
+                    <!-- Filters -->
+                    <div class="row mb-4 align-items-end">
+                        <div class="col-md-3 mb-2">
+                            <label for="filter_gr_no" class="form-label fw-bold">GR No</label>
+                            <input list="gr_no_list" id="filter_gr_no" class="form-control" placeholder="Search by GR No">
+                            <datalist id="gr_no_list">
+                                @foreach($grNos as $student)
+                                    @php
+                                        $fullName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? ''));
+                                    @endphp
+                                    <option value="{{ $student->gr_no }}">{{ $fullName }}</option>
+                                @endforeach
+                            </datalist>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="filter_event_id" class="form-label fw-bold">Event</label>
+                            <select id="filter_event_id" class="form-select select2">
+                                <option value="">Select Event</option>
+                                @foreach($events as $event)
+                                    <option value="{{ $event->id }}">{{ $event->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" id="btn_filter" class="btn btn-primary me-2"><i class="bx bx-filter-alt"></i> Filter</button>
+                            <button type="button" id="btn_reset" class="btn btn-outline-secondary"><i class="bx bx-reset"></i> Reset</button>
+                        </div>
+                    </div>
+
                     <div>
                         <table id="yajra-datatables" class="table table-hover dt-responsive nowrap" style="width: 100%">
                             <thead>
@@ -129,6 +158,13 @@
 
         var dtable = null;
         $(document).ready(function() {
+            if ($.fn.select2) {
+                $('#filter_event_id').select2({
+                    placeholder: "Select Event",
+                    allowClear: true
+                });
+            }
+
             dtable = $('#yajra-datatables').DataTable({
                 searching: true,
                 processing: true,
@@ -142,6 +178,10 @@
                         request.setRequestHeader("X-CSRF-TOKEN", $('meta[name="csrf-token"]').attr('content'));
                     },
                     type: "GET",
+                    data: function(d) {
+                        d.gr_no = $('#filter_gr_no').val();
+                        d.event_id = $('#filter_event_id').val();
+                    }
                 },
                 columns: [
                     { data: 'DT_RowIndex', name: 'id', orderable: false, searchable: false },
@@ -152,7 +192,29 @@
                 ],
                 language: {
                     searchPlaceholder: 'Search...',
+                    emptyTable: 'Please select filter to view data.',
+                    zeroRecords: 'No achievements found for the selected filter.'
                 },
+            });
+
+            $('#btn_filter').on('click', function() {
+                dtable.draw();
+            });
+
+            $('#btn_reset').on('click', function() {
+                $('#filter_gr_no').val('');
+                $('#filter_event_id').val('').trigger('change');
+                dtable.draw();
+            });
+
+            $('#filter_gr_no').on('keypress', function(e) {
+                if (e.which === 13) {
+                    dtable.draw();
+                }
+            });
+
+            $('#filter_gr_no').on('change', function() {
+                dtable.draw();
             });
 
             // View student achievements modal

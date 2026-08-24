@@ -43,6 +43,7 @@ use App\Http\Controllers\admin\SystemUserController;
 use App\Http\Controllers\admin\MarksheetIssueController;
 use App\Http\Controllers\admin\AssessmentController;
 use App\Http\Controllers\admin\TestreportController;
+use App\Http\Controllers\admin\ResultController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
 use App\Http\Controllers\admin\StudentReportController;
@@ -118,6 +119,18 @@ Route::get('assessment/export-excel', [AssessmentController::class, 'exportExcel
 Route::get('assessment/print', [AssessmentController::class, 'printView'])->name('assessment.print');
 Route::resource('assessment', AssessmentController::class);
 Route::resource('admission', AdmissionController::class)->except(['show']);
+// Result Entry
+Route::get('result/entry', [ResultController::class, 'entryIndex'])->name('result.entry.index');
+Route::get('result/entry/{course_id}/{batch_id}/{class_id}/{semester}', [ResultController::class, 'entryIndex'])->name('result.entry.direct');
+Route::get('result/entry/students', [ResultController::class, 'entryGetStudents'])->name('result.entry.students');
+Route::post('result/entry/store', [ResultController::class, 'entryStore'])->name('result.entry.store');
+
+// Result Report
+Route::get('result/report', [ResultController::class, 'reportIndex'])->name('result.report.index');
+Route::get('result/report/data', [ResultController::class, 'reportGet'])->name('result.report.data');
+
+// Result Master
+Route::resource('result', ResultController::class)->except(['show']);
 
 // Additional routes
 

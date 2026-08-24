@@ -389,10 +389,26 @@
 
                 {{-- Achievement --}}
                 @directCanAny(['achievement-list', 'achievement-create'])
-                <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.create', 'achievement.edit']) ? 'active' : '' }}">
-                    <a href="{{ route('achievement.index') }}" class="menu-link">
+                <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.create', 'achievement.edit']) ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <div>Achievement</div>
                     </a>
+                    <ul class="menu-sub">
+                        @directCan('achievement-create')
+                        <li class="menu-item {{ Route::current()->getName() == 'achievement.create' ? 'active' : '' }}">
+                            <a href="{{ route('achievement.create') }}" class="menu-link">
+                                <div>Add Achievement</div>
+                            </a>
+                        </li>
+                        @enddirectCan
+                        @directCan('achievement-list')
+                        <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.edit']) ? 'active' : '' }}">
+                            <a href="{{ route('achievement.index') }}" class="menu-link">
+                                <div>View Achievement</div>
+                            </a>
+                        </li>
+                        @enddirectCan
+                    </ul>
                 </li>
                 @enddirectCanAny
             </ul>
@@ -424,6 +440,27 @@
             </ul>
         </li>
         @enddirectCanAny
+
+
+
+        <li class="menu-item {{ in_array(Route::current()->getName(), ['result.index', 'result.create', 'result.edit', 'result.entry.index', 'result.report.index']) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2 me-2"></i>
+                <div>Result</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ in_array(Route::current()->getName(), ['result.index', 'result.create', 'result.edit']) ? 'active' : '' }}">
+                    <a href="{{ route('result.index') }}" class="menu-link">
+                        <div>Result</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ Route::current()->getName() == 'result.report.index' ? 'active' : '' }}">
+                    <a href="{{ route('result.report.index') }}" class="menu-link">
+                        <div>Student Results</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
 
 

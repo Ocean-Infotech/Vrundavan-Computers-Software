@@ -48,7 +48,21 @@ class StudentAchievementController extends Controller
         View::share('modules', $modules);
 
         if ($request->ajax()) {
-            $query = StudentAchievement::with(['admission', 'event'])->orderByDesc('id');
+            if (empty($request->gr_no) && empty($request->event_id)) {
+                $query = StudentAchievement::whereRaw('1 = 0');
+            } else {
+                $query = StudentAchievement::with(['admission', 'event']);
+
+                if ($request->has('gr_no') && !empty($request->gr_no)) {
+                    $query->where('gr_no', 'like', '%' . $request->gr_no . '%');
+                }
+
+                if ($request->has('event_id') && !empty($request->event_id)) {
+                    $query->where('event_id', $request->event_id);
+                }
+
+                $query->orderByDesc('id');
+            }
 
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -87,7 +101,14 @@ class StudentAchievementController extends Controller
                 ->make(true);
         }
 
-        return view($modules['folder_path'] . '.index');
+        $events = MasterEvent::where('status', 'active')->orderBy('name', 'asc')->get();
+        $grNos = Admission::whereIn('status', ['active', 'created'])
+            ->whereNotNull('gr_no')
+            ->where('gr_no', '!=', '')
+            ->orderBy('gr_no', 'asc')
+            ->get(['gr_no', 'first_name', 'last_name', 'father_name']);
+
+        return view($modules['folder_path'] . '.index', compact('events', 'grNos'));
     }
 
     public function create()
