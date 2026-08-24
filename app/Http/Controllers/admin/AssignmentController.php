@@ -76,25 +76,34 @@ class AssignmentController extends Controller
                         return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';
                     })
                     ->editColumn('status', function ($row) use ($modules) {
-                        $checked = $row->status ? 'checked' : '';
                         $active = $row->status ? 'Active' : 'Inactive';
                         $class = $row->status ? 'success' : 'danger';
 
-                        return '<div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-' . $class . ' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                ' . $active . '
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="1">Active</a></li>
-                                <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="0">Inactive</a></li>
-                            </ul>
-                        </div>';
+                        if ($modules['permission_edit']) {
+                            return '<div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-' . $class . ' dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ' . $active . '
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="1">Active</a></li>
+                                    <li><a class="dropdown-item change-status" href="javascript:void(0);" data-id="' . $row->id . '" data-status="0">Inactive</a></li>
+                                </ul>
+                            </div>';
+                        } else {
+                            return '<span class="badge bg-' . $class . '">' . $active . '</span>';
+                        }
                     })
                     ->addColumn('action', function ($row) use ($modules) {
                         $btn = '';
-                        $btn .= '<a href="' . route('assignment.report', [$row->id]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Assignment Report"><i class="fa-solid fa-file-circle-check"></i></a>';
-                        $btn .= '<a href="' . route($modules['route'] . '.edit', [$row->id]) . '" class="btn btn-light btn-icon mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>';
-                        $btn .= '<button type="button" class="btn btn-danger btn-icon deletebutton mx-1" data-did="' . route($modules['route'] . '.destroy', [$row->id]) . '" title="Delete"><i class="fa-solid fa-trash"></i></button>';
+                        if ($modules['permission_add']) {
+                            $btn .= '<a href="' . route('assignment.report', [$row->id]) . '" class="btn btn-warning btn-icon mx-1" data-bs-toggle="tooltip" title="Assignment Report"><i class="fa-solid fa-file-circle-check"></i></a>';
+                        }
+                        if ($modules['permission_edit']) {
+                            $btn .= '<a href="' . route($modules['route'] . '.edit', [$row->id]) . '" class="btn btn-light btn-icon mx-1" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>';
+                        }
+                        if ($modules['permission_delete']) {
+                            $btn .= '<button type="button" class="btn btn-danger btn-icon deletebutton mx-1" data-did="' . route($modules['route'] . '.destroy', [$row->id]) . '" title="Delete"><i class="fa-solid fa-trash"></i></button>';
+                        }
                         return $btn;
                     })
                     ->rawColumns(['status', 'action'])
@@ -187,6 +196,10 @@ class AssignmentController extends Controller
 
     public function changeStatus(Request $request)
     {
+        $canEdit = Helper::directCan($this->modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.'], 403);
+        }
         try {
             $assignment = Assignment::findOrFail($request->id);
             $assignment->status = $request->status;
@@ -200,8 +213,8 @@ class AssignmentController extends Controller
     public function report($id)
     {
         $modules = $this->modules;
-        $canList = Helper::directCan($modules['permission_prefix'] . '-list');
-        if (!$canList) {
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
             abort(403, 'User does not have the right permissions.');
         }
         View::share('modules', $modules);
@@ -231,6 +244,10 @@ class AssignmentController extends Controller
 
     public function saveReportAjax(Request $request)
     {
+        $canCreate = Helper::directCan($this->modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.'], 403);
+        }
         try {
             $validated = $request->validate([
                 'assignment_id' => 'required|integer',

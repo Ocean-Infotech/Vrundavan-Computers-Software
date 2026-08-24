@@ -17,7 +17,7 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' => true,
+            'show_add_btn' => $modules['permission_add'] ?? false,
             'show_filter_btn' => false,
             'show_export_btns' => false,
             'show_excal_btn' => false,
