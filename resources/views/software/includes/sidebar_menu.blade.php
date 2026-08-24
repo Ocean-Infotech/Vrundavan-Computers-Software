@@ -388,29 +388,20 @@
                 @enddirectCan
 
                 {{-- Achievement --}}
-                @directCanAny(['achievement-list', 'achievement-create'])
-                <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.create', 'achievement.edit']) ? 'active open' : '' }}">
-                    <a href="javascript:void(0);" class="menu-link menu-toggle">
-                        <div>Achievement</div>
+                @directCan('achievement-create')
+                <li class="menu-item {{ Route::current()->getName() == 'achievement.create' ? 'active' : '' }}">
+                    <a href="{{ route('achievement.create') }}" class="menu-link">
+                        <div data-i18n="Add Achievement">Add Achievement</div>
                     </a>
-                    <ul class="menu-sub">
-                        @directCan('achievement-create')
-                        <li class="menu-item {{ Route::current()->getName() == 'achievement.create' ? 'active' : '' }}">
-                            <a href="{{ route('achievement.create') }}" class="menu-link">
-                                <div>Add Achievement</div>
-                            </a>
-                        </li>
-                        @enddirectCan
-                        @directCan('achievement-list')
-                        <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.edit']) ? 'active' : '' }}">
-                            <a href="{{ route('achievement.index') }}" class="menu-link">
-                                <div>View Achievement</div>
-                            </a>
-                        </li>
-                        @enddirectCan
-                    </ul>
                 </li>
-                @enddirectCanAny
+                @enddirectCan
+                @directCan('achievement-list')
+                <li class="menu-item {{ in_array(Route::current()->getName(), ['achievement.index', 'achievement.edit']) ? 'active' : '' }}">
+                    <a href="{{ route('achievement.index') }}" class="menu-link">
+                        <div data-i18n="View Achievement">View Achievement</div>
+                    </a>
+                </li>
+                @enddirectCan
             </ul>
         </li>
         @enddirectCanAny
