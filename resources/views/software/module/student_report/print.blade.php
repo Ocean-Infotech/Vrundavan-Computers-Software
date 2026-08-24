@@ -378,6 +378,35 @@
         </tbody>
     </table>
 
+    <!-- Result Section -->
+    <div class="section-title">Result Details</div>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 10%;">No.</th>
+                <th>Semester / Exam</th>
+                <th>Total Marks</th>
+                <th>Obtained Marks</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($results as $index => $res)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $res['semester'] }}</td>
+                    <td>{{ $res['total_marks'] }}</td>
+                    <td>{{ $res['obtained_marks'] }}</td>
+                    <td>{{ $res['percentage'] }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #888;">No result records available.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
     <!-- 6. Achievements Section -->
     <div class="section-title">Achievements</div>
     <table class="report-table">

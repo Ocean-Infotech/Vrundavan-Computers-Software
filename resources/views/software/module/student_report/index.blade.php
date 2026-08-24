@@ -328,6 +328,29 @@
             </div>
         </div>
 
+        <!-- Section: Result Details -->
+        <div class="report-section">
+            <div class="section-header">Result Details (All Semesters)</div>
+            <div class="table-responsive">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">No</th>
+                            <th>Semester / Exam</th>
+                            <th>Total Marks</th>
+                            <th>Obtained Marks</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-tbody">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">No result records available.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Section: Achievements -->
         <div class="report-section">
             <div class="section-header">Achievements</div>
@@ -457,6 +480,23 @@
                                 feesHtml = '<tr><td colspan="4" class="text-center text-muted">No fees records available.</td></tr>';
                             }
                             $('#fees-tbody').html(feesHtml);
+
+                            // Populate Results
+                            let resultsHtml = '';
+                            if (response.results && response.results.length > 0) {
+                                response.results.forEach(function(res, index) {
+                                    resultsHtml += `<tr>
+                                        <td>${index + 1}</td>
+                                        <td>${res.semester}</td>
+                                        <td>${res.total_marks}</td>
+                                        <td>${res.obtained_marks}</td>
+                                        <td>${res.percentage}</td>
+                                    </tr>`;
+                                });
+                            } else {
+                                resultsHtml = '<tr><td colspan="5" class="text-center text-muted">No result records available.</td></tr>';
+                            }
+                            $('#results-tbody').html(resultsHtml);
 
                             // Populate Attendance
                             let attendanceHtml = '';

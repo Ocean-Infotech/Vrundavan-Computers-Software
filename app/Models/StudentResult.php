@@ -25,4 +25,9 @@ class StudentResult extends Model
     {
         return $this->belongsTo(Admission::class, 'admission_id');
     }
+
+    public function resultMaster()
+    {
+        return $this->belongsTo(ResultMaster::class, 'result_id');
+    }
 }

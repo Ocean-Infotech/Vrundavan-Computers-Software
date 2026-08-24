@@ -304,10 +304,34 @@ class StudentReportController extends Controller
             ];
         }
 
+        // 10. Student Results (All Semesters)
+        $resultList = [];
+        $studentResults = \App\Models\StudentResult::where('admission_id', $student->id)
+            ->where('semester', '<=', $currentSemester)
+            ->with('resultMaster')
+            ->orderBy('semester', 'asc')
+            ->get();
+
+        foreach ($studentResults as $r) {
+            $totalMarks = '-';
+            if ((int)$r->semester === 0) {
+                $totalMarks = '700';
+            } elseif ($r->resultMaster) {
+                $totalMarks = $r->resultMaster->total_marks;
+            }
+
+            $resultList[] = [
+                'semester' => (int)$r->semester === 0 ? 'HSC / Entry Qualification' : 'Semester ' . $r->semester,
+                'total_marks' => $totalMarks,
+                'obtained_marks' => $r->obtained_marks,
+                'percentage' => $r->percentage ? $r->percentage . '%' : '-'
+            ];
+        }
+
         return [
             'personal' => [
                 'id' => $student->id,
-                'gr_no' => $student->id,
+                'gr_no' => $student->gr_no ?? '-',
                 'name' => $student->first_name . ' ' . $student->last_name . ' ' . $student->father_name,
                 'photo' => $student->profile_pic ? asset($student->profile_pic) : asset('admin/assets/images/user.png')
             ],
@@ -322,7 +346,8 @@ class StudentReportController extends Controller
             'complaints' => $complaintList,
             'assignments' => $assignmentList,
             'assessments' => $assessmentList,
-            'achievements' => $achievementList
+            'achievements' => $achievementList,
+            'results' => $resultList
         ];
     }
 }
