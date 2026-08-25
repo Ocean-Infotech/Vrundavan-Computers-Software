@@ -213,7 +213,7 @@
                                     <input id="date_of_birth" type="date"
                                         class="form-control @error('date_of_birth') is-invalid @enderror "
                                         name="date_of_birth" max="{{ date('Y-m-d') }}"
-                                        value="{{ isset($edit?->date_of_birth) ? $edit?->date_of_birth : old('date_of_birth') }}">
+                                        value="{{ isset($edit->date_of_birth) ? $edit->date_of_birth : (old('date_of_birth') ? old('date_of_birth') : date('Y-m-d')) }}">
                                     @error('date_of_birth')
                                         <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                     @enderror

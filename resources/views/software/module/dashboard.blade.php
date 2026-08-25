@@ -3,6 +3,70 @@
 @section('content')
     @include('software.partials.flash_messages')
 
+    <div class="row mb-4">
+        <!-- Student Birthdays -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100" style="background-color: rgba(115, 103, 240, 0.08) !important; border-left: 5px solid #7367f0 !important;">
+                <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-md bg-primary text-white rounded me-3 p-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem; flex-shrink: 0;">
+                            🎉
+                        </div>
+                        <div>
+                            @if($studentBirthdaysCount > 0)
+                                <h5 class="mb-1 fw-bold text-primary">Today's Student Birthdays ({{ $studentBirthdaysCount }})</h5>
+                                <p class="mb-0 text-muted">
+                                    @foreach($studentBirthdays as $birthday)
+                                        <span class="fw-bold text-dark">{{ $birthday->first_name }} {{ $birthday->last_name }}</span>{{ !$loop->last ? ', ' : '' }}
+                                    @endforeach
+                                </p>
+                            @else
+                                <h5 class="mb-1 fw-bold text-primary">Today's Student Birthdays</h5>
+                                <p class="mb-0 text-muted">No student birthdays today 🎂</p>
+                            @endif
+                        </div>
+                    </div>
+                    @if($studentBirthdaysCount > 0)
+                        <div>
+                            <span class="badge bg-primary py-2 px-3 fw-bold">Happy Birthday! 🎂</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Faculty Birthdays -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100" style="background-color: rgba(0, 207, 232, 0.08) !important; border-left: 5px solid #00cfe8 !important;">
+                <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-md bg-info text-white rounded me-3 p-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 1.5rem; flex-shrink: 0;">
+                            🏫
+                        </div>
+                        <div>
+                            @if($facilityBirthdaysCount > 0)
+                                <h5 class="mb-1 fw-bold text-info">Today's Faculty Birthdays ({{ $facilityBirthdaysCount }})</h5>
+                                <p class="mb-0 text-muted">
+                                    @foreach($facilityBirthdays as $birthday)
+                                        <span class="fw-bold text-dark">{{ $birthday->name }}</span>{{ !$loop->last ? ', ' : '' }}
+                                    @endforeach
+                                </p>
+                            @else
+                                <h5 class="mb-1 fw-bold text-info">Today's Faculty Birthdays</h5>
+                                <p class="mb-0 text-muted">No faculty birthdays today 🎂</p>
+                            @endif
+                        </div>
+                    </div>
+                    @if($facilityBirthdaysCount > 0)
+                        <div>
+                            <span class="badge bg-info py-2 px-3 fw-bold text-white">Happy Birthday! 🎂</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Card 1: Total Students -->
         <div class="col-xl-2 col-md-4 col-sm-6 mb-4">

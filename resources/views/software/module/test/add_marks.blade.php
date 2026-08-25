@@ -37,8 +37,11 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row align-items-center">
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-flex align-items-center justify-content-between">
                             <h4 class="mb-0">{{ $modules['title'] }} Mark Entry Form</h4>
+                            <a href="{{ route('test.print-marks', [$test->id]) }}" target="_blank" class="btn btn-primary btn-sm ms-2">
+                                <i class="fa-solid fa-print me-1"></i> Print Report
+                            </a>
                         </div>
                         <div class="col-md-9">
                             <div class="row">

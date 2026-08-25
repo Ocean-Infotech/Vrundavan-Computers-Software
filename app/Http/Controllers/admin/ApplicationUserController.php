@@ -243,6 +243,8 @@ class ApplicationUserController extends Controller
                 $user->name = $request?->name;
                 $user->email = $request?->email;
                 $user->phone = $request?->phone;
+                $user->biometric_id = $request?->biometric_id;
+                $user->date_of_birth = $request?->date_of_birth;
 
                 if ($request->password && !empty($request->password)) {
                     $user->password = Hash::make($request->password);

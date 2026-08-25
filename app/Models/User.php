@@ -26,6 +26,8 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'biometric_id',
+        'date_of_birth',
         'sp',
         'upi',
         'status',

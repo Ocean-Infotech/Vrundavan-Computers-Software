@@ -42,7 +42,7 @@ class UserRequest extends FormRequest
         }
         $rule = [];
 
-        if(in_array(Route::currentRouteName(), ["users.store" , "users.update"])){
+        if(in_array(Route::currentRouteName(), ["users.store" , "users.update", "system-user.store", "system-user.update"])){
             $rule = [
                 'name' => 'required|max:255',
                 'email' => 'required|email|max:255|unique:users,email,' . $id . ',id,deleted_at,NULL,status,active',
@@ -50,6 +50,8 @@ class UserRequest extends FormRequest
                 'password' => $password_rule,
                 'role' => 'required|exists:roles,name|max:255',
                 'status' => 'required|in:active,inactive',
+                'biometric_id' => 'nullable|max:255',
+                'date_of_birth' => 'nullable|date',
             ];
         }
         else if(in_array(Route::currentRouteName(), ["application-user.store" , "application-user.update"])){
@@ -60,6 +62,8 @@ class UserRequest extends FormRequest
                 'password' => $password_rule,
                 'role' => 'required|exists:'.((new Role())->getTable()).',name|max:255',
                 'status' => 'required|in:active,inactive',
+                'biometric_id' => 'nullable|max:255',
+                'date_of_birth' => 'nullable|date',
             ];
         }
         else if(in_array(Route::currentRouteName(), ["customer.store" , "customer.update"])){
@@ -70,6 +74,8 @@ class UserRequest extends FormRequest
                 'password' => $password_rule,
                 'role' => 'required|exists:roles,name|max:255',
                 'status' => 'required|in:active,inactive',
+                'biometric_id' => 'nullable|max:255',
+                'date_of_birth' => 'nullable|date',
             ];
         }
         // dd('rules 74', $request->all(), Route::currentRouteName(), $rule);

@@ -141,6 +141,33 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-4 col-sm-12 mb-2">
+                        <div class="form-group">
+                            <label class="form-label"> Biometric ID </label>
+                            <input id="biometric_id" type="text" class="form-control @error('biometric_id') is-invalid @enderror"
+                                name="biometric_id" value="{{ isset($edit->biometric_id) ? $edit->biometric_id : old('biometric_id') }}"
+                                placeholder="Enter biometric ID">
+
+                            @error('biometric_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12 mb-2">
+                        <div class="form-group">
+                            <label class="form-label"> Date of Birth </label>
+                            <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
+                                name="date_of_birth" value="{{ isset($edit->date_of_birth) ? $edit->date_of_birth : (old('date_of_birth') ? old('date_of_birth') : date('Y-m-d')) }}">
+
+                            @error('date_of_birth')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
 
                     <div class="col-12 mb-2 showRoleWisePermission"></div>
                     <div class="col-md-12 text-center">

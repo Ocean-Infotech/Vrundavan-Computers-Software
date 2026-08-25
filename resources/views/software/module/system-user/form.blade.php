@@ -185,7 +185,6 @@ $i = 0;
                         </select>
                     </div>
                 </div>
-
                 <div class="col-md-4 col-sm-12 mb-2">
                     <div class="form-group">
                         <label class="form-label">Status</label>
@@ -198,6 +197,36 @@ $i = 0;
                                 @else @if (old('status', 'active') == $status) {{ 'selected' }} @endif @endif> {{ ucfirst($status) }}</option>
                             @endforeach
                         </select>
+                    </div>
+                </div>
+
+                <div id="facilityFieldsContainer" class="col-12 p-0">
+                    <div class="row px-3">
+                        <div class="col-md-6 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Biometric ID</label>
+                                <input type="text" class="form-control @error('biometric_id') is-invalid @enderror"
+                                    name="biometric_id" value="{{ isset($edit->biometric_id) ? $edit->biometric_id : old('biometric_id') }}"
+                                    placeholder="Enter Biometric ID">
+                                @error('biometric_id')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
+                                    name="date_of_birth" value="{{ isset($edit->date_of_birth) ? $edit->date_of_birth : (old('date_of_birth') ? old('date_of_birth') : date('Y-m-d')) }}">
+                                @error('date_of_birth')
+                                <span class="invalid-feedback">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -219,14 +248,17 @@ $i = 0;
 @section('page_leavel_script')
 <script>
     let isEditID = "{{ isset($edit) && $edit?->id ? $edit?->id : '' }}";
-    // if (isEditID) {
-        // console.log("L-171", isEditID);
-        setTimeout(function() {
-            $(".selectRole").trigger("change")
-        }, 1000);
-    // }
+    
+    function toggleFacilityFields() {
+        // Always display
+        $("#facilityFieldsContainer").show();
+    }
+
+    // Call on load
+    toggleFacilityFields();
 
     $(".selectRole").on("change", function() {
+        toggleFacilityFields();
         console.log("L-149", $(this).val());
         let _url = "{{ route('search-permission') }}";
         $.ajax({

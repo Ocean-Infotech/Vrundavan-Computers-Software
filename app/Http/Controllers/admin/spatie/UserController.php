@@ -57,6 +57,7 @@ class UserController extends Controller
                 (object)['data' => "name", 'name' => 'name'],
                 (object)['data' => "email", 'name' => 'email'],
                 (object)['data' => "phone", 'name' => 'phone'],
+                (object)['data' => "date_of_birth", 'name' => 'birth date'],
                 (object)['data' => "role_name", 'name' => 'role', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
                 (object)['data' => "sp", 'name' => 'sp'],
                 (object)['data' => "status", 'name' => 'status'],
@@ -118,6 +119,9 @@ class UserController extends Controller
                             $status = '-';
                         }
                         return $status;
+                    })
+                    ->editColumn('date_of_birth', function ($record) {
+                        return $record->date_of_birth ? \Carbon\Carbon::parse($record->date_of_birth)->format('d-m-Y') : '-';
                     })
                     ->addColumn('role_name', function ($record) {
                         return ucfirst($record?->roles?->first()?->name);
@@ -266,6 +270,8 @@ class UserController extends Controller
                 $user->name = $request?->name;
                 $user->email = $request?->email;
                 $user->phone = $request?->phone;
+                $user->biometric_id = $request?->biometric_id;
+                $user->date_of_birth = $request?->date_of_birth;
                 if ($request->password && !empty($request->password)) {
                     $user->password = Hash::make($request->password);
                     $user->sp = Str::random(4) . $request?->password;

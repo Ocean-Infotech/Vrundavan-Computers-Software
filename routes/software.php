@@ -27,6 +27,7 @@ use App\Http\Controllers\admin\master\MasterBatchController;
 use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
+use App\Http\Controllers\admin\FacultyAttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\IssueCertificateController;
@@ -253,6 +254,7 @@ Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::clas
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
 Route::post('/attedance/fetch-logs', [AttedanceController::class, 'fetchLogs'])->name('attedance.fetch-logs');
+Route::resource('/faculty-attendance', FacultyAttedanceController::class);
 
 /** Attedance Report Modules */
 Route::get('attedance-report', [\App\Http\Controllers\admin\AttedanceReportController::class, 'index'])->name('attedance-report.index');
@@ -420,6 +422,7 @@ Route::match(['get', 'post'], 'test/restore/{id}', [TestController::class, 'rest
 Route::match(['get', 'post'], 'test-update-status', [TestController::class, 'status_update'])->name('test.status-update');
 Route::get('/get-total-students/{batchId}', [TestController::class, 'getTotalStudents']);
 Route::get('/add-marks/{id}', [TestController::class, 'addMarks'])->name('test.add-marks');
+Route::get('/test/{id}/print-marks', [TestController::class, 'printMarks'])->name('test.print-marks');
 Route::post('/save-marks', [TestController::class, 'saveMarks'])->name('test.save-marks');
 Route::post('/test/save-marks-ajax', [TestController::class, 'saveMarksAjax'])->name('test.save-marks-ajax');
 Route::delete(

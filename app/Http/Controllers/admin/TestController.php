@@ -147,6 +147,10 @@ class TestController extends Controller
                                 <i class="fa-solid fa-file-circle-check"></i>
                              </a>';
 
+                        $btn .= '<a href="' . route($modules["route"] . '.print-marks', [$row["id"]]) . '" target="_blank" class="btn btn-primary btn-icon mx-1" data-bs-toggle="tooltip" title="Print Marks Report">
+                                <i class="fa-solid fa-print"></i>
+                             </a>';
+
                         if (!$row?->deleted_at) {
                             if ($modules['permission_edit']) {
                                 $btn .= '<a href="' . route($modules["route"] . ".edit", [$row["id"]]) . '" class="btn btn-light btn-icon mx-1" title="Edit">
@@ -640,4 +644,28 @@ class TestController extends Controller
     }
 }
 
+    public function printMarks($id)
+    {
+        try {
+            $test = Test::with([
+                'batch.students' => function ($query) {
+                    $query->whereNotIn('status', ['Cancel', 'cancel']);
+                },
+                'batch.students.admission'
+            ])->findOrFail($id);
+            $students = $test->batch->students ?? [];
+
+            foreach ($students as $student) {
+                $student->admission->load([
+                    'testMarks' => function ($query) use ($id) {
+                        $query->where('test_id', $id);
+                    }
+                ]);
+            }
+
+            return view($this->modules['folder_path'] . '.print_marks', compact('test', 'students'));
+        } catch (\Exception $e) {
+            return Redirect::route('test.index')->withErrors($e->getMessage());
+        }
+    }
 }

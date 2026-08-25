@@ -56,8 +56,23 @@ class DashboardController extends Controller
             ->with(['course', 'batch', 'class'])
             ->get();
 
+        $studentBirthdays = Admission::whereMonth('date_of_birth', \Carbon\Carbon::today()->month)
+            ->whereDay('date_of_birth', \Carbon\Carbon::today()->day)
+            ->select('id', 'first_name', 'last_name', 'father_name', 'gr_no', 'profile_pic')
+            ->get();
+        $studentBirthdaysCount = $studentBirthdays->count();
+
+        $facilityBirthdays = \App\Models\User::whereHas('roles', function($q) {
+                $q->where('name', 'Facility');
+            })
+            ->whereMonth('date_of_birth', \Carbon\Carbon::today()->month)
+            ->whereDay('date_of_birth', \Carbon\Carbon::today()->day)
+            ->select('id', 'name')
+            ->get();
+        $facilityBirthdaysCount = $facilityBirthdays->count();
+
         return view($modules['folder_path'] . '.dashboard', compact(
-            'totalStudents', 'totalCourses', 'studentRequestsCount', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks', 'todayTests'
+            'totalStudents', 'totalCourses', 'studentRequestsCount', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks', 'todayTests', 'studentBirthdays', 'studentBirthdaysCount', 'facilityBirthdays', 'facilityBirthdaysCount'
         ));
     }
 }

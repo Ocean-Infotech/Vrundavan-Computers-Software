@@ -194,6 +194,13 @@ class PermissionTableSeeder extends Seeder
                 'achievement-create',
                 'achievement-edit',
                 'achievement-delete',
+            ],
+            'result' => [
+                'result-list',
+                'result-create',
+                'result-edit',
+                'result-delete',
+                'result-report',
             ]
         ];
 
