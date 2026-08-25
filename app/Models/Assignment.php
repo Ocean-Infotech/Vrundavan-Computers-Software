@@ -16,6 +16,7 @@ class Assignment extends Model
         'batch_id',
         'semester',
         'subject',
+        'unit',
         'date',
         'status',
         'created_by',

@@ -58,7 +58,7 @@ class FacultyAttedanceController extends Controller
 
             if ($request->ajax()) {
                 $user = Auth::user();
-                $biometricId = $user->biometric_id ?? '---';
+                $isFaculty = Helper::getLoginUserRole() === 'Facility';
 
                 $data = Attedance::select([
                         'attedance.biometric_id',
@@ -67,9 +67,22 @@ class FacultyAttedanceController extends Controller
                         DB::raw('MAX(attedance.in_time) as last_punch'),
                         DB::raw('MIN(attedance.DeviceKey) as DeviceKey'),
                         DB::raw('MIN(attedance.DeviceName) as DeviceName'),
+                        'users.name as faculty_name',
                     ])
-                    ->where('attedance.biometric_id', $biometricId)
-                    ->groupBy('attedance.biometric_id', 'attedance.date')
+                    ->join('users', 'users.biometric_id', '=', 'attedance.biometric_id');
+
+                if ($isFaculty) {
+                    $biometricId = $user->biometric_id ?? '---';
+                    $data = $data->where('attedance.biometric_id', $biometricId);
+                } else {
+                    $facultyBiometrics = User::whereHas('roles', function ($query) {
+                        $query->where('name', 'Facility');
+                    })->pluck('biometric_id')->filter()->toArray();
+
+                    $data = $data->whereIn('attedance.biometric_id', $facultyBiometrics);
+                }
+
+                $data = $data->groupBy('attedance.biometric_id', 'attedance.date', 'users.name')
                     ->orderByDesc('attedance.date');
 
                 $returnData = DataTables::of($data)
@@ -81,6 +94,7 @@ class FacultyAttedanceController extends Controller
                         }
                         $query->where(function ($q) use ($search) {
                             $q->where('attedance.date', 'like', "%{$search}%")
+                              ->orWhere('users.name', 'like', "%{$search}%")
                               ->orWhere('attedance.DeviceKey', 'like', "%{$search}%")
                               ->orWhere('attedance.DeviceName', 'like', "%{$search}%");
                         });
@@ -88,8 +102,8 @@ class FacultyAttedanceController extends Controller
                     ->editColumn('biometric_id', function ($row) {
                         return $row->biometric_id ?: '-';
                     })
-                    ->addColumn('faculty_name', function ($row) use ($user) {
-                        return $user->name;
+                    ->addColumn('faculty_name', function ($row) {
+                        return $row->faculty_name ?: '-';
                     })
                     ->editColumn('date', function ($row) {
                         return Carbon::parse($row->date)->format('d-m-Y');

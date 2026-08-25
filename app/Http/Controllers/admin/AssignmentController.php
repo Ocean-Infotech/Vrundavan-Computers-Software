@@ -53,6 +53,7 @@ class AssignmentController extends Controller
                 (object)['data' => 'batch', 'name' => 'batch_id', 'td_label' => 'Batch'],
                 (object)['data' => 'semester', 'name' => 'semester', 'td_label' => 'Semester'],
                 (object)['data' => 'subject', 'name' => 'subject', 'td_label' => 'Subject'],
+                (object)['data' => 'unit', 'name' => 'unit', 'td_label' => 'Unit'],
                 (object)['data' => 'date', 'name' => 'date', 'td_label' => 'Date', 'className' => 'text-center'],
                 (object)['data' => 'status', 'name' => 'status', 'td_label' => 'Status', 'className' => 'text-center'],
                 (object)['data' => 'action', 'name' => 'action', 'td_label' => 'Action', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
@@ -71,6 +72,9 @@ class AssignmentController extends Controller
                     })
                     ->addColumn('batch', function ($row) {
                         return $row->batch ? $row->batch->batch_name : '-';
+                    })
+                    ->editColumn('unit', function ($row) {
+                        return $row->unit ?: '-';
                     })
                     ->editColumn('date', function ($row) {
                         return $row->date ? \Carbon\Carbon::parse($row->date)->format('d-m-Y') : '';

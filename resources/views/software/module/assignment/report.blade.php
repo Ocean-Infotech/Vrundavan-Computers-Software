@@ -38,17 +38,23 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-md-3">
-                            <h4 class="mb-0">{{ $page_title }} Report Entry Form</h4>
+                        <div class="col-md-2 col-sm-12 mb-2 mb-md-0">
+                            <h4 class="mb-0">{{ $page_title }} Report</h4>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6">
                             <strong>Course:</strong> {{ $assignment->course->course_name ?? 'N/A' }}
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6">
                             <strong>Batch:</strong> {{ $assignment->batch->batch_name ?? 'N/A' }}
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-sm-6">
                             <strong>Subject:</strong> {{ $assignment->subject ?? 'N/A' }}
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <strong>Unit:</strong> {{ $assignment->unit ?? '-' }}
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <strong>Semester:</strong> {{ $assignment->semester ?? '-' }}
                         </div>
                     </div>
                 </div>

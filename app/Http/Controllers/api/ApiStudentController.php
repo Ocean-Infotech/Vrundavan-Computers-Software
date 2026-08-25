@@ -838,6 +838,7 @@ class ApiStudentController extends Controller
                 return [
                     'assignment_id' => $assignment->id,
                     'subject'       => $assignment->subject,
+                    'unit'          => $assignment->unit ?? '',
                     // 'course'        => $assignment->course->course_name ?? null,
                     // 'batch'         => $assignment->batch->batch_name ?? null,
                     'date'          => $assignment->date ? \Carbon\Carbon::parse($assignment->date)->format('d-m-Y') : null,

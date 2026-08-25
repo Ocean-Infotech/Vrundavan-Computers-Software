@@ -98,6 +98,18 @@
                         </div>
                     </div>
 
+                    <!-- Unit -->
+                    <div class="col-md-4 col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Unit</label>
+                            <input type="text" name="unit" class="form-control @error('unit') is-invalid @enderror"
+                                value="{{ old('unit', $edit->unit ?? '') }}" placeholder="Enter Unit (e.g. Unit 1)">
+                            @error('unit')
+                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Date -->
                     <div class="col-md-4 col-sm-12 mb-3">
                         <div class="form-group">
@@ -180,10 +192,8 @@
             // because options are appended asynchronously via getBatchByCourseid.blade.php
             let checkBatchInterval = setInterval(function() {
                 let batchVal = $('#batch').val();
-                let selectedBatchId = $('#batch').attr('data-selectedBatchId');
                 let semesterVal = $('#semester').val();
-                let selectedSemesterId = $('#semester').attr('data-selectedSemesterId');
-                if ((batchVal || selectedBatchId) && (semesterVal || selectedSemesterId)) {
+                if (batchVal && semesterVal) {
                     loadSubjects();
                     clearInterval(checkBatchInterval);
                 }

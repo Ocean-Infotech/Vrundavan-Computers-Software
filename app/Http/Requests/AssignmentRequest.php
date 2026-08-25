@@ -18,6 +18,7 @@ class AssignmentRequest extends FormRequest
             'batch_id' => 'required|integer|exists:master_batch,id',
             'semester' => 'required|string',
             'subject' => 'required|string|max:255',
+            'unit' => 'nullable|string|max:255',
             'date' => 'required|date',
         ];
     }
