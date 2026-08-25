@@ -35,6 +35,42 @@
                     <input type="hidden" name="id" value="{{ $edit?->id ?? '' }}" />
                 @endisset
 
+                @if (!isset($edit))
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <!-- Course Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Course <span class="text-danger">*</span></label>
+                                <select id="filter_course_id" class="form-control select2" required>
+                                    <option value="">Select Course</option>
+                                    @foreach ($courses as $course)
+                                        <option value="{{ $course->id }}">{{ $course->course_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Batch Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label">Batch <span class="text-danger">*</span></label>
+                                <select id="filter_batch_id" class="form-control select2" required>
+                                    <option value="">Select Batch</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Class Filter -->
+                        <div class="col-md-4 col-sm-12 mb-2">
+                            <div class="form-group">
+                                <label class="form-label d-block">Class</label>
+                                <div id="class_checkboxes_container" class="d-flex flex-wrap gap-3 mt-2 border p-2 rounded bg-white" style="min-height: 38px; align-items: center;">
+                                    <span class="text-muted small">Select Batch first</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row">
                     <!-- Select Student -->
                     <div class="col-md-4 col-sm-12 mb-3">
@@ -43,19 +79,12 @@
                             @if (!isset($edit))
                                 <div class="card p-2" style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc;">
                                     <input type="text" id="student_search" class="form-control mb-2" placeholder="Search student...">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="select_all_students">
+                                        <label class="form-check-label fw-bold" for="select_all_students">Select All</label>
+                                    </div>
                                     <div id="student_checkbox_list">
-                                        @foreach ($students as $student)
-                                            @php
-                                                $studentText = $student->id . ' - ' . trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->father_name ?? ''));
-                                            @endphp
-                                            <div class="form-check student-checkbox-item mb-1">
-                                                <input class="form-check-input student-checkbox" type="checkbox" name="admission_id[]" value="{{ $student->id }}" id="student_{{ $student->id }}"
-                                                    @if (is_array(old('admission_id')) && in_array($student->id, old('admission_id'))) checked @endif>
-                                                <label class="form-check-label" for="student_{{ $student->id }}">
-                                                    {{ $studentText }}
-                                                </label>
-                                            </div>
-                                        @endforeach
+                                        <span class="text-muted small">Select Course, Batch, Class to load students</span>
                                     </div>
                                 </div>
                             @else
@@ -150,6 +179,143 @@
                     allowClear: true
                 });
             }
+
+            @if (!isset($edit))
+            function loadFilteredStudents() {
+                let courseId = $('#filter_course_id').val();
+                let batchId = $('#filter_batch_id').val();
+                let classIds = [];
+                $('.filter-class-checkbox:checked').each(function() {
+                    classIds.push($(this).val());
+                });
+
+                if (!courseId || !batchId || classIds.length === 0) {
+                    $('#student_checkbox_list').html('<span class="text-muted small">Select Course, Batch, Class to load students</span>');
+                    return;
+                }
+
+                $('#student_checkbox_list').html('<span class="text-muted small">Loading students...</span>');
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('marksheet-issue.get-students') }}",
+                    data: {
+                        course_id: courseId,
+                        batch_id: batchId,
+                        class_id: classIds
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            let container = $('#student_checkbox_list');
+                            container.empty();
+
+                            if (response.data.length === 0) {
+                                container.append('<span class="text-muted small">No students found.</span>');
+                                return;
+                            }
+
+                            response.data.forEach(function(student) {
+                                let studentText = student.id + ' - ' + student.full_name;
+                                container.append(`
+                                    <div class="form-check student-checkbox-item mb-1">
+                                        <input class="form-check-input student-checkbox" type="checkbox" name="admission_id[]" value="${student.id}" id="student_${student.id}">
+                                        <label class="form-check-label" for="student_${student.id}">
+                                            ${studentText}
+                                        </label>
+                                    </div>
+                                `);
+                            });
+                            
+                            $('#select_all_students').prop('checked', false);
+                        }
+                    }
+                });
+            }
+
+            // Select All students
+            $(document).on('change', '#select_all_students', function() {
+                let isChecked = $(this).is(':checked');
+                $('.student-checkbox').prop('checked', isChecked);
+            });
+
+            // Dependent dropdown: Course -> Batch
+            $('#filter_course_id').on('change', function() {
+                let courseId = $(this).val();
+                let batchSelect = $('#filter_batch_id');
+
+                batchSelect.empty().append('<option value="">Select Batch</option>');
+                $('#class_checkboxes_container').html('<span class="text-muted small">Select Batch first</span>');
+                batchSelect.trigger('change.select2');
+
+                if (courseId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-batch') }}",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            course_id: courseId
+                        },
+                        success: function(response) {
+                            if (response.status && response.data) {
+                                response.data.forEach(function(batch) {
+                                    batchSelect.append(`<option value="${batch.id}">${batch.name}</option>`);
+                                });
+                                batchSelect.trigger('change.select2');
+                            }
+                        }
+                    });
+                }
+                loadFilteredStudents();
+            });
+
+            // Dependent dropdown: Batch -> Class Checkboxes
+            $('#filter_batch_id').on('change', function() {
+                let batchId = $(this).val();
+                let container = $('#class_checkboxes_container');
+
+                container.html('<span class="text-muted small">Loading classes...</span>');
+
+                if (batchId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ route('get-class-bybatch') }}",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            batch_id: batchId
+                        },
+                        success: function(response) {
+                            if (response.status && response.data) {
+                                let checkboxesHtml = '';
+                                response.data.forEach(function(cls) {
+                                    checkboxesHtml += `
+                                        <div class="form-check me-3">
+                                            <input class="form-check-input filter-class-checkbox" type="checkbox" value="${cls.id}" id="class_chk_${cls.id}">
+                                            <label class="form-check-label" for="class_chk_${cls.id}">
+                                                ${cls.name}
+                                            </label>
+                                        </div>
+                                    `;
+                                });
+                                container.html(checkboxesHtml || '<span class="text-muted small">No classes found</span>');
+                            } else {
+                                container.html('<span class="text-muted small">No classes found</span>');
+                            }
+                            loadFilteredStudents();
+                        },
+                        error: function() {
+                            container.html('<span class="text-muted small">Error loading classes</span>');
+                            loadFilteredStudents();
+                        }
+                    });
+                } else {
+                    container.html('<span class="text-muted small">Select Batch first</span>');
+                    loadFilteredStudents();
+                }
+            });
+
+            // When Class checkboxes change, load students
+            $(document).on('change', '.filter-class-checkbox', loadFilteredStudents);
+            @endif
 
             $('#student_search').on('keyup', function() {
                 let value = $(this).val().toLowerCase();

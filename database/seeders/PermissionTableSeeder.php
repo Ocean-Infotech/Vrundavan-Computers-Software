@@ -201,6 +201,9 @@ class PermissionTableSeeder extends Seeder
                 'result-edit',
                 'result-delete',
                 'result-report',
+            ],
+            'faculty-attendance' => [
+                'faculty-attendance-list',
             ]
         ];
 

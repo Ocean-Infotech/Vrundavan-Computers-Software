@@ -177,7 +177,9 @@ class FacultyComplaintReportController extends Controller
             $faculties = User::where('status', 'active')->where('name', 'not like', '%Ocean%')->get();
         }
 
-        return view($modules['folder_path'] . '.form', compact('modules', 'students', 'faculties'));
+        $courses = \App\Models\Master\MasterCourse::where('status', 'active')->get();
+
+        return view($modules['folder_path'] . '.form', compact('modules', 'students', 'faculties', 'courses'));
     }
 
     public function store(Request $request)
@@ -241,7 +243,9 @@ class FacultyComplaintReportController extends Controller
                 $faculties = User::where('status', 'active')->where('name', 'not like', '%Ocean%')->get();
             }
 
-            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'students', 'faculties'));
+            $courses = \App\Models\Master\MasterCourse::where('status', 'active')->get();
+
+            return view($modules['folder_path'] . '.form', compact('modules', 'edit', 'students', 'faculties', 'courses'));
         } catch (\Exception $e) {
             return Redirect::route($modules['route'] . '.index')->withErrors($e->getMessage())->withInput();
         }
