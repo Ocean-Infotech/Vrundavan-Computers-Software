@@ -49,14 +49,14 @@ class StudentRequestController extends Controller
             (object)['data' => "student_id", 'name' => 'student_id', 'td_label' => 'Student Name'],
             (object)['data' => "subject", 'name' => 'subject.name', 'td_label' => 'Subject'],
             (object)['data' => "detail", 'name' => 'detail', 'td_label' => 'Detail'],
-            (object)['data' => "created_at", 'name' => 'created_at', 'td_label' => 'Created At'],
+            (object)['data' => "created_at", 'name' => 'requests.created_at', 'td_label' => 'Created At'],
         ];
 
         View::share("columns", $columns);
 
         try {
             if ($request->ajax()) {
-                $data = StudentRequest::with('subject')
+                $data = StudentRequest::select('requests.*')->with('subject')
                     ->orderBy('requests.id', 'desc');
 
                 return Datatables::of($data)
@@ -78,7 +78,7 @@ class StudentRequestController extends Controller
                         return $first ? "$first $last" : '---';
                     })
 
-                    ->addColumn('created_at', function ($row) {
+                    ->editColumn('created_at', function ($row) {
                         return $row->created_at ? $row->created_at->format('d-m-Y H:i') : '-';
                     })
 
