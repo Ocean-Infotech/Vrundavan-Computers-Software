@@ -414,6 +414,44 @@
 
             // When Class checkboxes change, load students
             $(document).on('change', '.filter-class-checkbox', loadFilteredStudents);
+
+            // Column-wise vertical tab and arrow key navigation
+            $(document).on('keydown', '.student-series, .student-date, .student-note', function(e) {
+                // Tab = 9, ArrowUp = 38, ArrowDown = 40
+                if (e.which === 9 || e.which === 38 || e.which === 40) {
+                    let currentInput = $(this);
+                    let currentClass = '';
+                    
+                    if (currentInput.hasClass('student-series')) {
+                        currentClass = '.student-series';
+                    } else if (currentInput.hasClass('student-date')) {
+                        currentClass = '.student-date';
+                    } else if (currentInput.hasClass('student-note')) {
+                        currentClass = '.student-note';
+                    }
+                    
+                    if (currentClass) {
+                        let currentRow = currentInput.closest('tr');
+                        let goUp = (e.which === 9 && e.shiftKey) || e.which === 38;
+                        let goDown = (e.which === 9 && !e.shiftKey) || e.which === 40;
+                        
+                        let targetRow = null;
+                        if (goUp) {
+                            targetRow = currentRow.prev('tr');
+                        } else if (goDown) {
+                            targetRow = currentRow.next('tr');
+                        }
+                        
+                        if (targetRow && targetRow.length > 0) {
+                            let targetInput = targetRow.find(currentClass);
+                            if (targetInput.length > 0 && !targetInput.prop('disabled')) {
+                                e.preventDefault();
+                                targetInput.focus().select();
+                            }
+                        }
+                    }
+                }
+            });
             @endif
         });
     </script>
