@@ -159,7 +159,7 @@
                         <div class="form-group">
                             <label class="form-label"> Date of Birth </label>
                             <input id="date_of_birth" type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
-                                name="date_of_birth" value="{{ isset($edit->date_of_birth) ? $edit->date_of_birth : (old('date_of_birth') ? old('date_of_birth') : date('Y-m-d')) }}">
+                                name="date_of_birth" value="{{ old('date_of_birth', $edit->date_of_birth ?? '') }}">
 
                             @error('date_of_birth')
                                 <span class="invalid-feedback">
