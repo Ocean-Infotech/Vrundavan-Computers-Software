@@ -56,6 +56,11 @@ class FacultyComplaintReportController extends Controller
         View::share('modules', $modules);
 
         try {
+            $canList = Helper::directCan($modules['permission_prefix'] . '-list');
+            if (!$canList) {
+                return Redirect::route('software.dashboard')->withErrors('User does not have the right permissions.');
+            }
+
             $data = [];
             if ($request->ajax()) {
                 $data = FacultyComplaintReport::with(['admission', 'faculty'])
@@ -160,6 +165,11 @@ class FacultyComplaintReportController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         $students = Admission::whereIn('status', ['active', 'created'])
             ->whereHas('courses', function ($q) {
                 $q->whereNotIn('status', ['Cancel', 'cancel']);
@@ -186,6 +196,11 @@ class FacultyComplaintReportController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
 
         $request->validate([
             'admission_id' => 'required|array',
@@ -223,6 +238,11 @@ class FacultyComplaintReportController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         try {
             $edit = FacultyComplaintReport::findOrFail($id);
 
@@ -256,6 +276,11 @@ class FacultyComplaintReportController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         $request->validate([
             'admission_id' => 'required|exists:admission,id',
             'date' => 'required|date',
@@ -286,6 +311,11 @@ class FacultyComplaintReportController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canDelete = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         try {
             $report = FacultyComplaintReport::findOrFail($id);
             if ($report) {
@@ -310,6 +340,11 @@ class FacultyComplaintReportController extends Controller
 
     public function restore($id)
     {
+        $canDelete = Helper::directCan($this->modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         try {
             $report = FacultyComplaintReport::withTrashed()->findOrFail($id);
             $report->restore();
@@ -328,6 +363,11 @@ class FacultyComplaintReportController extends Controller
 
     public function permanentDelete($id)
     {
+        $canDelete = Helper::directCan($this->modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         try {
             $report = FacultyComplaintReport::withTrashed()->findOrFail($id);
             $report->forceDelete();
