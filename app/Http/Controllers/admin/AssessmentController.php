@@ -56,7 +56,7 @@ class AssessmentController extends Controller
         try {
             $canList = Helper::directCan($modules['permission_prefix'] . '-list');
             if (!$canList) {
-                return Redirect::route('software.dashboard')->withErrors('User does not have the right permissions.');
+                abort(403, 'User does not have the right permissions.');
             }
 
             if ($request->ajax()) {
@@ -136,7 +136,7 @@ class AssessmentController extends Controller
 
         $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
         if (!$canCreate) {
-            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+            abort(403, 'User does not have the right permissions.');
         }
 
         $courses = MasterCourse::pluck('course_name', 'id');
@@ -155,7 +155,7 @@ class AssessmentController extends Controller
 
         $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
         if (!$canCreate) {
-            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+            abort(403, 'User does not have the right permissions.');
         }
 
         // Check if it is a bulk submission
@@ -220,7 +220,7 @@ class AssessmentController extends Controller
 
         $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
         if (!$canEdit) {
-            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+            abort(403, 'User does not have the right permissions.');
         }
 
         try {
@@ -244,7 +244,7 @@ class AssessmentController extends Controller
 
         $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
         if (!$canEdit) {
-            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+            abort(403, 'User does not have the right permissions.');
         }
 
         $request->validate([
