@@ -204,6 +204,12 @@ class PermissionTableSeeder extends Seeder
             ],
             'faculty-attendance' => [
                 'faculty-attendance-list',
+            ],
+            'marksheet-issue' => [
+                'marksheet-issue-list',
+                'marksheet-issue-create',
+                'marksheet-issue-edit',
+                'marksheet-issue-delete',
             ]
         ];
 
