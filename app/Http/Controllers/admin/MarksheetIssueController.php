@@ -47,7 +47,7 @@ class MarksheetIssueController extends Controller
             'folder_path' => 'software.module.marksheet-issue',
             'route' => 'marksheet-issue',
             'table_name' => (new StudentMarksheetIssue())->getTable(),
-            'permission_prefix' => 'admission',
+            'permission_prefix' => 'marksheet-issue',
         ];
     }
 
@@ -57,6 +57,11 @@ class MarksheetIssueController extends Controller
         View::share('modules', $modules);
 
         try {
+            $canList = Helper::directCan($modules['permission_prefix'] . '-list');
+            if (!$canList) {
+                return Redirect::route('software.dashboard')->withErrors('User does not have the right permissions.');
+            }
+
             if ($request->ajax()) {
                 $data = StudentMarksheetIssue::with('admission')->select('student_marksheet_issues.*');
 
@@ -130,6 +135,11 @@ class MarksheetIssueController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         $students = Admission::whereIn('status', ['active', 'created'])
             ->with('courses.course')
             ->select('id', 'gr_no', 'first_name', 'last_name', 'father_name')
@@ -147,6 +157,11 @@ class MarksheetIssueController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
+        $canCreate = Helper::directCan($modules['permission_prefix'] . '-create');
+        if (!$canCreate) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
 
         if ($request->has('issues') && is_array($request->issues)) {
             $request->validate([
@@ -224,6 +239,11 @@ class MarksheetIssueController extends Controller
         $modules = $this->modules;
         View::share('modules', $modules);
 
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
+
         try {
             $edit = StudentMarksheetIssue::findOrFail($id);
 
@@ -247,6 +267,11 @@ class MarksheetIssueController extends Controller
     {
         $modules = $this->modules;
         View::share('modules', $modules);
+
+        $canEdit = Helper::directCan($modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return Redirect::route($modules['route'] . '.index')->withErrors('User does not have the right permissions.');
+        }
 
         $request->validate([
             'admission_id' => 'required|exists:admission,id',
@@ -284,6 +309,12 @@ class MarksheetIssueController extends Controller
     public function destroy(Request $request, string $id)
     {
         $modules = $this->modules;
+
+        $canDelete = Helper::directCan($modules['permission_prefix'] . '-delete');
+        if (!$canDelete) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         try {
             $record = StudentMarksheetIssue::findOrFail($id);
             $record->delete();
@@ -295,6 +326,11 @@ class MarksheetIssueController extends Controller
 
     public function toggle(Request $request)
     {
+        $canEdit = Helper::directCan($this->modules['permission_prefix'] . '-edit');
+        if (!$canEdit) {
+            return response()->json(['success' => false, 'message' => 'User does not have the right permissions.']);
+        }
+
         $admissionId = $request->input('admission_id');
         $semester = $request->input('semester');
         $isIssued = $request->input('is_issued');
