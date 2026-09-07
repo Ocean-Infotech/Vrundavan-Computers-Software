@@ -63,8 +63,7 @@ class UserController extends Controller
                 (object)['data' => "status", 'name' => 'status'],
                 (object)['data' => "action", 'name' => 'action', 'orderable' => false, 'searchable' => false, 'className' =>  'w-10 text-center'],
             ];
-            if (!in_array($login_user_role, ["developer", "Developer"])) {
-                // ,"super-admin"
+            if (!in_array($login_user_role, ["developer", "Developer", "super-admin", "Super-admin"])) {
                 // Remove the element where 'data' is 'sp'
                 $columns = array_filter($columns, function ($col) {
                     return $col->data !== "sp";
