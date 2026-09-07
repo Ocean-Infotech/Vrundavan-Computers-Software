@@ -52,7 +52,7 @@ if (str_starts_with($secretKey, 'base64:')) {
 
 // 2. Main Entry Dispatcher (only run if executed directly via CLI)
 if (PHP_SAPI === 'cli' && !isset($_SERVER['REQUEST_URI'])) {
-    $action = $argv[1] ?? 'hardware';
+    $action = isset($argv[1]) ? $argv[1] : 'hardware';
 
     switch ($action) {
         case 'hardware':
@@ -80,7 +80,7 @@ if (PHP_SAPI === 'cli' && !isset($_SERVER['REQUEST_URI'])) {
  */
 class HardwareReader
 {
-    public static function collect(): array
+    public static function collect()
     {
         $os = strtoupper(PHP_OS);
         $motherboard = '';
@@ -139,16 +139,16 @@ class HardwareReader
         ];
     }
 
-    public static function getPcName(): string
+    public static function getPcName()
     {
         $name = getenv('COMPUTERNAME');
         if (empty($name)) {
             $name = gethostname();
         }
-        return $name ?: 'Authorized Workplace PC';
+        return $name ? $name : 'Authorized Workplace PC';
     }
 
-    public static function getGeoLocation(): array
+    public static function getGeoLocation()
     {
         $lat = '0.0';
         $lon = '0.0';
@@ -158,8 +158,8 @@ class HardwareReader
             if ($res) {
                 $data = json_decode($res, true);
                 if (isset($data['status']) && $data['status'] === 'success') {
-                    $lat = (string) ($data['lat'] ?? '0.0');
-                    $lon = (string) ($data['lon'] ?? '0.0');
+                    $lat = (string) (isset($data['lat']) ? $data['lat'] : '0.0');
+                    $lon = (string) (isset($data['lon']) ? $data['lon'] : '0.0');
                 }
             }
         } catch (\Exception $e) {
@@ -168,7 +168,7 @@ class HardwareReader
         return ['latitude' => $lat, 'longitude' => $lon];
     }
 
-    private static function sanitize(string $val, string $fallback): string
+    private static function sanitize($val, $fallback)
     {
         // Strip column titles if wmic commands leak headers
         $val = str_ireplace(['SerialNumber', 'ProcessorId'], '', $val);
@@ -183,7 +183,7 @@ class HardwareReader
         return empty($val) ? $fallback : $val;
     }
 
-    private static function runCmd(string $cmd): string
+    private static function runCmd($cmd)
     {
         $output = '';
         try {
@@ -200,10 +200,10 @@ class HardwareReader
  */
 class SignatureGenerator
 {
-    public static function sign(string $hardwareId, string $secretKey): array
+    public static function sign($hardwareId, $secretKey)
     {
         $timestamp = time();
-        $nonce = bin2hex(random_bytes(16)); // Secure random nonce
+        $nonce = bin2hex(function_exists('random_bytes') ? random_bytes(16) : openssl_random_pseudo_bytes(16)); // Secure random nonce
 
         // Concatenate parameters exactly matching Laravel validator logic
         $payload = $hardwareId . $timestamp . $nonce;
@@ -220,7 +220,7 @@ class SignatureGenerator
 /**
  * Output the hardware information directly.
  */
-function showHardwareInfo(): void
+function showHardwareInfo()
 {
     $hw = HardwareReader::collect();
     echo "\n==================================================\n";
@@ -239,7 +239,7 @@ function showHardwareInfo(): void
  * Allows the browser CRM application login page to pull the hardware
  * parameters securely using standard HTTP Fetch requests.
  */
-function startLocalServer(array $config, string $secretKey): void
+function startLocalServer($config, $secretKey)
 {
     $port = $config['local_port'];
     echo "==================================================\n";
@@ -288,7 +288,7 @@ function startLocalServer(array $config, string $secretKey): void
 /**
  * Test Api Sanctum login using raw signed CLI request.
  */
-function testApiLogin(array $config, string $secretKey): void
+function testApiLogin($config, $secretKey)
 {
     echo "Initiating API Sanctum test client...\n";
     echo "Enter Email: ";
@@ -320,8 +320,8 @@ function testApiLogin(array $config, string $secretKey): void
 
     $context = stream_context_create($options);
     $result = file_get_contents($apiUrl, false, $context);
-    $responseHeaders = $http_response_header ?? [];
-    $statusLine = $responseHeaders[0] ?? '';
+    $responseHeaders = isset($http_response_header) ? $http_response_header : [];
+    $statusLine = isset($responseHeaders[0]) ? $responseHeaders[0] : '';
 
     echo "\nServer Response Status: " . $statusLine . "\n";
     $formatted = json_decode($result, true);

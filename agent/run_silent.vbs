@@ -7,6 +7,8 @@ WshShell.CurrentDirectory = currentDir
 Dim phpPath
 If fso.FileExists(currentDir & "\php\php.exe") Then
     phpPath = """" & currentDir & "\php\php.exe"""
+ElseIf fso.FileExists("D:\xampp\php\php.exe") Then
+    phpPath = "D:\xampp\php\php.exe"
 ElseIf fso.FileExists("C:\xampp\php\php.exe") Then
     phpPath = "C:\xampp\php\php.exe"
 Else
