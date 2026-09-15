@@ -102,7 +102,9 @@ class StudentRequestController extends Controller
                     }
                     return [
                         'id' => $item->id,
-                        'subject' => $subjectVal,
+                        'subject_id' => $item->subject_id,
+                        // 'subject' => $subjectVal,
+                        'subject_name' => $subjectVal,
                         'detail' => $item->detail,
                         'status' => $item->status ?? 'Pending',
                         'created_at' => $item->created_at ? $item->created_at->format('Y-m-d H:i:s') : null,
