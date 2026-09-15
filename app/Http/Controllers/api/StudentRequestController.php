@@ -36,17 +36,9 @@ class StudentRequestController extends Controller
             $validator = Validator::make(
                 $request->all(),
                 [
-                    'subject_id' => [
-                        'required',
-                        Rule::exists((new MasterSubject())->getTable(), 'id')
-                            ->where(function ($query) {
-                                $query->where('status', 'active');
-                            }),
-                    ],
+                    'subject' => ['required_without:subject_id', 'nullable', 'string', 'max:255'],
+                    'subject_id' => ['nullable'],
                     'detail' => ['required', 'string', 'max:1000'],
-                ],
-                [
-                    'subject_id.exists' => 'The selected subject id  is inactive.',
                 ]
             );
 
@@ -62,11 +54,17 @@ class StudentRequestController extends Controller
             $requestData = new StudentRequest();
             $requestData->student_id = $student->id;
             $requestData->created_by = $student->id;
-            $requestData->subject_id = $request->subject_id;
+            if ($request->filled('subject')) {
+                $requestData->subject = $request->subject;
+            }
+            if ($request->filled('subject_id')) {
+                $requestData->subject_id = $request->subject_id;
+            }
             $requestData->detail = $request->detail;
+            $requestData->status = 'Pending';
             $requestData->save();
 
-            unset($requestData['created_at'], $requestData['updated_at']);
+            unset($requestData['created_at'], $requestData['updated_at'], $requestData['created_by']);
 
             return $this->sendResponse($requestData, 'Request submitted successfully.');
         } catch (\Exception $e) {
@@ -94,16 +92,20 @@ class StudentRequestController extends Controller
 
             // Fetch all requests made by the student along with the subject name
             $requests = StudentRequest::where('student_id', $student->id)
-                ->with(['subject:id,name']) // assuming you have a relation in StudentRequest model
+                ->with(['subjectRelation:id,name'])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($item) {
+                    $subjectVal = $item->getRawOriginal('subject');
+                    if (!$subjectVal && $item->subjectRelation) {
+                        $subjectVal = $item->subjectRelation->name;
+                    }
                     return [
                         'id' => $item->id,
-                        'subject_id' => $item->subject_id,
-                        'subject_name' => $item->subject ? $item->subject->name : null,
+                        'subject' => $subjectVal,
                         'detail' => $item->detail,
-                        'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+                        'status' => $item->status ?? 'Pending',
+                        'created_at' => $item->created_at ? $item->created_at->format('Y-m-d H:i:s') : null,
                     ];
                 });
 

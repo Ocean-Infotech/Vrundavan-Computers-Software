@@ -202,16 +202,21 @@ class AdmissionController extends Controller
                     ->filter(function ($query) use ($request) {
                         $search = $request->input('search');
                         $searchValue = is_array($search) ? ($search['value'] ?? '') : $search;
+                        $trimmedSearch = trim((string) $searchValue);
 
-                        if (!empty($searchValue)) {
-                            $query->where(function ($q) use ($searchValue) {
-                                $q->where('id', 'like', "%" . $searchValue . "%");
-
-                                $words = array_filter(explode(' ', trim($searchValue)));
-                                foreach ($words as $word) {
-                                    $q->orWhere('first_name', 'like', "%" . $word . "%")
-                                        ->orWhere('last_name', 'like', "%" . $word . "%")
-                                        ->orWhere('father_name', 'like', "%" . $word . "%");
+                        if ($trimmedSearch !== '') {
+                            $query->where(function ($q) use ($trimmedSearch) {
+                                if (is_numeric($trimmedSearch)) {
+                                    $q->where('id', $trimmedSearch)
+                                      ->orWhere('gr_no', $trimmedSearch)
+                                      ->orWhere('biometric_id', $trimmedSearch);
+                                } else {
+                                    $words = array_filter(explode(' ', $trimmedSearch));
+                                    foreach ($words as $word) {
+                                        $q->orWhere('first_name', 'like', "%" . $word . "%")
+                                          ->orWhere('last_name', 'like', "%" . $word . "%")
+                                          ->orWhere('father_name', 'like', "%" . $word . "%");
+                                    }
                                 }
                             });
                         }

@@ -13,13 +13,20 @@ class StudentRequest extends Model
 
     protected $fillable = [
         'subject',
+        'subject_id',
         'detail',
         'student_id',
+        'status',
+        'response',
         'created_by',
         'updated_by',
         'deleted_by'
     ];
     public function subject()
+    {
+        return $this->belongsTo(MasterSubject::class, 'subject_id');
+    }
+    public function subjectRelation()
     {
         return $this->belongsTo(MasterSubject::class, 'subject_id');
     }

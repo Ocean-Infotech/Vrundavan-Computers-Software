@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('requests', function (Blueprint $table) {
-            //
+            if (!Schema::hasColumn('requests', 'response')) {
+                $table->text('response')->nullable()->after('detail');
+            }
+            if (!Schema::hasColumn('requests', 'status')) {
+                $table->enum('status', ['Pending', 'Completed'])->default('Pending')->after('response');
+            }
         });
     }
 
@@ -22,7 +27,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('requests', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('requests', 'response')) {
+                $table->dropColumn('response');
+            }
+            if (Schema::hasColumn('requests', 'status')) {
+                $table->dropColumn('status');
+            }
         });
     }
 };

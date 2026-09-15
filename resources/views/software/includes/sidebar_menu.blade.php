@@ -164,8 +164,8 @@
         @enddirectCanAny
 
 
-        @directCanAny(['attedance-list', 'attedance-create', 'attedance-edit', 'attedance-delete'])
-        <li class="menu-item {{ $sidebar_active == 'attedance' || $sidebar_active == 'attedance-report' || $sidebar_active == 'faculty-attendance' ? 'active open' : '' }}">
+        @directCanAny(['attedance-list', 'attedance-create', 'attedance-edit', 'attedance-delete', 'daily-attendance-list', 'daily-attendance-create', 'daily-attendance-edit', 'daily-attendance-delete', 'faculty-attendance-list'])
+        <li class="menu-item {{ $sidebar_active == 'attedance' || $sidebar_active == 'attedance-report' || $sidebar_active == 'faculty-attendance' || $sidebar_active == 'daily-attendance' ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-calendar me-2"></i>
                 <div data-i18n="Attendance">Attendance</div>
@@ -190,6 +190,15 @@
                 </li>
                 @enddirectCan
 
+                {{-- Daily Attendance (Students Only) --}}
+                @directCan('daily-attendance-list')
+                <li class="menu-item {{ Route::current()->getName() == 'daily-attendance.index' ? 'active' : '' }}">
+                    <a href="{{ route('daily-attendance.index') }}" class="menu-link">
+                        <div data-i18n="Daily Attendance">Daily Attendance</div>
+                    </a>
+                </li>
+                @enddirectCan
+
                 {{-- Attendance Report --}}
                 @directCan('attedance-list')
                 <li class="menu-item {{ Route::current()->getName() == 'attedance-report.index' ? 'active' : '' }}">
@@ -210,6 +219,7 @@
 
             </ul>
         </li>
+
         @enddirectCanAny
 
 

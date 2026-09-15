@@ -103,7 +103,12 @@ class FacultyAttedanceController extends Controller
                         return $row->biometric_id ?: '-';
                     })
                     ->addColumn('faculty_name', function ($row) {
-                        return $row->faculty_name ?: '-';
+                        if (empty($row->faculty_name)) {
+                            return '-';
+                        }
+                        $name = e($row->faculty_name);
+                        $bio = e($row->biometric_id);
+                        return '<a href="javascript:void(0)" class="faculty-name-link fw-bold text-primary text-decoration-none" data-biometric-id="' . $bio . '" data-faculty-name="' . $name . '">' . $name . '</a>';
                     })
                     ->editColumn('date', function ($row) {
                         return Carbon::parse($row->date)->format('d-m-Y');
@@ -126,7 +131,7 @@ class FacultyAttedanceController extends Controller
                     ->editColumn('DeviceName', function ($row) {
                         return $row->DeviceName ?: '-';
                     })
-                    ->rawColumns(['date', 'in_time', 'out_time'])
+                    ->rawColumns(['faculty_name', 'date', 'in_time', 'out_time'])
                     ->make(true);
                     
                 return $returnData;
@@ -137,4 +142,140 @@ class FacultyAttedanceController extends Controller
             return Redirect::route('dashboard')->withErrors($e->getMessage());
         }
     }
+
+    public function monthlyDetails(Request $request)
+    {
+        $modules = $this->modules;
+        $permissionList = Helper::directCan($modules['permission_prefix'] . '-list');
+        
+        if (!$permissionList) {
+            return response()->json(['error' => 'User does not have the right permissions.'], 403);
+        }
+
+        $biometricId = $request->input('biometric_id');
+        $monthInput  = $request->input('month') ?: Carbon::now()->format('Y-m');
+
+        if (empty($biometricId)) {
+            return response()->json(['status' => false, 'message' => 'Biometric ID is required.'], 400);
+        }
+
+        $user = Auth::user();
+        $isFaculty = Helper::getLoginUserRole() === 'Facility';
+        if ($isFaculty && ($user->biometric_id != $biometricId)) {
+            return response()->json(['error' => 'Unauthorized access.'], 403);
+        }
+
+        $targetUser = User::where('biometric_id', $biometricId)->first();
+        $facultyName = $targetUser ? $targetUser->name : 'Faculty (' . $biometricId . ')';
+
+        try {
+            $startOfMonth = Carbon::parse($monthInput . '-01')->startOfMonth();
+            $endOfMonth   = Carbon::parse($monthInput . '-01')->endOfMonth();
+        } catch (\Exception $e) {
+            $startOfMonth = Carbon::now()->startOfMonth();
+            $endOfMonth   = Carbon::now()->endOfMonth();
+            $monthInput   = Carbon::now()->format('Y-m');
+        }
+
+        $today = Carbon::today();
+
+        $logs = Attedance::select([
+                'date',
+                DB::raw('MIN(in_time) as first_punch'),
+                DB::raw('MAX(in_time) as last_punch'),
+                DB::raw('MIN(DeviceName) as DeviceName'),
+                DB::raw('MIN(DeviceKey) as DeviceKey'),
+            ])
+            ->where('biometric_id', $biometricId)
+            ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->groupBy('date')
+            ->get()
+            ->keyBy(function ($item) {
+                return Carbon::parse($item->date)->format('Y-m-d');
+            });
+
+        $rows = [];
+        $presentDays = 0;
+        $absentDays = 0;
+        $sundayCount = 0;
+        $totalDaysInMonth = $startOfMonth->daysInMonth;
+
+        for ($d = $startOfMonth->copy(); $d->lte($endOfMonth); $d->addDay()) {
+            $dateStr = $d->format('Y-m-d');
+            $isSunday = ($d->dayOfWeek === Carbon::SUNDAY);
+            $isFuture = $d->gt($today);
+            $isToday  = $d->isToday();
+
+            $dayLog = $logs->get($dateStr);
+            $isPresent = !empty($dayLog);
+
+            $inTimeStr   = '-';
+            $outTimeStr  = '-';
+            $durationStr = '-';
+            $deviceName  = $dayLog->DeviceName ?? '-';
+
+            if ($isPresent) {
+                $presentDays++;
+                $firstPunch = $dayLog->first_punch;
+                $lastPunch  = $dayLog->last_punch;
+
+                if (!empty($firstPunch)) {
+                    $inTimeStr = Carbon::parse($firstPunch)->format('h:i A');
+                }
+
+                if (!empty($lastPunch) && $lastPunch !== $firstPunch) {
+                    $outTimeStr = Carbon::parse($lastPunch)->format('h:i A');
+
+                    $start = Carbon::parse($firstPunch);
+                    $end   = Carbon::parse($lastPunch);
+                    $diff  = $start->diff($end);
+                    $durationStr = $diff->format('%h hrs %i mins');
+                }
+            } else {
+                if ($isSunday) {
+                    $sundayCount++;
+                } else if (!$isFuture) {
+                    $absentDays++;
+                }
+            }
+
+            if ($isPresent) {
+                $statusHtml = '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Present</span>';
+            } else if ($isSunday) {
+                $statusHtml = '<span class="badge bg-secondary"><i class="fa-solid fa-mug-hot me-1"></i>Sunday</span>';
+            } else if ($isFuture) {
+                $statusHtml = '<span class="badge bg-light text-muted border">Upcoming</span>';
+            } else {
+                $statusHtml = '<span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i>Absent</span>';
+            }
+
+            $rows[] = [
+                'date_formatted' => $d->format('d-m-Y'),
+                'day_name'       => $d->format('l'),
+                'in_time'        => $inTimeStr,
+                'out_time'       => $outTimeStr,
+                'duration'       => $durationStr,
+                'device_name'    => $deviceName,
+                'status_html'    => $statusHtml,
+                'is_sunday'      => $isSunday,
+                'is_today'       => $isToday,
+            ];
+        }
+
+        return response()->json([
+            'status'        => true,
+            'faculty_name'  => $facultyName,
+            'biometric_id'  => $biometricId,
+            'month_label'   => $startOfMonth->format('F Y'),
+            'month_value'   => $monthInput,
+            'stats'         => [
+                'total_days'   => $totalDaysInMonth,
+                'present_days' => $presentDays,
+                'absent_days'  => $absentDays,
+                'sundays'      => $sundayCount,
+            ],
+            'rows'          => $rows,
+        ]);
+    }
 }
+

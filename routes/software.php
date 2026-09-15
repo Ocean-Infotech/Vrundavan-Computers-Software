@@ -28,6 +28,7 @@ use App\Http\Controllers\admin\SyllabusController;
 use App\Http\Controllers\admin\TestController;
 use App\Http\Controllers\admin\AttedanceController;
 use App\Http\Controllers\admin\FacultyAttedanceController;
+use App\Http\Controllers\admin\DailyAttedanceController;
 use App\Http\Controllers\admin\BioMaxController;
 use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\IssueCertificateController;
@@ -254,7 +255,12 @@ Route::match(['get', 'post'], 'attedance-student-in', [AttedanceController::clas
 Route::match(['get', 'post'], 'attedance-student-out', [AttedanceController::class, 'student_out'])->name('attedance.student-out');
 Route::match(['get', 'post'], 'attedance-student-leave', [AttedanceController::class, 'student_leave'])->name('attedance.student-leave');
 Route::post('/attedance/fetch-logs', [AttedanceController::class, 'fetchLogs'])->name('attedance.fetch-logs');
+Route::get('/faculty-attendance/monthly-details', [FacultyAttedanceController::class, 'monthlyDetails'])->name('faculty-attendance.monthly-details');
 Route::resource('/faculty-attendance', FacultyAttedanceController::class);
+
+/** Daily Attendance Module (Student Only) */
+Route::get('daily-attendance/student-detail', [DailyAttedanceController::class, 'studentDetail'])->name('daily-attendance.student-detail');
+Route::resource('/daily-attendance', DailyAttedanceController::class);
 
 /** Attedance Report Modules */
 Route::get('attedance-report', [\App\Http\Controllers\admin\AttedanceReportController::class, 'index'])->name('attedance-report.index');
@@ -469,6 +475,7 @@ Route::get(
 
 
 // Student request
+Route::post('/student-requests/respond', [StudentRequestController::class, 'respond'])->name('student-requests.respond');
 Route::resource('/student-requests', StudentRequestController::class);
 
 /** Assignment Routes */
