@@ -3,14 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FeesReceipt extends Model
 {
-     protected $table = 'fees_receipts';
+    use SoftDeletes;
 
-     protected $fillable = [
+    protected $table = 'fees_receipts';
+
+    protected $fillable = [
         'student_id',
         'semester',
         'receipt_no',
-    ];  
+        'deleted_by',
+    ];
 }
+

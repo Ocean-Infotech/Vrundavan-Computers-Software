@@ -309,7 +309,7 @@ class StudentsFeesReportController extends Controller
             ->first();
 
         if (!$receipt) {
-            $lastReceipt = FeesReceipt::orderBy('id', 'desc')->first();
+            $lastReceipt = FeesReceipt::withTrashed()->orderBy('id', 'desc')->first();
             $nextNumber = 1;
             if ($lastReceipt && preg_match('/PVM-(\d+)/', $lastReceipt->receipt_no, $matches)) {
                 $nextNumber = (int)$matches[1] + 1;
