@@ -3,16 +3,8 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 currentDir = fso.GetParentFolderName(WScript.ScriptFullName)
 WshShell.CurrentDirectory = currentDir
 
-' Use local portable PHP executable if bundled, otherwise fallback to system path or XAMPP
-Dim phpPath
-If fso.FileExists(currentDir & "\php\php.exe") Then
-    phpPath = """" & currentDir & "\php\php.exe"""
-ElseIf fso.FileExists("D:\xampp\php\php.exe") Then
-    phpPath = "D:\xampp\php\php.exe"
-ElseIf fso.FileExists("C:\xampp\php\php.exe") Then
-    phpPath = "C:\xampp\php\php.exe"
-Else
-    phpPath = "php"
-End If
+' Stop any old processes on port 9988 first
+WshShell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command ""Get-Process powershell, php -ErrorAction SilentlyContinue | Where-Object { (Get-NetTCPConnection -LocalPort 9988 -ErrorAction SilentlyContinue).OwningProcess -contains $_.Id } | Stop-Process -Force -ErrorAction SilentlyContinue""", 0, True
 
-WshShell.Run "cmd.exe /c " & phpPath & " -S 127.0.0.1:9988 -t """ & currentDir & """ """ & currentDir & "\router.php" & """", 0, False
+' Run the Native PowerShell Agent in hidden mode
+WshShell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & currentDir & "\agent.ps1""", 0, False

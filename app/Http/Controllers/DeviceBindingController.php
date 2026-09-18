@@ -151,7 +151,7 @@ class DeviceBindingController extends Controller
             ];
             $zip->addFromString('config.json', json_encode($dynamicConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            foreach (['router.php', 'deploy.bat', 'run_silent.vbs', 'stop_agent.bat', 'install_agent.bat', 'install_agent_task.bat'] as $file) {
+            foreach (['agent.ps1', 'install_agent.bat', 'run_silent.vbs', 'run_debug.bat', 'stop_agent.bat', 'deploy.bat', 'install_agent_task.bat', 'agent.php', 'router.php'] as $file) {
                 if (file_exists($agentDir . '/' . $file)) {
                     $zip->addFile($agentDir . '/' . $file, $file);
                 }

@@ -1,7 +1,6 @@
 @echo off
 title Stop Vrundavan Shield Agent
-echo Stopping local Vrundavan Shield hardware agent...
-taskkill /f /fi "windowtitle eq cmd.exe /c php -S 127.0.0.1:9988*" >nul 2>&1
-taskkill /f /im php.exe >nul 2>&1
-echo Success! Agent has been stopped.
-timeout /t 3 >nul
+echo Stopping Vrundavan Shield Agent...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Process powershell, php -ErrorAction SilentlyContinue | Where-Object { (Get-NetTCPConnection -LocalPort 9988 -ErrorAction SilentlyContinue).OwningProcess -contains $_.Id } | Stop-Process -Force -ErrorAction SilentlyContinue"
+echo Agent stopped successfully.
+timeout /t 3

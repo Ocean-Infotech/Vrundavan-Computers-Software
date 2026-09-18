@@ -1,35 +1,39 @@
 @echo off
 title Vrundavan Shield Agent Installer
 echo ===================================================
-echo Vrundavan Shield - Device Binding Agent Installer
+echo   Vrundavan Shield - Device Security Agent Setup
 echo ===================================================
 echo.
-echo Installing local hardware agent to your PC...
+echo [1/3] Stopping any previous agent instances...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-Process powershell, php -ErrorAction SilentlyContinue | Where-Object { (Get-NetTCPConnection -LocalPort 9988 -ErrorAction SilentlyContinue).OwningProcess -contains $_.Id } | Stop-Process -Force -ErrorAction SilentlyContinue"
 
+echo [2/3] Installing Shield Agent to AppData...
 set "INSTALL_DIR=%APPDATA%\VrundavanAgent"
 if not exist "%INSTALL_DIR%" (
     mkdir "%INSTALL_DIR%" >nul 2>&1
 )
 
-:: Copy all unzipped agent files recursively to the user's AppData directory
 xcopy /E /I /Y /Q "%~dp0*.*" "%INSTALL_DIR%\" >nul 2>&1
 
-:: Create the automatic startup launcher in the Windows Startup folder
+echo [3/3] Setting up automatic Windows Startup...
 set "STARTUP_VBS=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\vrundavan_shield_agent.vbs"
 
 (
     echo Set WshShell = CreateObject^("WScript.Shell"^)
-    echo WshShell.CurrentDirectory = "%INSTALL_DIR%"
-    echo WshShell.Run "wscript.exe """ ^& "%INSTALL_DIR%\run_silent.vbs" ^& """", 0, False
+    echo WshShell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ ^& "%INSTALL_DIR%\agent.ps1""" , 0, False
 ) > "%STARTUP_VBS%"
 
-echo [SUCCESS] Agent installed and configured for Windows Auto-Start!
-echo Even if the PC restarts unlimited times, the agent will stay online in the background.
 echo.
-echo Launching the agent in the background for this session...
-wscript "%INSTALL_DIR%\run_silent.vbs"
+echo Starting Vrundavan Shield Agent in the background...
+wscript "%STARTUP_VBS%"
 
 echo.
-echo [DONE] You can close this terminal now.
+echo ===================================================
+echo [SUCCESS] Vrundavan Shield Agent is now ACTIVE!
+echo Auto-start is enabled. The agent will run in the
+echo background whenever this computer turns on.
+echo ===================================================
+echo.
+echo You can now refresh the CRM Login page in your browser.
 echo.
 pause
