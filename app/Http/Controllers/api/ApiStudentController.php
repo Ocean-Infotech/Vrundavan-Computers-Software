@@ -419,7 +419,8 @@ class ApiStudentController extends Controller
                     'present_lectures' => $dayAttendance['is_present'] ? 1 : 0,
                     'absent_lectures'  => $dayAttendance['is_present'] ? 0 : 1,
                     'average_percent'  => $dayAttendance['is_present'] ? 100 : 0,
-                    'date'             => $date->format('d-F-Y')
+                    'date'             => $date->format('d-F-Y'),
+                    'day'              => $date->format('l'),
                 ];
 
                 return $this->sendResponse([
