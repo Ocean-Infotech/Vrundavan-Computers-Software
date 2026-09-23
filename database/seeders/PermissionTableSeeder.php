@@ -189,6 +189,12 @@ class PermissionTableSeeder extends Seeder
                 'event-edit',
                 'event-delete',
             ],
+            'holiday' => [
+                'holiday-list',
+                'holiday-create',
+                'holiday-edit',
+                'holiday-delete',
+            ],
             'achievement' => [
                 'achievement-list',
                 'achievement-create',

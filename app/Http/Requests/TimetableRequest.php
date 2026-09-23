@@ -33,7 +33,7 @@ class TimeTableRequest extends FormRequest
             'class_id' => [
                 'required',
                 'string',
-                 Rule::unique((new TimeTable())->getTable())
+                Rule::unique((new TimeTable())->getTable())
                     ->where(function ($query) {
                         return $query->where('course_id', $this->course_id)
                             ->where('batch_id', $this->batch_id)
@@ -41,7 +41,7 @@ class TimeTableRequest extends FormRequest
                     })
                     ->ignore($id)
             ],
-             'attachment' => [
+            'attachment' => [
                 'nullable',
                 // 'file',
                 'mimes:pdf,doc,docx,txt,text,jpg,jpeg,png,webp',

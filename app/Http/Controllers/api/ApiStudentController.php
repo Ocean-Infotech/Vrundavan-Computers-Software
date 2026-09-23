@@ -9,6 +9,7 @@ use App\Models\Attedance;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
 use App\Models\Master\MasterCourse;
+use App\Models\Master\MasterHoliday;
 use App\Models\NotificationSetting;
 use App\Models\StudentTestMark;
 use App\Models\Timetable;
@@ -386,20 +387,43 @@ class ApiStudentController extends Controller
                     return $this->sendError('Invalid date provided.', [], [], 422);
                 }
 
+                $dateStr = $date->format('Y-m-d');
                 $dayAttendance = Attedance::resolveDayAttendance(
-                    Attedance::sortedPunchesForDate($student->id, $date->format('Y-m-d'), $student->biometric_id)
+                    Attedance::sortedPunchesForDate($student->id, $dateStr, $student->biometric_id)
                 );
+
+                $holiday = MasterHoliday::where('status', 'active')
+                    ->where('from_date', '<=', $dateStr)
+                    ->where('to_date', '>=', $dateStr)
+                    ->first();
+
+                $isSunday = ($date->dayOfWeek === \Carbon\Carbon::SUNDAY);
+
+                if ($dayAttendance['is_present']) {
+                    $status = 'Present';
+                    $statusCode = 'P';
+                } elseif ($holiday) {
+                    $status = 'Holiday (' . $holiday->name . ')';
+                    $statusCode = 'H';
+                } elseif ($isSunday) {
+                    $status = 'Sunday';
+                    $statusCode = 'S';
+                } else {
+                    $status = 'Absent';
+                    $statusCode = 'A';
+                }
 
                 $dataList = [
                     [
                         'admission_id' => $student->id,
                         'biometric_id' => $student->biometric_id,
-                        'date'        => $date->format('Y-m-d'),
+                        'date'        => $dateStr,
                         'day'         => $date->format('l'),
                         'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
                         'out_time'    => Attedance::formatTimeForApi($dayAttendance['out_time']),
-                        'status'      => $dayAttendance['is_present'] ? 'Present' : 'Absent',
-                        'status_code' => $dayAttendance['is_present'] ? 'P' : 'A',
+                        'status'      => $status,
+                        'status_code' => $statusCode,
+                        'is_holiday'  => ($holiday || $isSunday) ? 'Yes' : 'No',
                         'punch_count' => $dayAttendance['punch_count'],
                         'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
                             return [
@@ -417,7 +441,7 @@ class ApiStudentController extends Controller
                 $summaryData = [
                     'total_lectures'   => 1,
                     'present_lectures' => $dayAttendance['is_present'] ? 1 : 0,
-                    'absent_lectures'  => $dayAttendance['is_present'] ? 0 : 1,
+                    'absent_lectures'  => ($dayAttendance['is_present'] || $holiday || $isSunday) ? 0 : 1,
                     'average_percent'  => $dayAttendance['is_present'] ? 100 : 0,
                     'date'             => $date->format('d-F-Y'),
                     'day'              => $date->format('l'),
@@ -454,8 +478,28 @@ class ApiStudentController extends Controller
                 $endOfMonth = $startOfMonth->copy()->endOfMonth();
             }
 
+            $holidays = MasterHoliday::where('status', 'active')
+                ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                    $q->whereBetween('from_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                        ->orWhereBetween('to_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                        ->orWhere(function ($sub) use ($startOfMonth, $endOfMonth) {
+                            $sub->where('from_date', '<=', $startOfMonth->format('Y-m-d'))
+                                ->where('to_date', '>=', $endOfMonth->format('Y-m-d'));
+                        });
+                })
+                ->get();
 
-            // Generate all working dates
+            $holidayMap = [];
+            foreach ($holidays as $h) {
+                $curr = \Carbon\Carbon::parse($h->from_date);
+                $to = \Carbon\Carbon::parse($h->to_date);
+                while ($curr <= $to) {
+                    $holidayMap[$curr->format('Y-m-d')] = $h->name;
+                    $curr->addDay();
+                }
+            }
+
+            // Generate all working dates (excluding Sundays)
             $allDates = [];
             $currentDate = $startOfMonth->copy();
             while ($currentDate <= $endOfMonth) {
@@ -468,17 +512,26 @@ class ApiStudentController extends Controller
             // Reverse for DESC order
             $allDates = array_reverse($allDates);
 
-            $totalLectures = count($allDates);
-
             $presentCount = 0;
+            $holidayCount = 0;
             $dataList = [];
 
             foreach ($allDates as $date) {
                 $dayPunches = $attendanceRecords->get($date, collect());
                 $dayAttendance = Attedance::resolveDayAttendance($dayPunches);
+                $isHoliday = isset($holidayMap[$date]);
 
                 if ($dayAttendance['is_present']) {
                     $presentCount++;
+                    $status = 'Present';
+                    $statusCode = 'P';
+                } elseif ($isHoliday) {
+                    $holidayCount++;
+                    $status = 'Holiday (' . $holidayMap[$date] . ')';
+                    $statusCode = 'H';
+                } else {
+                    $status = 'Absent';
+                    $statusCode = 'A';
                 }
 
                 $dataList[] = [
@@ -488,8 +541,9 @@ class ApiStudentController extends Controller
                     'day'         => \Carbon\Carbon::parse($date)->format('l'),
                     'in_time'     => Attedance::formatTimeForApi($dayAttendance['in_time']),
                     'out_time'    => Attedance::formatTimeForApi($dayAttendance['out_time']),
-                    'status'      => $dayAttendance['is_present'] ? 'Present' : 'Absent',
-                    'status_code' => $dayAttendance['is_present'] ? 'P' : 'A',
+                    'status'      => $status,
+                    'status_code' => $statusCode,
+                    'is_holiday'  => $isHoliday ? 'Yes' : 'No',
                     'punch_count' => $dayAttendance['punch_count'],
                     'punches'     => collect($dayAttendance['punches'])->map(function ($punch) {
                         return [
@@ -504,11 +558,15 @@ class ApiStudentController extends Controller
                 ];
             }
 
-            $absentCount    = $totalLectures - $presentCount;
-            $averagePercent = $totalLectures > 0 ? round(($presentCount / $totalLectures) * 100, 2) : 0;
+            $totalLectures   = count($allDates);
+            $workingLectures = max(0, $totalLectures - $holidayCount);
+            $absentCount     = max(0, $workingLectures - $presentCount);
+            $averagePercent  = $workingLectures > 0 ? round(($presentCount / $workingLectures) * 100, 2) : 0;
 
             $summaryData = [
                 'total_lectures'   => $totalLectures,
+                'working_lectures' => $workingLectures,
+                'holiday_lectures' => $holidayCount,
                 'present_lectures' => $presentCount,
                 'absent_lectures'  => $absentCount,
                 'average_percent'  => $averagePercent,
@@ -1244,6 +1302,55 @@ class ApiStudentController extends Controller
             }
 
             return $this->sendResponse($achievementDetails, 'Achievement details fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Get holiday list
+     *
+     * @authenticated
+     */
+    public function holiday_list(Request $request)
+    {
+        try {
+            $year = $request->year ?? date('Y');
+            $month = $request->month ?? null;
+
+            $query = MasterHoliday::where('status', 'active')
+                ->where(function ($q) use ($year) {
+                    $q->whereYear('from_date', $year)
+                      ->orWhereYear('to_date', $year);
+                });
+
+            if ($month) {
+                $query->where(function ($q) use ($month) {
+                    $q->whereMonth('from_date', $month)
+                      ->orWhereMonth('to_date', $month);
+                });
+            }
+
+            $holidays = $query->orderBy('from_date', 'asc')->get();
+
+            $data = $holidays->map(function ($h) {
+                $from = \Carbon\Carbon::parse($h->from_date);
+                $to = \Carbon\Carbon::parse($h->to_date);
+                $days = $from->diffInDays($to) + 1;
+
+                return [
+                    'id' => $h->id,
+                    'name' => $h->name,
+                    'from_date' => $from->format('d-m-Y'),
+                    'to_date' => $to->format('d-m-Y'),
+                    'day' => $from->format('l'),
+                    'total_days' => $days,
+                    'type' => $h->type ?? 'Public Holiday',
+                    'description' => $h->description ?? '',
+                ];
+            });
+
+            return $this->sendResponse($data, 'Holiday list fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }

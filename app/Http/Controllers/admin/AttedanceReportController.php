@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Master\MasterHoliday;
 use App\Models\Attedance;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
@@ -42,15 +43,34 @@ class AttedanceReportController extends Controller
             $endDate = $startDate->copy()->addDays(31);
         }
 
-        // Generate date list (excluding Sundays)
-        $dates = [];
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            if ($date->dayOfWeek !== Carbon::SUNDAY) {
-                $dates[] = $date->format('Y-m-d');
+        // Fetch active holidays in this range
+        $holidays = MasterHoliday::where('status', 'active')
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->where('from_date', '<=', $endDate->format('Y-m-d'))
+                    ->where('to_date', '>=', $startDate->format('Y-m-d'));
+            })
+            ->get();
+
+        $holidayDates = [];
+        foreach ($holidays as $h) {
+            $curr = Carbon::parse($h->from_date);
+            $to = Carbon::parse($h->to_date);
+            while ($curr <= $to) {
+                $holidayDates[$curr->format('Y-m-d')] = $h->name;
+                $curr->addDay();
             }
         }
 
-        $totalDays = count($dates);
+        // Generate working dates (excluding Sundays AND Holidays)
+        $workingDates = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dateStr = $date->format('Y-m-d');
+            if ($date->dayOfWeek !== Carbon::SUNDAY && !isset($holidayDates[$dateStr])) {
+                $workingDates[] = $dateStr;
+            }
+        }
+
+        $totalWorkingDays = count($workingDates);
 
         // Fetch all active/mapped students
         $studentsQuery = Admission::whereNotNull('biometric_id')
@@ -89,12 +109,12 @@ class AttedanceReportController extends Controller
         $data = [];
         foreach ($students as $student) {
             $present = 0;
-            foreach ($dates as $d) {
+            foreach ($workingDates as $d) {
                 if (isset($attendanceLogs[$d . '_' . $student->biometric_id])) {
                     $present++;
                 }
             }
-            $absent = $totalDays - $present;
+            $absent = max(0, $totalWorkingDays - $present);
 
             $reg = $registrations->get($student->id);
             $cbc = '-';
@@ -111,7 +131,7 @@ class AttedanceReportController extends Controller
                 'course_batch_class' => $cbc,
                 'present_days' => $present,
                 'absent_days' => $absent,
-                'total_days' => $totalDays,
+                'total_days' => $totalWorkingDays,
             ];
         }
 
@@ -291,6 +311,24 @@ class AttedanceReportController extends Controller
             }
         }
 
+        // Fetch active holidays in this range
+        $holidays = MasterHoliday::where('status', 'active')
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->where('from_date', '<=', $endDate->format('Y-m-d'))
+                    ->where('to_date', '>=', $startDate->format('Y-m-d'));
+            })
+            ->get();
+
+        $holidayDates = [];
+        foreach ($holidays as $h) {
+            $curr = Carbon::parse($h->from_date);
+            $to = Carbon::parse($h->to_date);
+            while ($curr <= $to) {
+                $holidayDates[$curr->format('Y-m-d')] = $h->name;
+                $curr->addDay();
+            }
+        }
+
         // Fetch attendance logs for this student
         $logs = Attedance::where('biometric_id', $biometricId)
             ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
@@ -301,6 +339,7 @@ class AttedanceReportController extends Controller
         foreach ($dates as $dateStr) {
             $dayLogs = $logs->get($dateStr);
             $isPresent = $dayLogs && $dayLogs->isNotEmpty();
+            $isHoliday = isset($holidayDates[$dateStr]);
 
             $inTime  = null;
             $outTime = null;
@@ -311,12 +350,19 @@ class AttedanceReportController extends Controller
                 $outTime  = $sorted->count() >= 2 ? $sorted->get(1)?->in_time : null;
             }
 
+            $status = 'Absent';
+            if ($isPresent) {
+                $status = 'Present';
+            } elseif ($isHoliday) {
+                $status = 'Holiday (' . $holidayDates[$dateStr] . ')';
+            }
+
             $rows[] = [
                 'date'    => Carbon::parse($dateStr)->format('d-m-Y'),
                 'day'     => Carbon::parse($dateStr)->format('l'),
                 'in_time' => $inTime  ? date('h:i A', strtotime($inTime))  : '-',
                 'out_time'=> $outTime ? date('h:i A', strtotime($outTime)) : '-',
-                'status'  => $isPresent ? 'Present' : 'Absent',
+                'status'  => $status,
             ];
         }
 

@@ -482,6 +482,7 @@
             'syllabus-list',
             'subject-list',
             'event-list',
+            'holiday-list',
             'notification-setting-list',
             'timetable-list',
             'student-requests-list',
@@ -489,7 +490,7 @@
             'department-list'
         ])
         <li
-            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'event', 'timetable', 'student-requests', 'fees', 'department', 'university']) ? 'active open' : '' }}">
+            class="menu-item {{ in_array($sidebar_active, ['course', 'shift', 'class', 'syllabus', 'batch', 'subject', 'event', 'holiday', 'timetable', 'student-requests', 'fees', 'department', 'university']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="ti ti-certificate me-2"></i>
                 <div data-i18n="Course Masters">Course Masters</div>
@@ -574,6 +575,15 @@
                 <li class="menu-item {{ $sidebar_active == 'event' ? 'active' : '' }}">
                     <a href="{{ route('event.index') }}" class="menu-link">
                         <div data-i18n="Event Master">Event Master</div>
+                    </a>
+                </li>
+                @enddirectCanAny
+
+                {{-- Holiday Master --}}
+                @directCanAny(['holiday-list', 'holiday-create', 'holiday-edit', 'holiday-delete'])
+                <li class="menu-item {{ $sidebar_active == 'holiday' ? 'active' : '' }}">
+                    <a href="{{ route('holiday.index') }}" class="menu-link">
+                        <div data-i18n="Holiday Master">Holiday Master</div>
                     </a>
                 </li>
                 @enddirectCanAny

@@ -21,21 +21,22 @@ class StudentAchievementRequest extends FormRequest
     {
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
             return [
-                'admission_id' => 'required|exists:admission,id',
-                'event_id' => 'required|exists:master_events,id',
-                'rank' => 'required|string|max:255',
-                'date' => 'required|date',
+                'student_ids' => 'sometimes|array',
+                'student_ids.*' => 'nullable|exists:admission,id',
+                'admission_id' => 'sometimes|nullable|exists:admission,id',
+                'events' => 'sometimes|array',
+                'event_id' => 'sometimes|nullable|exists:master_events,id',
+                'rank' => 'sometimes|nullable|string|max:255',
+                'date' => 'nullable|date',
                 'remark' => 'nullable|string',
             ];
         }
 
         return [
-            'achievements' => 'required|array',
-            'achievements.*.admission_id' => 'required|exists:admission,id',
-            'achievements.*.event_id' => 'required|exists:master_events,id',
-            'achievements.*.rank' => 'required|string|max:255',
-            'achievements.*.date' => 'required|date',
-            'achievements.*.remark' => 'nullable|string',
+            'student_ids' => 'sometimes|array',
+            'events' => 'sometimes|array',
+            'date' => 'nullable|date',
+            'achievements' => 'sometimes|array',
         ];
     }
 }

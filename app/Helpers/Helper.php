@@ -22,12 +22,28 @@ class Helper
 {
     static function directCan($permission)
     {
-        return Auth::check() && Auth::user()->permissions->pluck('name')->contains($permission);
+        if (!Auth::check()) {
+            return false;
+        }
+        $user = Auth::user();
+        $userRole = strtolower(self::getLoginUserRole());
+        if (in_array($userRole, ['developer', 'super-admin'])) {
+            return true;
+        }
+        return $user->permissions->pluck('name')->contains($permission) || $user->getAllPermissions()->pluck('name')->contains($permission);
     }
 
     static function directCanAny(array $permissions)
     {
-        return Auth::check() && Auth::user()->permissions->whereIn('name', $permissions)->isNotEmpty();
+        if (!Auth::check()) {
+            return false;
+        }
+        $user = Auth::user();
+        $userRole = strtolower(self::getLoginUserRole());
+        if (in_array($userRole, ['developer', 'super-admin'])) {
+            return true;
+        }
+        return $user->permissions->whereIn('name', $permissions)->isNotEmpty() || $user->getAllPermissions()->whereIn('name', $permissions)->isNotEmpty();
     }
 
     static function randomToken()

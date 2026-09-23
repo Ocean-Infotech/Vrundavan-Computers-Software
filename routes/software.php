@@ -9,6 +9,7 @@ use App\Http\Controllers\admin\master\LibraryMasterBookController;
 use App\Http\Controllers\admin\master\MasterFeeDetailController;
 use App\Http\Controllers\admin\master\MasterSubjectController;
 use App\Http\Controllers\admin\master\MasterEventController;
+use App\Http\Controllers\admin\master\MasterHolidayController;
 use App\Http\Controllers\admin\DocumentTypeController;
 use App\Http\Controllers\admin\FeesCollectionController;
 use App\Http\Controllers\admin\master\MasterCityController;
@@ -404,6 +405,14 @@ Route::delete(
     [MasterEventController::class, 'permanentDelete']
 )->name('event.permanent-delete');
 
+Route::resource('/holiday', MasterHolidayController::class);
+Route::match(['get', 'post'], 'holiday/restore/{id}', [MasterHolidayController::class, 'restore'])->name('holiday.restore');
+Route::match(['get', 'post'], 'holiday-update-status', [MasterHolidayController::class, 'update_status'])->name('holiday.status-update');
+Route::delete(
+    '/holiday/permanent-delete/{id}',
+    [MasterHolidayController::class, 'permanentDelete']
+)->name('holiday.permanent-delete');
+
 
 /** Master Class Modules */
 Route::get('class/export-excel', [MasterClassController::class, 'exportExcel'])->name('class.export-excel');
@@ -520,3 +529,8 @@ Route::post('/device-shield/users/{id}/toggle-check', [App\Http\Controllers\Devi
 Route::get('student_report', [StudentReportController::class, 'index'])->name('student_report.index');
 Route::get('student_report/data', [StudentReportController::class, 'getReportData'])->name('student_report.data');
 Route::get('student_report/print', [StudentReportController::class, 'printReport'])->name('student_report.print');
+Route::get('student_report/pdf', [StudentReportController::class, 'downloadPdf'])->name('student_report.pdf');
+Route::get('student_report/students-list', [StudentReportController::class, 'getStudentsList'])->name('student_report.students_list');
+Route::match(['get', 'post'], 'student_report/bulk-pdf', [StudentReportController::class, 'bulkDownloadPdf'])->name('student_report.bulk_pdf');
+
+

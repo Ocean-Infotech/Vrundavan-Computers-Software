@@ -17,5 +17,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function ($response, \Throwable $e, $request) {
+            if ($response->getStatusCode() === 419) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Session expired. Please refresh and try again.'
+                    ], 419);
+                }
+
+                if (\Illuminate\Support\Facades\Auth::check()) {
+                    return redirect()->back()->withInput()->with('warning', 'Session expired. Please try submitting again.');
+                }
+
+                return redirect()->route('software.login')->with('warning', 'Session expired. Please login again.');
+            }
+            return $response;
+        });
     })->create();

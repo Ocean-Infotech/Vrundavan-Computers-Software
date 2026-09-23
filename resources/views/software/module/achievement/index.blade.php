@@ -1,10 +1,10 @@
 @extends('software.layout.app')
 
 @php
-    $page_title = isset($modules['title']) ? $modules['title'] : null;
-    $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : null;
-    $route = isset($modules['route']) ? $modules['route'] : null;
-    $permission_prefix = isset($modules['permission_prefix']) ? $modules['permission_prefix'] : null;
+    $page_title = isset($modules['title']) ? $modules['title'] : 'Achievement';
+    $folder_path = isset($modules['folder_path']) ? $modules['folder_path'] : 'software.module.achievement';
+    $route = isset($modules['route']) ? $modules['route'] : 'achievement';
+    $permission_prefix = isset($modules['permission_prefix']) ? $modules['permission_prefix'] : 'achievement';
 @endphp
 @section('title', $page_title)
 
@@ -19,19 +19,44 @@
         @include('software.includes.breadcrumb', [
             'breadcrumbArray' => [['title' => $page_title, 'url' => '']],
             'route' => $route,
-            'show_add_btn' => false,
+            'show_add_btn' => true,
             'show_filter_btn' => false,
             'show_back_btn' => false,
         ])
     </div>
+
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-body">
                     <!-- Filters -->
-                    <div class="row mb-4 align-items-end">
-                        <div class="col-md-3 mb-2">
+                    <div class="row mb-4 align-items-end g-2">
+                        <div class="col-md-3 col-sm-6">
+                            <label for="filter_month" class="form-label fw-bold">Month</label>
+                            <select id="filter_month" class="form-select select2">
+                                <option value="">All Months</option>
+                                @foreach($months as $mNum => $mName)
+                                    <option value="{{ $mNum }}">{{ $mName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <label for="filter_year" class="form-label fw-bold">Year</label>
+                            <select id="filter_year" class="form-select select2">
+                                <option value="">All Years</option>
+                                @foreach($years as $yr)
+                                    <option value="{{ $yr }}">{{ $yr }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
                             <label for="filter_gr_no" class="form-label fw-bold">GR No</label>
                             <input list="gr_no_list" id="filter_gr_no" class="form-control" placeholder="Search by GR No">
                             <datalist id="gr_no_list">
@@ -43,18 +68,17 @@
                                 @endforeach
                             </datalist>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <label for="filter_event_id" class="form-label fw-bold">Event</label>
+                        <div class="col-md-3 col-sm-6">
+                            <label for="filter_event_id" class="form-label fw-bold">Event / Award</label>
                             <select id="filter_event_id" class="form-select select2">
-                                <option value="">Select Event</option>
+                                <option value="">Select an option</option>
                                 @foreach($events as $event)
                                     <option value="{{ $event->id }}">{{ $event->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <button type="button" id="btn_filter" class="btn btn-primary me-2"><i class="bx bx-filter-alt"></i> Filter</button>
-                            <button type="button" id="btn_reset" class="btn btn-outline-secondary"><i class="bx bx-reset"></i> Reset</button>
+                        <div class="col-md-1 col-sm-6">
+                            <button type="button" id="btn_reset" class="btn btn-outline-secondary w-100" title="Reset Filters"><i class="bx bx-reset"></i> Reset</button>
                         </div>
                     </div>
 
@@ -65,12 +89,17 @@
                                     <th>No</th>
                                     <th>GR No</th>
                                     <th>Student Name</th>
-                                    <th>Event</th>
+                                    <th>Event / Award</th>
+                                    <th>Rank</th>
+                                    <th>Date</th>
+                                    <th>Remark</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,7 +117,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>Achievement</th>
+                                    <th>Achievement / Event</th>
                                     <th>Rank</th>
                                     <th>Remark</th>
                                     <th>Date</th>
@@ -121,6 +150,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
+                                    <th>GR No</th>
                                     <th>Student Name</th>
                                     <th>Rank</th>
                                     <th>Remark</th>
@@ -130,7 +160,7 @@
                             </thead>
                             <tbody id="event-modal-tbody">
                                 <tr>
-                                    <td colspan="6" class="text-center">Loading...</td>
+                                    <td colspan="7" class="text-center">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -159,8 +189,8 @@
         var dtable = null;
         $(document).ready(function() {
             if ($.fn.select2) {
-                $('#filter_event_id').select2({
-                    placeholder: "Select Event",
+                $('#filter_event_id, #filter_month, #filter_year').select2({
+                    placeholder: "Select an option",
                     allowClear: true
                 });
             }
@@ -181,6 +211,8 @@
                     data: function(d) {
                         d.gr_no = $('#filter_gr_no').val();
                         d.event_id = $('#filter_event_id').val();
+                        d.month = $('#filter_month').val();
+                        d.year = $('#filter_year').val();
                     }
                 },
                 columns: [
@@ -188,32 +220,31 @@
                     { data: 'gr_no', name: 'gr_no' },
                     { data: 'student_name', name: 'student_name' },
                     { data: 'event_name', name: 'event_name' },
+                    { data: 'rank', name: 'rank' },
+                    { data: 'date', name: 'date' },
+                    { data: 'remark', name: 'remark' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 language: {
                     searchPlaceholder: 'Search...',
-                    emptyTable: 'Please select filter to view data.',
+                    emptyTable: 'Please apply filter to view achievements.',
                     zeroRecords: 'No achievements found for the selected filter.'
                 },
             });
 
-            $('#btn_filter').on('click', function() {
-                dtable.draw();
-            });
-
             $('#btn_reset').on('click', function() {
                 $('#filter_gr_no').val('');
-                $('#filter_event_id').val('').trigger('change');
+                $('#filter_event_id').val('').trigger('change.select2');
+                $('#filter_month').val('').trigger('change.select2');
+                $('#filter_year').val('').trigger('change.select2');
                 dtable.draw();
             });
 
-            $('#filter_gr_no').on('keypress', function(e) {
-                if (e.which === 13) {
-                    dtable.draw();
-                }
+            $('#filter_gr_no').on('keyup change input', function() {
+                dtable.draw();
             });
 
-            $('#filter_gr_no').on('change', function() {
+            $('#filter_event_id, #filter_month, #filter_year').on('change', function() {
                 dtable.draw();
             });
 
@@ -257,7 +288,7 @@
                 let id = $(this).data('id');
                 let name = $(this).data('name');
                 $('#eventModalTitle').text(name + ' - Achievements');
-                $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center">Loading...</td></tr>');
+                $('#event-modal-tbody').html('<tr><td colspan="7" class="text-center">Loading...</td></tr>');
                 $('#eventAchievementsModal').modal('show');
 
                 $.ajax({
@@ -269,6 +300,7 @@
                             response.data.forEach(function(row, idx) {
                                 html += `<tr>
                                     <td>${idx + 1}</td>
+                                    <td>${row.gr_no}</td>
                                     <td>${row.student_name}</td>
                                     <td>${row.rank}</td>
                                     <td>${row.remark}</td>
@@ -278,11 +310,11 @@
                             });
                             $('#event-modal-tbody').html(html);
                         } else {
-                            $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center text-muted">No achievements found.</td></tr>');
+                            $('#event-modal-tbody').html('<tr><td colspan="7" class="text-center text-muted">No achievements found.</td></tr>');
                         }
                     },
                     error: function() {
-                        $('#event-modal-tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading achievements.</td></tr>');
+                        $('#event-modal-tbody').html('<tr><td colspan="7" class="text-center text-danger">Error loading achievements.</td></tr>');
                     }
                 });
             });
