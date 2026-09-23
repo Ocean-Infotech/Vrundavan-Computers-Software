@@ -57,7 +57,7 @@
                                 $selectedType = isset($edit?->type) ? $edit?->type : old('type', 'Public Holiday');
                                 $types = ['Public Holiday', 'Festival', 'National Holiday', 'Institute Holiday', 'Optional Holiday'];
                             @endphp
-                            <select name="type" class="form-select @error('type') is-invalid @enderror">
+                            <select name="type" class="form-select select2 @error('type') is-invalid @enderror">
                                 @foreach ($types as $t)
                                     <option value="{{ $t }}" {{ $selectedType == $t ? 'selected' : '' }}>{{ $t }}</option>
                                 @endforeach
@@ -129,6 +129,15 @@
 
 @section('page_leavel_script')
     <script type="text/javascript">
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({
+                    placeholder: 'Select Holiday Type',
+                    width: '100%'
+                });
+            }
+        });
+
         document.getElementById('from_date').addEventListener('change', function() {
             var toDateInput = document.getElementById('to_date');
             if (!toDateInput.value || toDateInput.value < this.value) {
