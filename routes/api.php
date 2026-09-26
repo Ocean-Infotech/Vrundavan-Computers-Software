@@ -34,6 +34,7 @@ Route::controller(CommonController::class)->group(function () {
     Route::any('get-courceregistration', 'get_courceregistration')->name('get-courceregistration');
     Route::any('get-department', 'get_department')->name('get_department');
     Route::get('get-university', 'get_university')->name('get_university');
+    Route::any('get-fees-collection-total', 'get_fees_collection_total')->name('get-fees-collection-total');
 
 });
 
@@ -42,6 +43,8 @@ Route::post("student/verify-otp", [AuthenticationController::class, 'studentVeri
 Route::post("student/logout", [AuthenticationController::class, 'studentLogout'])
     ->middleware('auth:student-api');
 Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
+Route::match(['get', 'post'], 'student/fee-receipt/{id}/download', [ApiStudentController::class, 'download_fee_receipt'])->name('student.fee-receipt.download');
+
 
 
 Route::group(['middleware' => ['auth:student-api']], function () {

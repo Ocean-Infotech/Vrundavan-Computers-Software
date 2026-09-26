@@ -14,6 +14,7 @@ use App\Models\NotificationSetting;
 use App\Models\StudentTestMark;
 use App\Models\Timetable;
 use App\Models\Test;
+use Mpdf\Mpdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -189,7 +190,8 @@ class ApiStudentController extends Controller
      *         "receipt_no": 10,
      *         "amount": 15000,
      *         "date": "2025-06-01",
-     *         "status": "Paid"
+     *         "status": "Paid",
+     *         "receipt_url": "http://127.0.0.1:8000/api/student/fee-receipt/10/download"
      *       }
      *     ]
      *   }
@@ -210,15 +212,21 @@ class ApiStudentController extends Controller
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
 
-            $feeRecords = FeesCollection::with('course')
-                ->where('student_id', $student->id)
-                ->get();
+            $feeRecordsQuery = FeesCollection::with('course')
+                ->where('student_id', $student->id);
+
+            if ($request->filled('semester')) {
+                $feeRecordsQuery->where('year_semester', $request->semester);
+            }
+
+            $feeRecords = $feeRecordsQuery->get();
 
             if ($feeRecords->isEmpty()) {
                 return $this->sendError('No fee records found.', [], [], 404);
             }
 
-            $courseFees = $feeRecords->first()->course->course_fees;
+            $courseFees = $feeRecords->first()->course->course_fees ?? 0;
+
 
             $paidFees = $feeRecords->where('status', true)->sum('fees');
 
@@ -226,12 +234,13 @@ class ApiStudentController extends Controller
 
             $feesDetails = $feeRecords->map(function ($fee) {
                 return [
-                    'course'     => $fee->course->course_name,
-                    'semester'   => 'Semester ' . $fee->year_semester,
-                    'receipt_no' => $fee->id,
-                    'amount'     => (int)$fee->fees,
-                    'date'       => $fee->date ? \Carbon\Carbon::parse($fee->date)->format('Y-m-d') : null,
-                    'status'     => 'Paid',
+                    'course'      => $fee->course->course_name ?? '',
+                    'semester'    => 'Semester ' . $fee->year_semester,
+                    'receipt_no'  => $fee->id,
+                    'amount'      => (int)$fee->fees,
+                    'date'        => $fee->date ? \Carbon\Carbon::parse($fee->date)->format('Y-m-d') : null,
+                    'status'      => 'Paid',
+                    'receipt_url' => route('student.fee-receipt.download', ['id' => $fee->id]),
                 ];
             });
 
@@ -1355,4 +1364,173 @@ class ApiStudentController extends Controller
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
     }
+
+    /**
+     * Download or view fee receipt PDF
+     *
+     * @param int $id
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function download_fee_receipt($id, Request $request)
+    {
+        try {
+            $feesData = FeesCollection::with(['course', 'batch', 'admission', 'registration.batch', 'createdByUser'])->find($id);
+
+            if (!$feesData) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Receipt not found.'
+                ], 404);
+            }
+
+            $feesDetails = json_decode($feesData->fee_details, true);
+            $totalFee = 0;
+            if ($feesDetails && is_array($feesDetails)) {
+                foreach ($feesDetails as $fee) {
+                    $totalFee += (float)($fee['amount'] ?? 0);
+                }
+            } else {
+                $totalFee = (float)$feesData->fees;
+            }
+
+            $amountInWords = $this->numberToWords($totalFee);
+            $logo_src = $this->getPdfImageSrc('uploads/logo/logo.png');
+
+            $html = view('software.module.fees-collection.receipt_pdf', compact(
+                'feesData',
+                'feesDetails',
+                'totalFee',
+                'amountInWords',
+                'logo_src'
+            ))->render();
+
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'default_font' => 'dejavusans',
+                'margin_left' => 12,
+                'margin_right' => 12,
+                'margin_top' => 12,
+                'margin_bottom' => 12,
+                'autoPageBreak' => true,
+            ]);
+
+            $logoLocal = public_path('uploads/logo/logo.png');
+            if (file_exists($logoLocal)) {
+                $mpdf->SetWatermarkImage($logoLocal, 0.08, [80, 80], [65, 45]);
+                $mpdf->showWatermarkImage = true;
+                $mpdf->watermarkImgBehind = true;
+            }
+
+            $mpdf->SetTitle('Fee Receipt - #' . $feesData->id);
+            $mpdf->WriteHTML($html);
+
+            $rawStudentName = $feesData->student_name ?? ($feesData->admission ? $feesData->admission->first_name . ' ' . $feesData->admission->last_name : 'Student');
+            $safeStudentName = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', trim($rawStudentName)));
+            $safeStudentName = trim($safeStudentName, '_');
+            $semesterStr = !empty($feesData->year_semester) ? 'Sem_' . $feesData->year_semester : 'Receipt';
+
+            $fileName = 'Fee_Receipt_' . $feesData->id . '_' . $safeStudentName . '_' . $semesterStr . '.pdf';
+            $pdfContent = $mpdf->Output($fileName, 'S');
+
+            $disposition = ($request->get('action') === 'view' || $request->get('action') === 'stream') ? 'inline' : 'attachment';
+
+            return response($pdfContent, 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', $disposition . '; filename="' . $fileName . '"');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Could not generate receipt PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function numberToWords($num)
+    {
+        $num = (int)$num;
+        if ($num === 0) {
+            return 'Zero Rupees Only';
+        }
+
+        $words = [
+            '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+            'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen',
+            'Eighteen', 'Nineteen'
+        ];
+        $tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        $numToWordsHelper = function ($n, $label) use (&$numToWordsHelper, $words, $tens) {
+            $str = '';
+            if ($n > 19) {
+                $str .= $tens[(int)($n / 10)] . ' ' . $words[$n % 10];
+            } else {
+                $str .= $words[$n];
+            }
+            return trim($str) ? trim($str) . ' ' . $label . ' ' : '';
+        };
+
+        $result = '';
+
+        $crore = (int)($num / 10000000);
+        $num %= 10000000;
+        $lakh = (int)($num / 100000);
+        $num %= 100000;
+        $thousand = (int)($num / 1000);
+        $num %= 1000;
+        $hundred = (int)($num / 100);
+        $remainder = $num % 100;
+
+        if ($crore) $result .= $numToWordsHelper($crore, 'Crore');
+        if ($lakh) $result .= $numToWordsHelper($lakh, 'Lakh');
+        if ($thousand) $result .= $numToWordsHelper($thousand, 'Thousand');
+        if ($hundred) $result .= $numToWordsHelper($hundred, 'Hundred');
+        if ($remainder) {
+            $result .= ($result !== '' ? 'and ' : '') . $numToWordsHelper($remainder, '');
+        }
+
+        return trim($result) . ' Rupees Only';
+    }
+
+    private function getPdfImageSrc($imagePath)
+    {
+        if (empty($imagePath)) {
+            return '';
+        }
+
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            try {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $imagePath);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+                $imageData = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?: 'image/png';
+                curl_close($ch);
+
+                if ($httpCode === 200 && !empty($imageData)) {
+                    return 'data:' . $contentType . ';base64,' . base64_encode($imageData);
+                }
+            } catch (\Throwable $e) {
+            }
+            return $imagePath;
+        }
+
+        $cleanPath = ltrim($imagePath, '/\\');
+        if (str_starts_with($cleanPath, 'public/')) {
+            $cleanPath = substr($cleanPath, 7);
+        }
+
+        $fullLocalPath = public_path($cleanPath);
+        if (file_exists($fullLocalPath) && is_file($fullLocalPath)) {
+            return $fullLocalPath;
+        }
+
+        return '';
+    }
 }
+

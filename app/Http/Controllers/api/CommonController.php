@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Documents;
 use App\Models\Admission;
 use App\Models\CourceRegistration;
+use App\Models\FeesCollection;
 use App\Models\LibraryMasterBook;
 use App\Models\Master\MasterCity;
 use App\Models\Master\MasterCountry;
@@ -731,5 +732,74 @@ class CommonController extends Controller
         }
 
         return response($options);
+    }
+
+    /**
+     * Get fees collection total as per request date (or date range)
+     *
+     * @OA\Post(
+     *      path="/get-fees-collection-total",
+     *      operationId="get_fees_collection_total",
+     *      tags={"Open Source"},
+     *      @OA\Parameter(name="date", in="query", description="Specific request date (Y-m-d or d-m-Y)"),
+     *      @OA\Parameter(name="from_date", in="query", description="Start date for range filtering"),
+     *      @OA\Parameter(name="to_date", in="query", description="End date for range filtering"),
+     *      @OA\Parameter(name="course_id", in="query", description="Course ID filter"),
+     *      @OA\Parameter(name="batch_id", in="query", description="Batch ID filter"),
+     *      @OA\Parameter(name="student_id", in="query", description="Student ID filter"),
+     *      @OA\Response(response=200, description="Fees collection total calculated successfully"),
+     * )
+     */
+    public function get_fees_collection_total(Request $request)
+    {
+        try {
+            if (!$request->filled('date') && !$request->filled('request_date') && !($request->filled('from_date') && $request->filled('to_date'))) {
+                return $this->sendError("Please select date.");
+            }
+
+            if ($request->filled('date') || $request->filled('request_date')) {
+                $rawDate = trim($request->input('date') ?? $request->input('request_date'));
+                try {
+                    $normalizedDate = str_replace('/', '-', $rawDate);
+                    $formattedDate = Carbon::parse($normalizedDate)->format('Y-m-d');
+                } catch (\Exception $ex) {
+                    $formattedDate = Carbon::today()->format('Y-m-d');
+                }
+                $query->whereDate('date', $formattedDate);
+                $requestDateLabel = Carbon::parse($formattedDate)->format('d-m-Y');
+            } elseif ($request->filled('from_date') && $request->filled('to_date')) {
+                $fromDate = Carbon::parse(str_replace('/', '-', $request->from_date))->format('Y-m-d');
+                $toDate = Carbon::parse(str_replace('/', '-', $request->to_date))->format('Y-m-d');
+                $query->whereBetween('date', [$fromDate, $toDate]);
+                $requestDateLabel = Carbon::parse($fromDate)->format('d-m-Y') . ' to ' . Carbon::parse($toDate)->format('d-m-Y');
+            }
+
+            if ($request->filled('course_id')) {
+                $query->where('course_id', $request->course_id);
+            }
+
+            if ($request->filled('batch_id')) {
+                $query->where('batch_id', $request->batch_id);
+            }
+
+            if ($request->filled('student_id')) {
+                $query->where('student_id', $request->student_id);
+            }
+
+            if ($request->filled('admission_id')) {
+                $query->where('admission_id', $request->admission_id);
+            }
+
+            $totalFees = (float) $query->sum('fees');
+
+            $data = [
+                'request_date'         => $requestDateLabel,
+                'total_fees_collected' => $totalFees,
+            ];
+
+            return $this->sendResponse($data, "Fees collection total fetched successfully.");
+        } catch (\Exception $e) {
+            return $this->sendError("Error fetching fees collection total: " . $e->getMessage());
+        }
     }
 }
