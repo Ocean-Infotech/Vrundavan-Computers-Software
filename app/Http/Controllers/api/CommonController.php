@@ -47,6 +47,9 @@ class CommonController extends Controller
                 ->join('admission as a', 'cr.register_id', '=', 'a.id')
                 ->join('master_course as mc', 'cr.course_id', '=', 'mc.id')
                 ->whereNotIn('cr.status', ['Cancel', 'cancel'])
+                ->whereNull('cr.deleted_at')
+                ->whereNull('a.deleted_at')
+                ->whereNull('mc.deleted_at')
                 ->orderBy('cr.id', 'ASC')
                 ->select(
                     'cr.id as course_reg_id',

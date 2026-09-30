@@ -268,13 +268,18 @@
             </thead>
             <tbody>
                 @foreach($assignments as $idx => $a)
+                    @php
+                        $s = strtolower($a['status'] ?? '');
+                        $badgeClass = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'badge-success' : (($s === 'incomplete') ? 'badge-danger' : 'badge-warning');
+                        $statusText = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'Complete' : (($s === 'incomplete') ? 'Incomplete' : 'Pending');
+                    @endphp
                     <tr>
                         <td class="text-center">{{ $idx + 1 }}</td>
                         <td>{{ $a['subject'] }}</td>
                         <td>{{ $a['date'] }}</td>
                         <td>
-                            <span class="badge {{ $a['status'] === 'Submitted' ? 'badge-success' : 'badge-warning' }}">
-                                {{ $a['status'] }}
+                            <span class="badge {{ $badgeClass }}">
+                                {{ $statusText }}
                             </span>
                         </td>
                         <td>{{ $a['remarks'] }}</td>
@@ -303,13 +308,18 @@
                         </thead>
                         <tbody>
                             @foreach($assignLeft as $idx => $a)
+                                @php
+                                    $s = strtolower($a['status'] ?? '');
+                                    $badgeClass = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'badge-success' : (($s === 'incomplete') ? 'badge-danger' : 'badge-warning');
+                                    $statusText = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'Complete' : (($s === 'incomplete') ? 'Incomplete' : 'Pending');
+                                @endphp
                                 <tr>
                                     <td class="text-center">{{ $idx + 1 }}</td>
                                     <td>{{ $a['subject'] }}</td>
                                     <td>{{ $a['date'] }}</td>
                                     <td>
-                                        <span class="badge {{ $a['status'] === 'Submitted' ? 'badge-success' : 'badge-warning' }}">
-                                            {{ $a['status'] }}
+                                        <span class="badge {{ $badgeClass }}">
+                                            {{ $statusText }}
                                         </span>
                                     </td>
                                     <td>{{ $a['remarks'] }}</td>
@@ -333,13 +343,18 @@
                             </thead>
                             <tbody>
                                 @foreach($assignRight as $idx => $a)
+                                    @php
+                                        $s = strtolower($a['status'] ?? '');
+                                        $badgeClass = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'badge-success' : (($s === 'incomplete') ? 'badge-danger' : 'badge-warning');
+                                        $statusText = ($s === 'complete' || $s === 'completed' || $s === 'submitted') ? 'Complete' : (($s === 'incomplete') ? 'Incomplete' : 'Pending');
+                                    @endphp
                                     <tr>
                                         <td class="text-center">{{ $halfAssign + $idx + 1 }}</td>
                                         <td>{{ $a['subject'] }}</td>
                                         <td>{{ $a['date'] }}</td>
                                         <td>
-                                            <span class="badge {{ $a['status'] === 'Submitted' ? 'badge-success' : 'badge-warning' }}">
-                                                {{ $a['status'] }}
+                                            <span class="badge {{ $badgeClass }}">
+                                                {{ $statusText }}
                                             </span>
                                         </td>
                                         <td>{{ $a['remarks'] }}</td>

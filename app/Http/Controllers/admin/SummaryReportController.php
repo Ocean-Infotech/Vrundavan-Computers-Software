@@ -94,7 +94,7 @@ class SummaryReportController extends Controller
         // Prepare local / live image paths for mPDF
         $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
 
-        $student = Admission::find($data['personal']['id'] ?? $studentId);
+        $student = Admission::whereNull('deleted_at')->find($data['personal']['id'] ?? $studentId);
         $studentPhoto = $student ? $student->profile_pic : null;
         $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
 
@@ -140,7 +140,21 @@ class SummaryReportController extends Controller
 
     public function getStudentsList(Request $request)
     {
-        $query = CourceRegistration::with(['admission', 'course', 'batch', 'class'])
+        $query = CourceRegistration::with([
+            'admission' => function ($q) {
+                $q->whereNull('deleted_at');
+            },
+            'course' => function ($q) {
+                $q->whereNull('deleted_at');
+            },
+            'batch' => function ($q) {
+                $q->whereNull('deleted_at');
+            },
+            'class' => function ($q) {
+                $q->whereNull('deleted_at');
+            }
+        ])
+            ->whereNull('deleted_at')
             ->whereHas('admission', function ($q) {
                 $q->whereNull('deleted_at');
             });
@@ -162,7 +176,7 @@ class SummaryReportController extends Controller
 
         $students = $registrations->map(function ($reg) {
             $student = $reg->admission;
-            if (!$student) return null;
+            if (!$student || $student->deleted_at !== null) return null;
             return [
                 'id' => $student->id,
                 'gr_no' => $student->gr_no ?? '-',
@@ -190,7 +204,10 @@ class SummaryReportController extends Controller
 
         if (empty($studentIds)) {
             if ($request->filled('course_id') || $request->filled('batch_id') || $request->filled('class_id')) {
-                $q = CourceRegistration::query();
+                $q = CourceRegistration::whereNull('deleted_at')
+                    ->whereHas('admission', function ($query) {
+                        $query->whereNull('deleted_at');
+                    });
                 if ($request->filled('course_id')) $q->where('course_id', $request->course_id);
                 if ($request->filled('batch_id')) $q->where('batch_id', $request->batch_id);
                 if ($request->filled('class_id')) $q->where('class_id', $request->class_id);
@@ -218,7 +235,7 @@ class SummaryReportController extends Controller
                 if (!$data) continue;
 
                 $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
-                $student = Admission::find($studentId);
+                $student = Admission::whereNull('deleted_at')->find($studentId);
                 $studentPhoto = $student ? $student->profile_pic : null;
                 $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
                 if (empty($resolvedPhoto)) {
@@ -282,7 +299,7 @@ class SummaryReportController extends Controller
                 }
 
                 $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
-                $student = Admission::find($studentId);
+                $student = Admission::whereNull('deleted_at')->find($studentId);
                 $studentPhoto = $student ? $student->profile_pic : null;
                 $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
                 if (empty($resolvedPhoto)) {
@@ -351,23 +368,35 @@ class SummaryReportController extends Controller
     private function gatherReportData($studentId)
     {
         // 1. Personal Details
-        $student = Admission::find($studentId);
+        $student = Admission::whereNull('deleted_at')->find($studentId);
         if (!$student) {
-            $student = Admission::where('gr_no', $studentId)->first();
+            $student = Admission::whereNull('deleted_at')->where('gr_no', $studentId)->first();
         }
         if (!$student) {
-            $reg = CourceRegistration::find($studentId);
+            $reg = CourceRegistration::whereNull('deleted_at')->find($studentId);
             if ($reg) {
-                $student = Admission::find($reg->register_id);
+                $student = Admission::whereNull('deleted_at')->find($reg->register_id);
             }
         }
-        if (!$student) {
+        if (!$student || $student->deleted_at !== null) {
             return null;
         }
 
         // 2. Academic Details
-        $courseReg = CourceRegistration::where('register_id', $student->id)
-            ->with(['course', 'batch', 'class'])
+        $courseReg = CourceRegistration::whereNull('deleted_at')
+            ->where('register_id', $student->id)
+            ->with([
+                'course' => function ($q) {
+                    $q->whereNull('deleted_at');
+                },
+                'batch' => function ($q) {
+                    $q->whereNull('deleted_at');
+                },
+                'class' => function ($q) {
+                    $q->whereNull('deleted_at');
+                }
+            ])
+            ->latest('id')
             ->first();
 
         $currentSemester = 1;
@@ -375,22 +404,23 @@ class SummaryReportController extends Controller
             if ($courseReg->is_lateral_entry == 1 && $courseReg->joining_semester) {
                 $currentSemester = (int)$courseReg->joining_semester;
             }
-            $maxPaidSem = FeesCollection::where('student_id', $student->id)
+            $maxPaidSem = FeesCollection::whereNull('deleted_at')
+                ->where('student_id', $student->id)
                 ->where('course_id', $courseReg->course_id)
                 ->max('year_semester');
             if ($maxPaidSem && $maxPaidSem > $currentSemester) {
                 $currentSemester = (int)$maxPaidSem;
             }
-            $maxBatchAssignSem = Assignment::where('course_id', $courseReg->course_id)
+            $maxBatchAssignSem = Assignment::whereNull('deleted_at')
+                ->where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
-                ->whereNull('deleted_at')
                 ->max('semester');
             if ($maxBatchAssignSem && $maxBatchAssignSem > $currentSemester) {
                 $currentSemester = (int)$maxBatchAssignSem;
             }
-            $maxBatchTestSem = Test::where('course_id', $courseReg->course_id)
+            $maxBatchTestSem = Test::whereNull('deleted_at')
+                ->where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
-                ->whereNull('deleted_at')
                 ->max('semester');
             if ($maxBatchTestSem && $maxBatchTestSem > $currentSemester) {
                 $currentSemester = (int)$maxBatchTestSem;
@@ -406,10 +436,10 @@ class SummaryReportController extends Controller
         // 3. Assignments
         $assignmentList = [];
         if ($courseReg) {
-            $assignments = Assignment::where('course_id', $courseReg->course_id)
+            $assignments = Assignment::whereNull('deleted_at')
+                ->where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
                 ->where('semester', $currentSemester)
-                ->whereNull('deleted_at')
                 ->orderBy('date', 'desc')
                 ->get();
 
@@ -419,10 +449,15 @@ class SummaryReportController extends Controller
                     ->where('gr_no', $grNo)
                     ->first();
 
+                $statusVal = 'Pending';
+                if ($submission && !empty($submission->status)) {
+                    $statusVal = ucfirst(strtolower(trim($submission->status)));
+                }
+
                 $assignmentList[] = [
                     'subject' => $a->subject,
                     'date' => $a->date ? Carbon::parse($a->date)->format('d-m-Y') : '-',
-                    'status' => $submission ? $submission->status : 'Pending',
+                    'status' => $statusVal,
                     'remarks' => $submission ? ($submission->remarks ?: '-') : '-'
                 ];
             }
@@ -430,7 +465,8 @@ class SummaryReportController extends Controller
 
         // 4. Assessments
         $assessmentList = [];
-        $assessments = Assessment::where('admission_id', $student->id)
+        $assessments = Assessment::whereNull('deleted_at')
+            ->where('admission_id', $student->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -445,11 +481,11 @@ class SummaryReportController extends Controller
         // 5. Test Details (Current Semester)
         $testList = [];
         if ($courseReg) {
-            $tests = Test::where('course_id', $courseReg->course_id)
+            $tests = Test::whereNull('deleted_at')
+                ->where('course_id', $courseReg->course_id)
                 ->where('batch_id', $courseReg->batch_id)
                 ->where('semester', $currentSemester)
                 ->where('date', '>=', $startOfAttendance->format('Y-m-d'))
-                ->whereNull('deleted_at')
                 ->orderBy('date', 'desc')
                 ->get();
 
@@ -470,7 +506,8 @@ class SummaryReportController extends Controller
 
         // 6. Complaints
         $complaintList = [];
-        $complaints = FacultyComplaintReport::where('admission_id', $student->id)
+        $complaints = FacultyComplaintReport::whereNull('deleted_at')
+            ->where('admission_id', $student->id)
             ->with('faculty')
             ->orderBy('date', 'desc')
             ->get();
@@ -485,8 +522,16 @@ class SummaryReportController extends Controller
 
         // 7. Student Results (All Semesters)
         $resultList = [];
-        $studentResults = \App\Models\StudentResult::where('admission_id', $student->id)
+        $studentResults = \App\Models\StudentResult::whereNull('deleted_at')
+            ->where('admission_id', $student->id)
             ->where('semester', '<=', $currentSemester)
+            ->where(function ($q) {
+                $q->whereNull('result_id')
+                    ->orWhere('result_id', 0)
+                    ->orWhereHas('resultMaster', function ($rm) {
+                        $rm->whereNull('deleted_at');
+                    });
+            })
             ->with('resultMaster')
             ->orderBy('semester', 'asc')
             ->get();
@@ -509,7 +554,15 @@ class SummaryReportController extends Controller
 
         // 8. Achievements
         $achievementList = [];
-        $achievements = \App\Models\StudentAchievement::where('admission_id', $student->id)
+        $achievements = \App\Models\StudentAchievement::whereNull('deleted_at')
+            ->where('admission_id', $student->id)
+            ->where(function ($q) {
+                $q->whereNull('event_id')
+                    ->orWhere('event_id', 0)
+                    ->orWhereHas('event', function ($ev) {
+                        $ev->whereNull('deleted_at');
+                    });
+            })
             ->with('event')
             ->orderBy('date', 'desc')
             ->get();

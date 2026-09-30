@@ -605,9 +605,15 @@
                             if (response.assignments && response.assignments.length > 0) {
                                 $('#assignment-count').text(response.assignments.length);
                                 response.assignments.forEach(function(item, index) {
-                                    let statusBadge = item.status === 'Submitted' 
-                                        ? '<span class="badge bg-label-success">Submitted</span>' 
-                                        : '<span class="badge bg-label-warning">Pending</span>';
+                                    let s = (item.status || '').toLowerCase();
+                                    let statusBadge = '';
+                                    if (s === 'complete' || s === 'completed' || s === 'submitted') {
+                                        statusBadge = '<span class="badge bg-label-success">Complete</span>';
+                                    } else if (s === 'incomplete') {
+                                        statusBadge = '<span class="badge bg-label-danger">Incomplete</span>';
+                                    } else {
+                                        statusBadge = '<span class="badge bg-label-warning">Pending</span>';
+                                    }
                                     assignmentsHtml += `<tr>
                                         <td>${index + 1}</td>
                                         <td class="fw-semibold">${item.subject}</td>

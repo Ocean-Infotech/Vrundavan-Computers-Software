@@ -718,15 +718,19 @@
                             let assignmentsHtml = '';
                             if (response.assignments.length > 0) {
                                 response.assignments.forEach(function(assign, index) {
+                                    let s = (assign.status || '').toLowerCase();
                                     let badgeClass = 'bg-warning';
-                                    if (assign.status.toLowerCase() === 'complete' || assign.status.toLowerCase() === 'submitted') {
+                                    let statusLabel = 'Pending';
+                                    if (s === 'complete' || s === 'completed' || s === 'submitted') {
                                         badgeClass = 'bg-success';
-                                    } else if (assign.status.toLowerCase() === 'incomplete') {
+                                        statusLabel = 'Complete';
+                                    } else if (s === 'incomplete') {
                                         badgeClass = 'bg-danger';
-                                    } else if (assign.status.toLowerCase() === 'pending') {
+                                        statusLabel = 'Incomplete';
+                                    } else {
                                         badgeClass = 'bg-warning';
+                                        statusLabel = 'Pending';
                                     }
-                                    let statusLabel = assign.status.charAt(0).toUpperCase() + assign.status.slice(1);
                                     assignmentsHtml += `<tr>
                                          <td>${index + 1}</td>
                                          <td>${assign.subject}</td>

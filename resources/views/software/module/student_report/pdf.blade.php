@@ -308,19 +308,22 @@
             <tbody>
                 @forelse($assignments as $index => $assign)
                     @php
-                        $statusLower = strtolower($assign['status']);
+                        $statusLower = strtolower($assign['status'] ?? '');
                         $badgeClass = 'badge-warning';
-                        if ($statusLower === 'complete' || $statusLower === 'submitted' || $statusLower === 'approved') {
+                        $statusText = 'Pending';
+                        if ($statusLower === 'complete' || $statusLower === 'completed' || $statusLower === 'submitted' || $statusLower === 'approved') {
                             $badgeClass = 'badge-success';
+                            $statusText = 'Complete';
                         } elseif ($statusLower === 'incomplete' || $statusLower === 'rejected') {
                             $badgeClass = 'badge-danger';
+                            $statusText = 'Incomplete';
                         }
                     @endphp
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $assign['subject'] }}</td>
                         <td>{{ $assign['date'] }}</td>
-                        <td><span class="badge {{ $badgeClass }}">{{ ucfirst($assign['status']) }}</span></td>
+                        <td><span class="badge {{ $badgeClass }}">{{ $statusText }}</span></td>
                         <td>{{ $assign['remarks'] }}</td>
                     </tr>
                 @empty
