@@ -50,6 +50,7 @@ use App\Http\Controllers\admin\ResultController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\OtherListSelectionController;
 use App\Http\Controllers\admin\StudentReportController;
+use App\Http\Controllers\admin\SummaryReportController;
 use App\Http\Controllers\admin\OtherListController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\admin\AssignmentController;
@@ -532,5 +533,13 @@ Route::get('student_report/print', [StudentReportController::class, 'printReport
 Route::get('student_report/pdf', [StudentReportController::class, 'downloadPdf'])->name('student_report.pdf');
 Route::get('student_report/students-list', [StudentReportController::class, 'getStudentsList'])->name('student_report.students_list');
 Route::match(['get', 'post'], 'student_report/bulk-pdf', [StudentReportController::class, 'bulkDownloadPdf'])->name('student_report.bulk_pdf');
+
+/** Summary Report Routes */
+Route::get('summary_report', [SummaryReportController::class, 'index'])->name('summary_report.index');
+Route::get('summary_report/data', [SummaryReportController::class, 'getReportData'])->name('summary_report.data');
+Route::get('summary_report/print', [SummaryReportController::class, 'printReport'])->name('summary_report.print');
+Route::get('summary_report/pdf', [SummaryReportController::class, 'downloadPdf'])->name('summary_report.pdf');
+Route::get('summary_report/students-list', [SummaryReportController::class, 'getStudentsList'])->name('summary_report.students_list');
+Route::match(['get', 'post'], 'summary_report/bulk-pdf', [SummaryReportController::class, 'bulkDownloadPdf'])->name('summary_report.bulk_pdf');
 
 

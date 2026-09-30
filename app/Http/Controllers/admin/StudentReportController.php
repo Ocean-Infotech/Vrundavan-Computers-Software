@@ -371,13 +371,27 @@ class StudentReportController extends Controller
         $currentSemester = 1;
         if ($courseReg) {
             if ($courseReg->is_lateral_entry == 1 && $courseReg->joining_semester) {
-                $currentSemester = $courseReg->joining_semester;
+                $currentSemester = (int)$courseReg->joining_semester;
             }
             $maxPaidSem = FeesCollection::where('student_id', $student->id)
                 ->where('course_id', $courseReg->course_id)
                 ->max('year_semester');
             if ($maxPaidSem && $maxPaidSem > $currentSemester) {
                 $currentSemester = (int)$maxPaidSem;
+            }
+            $maxBatchAssignSem = Assignment::where('course_id', $courseReg->course_id)
+                ->where('batch_id', $courseReg->batch_id)
+                ->whereNull('deleted_at')
+                ->max('semester');
+            if ($maxBatchAssignSem && $maxBatchAssignSem > $currentSemester) {
+                $currentSemester = (int)$maxBatchAssignSem;
+            }
+            $maxBatchTestSem = Test::where('course_id', $courseReg->course_id)
+                ->where('batch_id', $courseReg->batch_id)
+                ->whereNull('deleted_at')
+                ->max('semester');
+            if ($maxBatchTestSem && $maxBatchTestSem > $currentSemester) {
+                $currentSemester = (int)$maxBatchTestSem;
             }
         }
 

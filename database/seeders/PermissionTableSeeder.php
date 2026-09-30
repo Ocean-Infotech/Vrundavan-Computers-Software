@@ -183,6 +183,9 @@ class PermissionTableSeeder extends Seeder
             'student_report' => [
                 'student_report-list',
             ],
+            'summary_report' => [
+                'summary_report-list',
+            ],
             'event' => [
                 'event-list',
                 'event-create',

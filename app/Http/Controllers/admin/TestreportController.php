@@ -131,6 +131,14 @@ class TestreportController extends Controller
                 if ($maxPaidSem && $maxPaidSem > $currentSemester) {
                     $currentSemester = (int)$maxPaidSem;
                 }
+                $maxTestSem = DB::table('tests')
+                    ->where('course_id', $student_details->course_id)
+                    ->where('batch_id', $student_details->batch_id)
+                    ->whereNull('deleted_at')
+                    ->max('semester');
+                if ($maxTestSem && $maxTestSem > $currentSemester) {
+                    $currentSemester = (int)$maxTestSem;
+                }
 
                 // Determine June start date of current academic cycle
                 $now = \Carbon\Carbon::now();
@@ -399,6 +407,14 @@ class TestreportController extends Controller
                     ->max('year_semester');
                 if ($maxPaidSem && $maxPaidSem > $currentSemester) {
                     $currentSemester = (int)$maxPaidSem;
+                }
+                $maxTestSem = DB::table('tests')
+                    ->where('course_id', $student_details->course_id)
+                    ->where('batch_id', $student_details->batch_id)
+                    ->whereNull('deleted_at')
+                    ->max('semester');
+                if ($maxTestSem && $maxTestSem > $currentSemester) {
+                    $currentSemester = (int)$maxTestSem;
                 }
                 $student_details->current_semester = $currentSemester;
             }
