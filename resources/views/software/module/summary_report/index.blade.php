@@ -528,27 +528,53 @@
             let selectedStudentId = null;
 
             // ================= 1. SINGLE STUDENT SUMMARY REPORT JS =================
-            $('#search_id').on('input change', function() {
-                let selectedVal = $(this).val();
+            $('#search_id').on('input change keyup', function(e) {
+                let selectedVal = $(this).val().trim();
                 clearTimeout(searchDebounceTimer);
+
+                let delay = (e.type === 'keyup' && e.which === 13) ? 0 : 300;
 
                 searchDebounceTimer = setTimeout(function() {
                     if (selectedVal) {
-                        let optionExists = false;
+                        let matchedId = null;
+
+                        // 1. Exact match with option value (admission_id)
                         $('#search option').each(function() {
                             if ($(this).val() == selectedVal) {
-                                optionExists = true;
+                                matchedId = $(this).val();
                                 return false;
                             }
                         });
 
-                        if (optionExists) {
-                            fetchStudentReport(selectedVal);
+                        // 2. Match with option text (Name, Course, etc.)
+                        if (!matchedId) {
+                            $('#search option').each(function() {
+                                if ($(this).text().toLowerCase().includes(selectedVal.toLowerCase())) {
+                                    matchedId = $(this).val();
+                                    return false;
+                                }
+                            });
+                        }
+
+                        // 3. Fallback: If numeric (e.g. typed 84 or GR No), try fetching directly
+                        if (!matchedId && !isNaN(selectedVal) && selectedVal.length > 0) {
+                            matchedId = selectedVal;
+                        }
+
+                        if (matchedId) {
+                            fetchStudentReport(matchedId);
                         }
                     } else {
                         resetReport();
                     }
-                }, 500);
+                }, delay);
+            });
+
+            $('#search_id').on('blur', function() {
+                let val = $(this).val().trim();
+                if (val && val !== String(selectedStudentId)) {
+                    fetchStudentReport(val);
+                }
             });
 
             function fetchStudentReport(studentId) {

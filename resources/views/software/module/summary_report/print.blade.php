@@ -2,24 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Summary Report - {{ $personal['name'] }}</title>
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 10mm;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 10px;
+            font-family: Arial, Helvetica, sans-serif;
             color: #333;
             font-size: 11px;
-            line-height: 1.3;
+            line-height: 1.25;
+            background: #fff;
+            padding: 15px;
         }
+
+        /* Print Header */
         .print-header {
-            border-bottom: 2px solid #333;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            border-bottom: 2px solid #222;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
         }
         .print-header table {
             width: 100%;
@@ -30,142 +34,154 @@
             padding: 0;
         }
         .college-name {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #111;
             text-transform: uppercase;
         }
         .trust-name {
-            font-size: 14px;
+            font-size: 12px;
             color: #555;
+            font-weight: bold;
         }
         .college-info {
-            font-size: 11px;
+            font-size: 10.5px;
             color: #666;
         }
         .report-title {
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin: 8px 0;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #2c3e50;
-            background: #f4f6f9;
+            color: #111;
+            background: #f1f4f8;
             padding: 4px;
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
-        /* Details Section */
+        /* Student Details Table */
         .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
-            background: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
+            margin-bottom: 8px;
+            border: 1px solid #d5dbe0;
+            background: #fafbfc;
         }
         .details-table td {
-            border: none;
             padding: 4px 8px;
-            vertical-align: top;
+            vertical-align: middle;
             font-size: 11px;
+            border: none;
         }
         .details-table td.label {
             font-weight: bold;
-            width: 15%;
+            width: 12%;
             color: #555;
         }
         .details-table td.value {
-            width: 35%;
+            width: 38%;
             color: #111;
         }
-        .student-photo-cell {
-            width: 75px;
-            text-align: right;
-            vertical-align: middle;
-            padding: 4px !important;
-        }
-        .student-photo {
-            width: 65px;
-            height: 65px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
 
-        /* 2-Column Grid for Print */
-        .two-col-grid {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 10px 0;
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-        }
-        .two-col-grid > tbody > tr > td {
-            width: 50%;
-            vertical-align: top;
-            padding: 0;
-            border: none;
-        }
-
-        .report-card {
-            border: 1px solid #d5dbe0;
-            border-radius: 4px;
-            padding: 6px;
-            background: #fff;
-            min-height: 120px;
-        }
-        .section-title {
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            background-color: #f1f4f8;
-            padding: 4px 8px;
-            margin: -6px -6px 6px -6px;
-            border-bottom: 1px solid #d5dbe0;
-            border-left: 3px solid #5c1ac3;
-            letter-spacing: 0.5px;
-            color: #333;
-        }
-        .report-table {
+        /* Section Title Bar */
+        .section-header-table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .section-title-cell {
+            background-color: #f1f4f8;
+            color: #1e293b;
+            font-size: 11.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 5px 10px;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid #334155;
+        }
+
+        /* Split 2-Column Grid */
+        .split-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        .split-col {
+            width: 49.2%;
+            vertical-align: top;
+            padding: 0;
+        }
+        .split-gap {
+            width: 1.6%;
+            padding: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+            margin-bottom: 8px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #d5dbe0;
+            padding: 4.5px 7px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .data-table tr.col-head th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: bold;
             font-size: 10px;
         }
-        .report-table th, .report-table td {
-            border: 1px solid #e2e8f0;
-            padding: 4px 6px;
-            text-align: left;
-        }
-        .report-table th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: #475569;
-        }
-        .report-table tr:nth-child(even) td {
+        .data-table tbody tr:nth-child(even) td {
             background-color: #fafbfc;
         }
 
+        .empty-state-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        .empty-state-cell {
+            text-align: center;
+            color: #64748b;
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-style: italic;
+            letter-spacing: 0.3px;
+        }
+
+        .text-center { text-align: center; }
+
+        /* Badges */
         .badge {
             display: inline-block;
-            padding: 1px 4px;
+            padding: 1px 5px;
             font-size: 9px;
             font-weight: bold;
-            border-radius: 2px;
+            border-radius: 3px;
             text-transform: uppercase;
         }
-        .badge-success { background-color: #e2f5ec; color: #1f7a52; }
-        .badge-danger { background-color: #fbeae9; color: #b32d24; }
-        .badge-warning { background-color: #fff4e5; color: #b36b00; }
-        .badge-info { background-color: #e5f6fd; color: #0077b3; }
+        .badge-success { background: #e2f5ec; color: #1f7a52; }
+        .badge-warning { background: #fff4e5; color: #b36b00; }
+        .badge-info { background: #e5f6fd; color: #0077b3; }
+        .badge-danger { background: #fbeae9; color: #b32d24; }
 
         .no-print-bar {
-            background: #f5f5f5;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
             padding: 8px 15px;
-            border-bottom: 1px solid #ddd;
             margin-bottom: 15px;
-            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            border-radius: 4px;
         }
         .btn {
             padding: 5px 12px;
@@ -182,7 +198,7 @@
         @media print {
             .no-print-bar { display: none !important; }
             body { margin: 0; padding: 0; }
-            .two-col-grid { page-break-inside: avoid; }
+            .split-table, .empty-state-table, .data-table { page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -215,10 +231,10 @@
     <!-- Student Details -->
     <table class="details-table">
         <tr>
-            <td class="label" style="width: 12%;">Gr No. :</td>
-            <td class="value" style="width: 38%;"><strong>{{ $personal['gr_no'] }}</strong></td>
-            <td class="label" style="width: 14%;">Course :</td>
-            <td class="value" style="width: 36%;">{{ $academic['course'] ?? '-' }}</td>
+            <td class="label">Gr No. :</td>
+            <td class="value"><strong>{{ $personal['gr_no'] }}</strong></td>
+            <td class="label">Course :</td>
+            <td class="value">{{ $academic['course'] ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Student Name :</td>
@@ -228,27 +244,67 @@
         </tr>
     </table>
 
-    <!-- ROW 1: Assignment | Assessment -->
-    <table class="two-col-grid">
-        <tr>
-            <!-- Left: Assignment -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Assignment</div>
-                    <table class="report-table">
+    <!-- 1. ASSIGNMENT SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Assignment</td></tr>
+    </table>
+    @php
+        $assignCount = count($assignments);
+    @endphp
+    @if($assignCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No assignments recorded —</td></tr>
+        </table>
+    @elseif($assignCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Subject</th>
+                    <th style="width: 18%;">Date</th>
+                    <th style="width: 18%;">Status</th>
+                    <th style="width: 25%;">Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($assignments as $idx => $a)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>{{ $a['subject'] }}</td>
+                        <td>{{ $a['date'] }}</td>
+                        <td>
+                            <span class="badge {{ $a['status'] === 'Submitted' ? 'badge-success' : 'badge-warning' }}">
+                                {{ $a['status'] }}
+                            </span>
+                        </td>
+                        <td>{{ $a['remarks'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfAssign = ceil($assignCount / 2);
+            $assignLeft = array_slice($assignments, 0, $halfAssign);
+            $assignRight = array_slice($assignments, $halfAssign);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
                                 <th>Subject</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Remarks</th>
+                                <th style="width: 22%;">Date</th>
+                                <th style="width: 22%;">Status</th>
+                                <th style="width: 23%;">Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($assignments as $idx => $a)
+                            @foreach($assignLeft as $idx => $a)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
                                     <td>{{ $a['subject'] }}</td>
                                     <td>{{ $a['date'] }}</td>
                                     <td>
@@ -258,188 +314,517 @@
                                     </td>
                                     <td>{{ $a['remarks'] }}</td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: #888;">No assignments recorded.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-            </td>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($assignRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Subject</th>
+                                    <th style="width: 22%;">Date</th>
+                                    <th style="width: 22%;">Status</th>
+                                    <th style="width: 23%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($assignRight as $idx => $a)
+                                    <tr>
+                                        <td class="text-center">{{ $halfAssign + $idx + 1 }}</td>
+                                        <td>{{ $a['subject'] }}</td>
+                                        <td>{{ $a['date'] }}</td>
+                                        <td>
+                                            <span class="badge {{ $a['status'] === 'Submitted' ? 'badge-success' : 'badge-warning' }}">
+                                                {{ $a['status'] }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $a['remarks'] }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
 
-            <!-- Right: Assessment -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Assessment</div>
-                    <table class="report-table">
+    <!-- 2. TEST DETAIL SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Test Detail</td></tr>
+    </table>
+    @php
+        $testCount = count($tests);
+    @endphp
+    @if($testCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No tests recorded —</td></tr>
+        </table>
+    @elseif($testCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Subject</th>
+                    <th style="width: 18%;">Date</th>
+                    <th style="width: 14%;">Total</th>
+                    <th style="width: 16%;">Obtained</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($tests as $idx => $t)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>{{ $t['subject'] }}</td>
+                        <td>{{ $t['date'] }}</td>
+                        <td class="text-center">{{ $t['total_marks'] }}</td>
+                        <td class="text-center"><strong>{{ $t['obtained_marks'] }}</strong></td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfTest = ceil($testCount / 2);
+            $testLeft = array_slice($tests, 0, $halfTest);
+            $testRight = array_slice($tests, $halfTest);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
                                 <th>Subject</th>
-                                <th>Performance</th>
-                                <th>Remarks</th>
+                                <th style="width: 22%;">Date</th>
+                                <th style="width: 14%;">Total</th>
+                                <th style="width: 16%;">Obtained</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($assessments as $idx => $as)
+                            @foreach($testLeft as $idx => $t)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
+                                    <td>{{ $t['subject'] }}</td>
+                                    <td>{{ $t['date'] }}</td>
+                                    <td class="text-center">{{ $t['total_marks'] }}</td>
+                                    <td class="text-center"><strong>{{ $t['obtained_marks'] }}</strong></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($testRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Subject</th>
+                                    <th style="width: 22%;">Date</th>
+                                    <th style="width: 14%;">Total</th>
+                                    <th style="width: 16%;">Obtained</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($testRight as $idx => $t)
+                                    <tr>
+                                        <td class="text-center">{{ $halfTest + $idx + 1 }}</td>
+                                        <td>{{ $t['subject'] }}</td>
+                                        <td>{{ $t['date'] }}</td>
+                                        <td class="text-center">{{ $t['total_marks'] }}</td>
+                                        <td class="text-center"><strong>{{ $t['obtained_marks'] }}</strong></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
+
+    <!-- 3. ASSESSMENT SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Assessment</td></tr>
+    </table>
+    @php
+        $asCount = count($assessments);
+    @endphp
+    @if($asCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No assessments recorded —</td></tr>
+        </table>
+    @elseif($asCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Subject</th>
+                    <th style="width: 25%;">Performance</th>
+                    <th style="width: 35%;">Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($assessments as $idx => $as)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>{{ $as['subject'] }}</td>
+                        <td><span class="badge badge-info">{{ $as['performance'] }}</span></td>
+                        <td>{{ $as['remarks'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfAs = ceil($asCount / 2);
+            $asLeft = array_slice($assessments, 0, $halfAs);
+            $asRight = array_slice($assessments, $halfAs);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
+                        <thead>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
+                                <th>Subject</th>
+                                <th style="width: 28%;">Performance</th>
+                                <th style="width: 32%;">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($asLeft as $idx => $as)
+                                <tr>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
                                     <td>{{ $as['subject'] }}</td>
                                     <td><span class="badge badge-info">{{ $as['performance'] }}</span></td>
                                     <td>{{ $as['remarks'] }}</td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: #888;">No assessments recorded.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-            </td>
-        </tr>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($asRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Subject</th>
+                                    <th style="width: 28%;">Performance</th>
+                                    <th style="width: 32%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($asRight as $idx => $as)
+                                    <tr>
+                                        <td class="text-center">{{ $halfAs + $idx + 1 }}</td>
+                                        <td>{{ $as['subject'] }}</td>
+                                        <td><span class="badge badge-info">{{ $as['performance'] }}</span></td>
+                                        <td>{{ $as['remarks'] }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
+
+    <!-- 4. COMPLAINTS SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Complaints</td></tr>
     </table>
-
-    <!-- ROW 2: Test Detail | Complaints -->
-    <table class="two-col-grid">
-        <tr>
-            <!-- Left: Test Detail -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Test Detail</div>
-                    <table class="report-table">
+    @php
+        $compCount = count($complaints);
+    @endphp
+    @if($compCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No complaints recorded —</td></tr>
+        </table>
+    @elseif($compCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Complaint</th>
+                    <th style="width: 20%;">Date</th>
+                    <th style="width: 25%;">Faculty</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($complaints as $idx => $c)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td style="color: #b32d24;">{{ $c['complaint'] }}</td>
+                        <td>{{ $c['date'] }}</td>
+                        <td>{{ $c['faculty'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfComp = ceil($compCount / 2);
+            $compLeft = array_slice($complaints, 0, $halfComp);
+            $compRight = array_slice($complaints, $halfComp);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
-                                <th>Subject</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Obtained</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($tests as $idx => $t)
-                                <tr>
-                                    <td>{{ $idx + 1 }}</td>
-                                    <td>{{ $t['subject'] }}</td>
-                                    <td>{{ $t['date'] }}</td>
-                                    <td>{{ $t['total_marks'] }}</td>
-                                    <td><strong>{{ $t['obtained_marks'] }}</strong></td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: #888;">No tests recorded.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </td>
-
-            <!-- Right: Complaints -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Complaints</div>
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
                                 <th>Complaint</th>
-                                <th>Date</th>
-                                <th>Faculty</th>
+                                <th style="width: 24%;">Date</th>
+                                <th style="width: 28%;">Faculty</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($complaints as $idx => $c)
+                            @foreach($compLeft as $idx => $c)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
                                     <td style="color: #b32d24;">{{ $c['complaint'] }}</td>
                                     <td>{{ $c['date'] }}</td>
                                     <td>{{ $c['faculty'] }}</td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: #888;">No complaints recorded.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-            </td>
-        </tr>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($compRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Complaint</th>
+                                    <th style="width: 24%;">Date</th>
+                                    <th style="width: 28%;">Faculty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($compRight as $idx => $c)
+                                    <tr>
+                                        <td class="text-center">{{ $halfComp + $idx + 1 }}</td>
+                                        <td style="color: #b32d24;">{{ $c['complaint'] }}</td>
+                                        <td>{{ $c['date'] }}</td>
+                                        <td>{{ $c['faculty'] }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
+
+    <!-- 5. RESULT DETAILS SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Result Details</td></tr>
     </table>
-
-    <!-- ROW 3: Result Details | Achievements -->
-    <table class="two-col-grid">
-        <tr>
-            <!-- Left: Result Details -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Result Details</div>
-                    <table class="report-table">
+    @php
+        $resCount = count($results);
+    @endphp
+    @if($resCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No results recorded —</td></tr>
+        </table>
+    @elseif($resCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Semester / Exam</th>
+                    <th style="width: 14%;">Total</th>
+                    <th style="width: 14%;">Obtained</th>
+                    <th style="width: 14%;">%</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($results as $idx => $r)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>{{ $r['semester'] }}</td>
+                        <td class="text-center">{{ $r['total_marks'] }}</td>
+                        <td class="text-center">{{ $r['obtained_marks'] }}</td>
+                        <td class="text-center"><strong>{{ $r['percentage'] }}</strong></td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfRes = ceil($resCount / 2);
+            $resLeft = array_slice($results, 0, $halfRes);
+            $resRight = array_slice($results, $halfRes);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
                                 <th>Semester / Exam</th>
-                                <th>Total</th>
-                                <th>Obtained</th>
-                                <th>%</th>
+                                <th style="width: 16%;">Total</th>
+                                <th style="width: 16%;">Obtained</th>
+                                <th style="width: 16%;">%</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($results as $idx => $r)
+                            @foreach($resLeft as $idx => $r)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
                                     <td>{{ $r['semester'] }}</td>
-                                    <td>{{ $r['total_marks'] }}</td>
-                                    <td>{{ $r['obtained_marks'] }}</td>
-                                    <td><strong>{{ $r['percentage'] }}</strong></td>
+                                    <td class="text-center">{{ $r['total_marks'] }}</td>
+                                    <td class="text-center">{{ $r['obtained_marks'] }}</td>
+                                    <td class="text-center"><strong>{{ $r['percentage'] }}</strong></td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: #888;">No result records available.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-            </td>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($resRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Semester / Exam</th>
+                                    <th style="width: 16%;">Total</th>
+                                    <th style="width: 16%;">Obtained</th>
+                                    <th style="width: 16%;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($resRight as $idx => $r)
+                                    <tr>
+                                        <td class="text-center">{{ $halfRes + $idx + 1 }}</td>
+                                        <td>{{ $r['semester'] }}</td>
+                                        <td class="text-center">{{ $r['total_marks'] }}</td>
+                                        <td class="text-center">{{ $r['obtained_marks'] }}</td>
+                                        <td class="text-center"><strong>{{ $r['percentage'] }}</strong></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
 
-            <!-- Right: Achievements -->
-            <td>
-                <div class="report-card">
-                    <div class="section-title">Achievements</div>
-                    <table class="report-table">
+    <!-- 6. ACHIEVEMENTS SECTION (<= 5: Full Width, > 5: 50/50 Split) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Achievements</td></tr>
+    </table>
+    @php
+        $achCount = count($achievements);
+    @endphp
+    @if($achCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No achievements recorded —</td></tr>
+        </table>
+    @elseif($achCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Event Name</th>
+                    <th style="width: 16%;">Rank</th>
+                    <th style="width: 18%;">Date</th>
+                    <th style="width: 25%;">Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($achievements as $idx => $ach)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>{{ $ach['event'] }}</td>
+                        <td><span class="badge badge-warning">{{ $ach['rank'] }}</span></td>
+                        <td>{{ $ach['date'] }}</td>
+                        <td>{{ $ach['remark'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfAch = ceil($achCount / 2);
+            $achLeft = array_slice($achievements, 0, $halfAch);
+            $achRight = array_slice($achievements, $halfAch);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col">
+                    <table class="data-table" style="margin-bottom: 0;">
                         <thead>
-                            <tr>
-                                <th style="width: 8%;">No</th>
+                            <tr class="col-head">
+                                <th style="width: 7%;">#</th>
                                 <th>Event Name</th>
-                                <th>Rank</th>
-                                <th>Date</th>
-                                <th>Remark</th>
+                                <th style="width: 18%;">Rank</th>
+                                <th style="width: 20%;">Date</th>
+                                <th style="width: 24%;">Remark</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($achievements as $idx => $ach)
+                            @foreach($achLeft as $idx => $ach)
                                 <tr>
-                                    <td>{{ $idx + 1 }}</td>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
                                     <td>{{ $ach['event'] }}</td>
                                     <td><span class="badge badge-warning">{{ $ach['rank'] }}</span></td>
                                     <td>{{ $ach['date'] }}</td>
                                     <td>{{ $ach['remark'] }}</td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: #888;">No achievements recorded.</td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-            </td>
-        </tr>
-    </table>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col">
+                    @if(!empty($achRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 7%;">#</th>
+                                    <th>Event Name</th>
+                                    <th style="width: 18%;">Rank</th>
+                                    <th style="width: 20%;">Date</th>
+                                    <th style="width: 24%;">Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($achRight as $idx => $ach)
+                                    <tr>
+                                        <td class="text-center">{{ $halfAch + $idx + 1 }}</td>
+                                        <td>{{ $ach['event'] }}</td>
+                                        <td><span class="badge badge-warning">{{ $ach['rank'] }}</span></td>
+                                        <td>{{ $ach['date'] }}</td>
+                                        <td>{{ $ach['remark'] }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
 
 </body>
 </html>

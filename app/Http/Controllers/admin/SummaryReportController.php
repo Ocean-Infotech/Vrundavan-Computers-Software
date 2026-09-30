@@ -94,7 +94,7 @@ class SummaryReportController extends Controller
         // Prepare local / live image paths for mPDF
         $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
 
-        $student = Admission::find($studentId);
+        $student = Admission::find($data['personal']['id'] ?? $studentId);
         $studentPhoto = $student ? $student->profile_pic : null;
         $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
 
@@ -352,6 +352,15 @@ class SummaryReportController extends Controller
     {
         // 1. Personal Details
         $student = Admission::find($studentId);
+        if (!$student) {
+            $student = Admission::where('gr_no', $studentId)->first();
+        }
+        if (!$student) {
+            $reg = CourceRegistration::find($studentId);
+            if ($reg) {
+                $student = Admission::find($reg->register_id);
+            }
+        }
         if (!$student) {
             return null;
         }
