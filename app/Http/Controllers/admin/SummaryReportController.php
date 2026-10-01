@@ -433,6 +433,106 @@ class SummaryReportController extends Controller
             $startOfAttendance->subYear();
         }
 
+        // Attendance Details (Month-wise)
+        $attendanceList = [];
+        $monthsToCalculate = $startOfAttendance->diffInMonths($now->copy()->startOfMonth()) + 1;
+
+        for ($i = 0; $i < $monthsToCalculate; $i++) {
+            $dateCursor = $now->copy()->subMonths($i);
+            $month = $dateCursor->month;
+            $year = $dateCursor->year;
+
+            // Fetch punches for this month
+            $attendanceRecords = Attedance::where(function ($query) use ($student) {
+                $query->where('admission_id', $student->id);
+                if (!empty($student->biometric_id)) {
+                    $query->orWhere('biometric_id', $student->biometric_id);
+                }
+            })
+                ->whereMonth('date', $month)
+                ->whereYear('date', $year)
+                ->get()
+                ->groupBy(fn($att) => Carbon::parse($att->date)->format('Y-m-d'));
+
+            // Calculate working days in this month (excluding Sundays and Holidays)
+            $startOfMonth = Carbon::createFromDate($year, $month, 1);
+            if ($month == date('n') && $year == date('Y')) {
+                $endOfMonth = Carbon::today();
+            } else {
+                $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            }
+
+            $holidays = MasterHoliday::where('status', 'active')
+                ->whereNull('deleted_at')
+                ->where(function ($q) use ($startOfMonth, $endOfMonth) {
+                    $q->whereBetween('from_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                        ->orWhereBetween('to_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                        ->orWhere(function ($sub) use ($startOfMonth, $endOfMonth) {
+                            $sub->where('from_date', '<=', $startOfMonth->format('Y-m-d'))
+                                ->where('to_date', '>=', $endOfMonth->format('Y-m-d'));
+                        });
+                })
+                ->get();
+
+            $holidayMap = [];
+            foreach ($holidays as $h) {
+                $curr = Carbon::parse($h->from_date);
+                $to = Carbon::parse($h->to_date);
+                while ($curr <= $to) {
+                    $holidayMap[$curr->format('Y-m-d')] = $h->name;
+                    $curr->addDay();
+                }
+            }
+
+            $totalWorkingDays = 0;
+            $holidayCount = 0;
+            $presentCount = 0;
+            $dailyRecords = [];
+            $currentDate = $startOfMonth->copy();
+            while ($currentDate <= $endOfMonth) {
+                if ($currentDate->dayOfWeek !== Carbon::SUNDAY) {
+                    $dateStr = $currentDate->format('Y-m-d');
+                    $dayPunches = $attendanceRecords->get($dateStr, collect());
+                    $dayAttendance = Attedance::resolveDayAttendance($dayPunches);
+                    $isHoliday = isset($holidayMap[$dateStr]);
+
+                    if ($dayAttendance['is_present']) {
+                        $presentCount++;
+                        $totalWorkingDays++;
+                        $status = 'Present';
+                    } elseif ($isHoliday) {
+                        $holidayCount++;
+                        $status = 'Holiday (' . $holidayMap[$dateStr] . ')';
+                    } else {
+                        $totalWorkingDays++;
+                        $status = 'Absent';
+                    }
+
+                    $dailyRecords[] = [
+                        'date' => $currentDate->format('d-m-Y'),
+                        'day' => $currentDate->format('l'),
+                        'in_time' => Attedance::formatTimeForApi($dayAttendance['in_time']) ?? '-',
+                        'out_time' => Attedance::formatTimeForApi($dayAttendance['out_time']) ?? '-',
+                        'status' => $status
+                    ];
+                }
+                $currentDate->addDay();
+            }
+
+            if (($totalWorkingDays + $holidayCount) > 0) {
+                $absentCount = max(0, $totalWorkingDays - $presentCount);
+                $attendanceList[] = [
+                    'month' => $dateCursor->format('F'),
+                    'total_days' => $totalWorkingDays,
+                    'present_days' => $presentCount,
+                    'absent_days' => $absentCount,
+                    'holiday_days' => $holidayCount,
+                    'daily_records' => $dailyRecords
+                ];
+            }
+        }
+        $attendanceList = array_reverse($attendanceList);
+
         // 3. Assignments
         $assignmentList = [];
         if ($courseReg) {
@@ -589,6 +689,7 @@ class SummaryReportController extends Controller
                 'class' => $courseReg && $courseReg->class ? $courseReg->class->class : '-',
                 'semester' => 'Semester ' . $currentSemester
             ],
+            'attendance' => $attendanceList,
             'assignments' => $assignmentList,
             'assessments' => $assessmentList,
             'tests' => $testList,

@@ -810,5 +810,108 @@
         </table>
     @endif
 
+    <!-- 7. ATTENDANCE SECTION (Month-wise) -->
+    <table class="section-header-table">
+        <tr><td class="section-title-cell">Attendance Details (Month-wise)</td></tr>
+    </table>
+    @php
+        $attCount = count($attendance ?? []);
+    @endphp
+    @if($attCount == 0)
+        <table class="empty-state-table">
+            <tr><td class="empty-state-cell">— No attendance records found —</td></tr>
+        </table>
+    @elseif($attCount <= 5)
+        <table class="data-table">
+            <thead>
+                <tr class="col-head">
+                    <th style="width: 5%;">#</th>
+                    <th>Month</th>
+                    <th style="width: 22%;">Total Working Days</th>
+                    <th style="width: 20%;">Present Days</th>
+                    <th style="width: 20%;">Absent Days</th>
+                    <th style="width: 18%;">Holidays</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($attendance as $idx => $att)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td><strong>{{ $att['month'] }}</strong></td>
+                        <td class="text-center">{{ $att['total_days'] }}</td>
+                        <td class="text-center" style="color: #1f7a52; font-weight: bold;">{{ $att['present_days'] }}</td>
+                        <td class="text-center" style="color: #b32d24; font-weight: bold;">{{ $att['absent_days'] }}</td>
+                        <td class="text-center">{{ $att['holiday_days'] ?? 0 }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        @php
+            $halfAtt = ceil($attCount / 2);
+            $attLeft = array_slice($attendance, 0, $halfAtt);
+            $attRight = array_slice($attendance, $halfAtt);
+        @endphp
+        <table class="split-table">
+            <tr>
+                <td class="split-col" valign="top">
+                    <table class="data-table" style="margin-bottom: 0;">
+                        <thead>
+                            <tr class="col-head">
+                                <th style="width: 6%;">#</th>
+                                <th>Month</th>
+                                <th style="width: 22%;">Total</th>
+                                <th style="width: 20%;">Present</th>
+                                <th style="width: 20%;">Absent</th>
+                                <th style="width: 18%;">Holidays</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($attLeft as $idx => $att)
+                                <tr>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
+                                    <td><strong>{{ $att['month'] }}</strong></td>
+                                    <td class="text-center">{{ $att['total_days'] }}</td>
+                                    <td class="text-center" style="color: #1f7a52; font-weight: bold;">{{ $att['present_days'] }}</td>
+                                    <td class="text-center" style="color: #b32d24; font-weight: bold;">{{ $att['absent_days'] }}</td>
+                                    <td class="text-center">{{ $att['holiday_days'] ?? 0 }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </td>
+                <td class="split-gap"></td>
+                <td class="split-col" valign="top">
+                    @if(!empty($attRight))
+                        <table class="data-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr class="col-head">
+                                    <th style="width: 6%;">#</th>
+                                    <th>Month</th>
+                                    <th style="width: 22%;">Total</th>
+                                    <th style="width: 20%;">Present</th>
+                                    <th style="width: 20%;">Absent</th>
+                                    <th style="width: 18%;">Holidays</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($attRight as $idx => $att)
+                                    <tr>
+                                        <td class="text-center">{{ $halfAtt + $idx + 1 }}</td>
+                                        <td><strong>{{ $att['month'] }}</strong></td>
+                                        <td class="text-center">{{ $att['total_days'] }}</td>
+                                        <td class="text-center" style="color: #1f7a52; font-weight: bold;">{{ $att['present_days'] }}</td>
+                                        <td class="text-center" style="color: #b32d24; font-weight: bold;">{{ $att['absent_days'] }}</td>
+                                        <td class="text-center">{{ $att['holiday_days'] ?? 0 }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    @endif
+
 </body>
 </html>

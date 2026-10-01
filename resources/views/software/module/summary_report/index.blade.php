@@ -415,6 +415,37 @@
                     </div>
                 </div>
 
+                <!-- ROW 4: Attendance Details (Month-wise) (col-md-12) -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <div class="report-section h-100">
+                            <div class="section-header">
+                                <span><i class="bx bx-calendar-check"></i> Attendance Details (Month-wise)</span>
+                                <span class="badge bg-label-primary" id="attendance-count">0</span>
+                            </div>
+                            <div class="table-responsive flex-grow-1">
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 5%;">No</th>
+                                            <th>Month</th>
+                                            <th>Total Working Days</th>
+                                            <th>Present Days</th>
+                                            <th>Absent Days</th>
+                                            <th>Holidays</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-tbody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-3">No attendance records available.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -599,6 +630,26 @@
                             $('#academic-batch').text(response.academic.batch);
                             $('#academic-class').text(response.academic.class);
                             $('#academic-semester').text(response.academic.semester);
+
+                            // Attendance Details (Month-wise)
+                            let attendanceHtml = '';
+                            if (response.attendance && response.attendance.length > 0) {
+                                $('#attendance-count').text(response.attendance.length);
+                                response.attendance.forEach(function(att, index) {
+                                    attendanceHtml += `<tr>
+                                        <td>${index + 1}</td>
+                                        <td class="fw-semibold">${att.month}</td>
+                                        <td>${att.total_days}</td>
+                                        <td><span class="badge bg-label-success fw-bold">${att.present_days}</span></td>
+                                        <td><span class="badge bg-label-danger fw-bold">${att.absent_days}</span></td>
+                                        <td>${att.holiday_days || 0}</td>
+                                    </tr>`;
+                                });
+                            } else {
+                                $('#attendance-count').text('0');
+                                attendanceHtml = '<tr><td colspan="6" class="text-center text-muted py-3">No attendance records available.</td></tr>';
+                            }
+                            $('#attendance-tbody').html(attendanceHtml);
 
                             // 1. Assignments
                             let assignmentsHtml = '';
