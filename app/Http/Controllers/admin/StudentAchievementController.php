@@ -506,15 +506,50 @@ class StudentAchievementController extends Controller
     {
         $modules = $this->modules;
         $modules['permission_delete'] = Helper::directCan($modules['permission_prefix'] . '-delete');
+        $isAjax = $request->ajax() || $request->wantsJson();
+
         if (!$modules['permission_delete']) {
+            if ($isAjax) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User does not have the right permissions.',
+                ], 403);
+            }
             abort(403, 'User does not have the right permissions.');
         }
 
         try {
             $ach = StudentAchievement::findOrFail($id);
-            $ach->delete();
-            return redirect()->route('achievement.index')->withSuccess('Achievement deleted successfully.');
+
+            if ($ach->delete()) {
+                if ($isAjax) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Achievement deleted successfully.',
+                    ]);
+                }
+
+                return redirect()->route('achievement.index')
+                    ->withSuccess('Achievement deleted successfully.');
+            }
+
+            if ($isAjax) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong, please try again later.',
+                ]);
+            }
+
+            return redirect()->route('achievement.index')
+                ->withErrors('Something went wrong, please try again later.');
         } catch (\Exception $e) {
+            if ($isAjax) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             return redirect()->route('achievement.index')->withErrors($e->getMessage());
         }
     }
