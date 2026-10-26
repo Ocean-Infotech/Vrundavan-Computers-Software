@@ -1328,17 +1328,34 @@ class ApiAdminController extends Controller
      * @authenticated
      *
      * @bodyParam search string optional Search by supplier name or mobile number. Example: Ocean
+     * @bodyParam category string optional Filter by category. Example: Transport
+     * @bodyParam city string optional Filter by city. Example: Keshod
+     * @bodyParam page integer optional Page number. Example: 1
+     * @bodyParam per_page integer optional Records per page, 1 to 100. Default 20. Example: 20
      *
      * @response 200 {
      *   "status": "true",
      *   "message": "Supplier contact list.",
+     *   "filters": {
+     *     "search": null,
+     *     "category": null,
+     *     "city": null
+     *   },
      *   "data": [
      *     {
      *       "id": 2,
      *       "name": "Ocean Infotech - Technical Support",
+     *       "category": "Technical",
+     *       "city": "Keshod",
      *       "mobile": "8528549049"
      *     }
-     *   ]
+     *   ],
+     *   "pagination": {
+     *     "current_page": 1,
+     *     "total_pages": 2,
+     *     "total_records": 96,
+     *     "per_page": 20
+     *   }
      * }
      *
      * @response 401 scenario="Unauthenticated" {
@@ -1357,25 +1374,61 @@ class ApiAdminController extends Controller
 
             $query = Supplier::query();
 
-            if ($request->filled('search')) {
-                $search = $request->search;
+            $search = trim((string) $request->input('search', ''));
+            $category = trim((string) $request->input('category', ''));
+            $city = trim((string) $request->input('city', ''));
+
+            if ($search !== '') {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                       ->orWhere('mobile', 'like', "%{$search}%");
                 });
             }
 
-            $suppliers = $query->orderBy('name')->get(['id', 'name', 'mobile']);
+            if ($category !== '') {
+                $query->where('category', 'like', "%{$category}%");
+            }
 
-            $list = $suppliers->map(function ($supplier) {
+            if ($city !== '') {
+                $query->where('city', 'like', "%{$city}%");
+            }
+
+            $perPage = (int) $request->input('per_page', 20);
+            if ($perPage < 1) {
+                $perPage = 20;
+            }
+            if ($perPage > 100) {
+                $perPage = 100;
+            }
+
+            $suppliers = $query->orderBy('name')->paginate($perPage);
+
+            $list = $suppliers->getCollection()->map(function ($supplier) {
                 return [
                     'id' => $supplier->id,
                     'name' => $supplier->name,
+                    'category' => $supplier->category,
+                    'city' => $supplier->city,
                     'mobile' => $supplier->mobile,
                 ];
             })->values();
 
-            return $this->sendResponse($list, 'Supplier contact list.');
+            return response()->json([
+                'status' => 'true',
+                'message' => 'Supplier contact list.',
+                'filters' => [
+                    'search' => $search !== '' ? $search : null,
+                    'category' => $category !== '' ? $category : null,
+                    'city' => $city !== '' ? $city : null,
+                ],
+                'data' => $list,
+                'pagination' => [
+                    'current_page' => $suppliers->currentPage(),
+                    'total_pages' => $suppliers->lastPage(),
+                    'total_records' => $suppliers->total(),
+                    'per_page' => $suppliers->perPage(),
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
