@@ -40,17 +40,14 @@ class ApiAdminController extends Controller
      * @response 200 {
      *   "status": "true",
      *   "message": "Login successful.",
+     *   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOi...",
      *   "data": {
-     *     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOi...",
-     *     "expires_at": "2026-11-19 12:00:00",
-     *     "admin": {
-     *       "id": 1,
-     *       "name": "Super Admin",
-     *       "email": "admin@vrundavan.com",
-     *       "phone": "9876543210",
-     *       "status": "active",
-     *       "role": "Super Admin"
-     *     }
+     *     "id": 1,
+     *     "name": "Super Admin",
+     *     "email": "admin@vrundavan.com",
+     *     "phone": "9876543210",
+     *     "status": "active",
+     *     "role": "super-admin"
      *   }
      * }
      *
@@ -96,11 +93,12 @@ class ApiAdminController extends Controller
 
             $tokenResult = $user->createToken('admin-api');
 
-            return $this->sendResponse([
+            return response()->json([
+                'status' => 'true',
+                'message' => 'Login successful.',
                 'token' => $tokenResult->accessToken,
-                'expires_at' => $tokenResult->token->expires_at,
-                'admin' => $this->adminPayload($user),
-            ], 'Login successful.');
+                'data' => $this->adminPayload($user),
+            ]);
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
