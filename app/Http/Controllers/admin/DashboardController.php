@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -56,23 +57,122 @@ class DashboardController extends Controller
             ->with(['course', 'batch', 'class'])
             ->get();
 
-        $studentBirthdays = Admission::whereMonth('date_of_birth', \Carbon\Carbon::today()->month)
-            ->whereDay('date_of_birth', \Carbon\Carbon::today()->day)
+        $today = Carbon::today();
+
+        $studentBirthdays = Admission::whereMonth('date_of_birth', $today->month)
+            ->whereDay('date_of_birth', $today->day)
+            ->whereHas('courses', function ($q) {
+                $q->whereNotIn('status', ['Cancel', 'cancel']);
+            })
             ->select('id', 'first_name', 'last_name', 'father_name', 'gr_no', 'profile_pic')
             ->get();
         $studentBirthdaysCount = $studentBirthdays->count();
 
-        $facilityBirthdays = \App\Models\User::whereHas('roles', function($q) {
+        $facilityBirthdays = \App\Models\User::whereHas('roles', function ($q) {
                 $q->where('name', 'Facility');
             })
-            ->whereMonth('date_of_birth', \Carbon\Carbon::today()->month)
-            ->whereDay('date_of_birth', \Carbon\Carbon::today()->day)
+            ->whereMonth('date_of_birth', $today->month)
+            ->whereDay('date_of_birth', $today->day)
             ->select('id', 'name')
             ->get();
         $facilityBirthdaysCount = $facilityBirthdays->count();
 
+        // Current month upcoming student birthdays (today + remaining days)
+        // Skip students whose course registration status is Cancel
+        $upcomingStudentBirthdays = Admission::whereNotNull('date_of_birth')
+            ->whereMonth('date_of_birth', $today->month)
+            ->whereDay('date_of_birth', '>=', $today->day)
+            ->whereHas('courses', function ($q) {
+                $q->whereNotIn('status', ['Cancel', 'cancel']);
+            })
+            ->select('id', 'first_name', 'last_name', 'father_name', 'gr_no', 'profile_pic', 'date_of_birth', 'mobile_no')
+            ->get()
+            ->map(function ($student) use ($today) {
+                $dob = Carbon::parse($student->date_of_birth);
+                $day = $dob->day;
+                if (!checkdate($today->month, $day, $today->year)) {
+                    $day = 28;
+                }
+                $birthdayThisYear = Carbon::create($today->year, $today->month, $day)->startOfDay();
+                $daysRemaining = (int) $today->diffInDays($birthdayThisYear, false);
+
+                if ($daysRemaining === 0) {
+                    $statusLabel = 'Today';
+                } elseif ($daysRemaining === 1) {
+                    $statusLabel = 'Tomorrow';
+                } else {
+                    $statusLabel = "In {$daysRemaining} days";
+                }
+
+                $student->birthday_day = $day;
+                $student->birthday_date = $dob->format('d F');
+                $student->days_remaining = $daysRemaining;
+                $student->status_label = $statusLabel;
+                $student->display_name = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+
+                return $student;
+            })
+            ->sortBy(['birthday_day', 'id'])
+            ->values();
+        $upcomingStudentBirthdaysCount = $upcomingStudentBirthdays->count();
+
+        // Current month upcoming faculty birthdays (today + remaining days)
+        $upcomingFacilityBirthdays = \App\Models\User::whereHas('roles', function ($q) {
+                $q->where('name', 'Facility');
+            })
+            ->whereNotNull('date_of_birth')
+            ->whereMonth('date_of_birth', $today->month)
+            ->whereDay('date_of_birth', '>=', $today->day)
+            ->select('id', 'name', 'date_of_birth', 'phone')
+            ->get()
+            ->map(function ($user) use ($today) {
+                $dob = Carbon::parse($user->date_of_birth);
+                $day = $dob->day;
+                if (!checkdate($today->month, $day, $today->year)) {
+                    $day = 28;
+                }
+                $birthdayThisYear = Carbon::create($today->year, $today->month, $day)->startOfDay();
+                $daysRemaining = (int) $today->diffInDays($birthdayThisYear, false);
+
+                if ($daysRemaining === 0) {
+                    $statusLabel = 'Today';
+                } elseif ($daysRemaining === 1) {
+                    $statusLabel = 'Tomorrow';
+                } else {
+                    $statusLabel = "In {$daysRemaining} days";
+                }
+
+                $user->birthday_day = $day;
+                $user->birthday_date = $dob->format('d F');
+                $user->days_remaining = $daysRemaining;
+                $user->status_label = $statusLabel;
+
+                return $user;
+            })
+            ->sortBy(['birthday_day', 'id'])
+            ->values();
+        $upcomingFacilityBirthdaysCount = $upcomingFacilityBirthdays->count();
+        $currentMonthName = $today->format('F');
+
         return view($modules['folder_path'] . '.dashboard', compact(
-            'totalStudents', 'totalCourses', 'studentRequestsCount', 'todayTestsCount', 'timetablesCount', 'timetables', 'isFaculty', 'tasks', 'todayTests', 'studentBirthdays', 'studentBirthdaysCount', 'facilityBirthdays', 'facilityBirthdaysCount'
+            'totalStudents',
+            'totalCourses',
+            'studentRequestsCount',
+            'todayTestsCount',
+            'timetablesCount',
+            'timetables',
+            'isFaculty',
+            'tasks',
+            'todayTests',
+            'studentBirthdays',
+            'studentBirthdaysCount',
+            'facilityBirthdays',
+            'facilityBirthdaysCount',
+            'upcomingStudentBirthdays',
+            'upcomingStudentBirthdaysCount',
+            'upcomingFacilityBirthdays',
+            'upcomingFacilityBirthdaysCount',
+            'currentMonthName'
         ));
     }
 }

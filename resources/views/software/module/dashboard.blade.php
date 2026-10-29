@@ -67,6 +67,67 @@
         </div>
     </div>
 
+    <!-- Upcoming Birthdays - Current Month -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
+                        <i class="bx bx-cake me-2 text-primary fs-4"></i>
+                        Upcoming Student Birthdays ({{ $currentMonthName }})
+                    </h5>
+                    <span class="badge bg-label-primary">{{ $upcomingStudentBirthdaysCount }}</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 280px; overflow-y: auto;">
+                    @forelse($upcomingStudentBirthdays as $birthday)
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <div class="overflow-hidden">
+                                <span class="fw-semibold d-block text-truncate">{{ $birthday->display_name }}</span>
+                                <small class="text-muted">{{ $birthday->birthday_date }}</small>
+                            </div>
+                            <span class="badge {{ $birthday->days_remaining === 0 ? 'bg-primary' : ($birthday->days_remaining === 1 ? 'bg-warning' : 'bg-label-secondary') }} flex-shrink-0 ms-2">
+                                {{ $birthday->status_label }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-4 px-3">
+                            No upcoming student birthdays in {{ $currentMonthName }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
+                        <i class="bx bx-cake me-2 text-info fs-4"></i>
+                        Upcoming Faculty Birthdays ({{ $currentMonthName }})
+                    </h5>
+                    <span class="badge bg-label-info">{{ $upcomingFacilityBirthdaysCount }}</span>
+                </div>
+                <div class="card-body p-0" style="max-height: 280px; overflow-y: auto;">
+                    @forelse($upcomingFacilityBirthdays as $birthday)
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <div class="overflow-hidden">
+                                <span class="fw-semibold d-block text-truncate">{{ $birthday->name }}</span>
+                                <small class="text-muted">{{ $birthday->birthday_date }}</small>
+                            </div>
+                            <span class="badge {{ $birthday->days_remaining === 0 ? 'bg-info' : ($birthday->days_remaining === 1 ? 'bg-warning' : 'bg-label-secondary') }} flex-shrink-0 ms-2">
+                                {{ $birthday->status_label }}
+                            </span>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-4 px-3">
+                            No upcoming faculty birthdays in {{ $currentMonthName }}
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Card 1: Total Students -->
         <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
