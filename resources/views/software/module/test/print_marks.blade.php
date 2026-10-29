@@ -172,8 +172,8 @@
                     <td>{{ $student->id }}</td>
                     <td>{{ $student->admission->first_name }} {{ $student->admission->last_name }}</td>
                     <td class="text-center">
-                        <strong>
-                            {{ $markInfo ? number_format($markInfo->marks, 2) : '0.00' }}
+                        <strong @if(!$markInfo) style="color: #dc3545;" @endif>
+                            {{ $markInfo ? number_format($markInfo->marks, 2) : 'AB' }}
                         </strong>
                     </td>
                     <td>{{ $markInfo ? ($markInfo->updatedByUser?->name ?? $markInfo->createdByUser?->name ?? 'N/A') : '-' }}</td>
