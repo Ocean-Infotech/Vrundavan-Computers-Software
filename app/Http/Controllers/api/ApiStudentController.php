@@ -871,7 +871,10 @@ class ApiStudentController extends Controller
             }
 
             $registration = \App\Models\CourceRegistration::where('register_id', $student->id)
-                ->where('status', 'active')
+                ->where(function ($q) {
+                    $q->whereRaw('LOWER(status) = ?', ['active'])
+                      ->orWhereRaw('LOWER(status) = ?', ['running']);
+                })
                 ->first();
 
             if (!$registration) {
