@@ -603,6 +603,20 @@ class AuthenticationController extends Controller
             $getProfile->device_token = $request->device_token ?? null;
             $getProfile->device_details = $request->device_details ?? null;
 
+            // Add course & batch (active/running registration) — no other response fields changed
+            $courseReg = CourceRegistration::where('register_id', $student->id)
+                ->where(function ($q) {
+                    $q->whereRaw('LOWER(status) = ?', ['active'])
+                      ->orWhereRaw('LOWER(status) = ?', ['running']);
+                })
+                ->with(['course:id,course_name', 'batch:id,batch_name'])
+                ->first();
+
+            $getProfile->course_id = $courseReg?->course_id ? (string) $courseReg->course_id : '';
+            $getProfile->course = $courseReg?->course?->course_name ?? '';
+            $getProfile->batch_id = $courseReg?->batch_id ? (string) $courseReg->batch_id : '';
+            $getProfile->batch = $courseReg?->batch?->batch_name ?? '';
+
             return $this->sendResponse($getProfile, 'OTP verified successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
