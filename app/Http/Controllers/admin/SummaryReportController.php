@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Carbon\Carbon;
-use Mpdf\Mpdf;
 
 class SummaryReportController extends Controller
 {
@@ -105,16 +104,7 @@ class SummaryReportController extends Controller
 
         $html = view('software.module.summary_report.pdf', $data)->render();
 
-        $mpdf = new Mpdf([
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'margin_left' => 10,
-            'margin_right' => 10,
-            'margin_top' => 10,
-            'margin_bottom' => 10,
-            'autoPageBreak' => true,
-        ]);
-
+        $mpdf = $this->makeMpdf();
         $mpdf->SetTitle('Summary Report - ' . ($data['personal']['name'] ?? 'Report'));
         $mpdf->WriteHTML($html);
 
@@ -245,16 +235,7 @@ class SummaryReportController extends Controller
 
                 $html = view('software.module.summary_report.pdf', $data)->render();
 
-                $mpdf = new Mpdf([
-                    'mode' => 'utf-8',
-                    'format' => 'A4',
-                    'margin_left' => 10,
-                    'margin_right' => 10,
-                    'margin_top' => 10,
-                    'margin_bottom' => 10,
-                    'autoPageBreak' => true,
-                ]);
-
+                $mpdf = $this->makeMpdf();
                 $mpdf->SetTitle('Summary Report - ' . ($data['personal']['name'] ?? 'Report'));
                 $mpdf->WriteHTML($html);
 
@@ -278,15 +259,7 @@ class SummaryReportController extends Controller
             return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
         } else {
             // Combined single PDF
-            $mpdf = new Mpdf([
-                'mode' => 'utf-8',
-                'format' => 'A4',
-                'margin_left' => 10,
-                'margin_right' => 10,
-                'margin_top' => 10,
-                'margin_bottom' => 10,
-                'autoPageBreak' => true,
-            ]);
+            $mpdf = $this->makeMpdf();
             $mpdf->SetTitle('Bulk Summary Reports');
 
             $count = 0;
@@ -323,6 +296,38 @@ class SummaryReportController extends Controller
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
         }
+    }
+
+    /**
+     * Create mPDF instance. Ensures Composer autoload can resolve Mpdf on shared hosting.
+     */
+    private function makeMpdf(array $config = []): \Mpdf\Mpdf
+    {
+        $autoload = base_path('vendor/autoload.php');
+        $mpdfFile = base_path('vendor/mpdf/mpdf/src/Mpdf.php');
+
+        if (file_exists($autoload)) {
+            require_once $autoload;
+        }
+
+        if (!class_exists(\Mpdf\Mpdf::class, true)) {
+            abort(500, 'mPDF library missing. Autoload: ' . (file_exists($autoload) ? 'yes' : 'no')
+                . ' | File: ' . (file_exists($mpdfFile) ? 'yes' : 'no')
+                . ' | Base: ' . base_path()
+                . ' | Run on server: composer require mpdf/mpdf && composer dump-autoload -o');
+        }
+
+        $defaults = [
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'autoPageBreak' => true,
+        ];
+
+        return new \Mpdf\Mpdf(array_merge($defaults, $config));
     }
 
     private function getPdfImageSrc($imagePath)
