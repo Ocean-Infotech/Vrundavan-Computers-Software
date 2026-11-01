@@ -80,52 +80,8 @@ class SummaryReportController extends Controller
 
     public function downloadPdf(Request $request)
     {
-        $studentId = $request->student_id;
-        if (!$studentId) {
-            abort(400, 'Student ID is required.');
-        }
-
-        $data = $this->gatherReportData($studentId);
-        if (!$data) {
-            abort(404, 'Student not found.');
-        }
-
-        // Prepare local / live image paths for mPDF
-        $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
-
-        $student = Admission::whereNull('deleted_at')->find($data['personal']['id'] ?? $studentId);
-        $studentPhoto = $student ? $student->profile_pic : null;
-        $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
-
-        if (empty($resolvedPhoto)) {
-            $resolvedPhoto = $this->getPdfImageSrc('admin/assets/images/users/user-dummy-img.jpg');
-        }
-        $data['student_photo_src'] = $resolvedPhoto;
-
-        $html = view('software.module.summary_report.pdf', $data)->render();
-
-        $mpdf = $this->makeMpdf();
-        $mpdf->SetTitle('Summary Report - ' . ($data['personal']['name'] ?? 'Report'));
-        $mpdf->WriteHTML($html);
-
-        $parts = [];
-        if ($student) {
-            if (!empty($student->last_name)) $parts[] = $student->last_name;
-            if (!empty($student->first_name)) $parts[] = $student->first_name;
-            if (!empty($student->father_name)) $parts[] = $student->father_name;
-        }
-        $nameString = !empty($parts) ? implode('_', $parts) : ($data['personal']['name'] ?? 'student');
-        $safeName = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', $nameString));
-        $safeName = trim($safeName, '_');
-        $fileName = ($safeName ?: 'STUDENT_' . $studentId) . '_Summary_Report.pdf';
-
-        $pdfContent = $mpdf->Output($fileName, 'S');
-
-        $disposition = ($request->get('action') === 'stream' || $request->get('action') === 'view') ? 'inline' : 'attachment';
-
-        return response($pdfContent, 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', $disposition . '; filename="' . $fileName . '"');
+        // Use HTML print view (browser Print → Save as PDF). No mPDF dependency.
+        return $this->printReport($request);
     }
 
     public function getStudentsList(Request $request)
@@ -209,6 +165,7 @@ class SummaryReportController extends Controller
             abort(400, 'No students selected for bulk download.');
         }
 
+        // HTML print pages (browser Print → Save as PDF). No mPDF dependency.
         $format = $request->get('format', 'zip');
 
         if ($format === 'zip') {
@@ -220,154 +177,57 @@ class SummaryReportController extends Controller
                 abort(500, 'Could not create ZIP archive.');
             }
 
+            $added = 0;
             foreach ($studentIds as $studentId) {
                 $data = $this->gatherReportData($studentId);
-                if (!$data) continue;
-
-                $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
-                $student = Admission::whereNull('deleted_at')->find($studentId);
-                $studentPhoto = $student ? $student->profile_pic : null;
-                $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
-                if (empty($resolvedPhoto)) {
-                    $resolvedPhoto = $this->getPdfImageSrc('admin/assets/images/users/user-dummy-img.jpg');
+                if (!$data) {
+                    continue;
                 }
-                $data['student_photo_src'] = $resolvedPhoto;
-
-                $html = view('software.module.summary_report.pdf', $data)->render();
-
-                $mpdf = $this->makeMpdf();
-                $mpdf->SetTitle('Summary Report - ' . ($data['personal']['name'] ?? 'Report'));
-                $mpdf->WriteHTML($html);
-
-                $parts = [];
-                if ($student) {
-                    if (!empty($student->last_name)) $parts[] = $student->last_name;
-                    if (!empty($student->first_name)) $parts[] = $student->first_name;
-                    if (!empty($student->father_name)) $parts[] = $student->father_name;
-                }
-                $nameString = !empty($parts) ? implode('_', $parts) : ($data['personal']['name'] ?? 'student');
-                $safeName = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', $nameString));
-                $safeName = trim($safeName, '_');
-                $fileName = ($safeName ?: 'STUDENT_' . $studentId) . '_Summary_Report.pdf';
-
-                $pdfString = $mpdf->Output('', 'S');
-                $zip->addFromString($fileName, $pdfString);
+                $safeName = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', $data['personal']['name'] ?? ('student_' . $studentId)));
+                $safeName = trim($safeName, '_') ?: ('STUDENT_' . $studentId);
+                $html = view('software.module.summary_report.print', $data)->render();
+                $zip->addFromString($safeName . '_Summary_Report.html', $html);
+                $added++;
             }
 
             $zip->close();
 
-            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
-        } else {
-            // Combined single PDF
-            $mpdf = $this->makeMpdf();
-            $mpdf->SetTitle('Bulk Summary Reports');
-
-            $count = 0;
-            foreach ($studentIds as $studentId) {
-                $data = $this->gatherReportData($studentId);
-                if (!$data) continue;
-
-                if ($count > 0) {
-                    $mpdf->AddPage();
-                }
-
-                $data['logo_src'] = $this->getPdfImageSrc('uploads/logo/logo.png');
-                $student = Admission::whereNull('deleted_at')->find($studentId);
-                $studentPhoto = $student ? $student->profile_pic : null;
-                $resolvedPhoto = $this->getPdfImageSrc($studentPhoto);
-                if (empty($resolvedPhoto)) {
-                    $resolvedPhoto = $this->getPdfImageSrc('admin/assets/images/users/user-dummy-img.jpg');
-                }
-                $data['student_photo_src'] = $resolvedPhoto;
-
-                $html = view('software.module.summary_report.pdf', $data)->render();
-                $mpdf->WriteHTML($html);
-                $count++;
-            }
-
-            if ($count === 0) {
+            if ($added === 0) {
+                @unlink($zipFilePath);
                 abort(404, 'No valid summary reports generated.');
             }
 
-            $fileName = 'Bulk_Summary_Reports_' . date('Ymd_His') . '.pdf';
-            $pdfContent = $mpdf->Output($fileName, 'S');
-
-            return response($pdfContent, 200)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
-        }
-    }
-
-    /**
-     * Create mPDF instance. Ensures Composer autoload can resolve Mpdf on shared hosting.
-     */
-    private function makeMpdf(array $config = []): \Mpdf\Mpdf
-    {
-        $autoload = base_path('vendor/autoload.php');
-        $mpdfFile = base_path('vendor/mpdf/mpdf/src/Mpdf.php');
-
-        if (file_exists($autoload)) {
-            require_once $autoload;
+            return response()->download($zipFilePath, $zipFileName)->deleteFileAfterSend(true);
         }
 
-        if (!class_exists(\Mpdf\Mpdf::class, true)) {
-            abort(500, 'mPDF library missing. Autoload: ' . (file_exists($autoload) ? 'yes' : 'no')
-                . ' | File: ' . (file_exists($mpdfFile) ? 'yes' : 'no')
-                . ' | Base: ' . base_path()
-                . ' | Run on server: composer require mpdf/mpdf && composer dump-autoload -o');
-        }
-
-        $defaults = [
-            'mode' => 'utf-8',
-            'format' => 'A4',
-            'margin_left' => 10,
-            'margin_right' => 10,
-            'margin_top' => 10,
-            'margin_bottom' => 10,
-            'autoPageBreak' => true,
-        ];
-
-        return new \Mpdf\Mpdf(array_merge($defaults, $config));
-    }
-
-    private function getPdfImageSrc($imagePath)
-    {
-        if (empty($imagePath)) {
-            return '';
-        }
-
-        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
-            try {
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $imagePath);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 6);
-                $imageData = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE) ?: 'image/jpeg';
-                curl_close($ch);
-
-                if ($httpCode === 200 && !empty($imageData)) {
-                    return 'data:' . $contentType . ';base64,' . base64_encode($imageData);
-                }
-            } catch (\Throwable $e) {
+        $bodyChunks = [];
+        foreach ($studentIds as $studentId) {
+            $data = $this->gatherReportData($studentId);
+            if (!$data) {
+                continue;
             }
-            return $imagePath;
+
+            $fullHtml = view('software.module.summary_report.print', $data)->render();
+            if (preg_match('/<body[^>]*>(.*)<\/body>/is', $fullHtml, $matches)) {
+                $bodyChunks[] = $matches[1];
+            } else {
+                $bodyChunks[] = $fullHtml;
+            }
         }
 
-        $cleanPath = ltrim($imagePath, '/\\');
-        if (str_starts_with($cleanPath, 'public/')) {
-            $cleanPath = substr($cleanPath, 7);
+        if (empty($bodyChunks)) {
+            abort(404, 'No valid summary reports generated.');
         }
 
-        $fullLocalPath = public_path($cleanPath);
-        if (file_exists($fullLocalPath) && is_file($fullLocalPath)) {
-            return $fullLocalPath;
-        }
+        $combinedHtml = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+            . '<title>Bulk Summary Reports</title>'
+            . '<style>@media print{.no-print{display:none!important}}.page-break{page-break-after:always}</style>'
+            . '</head><body>'
+            . '<div class="no-print" style="margin:10px 0;"><button onclick="window.print()">Print / Save as PDF</button></div>'
+            . implode('<div class="page-break"></div>', $bodyChunks)
+            . '</body></html>';
 
-        return '';
+        return response($combinedHtml, 200)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
     private function gatherReportData($studentId)
