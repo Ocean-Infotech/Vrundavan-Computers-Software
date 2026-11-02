@@ -58,6 +58,12 @@ class DashboardController extends Controller
             ->get();
 
         $today = Carbon::today();
+        $selectedBirthdayMonth = (int) $request->get('birthday_month', $today->month);
+        if ($selectedBirthdayMonth < 1 || $selectedBirthdayMonth > 12) {
+            $selectedBirthdayMonth = $today->month;
+        }
+        $isCurrentBirthdayMonth = $selectedBirthdayMonth === (int) $today->month;
+        $selectedBirthdayMonthName = Carbon::create($today->year, $selectedBirthdayMonth, 1)->format('F');
 
         $studentBirthdays = Admission::whereMonth('date_of_birth', $today->month)
             ->whereDay('date_of_birth', $today->day)
@@ -77,37 +83,53 @@ class DashboardController extends Controller
             ->get();
         $facilityBirthdaysCount = $facilityBirthdays->count();
 
-        // Current month upcoming student birthdays (today + remaining days)
-        // Skip students whose course registration status is Cancel
-        $upcomingStudentBirthdays = Admission::whereNotNull('date_of_birth')
-            ->whereMonth('date_of_birth', $today->month)
-            ->whereDay('date_of_birth', '>=', $today->day)
+        // Upcoming / month birthdays (filter by birthday_month)
+        // Current month: today + remaining days. Other months: full month list.
+        $mapBirthdayStatus = function ($dateOfBirth) use ($today, $selectedBirthdayMonth) {
+            $dob = Carbon::parse($dateOfBirth);
+            $day = $dob->day;
+            if (!checkdate($selectedBirthdayMonth, $day, $today->year)) {
+                $day = 28;
+            }
+            $birthdayThisYear = Carbon::create($today->year, $selectedBirthdayMonth, $day)->startOfDay();
+            $daysRemaining = (int) $today->diffInDays($birthdayThisYear, false);
+
+            if ($daysRemaining === 0) {
+                $statusLabel = 'Today';
+            } elseif ($daysRemaining === 1) {
+                $statusLabel = 'Tomorrow';
+            } elseif ($daysRemaining > 1) {
+                $statusLabel = "In {$daysRemaining} days";
+            } else {
+                $statusLabel = abs($daysRemaining) . ' days ago';
+            }
+
+            return [
+                'birthday_day' => $day,
+                'birthday_date' => Carbon::create($today->year, $selectedBirthdayMonth, $day)->format('d F'),
+                'days_remaining' => $daysRemaining,
+                'status_label' => $statusLabel,
+            ];
+        };
+
+        $studentBirthdayQuery = Admission::whereNotNull('date_of_birth')
+            ->whereMonth('date_of_birth', $selectedBirthdayMonth)
             ->whereHas('courses', function ($q) {
                 $q->whereNotIn('status', ['Cancel', 'cancel']);
             })
-            ->select('id', 'first_name', 'last_name', 'father_name', 'gr_no', 'profile_pic', 'date_of_birth', 'mobile_no')
-            ->get()
-            ->map(function ($student) use ($today) {
-                $dob = Carbon::parse($student->date_of_birth);
-                $day = $dob->day;
-                if (!checkdate($today->month, $day, $today->year)) {
-                    $day = 28;
-                }
-                $birthdayThisYear = Carbon::create($today->year, $today->month, $day)->startOfDay();
-                $daysRemaining = (int) $today->diffInDays($birthdayThisYear, false);
+            ->select('id', 'first_name', 'last_name', 'father_name', 'gr_no', 'profile_pic', 'date_of_birth', 'mobile_no');
 
-                if ($daysRemaining === 0) {
-                    $statusLabel = 'Today';
-                } elseif ($daysRemaining === 1) {
-                    $statusLabel = 'Tomorrow';
-                } else {
-                    $statusLabel = "In {$daysRemaining} days";
-                }
+        if ($isCurrentBirthdayMonth) {
+            $studentBirthdayQuery->whereDay('date_of_birth', '>=', $today->day);
+        }
 
-                $student->birthday_day = $day;
-                $student->birthday_date = $dob->format('d F');
-                $student->days_remaining = $daysRemaining;
-                $student->status_label = $statusLabel;
+        $upcomingStudentBirthdays = $studentBirthdayQuery->get()
+            ->map(function ($student) use ($mapBirthdayStatus) {
+                $meta = $mapBirthdayStatus($student->date_of_birth);
+                $student->birthday_day = $meta['birthday_day'];
+                $student->birthday_date = $meta['birthday_date'];
+                $student->days_remaining = $meta['days_remaining'];
+                $student->status_label = $meta['status_label'];
                 $student->display_name = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
 
                 return $student;
@@ -116,43 +138,34 @@ class DashboardController extends Controller
             ->values();
         $upcomingStudentBirthdaysCount = $upcomingStudentBirthdays->count();
 
-        // Current month upcoming faculty birthdays (today + remaining days)
-        $upcomingFacilityBirthdays = \App\Models\User::whereHas('roles', function ($q) {
+        $facilityBirthdayQuery = \App\Models\User::whereHas('roles', function ($q) {
                 $q->where('name', 'Facility');
             })
             ->whereNotNull('date_of_birth')
-            ->whereMonth('date_of_birth', $today->month)
-            ->whereDay('date_of_birth', '>=', $today->day)
-            ->select('id', 'name', 'date_of_birth', 'phone')
-            ->get()
-            ->map(function ($user) use ($today) {
-                $dob = Carbon::parse($user->date_of_birth);
-                $day = $dob->day;
-                if (!checkdate($today->month, $day, $today->year)) {
-                    $day = 28;
-                }
-                $birthdayThisYear = Carbon::create($today->year, $today->month, $day)->startOfDay();
-                $daysRemaining = (int) $today->diffInDays($birthdayThisYear, false);
+            ->whereMonth('date_of_birth', $selectedBirthdayMonth)
+            ->select('id', 'name', 'date_of_birth', 'phone');
 
-                if ($daysRemaining === 0) {
-                    $statusLabel = 'Today';
-                } elseif ($daysRemaining === 1) {
-                    $statusLabel = 'Tomorrow';
-                } else {
-                    $statusLabel = "In {$daysRemaining} days";
-                }
+        if ($isCurrentBirthdayMonth) {
+            $facilityBirthdayQuery->whereDay('date_of_birth', '>=', $today->day);
+        }
 
-                $user->birthday_day = $day;
-                $user->birthday_date = $dob->format('d F');
-                $user->days_remaining = $daysRemaining;
-                $user->status_label = $statusLabel;
+        $upcomingFacilityBirthdays = $facilityBirthdayQuery->get()
+            ->map(function ($user) use ($mapBirthdayStatus) {
+                $meta = $mapBirthdayStatus($user->date_of_birth);
+                $user->birthday_day = $meta['birthday_day'];
+                $user->birthday_date = $meta['birthday_date'];
+                $user->days_remaining = $meta['days_remaining'];
+                $user->status_label = $meta['status_label'];
 
                 return $user;
             })
             ->sortBy(['birthday_day', 'id'])
             ->values();
         $upcomingFacilityBirthdaysCount = $upcomingFacilityBirthdays->count();
-        $currentMonthName = $today->format('F');
+        $currentMonthName = $selectedBirthdayMonthName;
+        $birthdayMonths = collect(range(1, 12))->mapWithKeys(function ($month) use ($today) {
+            return [$month => Carbon::create($today->year, $month, 1)->format('F')];
+        });
 
         return view($modules['folder_path'] . '.dashboard', compact(
             'totalStudents',
@@ -172,7 +185,10 @@ class DashboardController extends Controller
             'upcomingStudentBirthdaysCount',
             'upcomingFacilityBirthdays',
             'upcomingFacilityBirthdaysCount',
-            'currentMonthName'
+            'currentMonthName',
+            'selectedBirthdayMonth',
+            'birthdayMonths',
+            'isCurrentBirthdayMonth'
         ));
     }
 }

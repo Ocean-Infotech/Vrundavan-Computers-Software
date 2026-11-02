@@ -67,14 +67,36 @@
         </div>
     </div>
 
-    <!-- Upcoming Birthdays - Current Month -->
+    <!-- Upcoming Birthdays with Month Filter -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <form method="GET" action="{{ url()->current() }}" class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bx bx-cake me-1 text-primary"></i>
+                    {{ !empty($isCurrentBirthdayMonth) ? 'Upcoming' : '' }} Birthdays
+                    <span class="text-muted fw-normal">({{ $currentMonthName }})</span>
+                </h5>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="birthday_month" class="mb-0 small text-muted">Month</label>
+                    <select name="birthday_month" id="birthday_month" class="form-select form-select-sm" style="min-width: 140px;" onchange="this.form.submit()">
+                        @foreach($birthdayMonths as $monthNumber => $monthLabel)
+                            <option value="{{ $monthNumber }}" {{ (int) $selectedBirthdayMonth === (int) $monthNumber ? 'selected' : '' }}>
+                                {{ $monthLabel }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
                         <i class="bx bx-cake me-2 text-primary fs-4"></i>
-                        Upcoming Student Birthdays ({{ $currentMonthName }})
+                        Student Birthdays ({{ $currentMonthName }})
                     </h5>
                     <span class="badge bg-label-primary">{{ $upcomingStudentBirthdaysCount }}</span>
                 </div>
@@ -85,13 +107,13 @@
                                 <span class="fw-semibold d-block text-truncate">{{ $birthday->display_name }}</span>
                                 <small class="text-muted">{{ $birthday->birthday_date }}</small>
                             </div>
-                            <span class="badge {{ $birthday->days_remaining === 0 ? 'bg-primary' : ($birthday->days_remaining === 1 ? 'bg-warning' : 'bg-label-secondary') }} flex-shrink-0 ms-2">
+                            <span class="badge {{ $birthday->days_remaining === 0 ? 'bg-primary' : ($birthday->days_remaining === 1 ? 'bg-warning' : ($birthday->days_remaining > 1 ? 'bg-label-secondary' : 'bg-label-secondary')) }} flex-shrink-0 ms-2">
                                 {{ $birthday->status_label }}
                             </span>
                         </div>
                     @empty
                         <div class="text-center text-muted py-4 px-3">
-                            No upcoming student birthdays in {{ $currentMonthName }}
+                            No student birthdays in {{ $currentMonthName }}
                         </div>
                     @endforelse
                 </div>
@@ -103,7 +125,7 @@
                 <div class="card-header bg-transparent border-bottom d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0 fw-bold d-flex align-items-center">
                         <i class="bx bx-cake me-2 text-info fs-4"></i>
-                        Upcoming Faculty Birthdays ({{ $currentMonthName }})
+                        Faculty Birthdays ({{ $currentMonthName }})
                     </h5>
                     <span class="badge bg-label-info">{{ $upcomingFacilityBirthdaysCount }}</span>
                 </div>
@@ -120,7 +142,7 @@
                         </div>
                     @empty
                         <div class="text-center text-muted py-4 px-3">
-                            No upcoming faculty birthdays in {{ $currentMonthName }}
+                            No faculty birthdays in {{ $currentMonthName }}
                         </div>
                     @endforelse
                 </div>
