@@ -44,6 +44,7 @@ Route::post("student/logout", [AuthenticationController::class, 'studentLogout']
     ->middleware('auth:student-api');
 Route::post("student/store-device-token", [AuthenticationController::class, 'storeDeviceToken']);
 Route::match(['get', 'post'], 'student/fee-receipt/{id}/download', [ApiStudentController::class, 'download_fee_receipt'])->name('student.fee-receipt.download');
+Route::match(['get', 'post'], 'student/hsc-marksheet/{id}/pdf', [ApiStudentController::class, 'download_hsc_marksheet_pdf'])->name('student.hsc-marksheet.pdf');
 
 
 
@@ -67,6 +68,7 @@ Route::group(['middleware' => ['auth:student-api']], function () {
         Route::post('notifications-mark-read', [ApiStudentController::class, 'notifications_mark_read']);
         Route::match(['get', 'post'], 'faculty-complaint-reports', [ApiStudentController::class, 'faculty_complaint_reports']);
         Route::match(['get', 'post'], 'marksheet-details', [ApiStudentController::class, 'marksheet_details']);
+        Route::match(['get', 'post'], 'hsc-marksheet-list', [ApiStudentController::class, 'hsc_marksheet_list']);
         Route::match(['get', 'post'], 'unread-counts', [ApiStudentController::class, 'unread_counts']);
         Route::match(['get', 'post'], 'assessment-details', [ApiStudentController::class, 'assessment_details']);
         Route::match(['get', 'post'], 'achievement-details', [ApiStudentController::class, 'achievement_details']);

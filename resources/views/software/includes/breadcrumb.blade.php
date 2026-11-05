@@ -15,6 +15,17 @@
 <!-- Basic Breadcrumb -->
 
 <div class="ms-auto">
+    @if (isset($show_generate_rank_btn) && $show_generate_rank_btn)
+        <form method="POST" action="{{ route('hsc-marksheet.generate-ranks') }}" class="d-inline-block me-1"
+            onsubmit="return confirm('Auto generate ranks exam-wise for all HSC marksheets?');">
+            @csrf
+            <button type="submit" class="btn btn-warning waves-effect waves-light btn-sm mt-lg-0">
+                <i class="bx bx-sort-up"></i>
+                <span class="d-none d-lg-inline"> Auto Generate Rank</span>
+            </button>
+        </form>
+    @endif
+
     @if (isset($show_add_btn) && $show_add_btn && isset($route))
         <a class="btn btn-primary waves-effect waves-light text-white btn-sm mt-lg-0"
             href="{{ route($route . '.create') }}">

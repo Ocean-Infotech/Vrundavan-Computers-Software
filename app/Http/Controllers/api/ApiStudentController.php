@@ -8,6 +8,7 @@ use App\Models\Admission;
 use App\Models\Attedance;
 use App\Models\CourceRegistration;
 use App\Models\FeesCollection;
+use App\Models\HscMarksheet;
 use App\Models\Master\MasterCourse;
 use App\Models\Master\MasterHoliday;
 use App\Models\NotificationSetting;
@@ -1203,6 +1204,120 @@ class ApiStudentController extends Controller
             return $this->sendResponse($marksheetDetails, 'Marksheet details fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * HSC marksheet list for logged-in student (with PDF link)
+     *
+     * @authenticated
+     */
+    public function hsc_marksheet_list(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError('Unauthorization.', [], [], 401);
+            }
+
+            $rows = HscMarksheet::query()
+                ->where('student_id', $student->id)
+                ->orderByDesc('id')
+                ->get();
+
+            $data = [];
+            foreach ($rows as $row) {
+                $data[] = [
+                    'id' => $row->id,
+                    'exam_title' => $row->exam_title,
+                    'academic_year' => $row->academic_year,
+                    'standard' => $row->standard,
+                    'roll_number' => $row->roll_number,
+                    'is_absent' => (bool) $row->is_absent,
+                    'total_obtained' => $row->is_absent ? 'AB' : (float) $row->total_obtained,
+                    'total_maximum' => (float) $row->total_maximum,
+                    'percentage' => $row->is_absent ? 'AB' : (float) $row->percentage,
+                    'grade' => $row->grade,
+                    'rank' => $row->rank,
+                    'result' => $row->result,
+                    'pdf_url' => route('student.hsc-marksheet.pdf', ['id' => $row->id]),
+                ];
+            }
+
+            return $this->sendResponse($data, 'HSC marksheet list fetched successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Download / view HSC marksheet PDF
+     * Link for student app: /api/student/hsc-marksheet/{id}/pdf
+     */
+    public function download_hsc_marksheet_pdf($id, Request $request)
+    {
+        try {
+            $marksheet = HscMarksheet::with('admission')->find($id);
+
+            if (!$marksheet) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'HSC marksheet not found.',
+                ], 404);
+            }
+
+            // If student token present, allow only own marksheet
+            $student = Auth::guard('student-api')->user();
+            if ($student && (int) $marksheet->student_id !== (int) $student->id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorization.',
+                ], 401);
+            }
+
+            $studentName = $marksheet->studentName();
+            $subjects = HscMarksheet::subjects();
+            $header_src = $this->getPdfImageSrc('admin/assets/img/marksheet/pvm-marksheet-header.png');
+
+            $html = view('software.module.hsc-marksheet.pdf', compact(
+                'marksheet',
+                'studentName',
+                'subjects',
+                'header_src'
+            ))->render();
+
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'default_font' => 'dejavusans',
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 10,
+                'margin_bottom' => 10,
+                'autoPageBreak' => false,
+            ]);
+
+            $mpdf->SetTitle('HSC Marksheet - #' . $marksheet->id);
+            $mpdf->WriteHTML($html);
+
+            $safeStudentName = strtoupper(preg_replace('/[^A-Za-z0-9]+/', '_', trim($studentName)));
+            $safeStudentName = trim($safeStudentName, '_') ?: 'Student';
+            $fileName = 'HSC_Marksheet_' . $marksheet->id . '_' . $safeStudentName . '.pdf';
+            $pdfContent = $mpdf->Output($fileName, 'S');
+
+            $disposition = ($request->get('action') === 'view' || $request->get('action') === 'stream')
+                ? 'inline'
+                : 'attachment';
+
+            return response($pdfContent, 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', $disposition . '; filename="' . $fileName . '"');
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Could not generate HSC marksheet PDF: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

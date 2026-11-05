@@ -35,6 +35,7 @@ use App\Http\Controllers\admin\FeescollectionpendingController;
 use App\Http\Controllers\admin\IssueCertificateController;
 use App\Http\Controllers\admin\FacultyComplaintReportController;
 use App\Http\Controllers\admin\SupplierController;
+use App\Http\Controllers\admin\HscMarksheetController;
 use App\Http\Controllers\admin\GoogleDriveController;
 use App\Http\Controllers\admin\master\IssuedBookController;
 use App\Http\Controllers\admin\master\MasterClassController;
@@ -357,6 +358,12 @@ Route::delete('faculty-complaint-report/permanent-delete/{id}', [FacultyComplain
 Route::get('supplier/export-excel', [SupplierController::class, 'exportExcel'])->name('supplier.export-excel');
 Route::get('supplier/print', [SupplierController::class, 'printView'])->name('supplier.print');
 Route::resource('supplier', SupplierController::class);
+
+// HSC Marksheet (Other menu - HSC course students)
+Route::post('hsc-marksheet/generate-ranks', [HscMarksheetController::class, 'generateRanks'])->name('hsc-marksheet.generate-ranks');
+Route::get('hsc-marksheet/export-excel', [HscMarksheetController::class, 'exportExcel'])->name('hsc-marksheet.export-excel');
+Route::get('hsc-marksheet/print', [HscMarksheetController::class, 'printView'])->name('hsc-marksheet.print');
+Route::resource('hsc-marksheet', HscMarksheetController::class);
 
 // Fee History
 Route::resource('fee-history', FeeHistoryController::class)

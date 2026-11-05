@@ -102,6 +102,12 @@ class PermissionTableSeeder extends Seeder
             'Other-list-selection' => [
                 'other-list-selection-list',
             ],
+            'HSC Marksheet' => [
+                'hsc-marksheet-list',
+                'hsc-marksheet-create',
+                'hsc-marksheet-edit',
+                'hsc-marksheet-delete',
+            ],
             'test' => [
                 'test-list',
                 'test-create',
