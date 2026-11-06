@@ -47,30 +47,49 @@ class HscMarksheetController extends Controller
     private function calcResult(array $marksMap, bool $isAbsent = false): array
     {
         $subjects = HscMarksheet::subjects();
-        $obtained = 0;
-        $maximum = 0;
+        $obtained = 0.0;
+        $maximum = 0.0;
         $pass = true;
-        $hasAb = false;
+        $applicable = 0;
+        $absentCount = 0;
 
         foreach ($subjects as $subject) {
             $max = (float) $subject['max'];
-            $raw = $marksMap[$subject['key']] ?? 0;
-            $isAb = strtoupper(trim((string) $raw)) === 'AB';
-            if ($isAb) {
-                $hasAb = true;
-                $val = 0.0;
-                $pass = false;
-            } else {
-                $val = (float) $raw;
-                if ($val < ($max * 0.33)) {
-                    $pass = false;
-                }
+            $raw = strtoupper(trim((string) ($marksMap[$subject['key']] ?? '')));
+
+            // N/A subject: not counted in total / percentage
+            if ($raw === 'NA') {
+                continue;
             }
-            $obtained += $val;
+
+            $applicable++;
             $maximum += $max;
+
+            if ($raw === 'AB' || $isAbsent) {
+                $absentCount++;
+                $pass = false;
+                continue;
+            }
+
+            $val = is_numeric($raw) ? (float) $raw : 0.0;
+            $obtained += $val;
+            if ($val < ($max * 0.33)) {
+                $pass = false;
+            }
         }
 
-        if ($isAbsent || ($hasAb && collect($marksMap)->filter(fn ($v) => strtoupper(trim((string) $v)) === 'AB')->count() === count($subjects))) {
+        if ($applicable === 0) {
+            return [
+                'total_obtained' => 0,
+                'total_maximum' => 0,
+                'percentage' => 0,
+                'grade' => 'F',
+                'result' => 'FAIL',
+            ];
+        }
+
+        // Full absent (all applicable subjects AB) or whole-student absent
+        if ($isAbsent || $absentCount === $applicable) {
             return [
                 'total_obtained' => 0,
                 'total_maximum' => $maximum,
@@ -450,7 +469,6 @@ class HscMarksheetController extends Controller
     private function validateMarksheet(Request $request, ?int $ignoreId = null): array
     {
         $subjectKeys = collect(HscMarksheet::subjects())->pluck('key')->all();
-        $isAbsent = $request->boolean('is_absent');
         $request->merge([
             'roll_number' => filled($request->input('roll_number'))
                 ? trim((string) $request->input('roll_number'))
@@ -474,35 +492,66 @@ class HscMarksheetController extends Controller
             'academic_year' => ['required', 'string', 'max:50'],
             'standard' => ['required', 'string', 'max:100'],
             'roll_number' => ['nullable', 'string', 'max:50', $rollUnique],
-            'is_absent' => ['nullable', 'boolean'],
             'marks' => ['required', 'array'],
         ];
         foreach ($subjectKeys as $key) {
             $rules['marks.' . $key] = ['nullable'];
+            $rules['subject_absent.' . $key] = ['nullable'];
+            $rules['subject_na.' . $key] = ['nullable'];
         }
 
         $validated = $request->validate($rules, [
             'roll_number.unique' => 'This Roll Number already exists for this exam / year / standard.',
         ]);
-        $validated['is_absent'] = $isAbsent;
+
+        $subjectAbsent = $request->input('subject_absent', []);
+        $subjectNa = $request->input('subject_na', []);
+        $applicableCount = 0;
+        $absentCount = 0;
 
         foreach ($subjectKeys as $key) {
-            $raw = trim((string) ($validated['marks'][$key] ?? ''));
-            if ($isAbsent || strtoupper($raw) === 'AB') {
+            $raw = strtoupper(trim((string) ($validated['marks'][$key] ?? '')));
+            // Blank / "-" / NA => subject not applicable (auto N/A for 7-subject entry)
+            $isNa = !empty($subjectNa[$key]) || $raw === 'NA' || $raw === '-' || $raw === '';
+            $isSubAbsent = !empty($subjectAbsent[$key]) || $raw === 'AB';
+
+            if ($isSubAbsent && empty($subjectNa[$key])) {
                 $validated['marks'][$key] = 'AB';
+                $applicableCount++;
+                $absentCount++;
                 continue;
             }
-            if ($raw === '') {
-                $validated['marks'][$key] = 0;
+
+            if ($isNa) {
+                $validated['marks'][$key] = 'NA';
                 continue;
             }
+
             if (!is_numeric($raw) || (float) $raw < 0 || (float) $raw > 50) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
-                    'marks.' . $key => 'Marks must be 0-50 or AB.',
+                    'marks.' . $key => 'Marks must be 0-50, AB or leave blank/N/A.',
                 ]);
             }
+
             $validated['marks'][$key] = (float) $raw;
+            $applicableCount++;
         }
+
+        if ($applicableCount === 0) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'marks' => 'At least one subject must have marks. All subjects cannot be N/A.',
+            ]);
+        }
+
+        // Max 7 subjects; remaining blank subjects already saved as NA => total 350
+        if ($applicableCount > 7) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'marks' => 'Only 7 subjects allowed (Total 350). Leave 1 subject blank — it will auto count as N/A.',
+            ]);
+        }
+
+        // All applicable subjects absent => full student absent
+        $validated['is_absent'] = $applicableCount > 0 && $absentCount === $applicableCount;
 
         return $validated;
     }

@@ -152,15 +152,21 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($subjects as $i => $subject)
+                @php $sr = 0; @endphp
+                @foreach ($subjects as $subject)
                     @php
                         $obt = $marks[$subject['key']] ?? '';
-                        if ($marksheet->is_absent || strtoupper(trim((string) $obt)) === 'AB') {
+                        $obtUpper = strtoupper(trim((string) $obt));
+                        if ($obtUpper === 'NA') {
+                            continue;
+                        }
+                        if ($marksheet->is_absent || $obtUpper === 'AB') {
                             $obt = 'AB';
                         }
+                        $sr++;
                     @endphp
                     <tr>
-                        <td class="sr">{{ $i + 1 }}</td>
+                        <td class="sr">{{ $sr }}</td>
                         <td>{{ $subject['name'] }}</td>
                         <td class="max">{{ $subject['max'] }}</td>
                         <td class="obt">{{ $obt !== '' ? $obt : '' }}</td>
@@ -169,7 +175,7 @@
                 <tr class="total">
                     <td colspan="2">TOTAL</td>
                     <td>{{ number_format((float) $marksheet->total_maximum, 0) }}</td>
-                    <td>{{ $marksheet->is_absent ? 'AB' : number_format((float) $marksheet->total_obtained, 0) }}</td>
+                    <td>{{ $marksheet->is_absent || strtoupper((string) $marksheet->result) === 'ABSENT' ? 'AB' : number_format((float) $marksheet->total_obtained, 0) }}</td>
                 </tr>
             </tbody>
         </table>
