@@ -17,12 +17,20 @@
         }
         .inner {
             border: 1.2px solid #111;
-            padding: 8px 12px 14px;
+            padding: 14px 16px 18px;
+        }
+        .header-wrap {
+            width: 100%;
+            text-align: center;
+            margin: 0 0 12px 0;
+            padding: 6px 4px 4px;
         }
         .header-img {
             width: 100%;
-            max-height: 120px;
-            margin-bottom: 8px;
+            height: auto;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
         }
         .info-box {
             border: 1.2px solid #111;
@@ -113,7 +121,9 @@
 <div class="sheet">
     <div class="inner">
         @if (!empty($header_src))
-            <img src="{{ $header_src }}" class="header-img" alt="Header">
+            <div class="header-wrap">
+                <img src="{{ $header_src }}" class="header-img" alt="Header" width="100%">
+            </div>
         @endif
 
         <div class="info-box">

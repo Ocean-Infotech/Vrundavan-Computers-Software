@@ -1278,7 +1278,7 @@ class ApiStudentController extends Controller
 
             $studentName = $marksheet->studentName();
             $subjects = HscMarksheet::subjects();
-            $header_src = $this->getPdfImageSrc('admin/assets/img/marksheet/pvm-marksheet-header.png');
+            $header_src = $this->getPdfImageDataUri('admin/assets/img/marksheet/pvm-marksheet-header.png');
 
             $html = view('software.module.hsc-marksheet.pdf', compact(
                 'marksheet',
@@ -1291,13 +1291,15 @@ class ApiStudentController extends Controller
                 'mode' => 'utf-8',
                 'format' => 'A4',
                 'default_font' => 'dejavusans',
-                'margin_left' => 10,
-                'margin_right' => 10,
-                'margin_top' => 10,
-                'margin_bottom' => 10,
+                'margin_left' => 12,
+                'margin_right' => 12,
+                'margin_top' => 12,
+                'margin_bottom' => 12,
                 'autoPageBreak' => false,
             ]);
 
+            // Keep header logo aspect ratio sharp in PDF
+            $mpdf->img_dpi = 96;
             $mpdf->SetTitle('HSC Marksheet - #' . $marksheet->id);
             $mpdf->WriteHTML($html);
 
@@ -1649,6 +1651,30 @@ class ApiStudentController extends Controller
         }
 
         return '';
+    }
+
+    /**
+     * Base64 data-URI for mPDF (keeps logo sharp / full, no path issues).
+     */
+    private function getPdfImageDataUri(string $imagePath): string
+    {
+        $cleanPath = ltrim($imagePath, '/\\');
+        if (str_starts_with($cleanPath, 'public/')) {
+            $cleanPath = substr($cleanPath, 7);
+        }
+
+        $fullLocalPath = public_path($cleanPath);
+        if (!file_exists($fullLocalPath) || !is_file($fullLocalPath)) {
+            return $this->getPdfImageSrc($imagePath);
+        }
+
+        $mime = mime_content_type($fullLocalPath) ?: 'image/png';
+        $data = file_get_contents($fullLocalPath);
+        if ($data === false || $data === '') {
+            return '';
+        }
+
+        return 'data:' . $mime . ';base64,' . base64_encode($data);
     }
 }
 
