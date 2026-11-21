@@ -7,6 +7,8 @@ use Illuminate\Support\Collection;
 
 class Attedance extends Model
 {
+    protected $connection = 'attendance';
+
     public $table = 'attedance';
 
     public $timestamps = false;
