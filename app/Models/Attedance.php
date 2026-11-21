@@ -25,7 +25,11 @@ class Attedance extends Model
 
     public function admission()
     {
-        return $this->belongsTo(Admission::class, 'admission_id', 'id');
+        // Admission stays on default (local) DB; Attedance may use remote connection
+        $relation = $this->belongsTo(Admission::class, 'admission_id', 'id');
+        $relation->getRelated()->setConnection(config('database.default', 'mysql'));
+
+        return $relation;
     }
 
     public static function sortedPunchesForDate($admissionId, string $date, ?string $biometricId = null): Collection

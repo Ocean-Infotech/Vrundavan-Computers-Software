@@ -106,13 +106,51 @@ class AttedanceController extends Controller
             $data = [];
 
             if ($request->ajax()) {
-                // dd($request->all());
-                $latestRegIds = DB::table('cource_registration')
+                // Local DB: active students (admission / registration stay on main connection)
+                $latestRegIds = DB::connection('mysql')->table('cource_registration')
                     ->select('register_id', DB::raw('MAX(id) as max_id'))
                     ->whereNull('deleted_at')
                     ->groupBy('register_id');
 
-                $data = Attedance::select([
+                $allowedAdmissionIds = DB::connection('mysql')->table('cource_registration')
+                    ->joinSub($latestRegIds, 'latest_reg', function ($join) {
+                        $join->on('cource_registration.id', '=', 'latest_reg.max_id');
+                    })
+                    ->join('admission', 'admission.id', '=', 'cource_registration.register_id')
+                    ->whereIn('cource_registration.status', ['active', 'Running'])
+                    ->whereNull('admission.deleted_at')
+                    ->whereNull('cource_registration.deleted_at')
+                    ->pluck('cource_registration.register_id')
+                    ->unique()
+                    ->values();
+
+                if ($request->filled('filter_course') || $request->filled('filter_batch') || $request->filled('filter_class')) {
+                    $registrationQuery = CourceRegistration::query();
+
+                    if ($request->filled('filter_course')) {
+                        $registrationQuery->where('course_id', $request->filter_course);
+                    }
+                    if ($request->filled('filter_batch')) {
+                        $registrationQuery->where('batch_id', $request->filter_batch);
+                    }
+                    if ($request->filled('filter_class')) {
+                        $registrationQuery->where('class_id', $request->filter_class);
+                    }
+
+                    $allowedAdmissionIds = $allowedAdmissionIds
+                        ->intersect($registrationQuery->pluck('register_id'))
+                        ->values();
+                }
+
+                $allowedBiometricIds = Admission::query()
+                    ->whereIn('id', $allowedAdmissionIds)
+                    ->whereNotNull('biometric_id')
+                    ->where('biometric_id', '!=', '')
+                    ->pluck('biometric_id');
+
+                // Remote DB: only attedance table (no join to local tables)
+                $data = Attedance::query()
+                    ->select([
                         'attedance.admission_id',
                         'attedance.biometric_id',
                         'attedance.date',
@@ -121,20 +159,17 @@ class AttedanceController extends Controller
                         DB::raw('MIN(attedance.DeviceKey) as DeviceKey'),
                         DB::raw('MIN(attedance.DeviceName) as DeviceName'),
                     ])
-                    ->join('admission', function ($join) {
-                        $join->on('attedance.admission_id', '=', 'admission.id')
-                             ->orOn('attedance.biometric_id', '=', 'admission.biometric_id');
+                    ->where(function ($q) use ($allowedAdmissionIds, $allowedBiometricIds) {
+                        if ($allowedAdmissionIds->isNotEmpty()) {
+                            $q->whereIn('attedance.admission_id', $allowedAdmissionIds);
+                        }
+                        if ($allowedBiometricIds->isNotEmpty()) {
+                            $q->orWhereIn('attedance.biometric_id', $allowedBiometricIds);
+                        }
+                        if ($allowedAdmissionIds->isEmpty() && $allowedBiometricIds->isEmpty()) {
+                            $q->whereRaw('1 = 0');
+                        }
                     })
-                    ->join('cource_registration', function ($join) {
-                        $join->on('admission.id', '=', 'cource_registration.register_id')
-                             ->whereRaw('attedance.date >= cource_registration.date');
-                    })
-                    ->joinSub($latestRegIds, 'latest_reg', function ($join) {
-                        $join->on('cource_registration.id', '=', 'latest_reg.max_id');
-                    })
-                    ->whereIn('cource_registration.status', ['active', 'Running'])
-                    ->whereNull('admission.deleted_at')
-                    ->whereNull('cource_registration.deleted_at')
                     ->with(['admission'])
                     ->groupBy('attedance.admission_id', 'attedance.biometric_id', 'attedance.date')
                     ->orderByDesc('attedance.date');
@@ -153,28 +188,6 @@ class AttedanceController extends Controller
                     }
                 }
 
-                if ($request->filled('filter_course') || $request->filled('filter_batch') || $request->filled('filter_class')) {
-                    $registrationQuery = CourceRegistration::query();
-
-                    if ($request->filled('filter_course')) {
-                        $registrationQuery->where('course_id', $request->filter_course);
-                    }
-
-                    if ($request->filled('filter_batch')) {
-                        $registrationQuery->where('batch_id', $request->filter_batch);
-                    }
-
-                    if ($request->filled('filter_class')) {
-                        $registrationQuery->where('class_id', $request->filter_class);
-                    }
-
-                    $admissionIds = $registrationQuery->pluck('register_id');
-                    $data->whereIn('attedance.admission_id', $admissionIds);
-                }
-
-                $editPermission = true;
-                $deletePermission = true;
-
                 $returnData = Datatables::of($data)
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
@@ -183,23 +196,30 @@ class AttedanceController extends Controller
                             return;
                         }
 
-                        $query->where(function ($q) use ($search) {
+                        $matchedAdmissions = Admission::query()
+                            ->where(function ($q) use ($search) {
+                                $q->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%")
+                                    ->orWhere('father_name', 'like', "%{$search}%")
+                                    ->orWhere('biometric_id', 'like', "%{$search}%");
+                            })
+                            ->get(['id', 'biometric_id']);
+
+                        $matchedAdmissionIds = $matchedAdmissions->pluck('id')->filter()->values();
+                        $matchedBiometricIds = $matchedAdmissions->pluck('biometric_id')->filter()->values();
+
+                        $query->where(function ($q) use ($search, $matchedAdmissionIds, $matchedBiometricIds) {
                             $q->where('attedance.biometric_id', 'like', "%{$search}%")
                                 ->orWhere('attedance.date', 'like', "%{$search}%")
                                 ->orWhere('attedance.DeviceKey', 'like', "%{$search}%")
-                                ->orWhere('attedance.DeviceName', 'like', "%{$search}%")
-                                ->orWhereHas('admission', function ($admissionQuery) use ($search) {
-                                    $admissionQuery->where('first_name', 'like', "%{$search}%")
-                                        ->orWhere('last_name', 'like', "%{$search}%")
-                                        ->orWhere('father_name', 'like', "%{$search}%");
-                                })
-                                ->orWhereIn('attedance.biometric_id', function ($subQuery) use ($search) {
-                                    $subQuery->select('biometric_id')
-                                        ->from('admission')
-                                        ->where('first_name', 'like', "%{$search}%")
-                                        ->orWhere('last_name', 'like', "%{$search}%")
-                                        ->orWhere('father_name', 'like', "%{$search}%");
-                                });
+                                ->orWhere('attedance.DeviceName', 'like', "%{$search}%");
+
+                            if ($matchedAdmissionIds->isNotEmpty()) {
+                                $q->orWhereIn('attedance.admission_id', $matchedAdmissionIds);
+                            }
+                            if ($matchedBiometricIds->isNotEmpty()) {
+                                $q->orWhereIn('attedance.biometric_id', $matchedBiometricIds);
+                            }
                         });
                     })
                     ->editColumn('biometric_id', function ($row) {
@@ -919,12 +939,31 @@ class AttedanceController extends Controller
 
     protected function buildAttendanceExportQuery(Request $request, string $scope): Builder
     {
-        $latestRegIds = DB::table('cource_registration')
+        $latestRegIds = DB::connection('mysql')->table('cource_registration')
             ->select('register_id', DB::raw('MAX(id) as max_id'))
             ->whereNull('deleted_at')
             ->groupBy('register_id');
 
-        $query = Attedance::select([
+        $allowedAdmissionIds = DB::connection('mysql')->table('cource_registration')
+            ->joinSub($latestRegIds, 'latest_reg', function ($join) {
+                $join->on('cource_registration.id', '=', 'latest_reg.max_id');
+            })
+            ->join('admission', 'admission.id', '=', 'cource_registration.register_id')
+            ->whereIn('cource_registration.status', ['active', 'Running'])
+            ->whereNull('admission.deleted_at')
+            ->whereNull('cource_registration.deleted_at')
+            ->pluck('cource_registration.register_id')
+            ->unique()
+            ->values();
+
+        $allowedBiometricIds = Admission::query()
+            ->whereIn('id', $allowedAdmissionIds)
+            ->whereNotNull('biometric_id')
+            ->where('biometric_id', '!=', '')
+            ->pluck('biometric_id');
+
+        $query = Attedance::query()
+            ->select([
                 'attedance.admission_id',
                 'attedance.biometric_id',
                 'attedance.date',
@@ -933,20 +972,17 @@ class AttedanceController extends Controller
                 DB::raw('MIN(attedance.DeviceKey) as DeviceKey'),
                 DB::raw('MIN(attedance.DeviceName) as DeviceName'),
             ])
-            ->join('admission', function ($join) {
-                $join->on('attedance.admission_id', '=', 'admission.id')
-                     ->orOn('attedance.biometric_id', '=', 'admission.biometric_id');
+            ->where(function ($q) use ($allowedAdmissionIds, $allowedBiometricIds) {
+                if ($allowedAdmissionIds->isNotEmpty()) {
+                    $q->whereIn('attedance.admission_id', $allowedAdmissionIds);
+                }
+                if ($allowedBiometricIds->isNotEmpty()) {
+                    $q->orWhereIn('attedance.biometric_id', $allowedBiometricIds);
+                }
+                if ($allowedAdmissionIds->isEmpty() && $allowedBiometricIds->isEmpty()) {
+                    $q->whereRaw('1 = 0');
+                }
             })
-            ->join('cource_registration', function ($join) {
-                $join->on('admission.id', '=', 'cource_registration.register_id')
-                     ->whereRaw('attedance.date >= cource_registration.date');
-            })
-            ->joinSub($latestRegIds, 'latest_reg', function ($join) {
-                $join->on('cource_registration.id', '=', 'latest_reg.max_id');
-            })
-            ->whereIn('cource_registration.status', ['active', 'Running'])
-            ->whereNull('admission.deleted_at')
-            ->whereNull('cource_registration.deleted_at')
             ->with(['admission'])
             ->groupBy('attedance.admission_id', 'attedance.biometric_id', 'attedance.date')
             ->orderByDesc('attedance.date');
@@ -962,23 +998,30 @@ class AttedanceController extends Controller
 
         $search = trim((string) $request->get('search', ''));
         if ($search !== '') {
-            $query->where(function ($q) use ($search) {
+            $matchedAdmissions = Admission::query()
+                ->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('father_name', 'like', "%{$search}%")
+                        ->orWhere('biometric_id', 'like', "%{$search}%");
+                })
+                ->get(['id', 'biometric_id']);
+
+            $matchedAdmissionIds = $matchedAdmissions->pluck('id')->filter()->values();
+            $matchedBiometricIds = $matchedAdmissions->pluck('biometric_id')->filter()->values();
+
+            $query->where(function ($q) use ($search, $matchedAdmissionIds, $matchedBiometricIds) {
                 $q->where('attedance.biometric_id', 'like', "%{$search}%")
                     ->orWhere('attedance.date', 'like', "%{$search}%")
                     ->orWhere('attedance.DeviceKey', 'like', "%{$search}%")
-                    ->orWhere('attedance.DeviceName', 'like', "%{$search}%")
-                    ->orWhereHas('admission', function ($admissionQuery) use ($search) {
-                        $admissionQuery->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('father_name', 'like', "%{$search}%");
-                    })
-                    ->orWhereIn('biometric_id', function ($subQuery) use ($search) {
-                        $subQuery->select('biometric_id')
-                            ->from('admission')
-                            ->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('father_name', 'like', "%{$search}%");
-                    });
+                    ->orWhere('attedance.DeviceName', 'like', "%{$search}%");
+
+                if ($matchedAdmissionIds->isNotEmpty()) {
+                    $q->orWhereIn('attedance.admission_id', $matchedAdmissionIds);
+                }
+                if ($matchedBiometricIds->isNotEmpty()) {
+                    $q->orWhereIn('attedance.biometric_id', $matchedBiometricIds);
+                }
             });
         }
 
