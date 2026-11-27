@@ -197,11 +197,11 @@ class CombinedReportController extends Controller
         $courseName = \App\Models\Master\MasterCourse::where('id', $courseId)->value('course_name') ?? 'N/A';
         $batchName = \App\Models\Master\MasterBatch::where('id', $batchId)->value('batch_name') ?? 'N/A';
 
-        // 2. Get students, tests, assignments
+        // Same as screen: active + Running students
         $students = CourceRegistration::with(['admission'])
             ->where('course_id', $courseId)
             ->where('batch_id', $batchId)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'Running'])
             ->get();
 
         $allTestsQuery = \App\Models\Test::where('course_id', $courseId)
