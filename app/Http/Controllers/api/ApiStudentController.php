@@ -288,42 +288,124 @@ class ApiStudentController extends Controller
     public function contact_details(Request $request)
     {
         try {
-            // dd('hello');
             $student = Auth::guard('student-api')->user();
 
             if (!$student) {
                 return $this->sendError("Unauthorization.", [], [], 401);
             }
+
+            // Old static response (v1) — keep for existing Android app
             $data = [
                 'branches' => [
                     [
-                        'name'    => 'Keshod Branch',
+                        'name' => 'Keshod Branch',
                         'address' => 'Amrut nagar road, Keshod',
-                        'email'   => 'vrundavancomputerskeshod@gmail.com',
+                        'email' => 'vrundavancomputerskeshod@gmail.com',
                     ],
                     [
-                        'name'    => 'BCA College',
+                        'name' => 'BCA College',
                         'address' => 'PVM Campus, Veraval Road, Keshod',
-                        'email'   => 'pvmsciencecollagekeshod@gmail.com',
-                    ]
+                        'email' => 'pvmsciencecollagekeshod@gmail.com',
+                    ],
                 ],
                 'contacts' => [
-
                     'Vrundavan Computer' => [
                         'College mobile' => '96874 51774',
-                        'School Number'  => '96246 51774',
-                        'Phone'          => '02871-231059',
-                        'Distance'       => '',
-                        'Principal'      => 'Dr. Hitesh Vadalia - 942774119',
+                        'School Number' => '96246 51774',
+                        'Phone' => '02871-231059',
+                        'Distance' => '',
+                        'Principal' => 'Dr. Hitesh Vadalia - 942774119',
                     ],
-
-                ]
+                ],
             ];
 
             return $this->sendResponse($data, 'Contact Us Information fetched successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
         }
+    }
+
+    /**
+     * Get institute contact details (v2)
+     *
+     * Returns active branches and contacts as key/value list.
+     *
+     * @authenticated
+     *
+     * @response 200 {
+     *   "status": "true",
+     *   "message": "Contact Us Information fetched successfully.",
+     *   "data": {
+     *     "branches": [
+     *       {
+     *         "name": "Keshod Branch",
+     *         "address": "Amrut nagar road, Keshod",
+     *         "email": "vrundavancomputerskeshod@gmail.com"
+     *       }
+     *     ],
+     *     "contacts": [
+     *       { "key": "College Mobile", "value": "96874 51774" }
+     *     ]
+     *   }
+     * }
+     */
+    public function contact_details_v2(Request $request)
+    {
+        try {
+            $student = Auth::guard('student-api')->user();
+
+            if (!$student) {
+                return $this->sendError("Unauthorization.", [], [], 401);
+            }
+
+            return $this->sendResponse(
+                $this->buildContactUsPayload(),
+                'Contact Us Information fetched successfully.'
+            );
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', $e->getMessage(), [], 500);
+        }
+    }
+
+    private function buildContactUsPayload(): array
+    {
+        $branches = \App\Models\ContactUsBranch::query()
+            ->where('status', 'active')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['name', 'address', 'email'])
+            ->map(function ($branch) {
+                return [
+                    'name' => $branch->name,
+                    'address' => $branch->address ?? '',
+                    'email' => $branch->email ?? '',
+                ];
+            })
+            ->values()
+            ->all();
+
+        $contacts = [];
+        $numbers = \App\Models\ContactUsNumber::query()
+            ->where('status', 'active')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['label', 'mobile']);
+
+        foreach ($numbers as $number) {
+            $label = trim((string) ($number->label ?? ''));
+            if ($label === '') {
+                continue;
+            }
+            $contacts[] = [
+                'key' => $label,
+                'value' => (string) ($number->mobile ?? ''),
+            ];
+        }
+
+        return [
+            'branches' => $branches,
+            'contacts' => $contacts,
+        ];
     }
     /**
      * Get attendance details

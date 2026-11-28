@@ -688,8 +688,8 @@
         </li>
         @enddirectCanAny
 
-        @directCanAny(['other-list-selection-list', 'supplier-list', 'hsc-marksheet-list'])
-        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection', 'supplier', 'combined-report', 'hsc-marksheet']) ? 'active open' : '' }}">
+        @directCanAny(['other-list-selection-list', 'supplier-list', 'hsc-marksheet-list', 'contact-us-list'])
+        <li class="menu-item {{ in_array($sidebar_active, ['other-list', 'other-list-selection', 'supplier', 'combined-report', 'hsc-marksheet', 'contact-us']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-list-ul me-2"></i>
                 <div data-i18n="Other">Other</div>
@@ -733,6 +733,14 @@
                         <div data-i18n="Combined Report">Combined Report</div>
                     </a>
                 </li>
+
+                @directCan('contact-us-list')
+                <li class="menu-item {{ $sidebar_active == 'contact-us' ? 'active' : '' }}">
+                    <a href="{{ route('contact-us.index') }}" class="menu-link">
+                        <div data-i18n="Contact Us">Contact Us</div>
+                    </a>
+                </li>
+                @enddirectCan
             </ul>
         </li>
         @enddirectCanAny

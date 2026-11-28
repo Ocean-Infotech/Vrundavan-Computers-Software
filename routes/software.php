@@ -57,6 +57,7 @@ use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\admin\AssignmentController;
 use App\Http\Controllers\admin\TaskController;
 use App\Http\Controllers\admin\CombinedReportController;
+use App\Http\Controllers\admin\ContactUsController;
 use App\Http\Controllers\PushController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\StudentRequestController;
@@ -510,6 +511,14 @@ Route::post('task/save-reply', [TaskController::class, 'saveReply'])->name('task
 Route::get('combined-report/export-excel', [CombinedReportController::class, 'exportExcel'])->name('combined-report.export-excel');
 Route::post('combined-report/get-data', [CombinedReportController::class, 'getDataAjax'])->name('combined-report.get-data');
 Route::resource('combined-report', CombinedReportController::class);
+
+Route::post('contact-us/update-info', [ContactUsController::class, 'updateInfo'])->name('contact-us.update-info');
+Route::get('contact-us/numbers/create', [ContactUsController::class, 'createNumber'])->name('contact-us.numbers.create');
+Route::post('contact-us/numbers', [ContactUsController::class, 'storeNumber'])->name('contact-us.numbers.store');
+Route::get('contact-us/numbers/{id}/edit', [ContactUsController::class, 'editNumber'])->name('contact-us.numbers.edit');
+Route::put('contact-us/numbers/{id}', [ContactUsController::class, 'updateNumber'])->name('contact-us.numbers.update');
+Route::delete('contact-us/numbers/{id}', [ContactUsController::class, 'destroyNumber'])->name('contact-us.numbers.destroy');
+Route::resource('contact-us', ContactUsController::class)->except(['show']);
 
 
 

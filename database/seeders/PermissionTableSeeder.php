@@ -225,7 +225,13 @@ class PermissionTableSeeder extends Seeder
                 'marksheet-issue-create',
                 'marksheet-issue-edit',
                 'marksheet-issue-delete',
-            ]
+            ],
+            'Contact Us' => [
+                'contact-us-list',
+                'contact-us-create',
+                'contact-us-edit',
+                'contact-us-delete',
+            ],
         ];
 
         // Permission::truncate();
