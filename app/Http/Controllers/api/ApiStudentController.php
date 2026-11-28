@@ -310,16 +310,11 @@ class ApiStudentController extends Controller
                 'contacts' => [
 
                     'Vrundavan Computer' => [
-                        'College mobile'        => '96874 51774',
-                        'School Number'         => '96246 51774',
-                        'Phone'         => '02871-231059',
-                        'Distance' => '',
-                    ],
-                    'Principal' => [
-                        [
-                            'name'   => 'Dr. Hitesh Vadalia',
-                            'Mobile' => '942774119',
-                        ],
+                        'College mobile' => '96874 51774',
+                        'School Number'  => '96246 51774',
+                        'Phone'          => '02871-231059',
+                        'Distance'       => '',
+                        'Principal'      => 'Dr. Hitesh Vadalia - 942774119',
                     ],
 
                 ]
