@@ -302,11 +302,6 @@ class ApiStudentController extends Controller
                         'email'   => 'vrundavancomputerskeshod@gmail.com',
                     ],
                     [
-                        'name'    => 'Vapi Branch',
-                        'address' => '134, Tirupati Plaza, Daman Rd, Chala, Vapi, Gujarat - 396191',
-                        'email'   => 'vrundavancomputersvapi@gmail.com',
-                    ],
-                    [
                         'name'    => 'BCA College',
                         'address' => 'PVM Campus, Veraval Road, Keshod',
                         'email'   => 'pvmsciencecollagekeshod@gmail.com',
@@ -318,8 +313,14 @@ class ApiStudentController extends Controller
                         'College mobile'        => '96874 51774',
                         'School Number'         => '96246 51774',
                         'Phone'         => '02871-231059',
-                        'Distance' => '93752 21111',
-                    ]
+                        'Distance' => '',
+                    ],
+                    'Principal' => [
+                        [
+                            'name'   => 'Dr. Hitesh Vadalia',
+                            'Mobile' => '942774119',
+                        ],
+                    ],
 
                 ]
             ];
